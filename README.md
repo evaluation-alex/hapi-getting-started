@@ -2,6 +2,8 @@
 
 A user system API for Node.js. Bring your own front-end.
 
+Inspired by [frame](https://github.com/jedireza/frame)
+
 [![Build Status](https://travis-ci.org/k-sheth/hapi-getting-started.svg?branch=master)](https://travis-ci.org/k-sheth/hapi-getting-started)
 [![Dependency Status](https://david-dm.org/k-sheth/hapi-getting-started.svg?style=flat)](https://david-dm.org/k-sheth/hapi-getting-started)
 [![devDependency Status](https://david-dm.org/k-sheth/hapi-getting-started/dev-status.svg?style=flat)](https://david-dm.org/k-sheth/hapi-getting-started#info=devDependencies)

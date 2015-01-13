@@ -1,0 +1,95 @@
+'use strict';
+var Bossy = require('Bossy');
+var miscutils = require('./miscutils');
+
+exports.config = function (argv) {
+    var opts = {
+        env: {
+            alias: 'environment',
+            description: 'dev/test/prod',
+            default: 'dev'
+        },
+        p: {
+            alias: 'port',
+            description: 'port on which to launch the service',
+            default: 3000
+        },
+        db: {
+            alias: 'mongodburl',
+            description: 'mongodb uri to be used as connection string. should be in the form mongodb://user:password@host:port/db',
+            default: {{mongodbUrl}}
+        },
+        mu: {
+            alias: 'mailuser',
+            description: 'the user with which to login for use by nodemailer',
+            default: {{smtpUsername}}
+        },
+        mp: {
+            alias: 'mailpassword',
+            description: 'password for mailuser',
+            default: '{{smtpPassword}}'
+        },
+        mh: {
+            alias: 'mailhost',
+            description: 'email provider host',
+            default: '{{smtpHost}}'
+        },
+        mr: {
+            alias: 'mailport',
+            description: 'email provider port',
+            default: '{{smtpPort}}'
+        },
+        ld: {
+            alias: 'logdir',
+            description: 'directory for keeping log files',
+            default: '{{logdir}}'
+        },
+        lc: {
+            alias: 'logconfig',
+            description: 'config args to pass to logging plugins',
+            default: '{"log": "*", "response": "*", "request": "*", "error": "*", "ops": "*"}'
+        }
+    };
+
+    var args = Bossy.parse(opts, argv);
+
+    var config = {
+        projectName: '{{projectName}}',
+        port: args.p,
+        authAttempts: {
+            forIp: 50,
+            forIpAndUser: 7
+        },
+        hapiMongoModels: {
+            mongodb: {
+                url: args.db
+            },
+            autoIndex: false
+        },
+        nodemailer: {
+            host: args.mh,
+            port: args.mr,
+            secure: true,
+            auth: {
+                user: args.mu,
+                pass: args.mp
+            }
+        },
+        logs: {
+            logDir: args.ld,
+            logConfig: JSON.parse(args.lc)
+        },
+        system: {
+            fromAddress: {
+                name: '{{projectName}}',
+                address: args.mu
+            },
+            toAddress: {
+                name: '{{projectName}}',
+                address: args.mu
+            }
+        }
+    };
+    return miscutils.deepFreeze(config);
+};
+

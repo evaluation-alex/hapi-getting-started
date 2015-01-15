@@ -23,22 +23,24 @@ var Permissions = BaseModel.extend({
 
         return ret;
     },
-    addUser: function (toAdd, userType, by) {
+    addUsers: function (toAdd, userType, by) {
         var self = this;
         var promise = new Promise(function (resolve, reject) {
-            var found = _.findWhere(self.users, {user: toAdd});
             var modified = false;
-            if (found) {
-                if (!found.isActive) {
+            toAdd.forEach(function (userToAdd) {
+                var found = _.findWhere(self.users, {user: userToAdd});
+                if (found) {
+                    if (!found.isActive) {
+                        modified = true;
+                        found.isActive = true;
+                        self._audit('reactivate users.' + userToAdd + 'isActive', false, true, by);
+                    }
+                } else {
                     modified = true;
-                    found.isActive = true;
-                    self._audit('reactivate users.' + toAdd + 'isActive', false, true, by);
+                    self.users.push({user: userToAdd, type: userType, isActive: true});
+                    self._audit('add user', '', userToAdd, by);
                 }
-            } else {
-                modified = true;
-                self.members.push({user: toAdd, type: userType, isActive: true});
-                self._audit('add user', '', toAdd, by);
-            }
+            });
             if (modified) {
                 resolve(Permissions._findByIdAndUpdate(self._id, self));
             } else {
@@ -47,18 +49,20 @@ var Permissions = BaseModel.extend({
         });
         return promise;
     },
-    removeUser: function (toRemove, by) {
+    removeUsers: function (toRemove, by) {
         var self = this;
         var promise = new Promise(function (resolve, reject) {
-            var found = _.findWhere(self.users, {user: toRemove});
             var modified = false;
-            if (found) {
-                if (found.isActive) {
-                    modified = true;
-                    found.isActive = false;
-                    self._audit('deactivate users.' + toRemove + '.isActive', true, false, by);
+            toRemove.forEach(function (userToRemove) {
+                var found = _.findWhere(self.users, {user: userToRemove});
+                if (found) {
+                    if (found.isActive) {
+                        modified = true;
+                        found.isActive = false;
+                        self._audit('deactivate users.' + userToRemove + '.isActive', true, false, by);
+                    }
                 }
-            }
+            });
             if (modified) {
                 resolve(Permissions._findByIdAndUpdate(self._id, self));
             } else {
@@ -124,19 +128,16 @@ Permissions.schema = Joi.object().keys({
 });
 
 Permissions.indexes = [
-    [{'users.user': 1, 'users.isActive': 1}]
+    [{'users.user': 1, 'users.isActive': 1}],
+    [{'action': 1, 'object': 1}, {unique: true}],
 ];
 
-Permissions.create = function (description, userId, groupName, action, object) {
+Permissions.create = function (description, users, action, object, by) {
     var self = this;
     var promise = new Promise(function (resolve, reject) {
         var document = {
             description: description,
-            users: [{
-                user: userId ? userId : groupName,
-                type: userId ? 'user' : 'group',
-                isActive: true
-            }],
+            users: users,
             action: action,
             object: object,
             isActive: true
@@ -148,6 +149,7 @@ Permissions.create = function (description, userId, groupName, action, object) {
                 if (!results) {
                     resolve({});
                 } else {
+                    Audit.createPermissionsAudit(description, 'create', '', results[0], by);
                     resolve(results[0]);
                 }
             }
@@ -239,6 +241,20 @@ Permissions._findByIdAndUpdate = function (id, obj) {
                 reject(err);
             } else {
                 resolve(obj);
+            }
+        });
+    });
+    return promise;
+};
+
+Permissions._findOne = function (conditions) {
+    var self = this;
+    var promise = new Promise(function (resolve, reject) {
+        self.findOne(conditions, function (err, doc) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(doc);
             }
         });
     });

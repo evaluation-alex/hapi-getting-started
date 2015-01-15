@@ -34,7 +34,9 @@ var plugins = {
             AuthAttempts: './server/models/auth-attempts',
             Roles: './server/models/roles',
             Users: './server/models/users',
-            Audit: './server/models/audit'
+            Audit: './server/models/audit',
+            UserGroups: './server/models/user-groups',
+            Permissions: './server/models/permissions'
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },
@@ -46,7 +48,9 @@ var plugins = {
     './server/api/logout': {basePath: '/api'},
     './server/api/signup': {basePath: '/api'},
     './server/api/users': {basePath: '/api'},
-    './server/api/users-audit': {basePath: '/api'}
+    './server/api/user-groups': {basePath: '/api'},
+    './server/api/permissions': {basePath: '/api'},
+    './server/api/audit': {basePath: '/api'}
 };
 
 var manifest = {

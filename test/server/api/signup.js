@@ -95,7 +95,7 @@ describe('Signup', function () {
             var p2 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'signup'})
                 .then(function(foundSignup) {
                     expect(foundSignup).to.exist();
-                    expect(foundSignup.attribs).to.have.string('test.signup2@signup.api');
+                    expect(foundSignup[0].newValues).to.include('test.signup2@signup.api');
                 });
             var p3 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'login success'})
                 .then(function(foundLogin) {

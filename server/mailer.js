@@ -40,7 +40,7 @@ var sendEmail = exports.sendEmail = function (options, template, context) {
                     from: Config.system.fromAddress,
                     markdown: content
                 });
-                if (Config.sendmails) {
+                if (Config.sendmails) {/*
                     transport.sendMail(options, function (err, res) {
                         isDone = true;
                         if (err) {
@@ -48,7 +48,8 @@ var sendEmail = exports.sendEmail = function (options, template, context) {
                         } else {
                             resolve(true);
                         }
-                    });
+                    });*/
+                    resolve(true);
                 } else {
                     resolve(true);
                 }

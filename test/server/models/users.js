@@ -15,7 +15,7 @@ var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
 
-describe('Users Model', function () {
+describe.only('Users Model', function () {
     var firstEmail = 'test.create@users.module';
     var secondEmail = 'test.search@users.module';
     var testComplete = function (notify, err) {
@@ -210,8 +210,8 @@ describe('Users Model', function () {
                         expect(user.session).to.not.exist();
                         Audit.findUsersAudit({userId: user.email, action: 'signup'})
                             .then(function (userAudit) {
-                                expect(userAudit).to.be.an.instanceof(Audit);
-                                expect(userAudit.attribs).to.contain(firstEmail);
+                                expect(userAudit[0]).to.be.an.instanceof(Audit);
+                                expect(userAudit[0].newValues).to.contain(firstEmail);
                             });
                     })
                     .done();
@@ -233,8 +233,8 @@ describe('Users Model', function () {
                 expect(user.session).to.exist();
                 Audit.findUsersAudit({userId: user.email, action: 'login success'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(Audit);
-                        expect(userAudit.attribs).to.equal('test');
+                        expect(userAudit[0]).to.be.an.instanceof(Audit);
+                        expect(userAudit[0].newValues).to.equal('test');
                     })
                     .done();
             })
@@ -255,8 +255,8 @@ describe('Users Model', function () {
                 expect(user.session).to.not.exist();
                 Audit.findUsersAudit({userId: user.email, action: 'logout'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(Audit);
-                        expect(userAudit.attribs).to.equal('test');
+                        expect(userAudit[0]).to.be.an.instanceof(Audit);
+                        expect(userAudit[0].newValues).to.equal('test');
                     })
                     .done();
             })
@@ -277,8 +277,8 @@ describe('Users Model', function () {
                 expect(user.session).to.not.exist();
                 Audit.findUsersAudit({userId: user.email, action: 'login fail'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(Audit);
-                        expect(userAudit.attribs).to.equal('test', 'test');
+                        expect(userAudit[0]).to.be.an.instanceof(Audit);
+                        expect(userAudit[0].newValues).to.equal('test');
                     })
                     .done();
             })
@@ -298,7 +298,7 @@ describe('Users Model', function () {
                 user.resetPasswordSent('test').done();
                 Audit.findUsersAudit({userId: user.email, action: 'reset password sent'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(Audit);
+                        expect(userAudit[0]).to.be.an.instanceof(Audit);
                     })
                     .done();
             })
@@ -308,7 +308,7 @@ describe('Users Model', function () {
                         user.resetPassword('new password confirm', 'test').done();
                         Audit.findUsersAudit({userId: user.email, action: 'reset password'})
                             .then(function (userAudit) {
-                                expect(userAudit).to.be.an.instanceof(Audit);
+                                expect(userAudit[0]).to.be.an.instanceof(Audit);
                             })
                             .done();
                     })
@@ -332,8 +332,8 @@ describe('Users Model', function () {
                 expect(user.roles).to.include(['root']);
                 Audit.findUsersAudit({userId: user.email, action: 'update roles'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(Audit);
-                        expect(userAudit.attribs).to.include(['readonly']);
+                        expect(userAudit[0]).to.be.an.instanceof(Audit);
+                        expect(userAudit[0].origValues).to.include(['readonly']);
                     })
                     .done();
             })
@@ -354,8 +354,8 @@ describe('Users Model', function () {
                 expect(user.isActive).to.be.false();
                 Audit.findUsersAudit({userId: user.email, action: 'deactivate'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(Audit);
-                        expect(userAudit.attribs).to.be.true();
+                        expect(userAudit[0]).to.be.an.instanceof(Audit);
+                        expect(userAudit[0].origValues).to.be.true();
                     })
                     .done();
             })
@@ -366,8 +366,8 @@ describe('Users Model', function () {
                         expect(user.isActive).to.be.true();
                         Audit.findUsersAudit({userId: user.email, action: 'reactivate'})
                             .then(function (userAudit) {
-                                expect(userAudit).to.be.an.instanceof(Audit);
-                                expect(userAudit.attribs).to.be.false();
+                                expect(userAudit[0]).to.be.an.instanceof(Audit);
+                                expect(userAudit[0].origValues).to.be.false();
                             })
                             .done();
                     })

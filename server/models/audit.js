@@ -104,6 +104,7 @@ Audit.findUsersAudit = function (conditions) {
     var self = this;
     conditions.objectChangedType = 'Users';
     conditions.objectChangedId = conditions.userId;
+    delete conditions.userId;
     return self._find(conditions);
 };
 
@@ -111,6 +112,7 @@ Audit.findUserGroupsAudit = function (conditions) {
     var self = this;
     conditions.objectChangedType = 'UserGroups';
     conditions.objectChangedId = conditions.name;
+    delete conditions.name;
     return self._find(conditions);
 };
 
@@ -118,6 +120,7 @@ Audit.findPermissionsAudit = function (conditions) {
     var self = this;
     conditions.objectChangedType = 'Permissions';
     conditions.objectChangedId = conditions.name;
+    delete conditions.name;
     return self._find(conditions);
 };
 

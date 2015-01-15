@@ -68,7 +68,8 @@ var Users = BaseModel.extend({
         var self = this;
         var promise = new Promise(function (resolve, reject) {
             self._invalidateSession();
-            resolve(self._audit('signup', '', self.email + '##' + self.password, by));
+            self._audit('signup', '', self.email + '##' + self.password, by);
+            resolve(self);
         });
         return promise;
     },
@@ -143,7 +144,7 @@ var Users = BaseModel.extend({
         var self = this;
         var promise = new Promise(function (resolve, reject) {
             if (self.isActive) {
-                self._audit('isActive', true, false, by);
+                self._audit('deactivate', true, false, by);
                 self.isActive = false;
                 self._invalidateSession();
                 resolve(Users._findByIdAndUpdate(self._id, self));
@@ -157,7 +158,7 @@ var Users = BaseModel.extend({
         var self = this;
         var promise = new Promise(function (resolve, reject) {
             if (!self.isActive) {
-                self._audit('isActive', false, true, by);
+                self._audit('reactivate', false, true, by);
                 self.isActive = true;
                 self._invalidateSession();
                 resolve(Users._findByIdAndUpdate(self._id, self));

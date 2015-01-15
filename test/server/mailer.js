@@ -48,7 +48,7 @@ describe('Mailer', function () {
     });
 
 
-    it('sends an email', function (done) {
+    it.skip('sends an email', function (done) {
         var options = {
             subject: 'Your ' + Config.projectName + ' account',
             to: {

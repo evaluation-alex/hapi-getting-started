@@ -17,12 +17,12 @@ exports.config = function (argv) {
         db: {
             alias: 'mongodburl',
             description: 'mongodb uri to be used as connection string. should be in the form mongodb://user:password@host:port/db',
-            default: {{mongodbUrl}}
+            default: '{{mongodbUrl}}'
         },
         mu: {
             alias: 'mailuser',
             description: 'the user with which to login for use by nodemailer',
-            default: {{smtpUsername}}
+            default: '{{smtpUsername}}'
         },
         mp: {
             alias: 'mailpassword',

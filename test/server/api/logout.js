@@ -123,8 +123,8 @@ describe('Logout', function () {
 
     afterEach(function (done) {
         if (emails.length > 0) {
-            var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
-            UsersAudit.remove({userId: {$in: emails}}, function (err) {
+            var Audit = server.plugins['hapi-mongo-models'].Audit;
+            Audit.remove({objectChangedId: {$in: emails}}, function (err) {
                 if (err) {
                     throw err;
                 }

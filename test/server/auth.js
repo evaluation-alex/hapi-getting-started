@@ -240,12 +240,12 @@ describe('Auth', function () {
 
     afterEach(function (done) {
         var Users = server.plugins['hapi-mongo-models'].Users;
-        var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
+        var Audit = server.plugins['hapi-mongo-models'].Audit;
         Users.remove({email: email}, function (err, result) {
             if (err) {
                 throw err;
             }
-            UsersAudit.remove({userId: email}, function (err, result) {
+            Audit.remove({objectChangedId: email}, function (err, result) {
                 if (err) {
                     throw err;
                 }

@@ -48,6 +48,11 @@ exports.config = function (argv) {
             alias: 'logconfig',
             description: 'config args to pass to logging plugins',
             default: '{"log": "*", "response": "*", "request": "*", "error": "*", "ops": "*"}'
+        },
+        em: {
+            alias: 'sendemails',
+            description: 'disable sending emails via the sendmail plugin',
+            default: true
         }
     };
 
@@ -66,6 +71,7 @@ exports.config = function (argv) {
             },
             autoIndex: false
         },
+        sendmails: args.em,
         nodemailer: {
             host: args.mh,
             port: args.mr,

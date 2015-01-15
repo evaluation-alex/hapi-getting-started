@@ -1,7 +1,7 @@
 'use strict';
 var Config = require('./../../../config').config({argv: []});
 var Users = require('./../../../server/models/users');
-var UsersAudit = require('./../../../server/models/users-audit');
+var Audit = require('./../../../server/models/audit');
 var Roles = require('./../../../server/models/roles');
 //var expect = require('chai').expect;
 var Code = require('code');   // assertion library
@@ -208,9 +208,9 @@ describe('Users Model', function () {
                 user.signup(user.email)
                     .then(function (user) {
                         expect(user.session).to.not.exist();
-                        UsersAudit._findOne({userId: user.email, action: 'signup'})
+                        Audit.findUsersAudit({userId: user.email, action: 'signup'})
                             .then(function (userAudit) {
-                                expect(userAudit).to.be.an.instanceof(UsersAudit);
+                                expect(userAudit).to.be.an.instanceof(Audit);
                                 expect(userAudit.attribs).to.contain(firstEmail);
                             });
                     })
@@ -231,9 +231,9 @@ describe('Users Model', function () {
             .then(function (user) {
                 user.loginSuccess('test', 'test').done();
                 expect(user.session).to.exist();
-                UsersAudit._findOne({userId: user.email, action: 'login success'})
+                Audit.findUsersAudit({userId: user.email, action: 'login success'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(UsersAudit);
+                        expect(userAudit).to.be.an.instanceof(Audit);
                         expect(userAudit.attribs).to.equal('test');
                     })
                     .done();
@@ -253,9 +253,9 @@ describe('Users Model', function () {
             .then(function (user) {
                 user.logout('test', 'test').done();
                 expect(user.session).to.not.exist();
-                UsersAudit._findOne({userId: user.email, action: 'logout'})
+                Audit.findUsersAudit({userId: user.email, action: 'logout'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(UsersAudit);
+                        expect(userAudit).to.be.an.instanceof(Audit);
                         expect(userAudit.attribs).to.equal('test');
                     })
                     .done();
@@ -275,9 +275,9 @@ describe('Users Model', function () {
             .then(function (user) {
                 user.loginFail('test').done();
                 expect(user.session).to.not.exist();
-                UsersAudit._findOne({userId: user.email, action: 'login fail'})
+                Audit.findUsersAudit({userId: user.email, action: 'login fail'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(UsersAudit);
+                        expect(userAudit).to.be.an.instanceof(Audit);
                         expect(userAudit.attribs).to.equal('test', 'test');
                     })
                     .done();
@@ -296,9 +296,9 @@ describe('Users Model', function () {
         Users.findByEmail(firstEmail)
             .then(function (user) {
                 user.resetPasswordSent('test').done();
-                UsersAudit._findOne({userId: user.email, action: 'reset password sent'})
+                Audit.findUsersAudit({userId: user.email, action: 'reset password sent'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(UsersAudit);
+                        expect(userAudit).to.be.an.instanceof(Audit);
                     })
                     .done();
             })
@@ -306,9 +306,9 @@ describe('Users Model', function () {
                 Users.findByEmail(firstEmail)
                     .then(function (user) {
                         user.resetPassword('new password confirm', 'test').done();
-                        UsersAudit._findOne({userId: user.email, action: 'reset password'})
+                        Audit.findUsersAudit({userId: user.email, action: 'reset password'})
                             .then(function (userAudit) {
-                                expect(userAudit).to.be.an.instanceof(UsersAudit);
+                                expect(userAudit).to.be.an.instanceof(Audit);
                             })
                             .done();
                     })
@@ -330,9 +330,9 @@ describe('Users Model', function () {
                 user.updateRoles(['root'], 'test').done();
                 expect(user.session).to.not.exist();
                 expect(user.roles).to.include(['root']);
-                UsersAudit._findOne({userId: user.email, action: 'update roles'})
+                Audit.findUsersAudit({userId: user.email, action: 'update roles'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(UsersAudit);
+                        expect(userAudit).to.be.an.instanceof(Audit);
                         expect(userAudit.attribs).to.include(['readonly']);
                     })
                     .done();
@@ -352,9 +352,9 @@ describe('Users Model', function () {
             .then(function (user) {
                 user.deactivate('test').done();
                 expect(user.isActive).to.be.false();
-                UsersAudit._findOne({userId: user.email, action: 'deactivate'})
+                Audit.findUsersAudit({userId: user.email, action: 'deactivate'})
                     .then(function (userAudit) {
-                        expect(userAudit).to.be.an.instanceof(UsersAudit);
+                        expect(userAudit).to.be.an.instanceof(Audit);
                         expect(userAudit.attribs).to.be.true();
                     })
                     .done();
@@ -364,9 +364,9 @@ describe('Users Model', function () {
                     .then(function (user) {
                         user.reactivate('test').done();
                         expect(user.isActive).to.be.true();
-                        UsersAudit._findOne({userId: user.email, action: 'reactivate'})
+                        Audit.findUsersAudit({userId: user.email, action: 'reactivate'})
                             .then(function (userAudit) {
-                                expect(userAudit).to.be.an.instanceof(UsersAudit);
+                                expect(userAudit).to.be.an.instanceof(Audit);
                                 expect(userAudit.attribs).to.be.false();
                             })
                             .done();
@@ -388,7 +388,7 @@ describe('Users Model', function () {
             if (err) {
                 return done(err);
             }
-            UsersAudit.remove({userId: {$in: testUsers}}, function (err) {
+            Audit.remove({objectChangedId: {$in: testUsers}}, function (err) {
                 if (err) {
                     return done(err);
                 }

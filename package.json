@@ -14,7 +14,6 @@
         "getting started",
         "user auth"
     ],
-
     "repository": {
         "type": "git",
         "url": "git@github.com:k-sheth/hapi-getting-started.git"
@@ -46,6 +45,7 @@
         "hapi-mongo-models": "^1.0.7",
         "hoek": "^2.11.0",
         "joi": "^5.1.0",
+        "lodash": "^2.4.1",
         "marked": "^0.3.2",
         "mongodb": "^1.4.28",
         "node-uuid": "^1.4.2",

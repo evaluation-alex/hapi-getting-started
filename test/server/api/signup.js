@@ -86,18 +86,18 @@ describe('Signup', function () {
         server.inject(request, function (response) {
             expect(response.statusCode).to.equal(200);
             var Users = server.plugins['hapi-mongo-models'].Users;
-            var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
+            var Audit = server.plugins['hapi-mongo-models'].Audit;
             var p1 = Users._findOne({email: 'test.signup2@signup.api'})
                 .then(function (foundUser) {
                     expect(foundUser).to.exist();
                     expect(foundUser.session).to.exist();
                 });
-            var p2 = UsersAudit._findOne({userId: 'test.signup2@signup.api',action:'signup'})
+            var p2 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'signup'})
                 .then(function(foundSignup) {
                     expect(foundSignup).to.exist();
                     expect(foundSignup.attribs).to.have.string('test.signup2@signup.api');
                 });
-            var p3 = UsersAudit._findOne({userId: 'test.signup2@signup.api',action:'login success'})
+            var p3 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'login success'})
                 .then(function(foundLogin) {
                     expect(foundLogin).to.exist();
                 });
@@ -110,12 +110,12 @@ describe('Signup', function () {
     afterEach(function (done) {
         if (emails.length > 0 ){
             var Users = server.plugins['hapi-mongo-models'].Users;
-            var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
+            var Audit = server.plugins['hapi-mongo-models'].Audit;
             Users.remove({email: { $in: emails}}, function (err) {
                 if (err) {
                     throw err;
                 }
-                UsersAudit.remove({userId: { $in: emails}}, function (err) {
+                Audit.remove({objectChangedId: { $in: emails}}, function (err) {
                     if (err) {
                         throw err;
                     }

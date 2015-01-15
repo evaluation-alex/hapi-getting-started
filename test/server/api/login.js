@@ -96,8 +96,8 @@ describe('Login', function () {
             };
             server.inject(request, function (response) {
                 expect(response.statusCode).to.equal(401);
-                var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
-                UsersAudit._findOne({userId : 'test.users@test.api', action: 'login fail'})
+                var Audit = server.plugins['hapi-mongo-models'].Audit;
+                Audit.findUsersAudit({userId : 'test.users@test.api', action: 'login fail'})
                     .then(function (foundAudit) {
                         expect(foundAudit).to.exist();
                     });
@@ -133,8 +133,8 @@ describe('Login', function () {
                 expect(response.statusCode).to.equal(200);
                 expect(response.payload).to.exist();
                 expect(response.payload).to.contain('test.users@test.api');
-                var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
-                UsersAudit._findOne({userId : 'test.users@test.api', action: 'login success'})
+                var Audit = server.plugins['hapi-mongo-models'].Audit;
+                Audit.findUsersAudit({userId : 'test.users@test.api', action: 'login success'})
                     .then(function (foundAudit) {
                         expect(foundAudit).to.exist();
                     });
@@ -170,9 +170,9 @@ describe('Login', function () {
             server.inject(request, function (response) {
                 expect(response.statusCode).to.equal(200);
                 expect(response.payload).to.contain('Success');
-                var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
+                var Audit = server.plugins['hapi-mongo-models'].Audit;
                 var Users = server.plugins['hapi-mongo-models'].Users;
-                UsersAudit._findOne({userId : 'test.users@test.api', action: 'reset password sent'})
+                Audit.findUsersAudit({userId : 'test.users@test.api', action: 'reset password sent'})
                     .then(function (foundAudit) {
                         expect(foundAudit).to.exist();
                         Users._findOne({email: 'test.users@test.api'})
@@ -239,8 +239,8 @@ describe('Login', function () {
                     server.inject(request, function (response) {
                         expect(response.statusCode).to.equal(200);
                         expect(response.payload).to.contain('Success');
-                        var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
-                        UsersAudit._findOne({userId : 'test.users@test.api', action: 'reset password'})
+                        var Audit = server.plugins['hapi-mongo-models'].Audit;
+                        Audit.findUsersAudit({userId : 'test.users@test.api', action: 'reset password'})
                             .then(function (foundAudit) {
                                 expect(foundAudit).to.exist();
                                 Users._findOne({email: 'test.users@test.api'})
@@ -256,13 +256,13 @@ describe('Login', function () {
     afterEach(function (done) {
         if (emails.length > 0 ){
             var Users = server.plugins['hapi-mongo-models'].Users;
-            var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
+            var Audit = server.plugins['hapi-mongo-models'].Audit;
             var AuthAttemps = server.plugins['hapi-mongo-models'].AuthAttempts;
             Users.remove({email: { $in: emails}}, function (err) {
                 if (err) {
                     throw err;
                 }
-                UsersAudit.remove({userId: { $in: emails}}, function (err) {
+                Audit.remove({objectChangedId: { $in: emails}}, function (err) {
                     if (err) {
                         throw err;
                     }

@@ -5,7 +5,7 @@ var Hapi = require('hapi');
 var HapiAuthBasic = require('hapi-auth-basic');
 var AuthPlugin = require('../../../server/auth');
 var HapiMongoModels = require('hapi-mongo-models');
-var UsersAuditPlugin = require('./../../../server/api/users-audit');
+var AuditPlugin = require('./../../../server/api/users-audit');
 //var expect = require('chai').expect;
 var Code = require('code');   // assertion library
 var Lab = require('lab');
@@ -19,7 +19,7 @@ var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 
-describe('UsersAudit', function () {
+describe('Audit', function () {
     var authheader = '';
     var authorizationHeader = function (user, password) {
         return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
@@ -30,7 +30,7 @@ describe('UsersAudit', function () {
             register: HapiMongoModels,
             options: JSON.parse(JSON.stringify(Manifest)).plugins['hapi-mongo-models']
         };
-        var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, UsersAuditPlugin];
+        var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, AuditPlugin];
         server = new Hapi.Server();
         server.connection({port: Config.port.web});
         server.register(plugins, function (err) {
@@ -57,7 +57,7 @@ describe('UsersAudit', function () {
         });
     });
 
-    describe('GET /users-audit', function () {
+    describe('GET /audit', function () {
         it('should give audit of only the user whose email is sent in the parameter', function (done) {
             var Users = server.plugins['hapi-mongo-models'].Users;
             Users._findOne({email: 'root'})
@@ -66,7 +66,7 @@ describe('UsersAudit', function () {
                     authheader = authorizationHeader(foundUser.email, foundUser.session.key);
                     var request = {
                         method: 'GET',
-                        url: '/users-audit?userId=test.users2@test.api',
+                        url: '/audit?objectChangedId=test.users2@test.api&objectType=Users',
                         headers: {
                             Authorization: authheader
                         }
@@ -85,17 +85,17 @@ describe('UsersAudit', function () {
     afterEach(function (done) {
         if (emails.length > 0) {
             var Users = server.plugins['hapi-mongo-models'].Users;
-            var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
+            var Audit = server.plugins['hapi-mongo-models'].Audit;
             Users.remove({email: {$in: emails}}, function (err) {
                 if (err) {
                     throw err;
                 }
-                UsersAudit.remove({userId: 'root'}, function (err) {
+                Audit.remove({objectChangedId: 'root'}, function (err) {
                     if (err) {
                         throw err;
                     }
                 });
-                UsersAudit.remove({userId: {$in: emails}}, function (err) {
+                Audit.remove({objectChangedId: {$in: emails}}, function (err) {
                     if (err) {
                         throw err;
                     }

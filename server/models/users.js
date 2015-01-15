@@ -5,8 +5,9 @@ var Bcrypt = require('bcrypt');
 var ObjectAssign = require('object-assign');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Roles = require('./roles');
-var UsersAudit = require('./users-audit');
+var Audit = require('./audit');
 var Promise = require('bluebird');
+var _ = require('lodash');
 
 var Users = BaseModel.extend({
     constructor: function (attrs) {
@@ -47,26 +48,9 @@ var Users = BaseModel.extend({
         });
         return promise;
     },
-    _audit: function (action, attribs, by) {
+    _audit: function (action, oldValues, newValues, by) {
         var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            UsersAudit.create({
-                userId: self.email,
-                action: action,
-                attribs: attribs,
-                timestamp: new Date(),
-                by: by
-            })
-                .then(function (userAudit) {
-                    resolve(self);
-                })
-                .catch(function (err) {
-                    if (err) {
-                        reject(err);
-                    }
-                }).done();
-        });
-        return promise;
+        return Audit.createUsersAudit(self.email, action, oldValues, newValues, by);
     },
     _invalidateSession: function () {
         var self = this;
@@ -84,7 +68,7 @@ var Users = BaseModel.extend({
         var self = this;
         var promise = new Promise(function (resolve, reject) {
             self._invalidateSession();
-            resolve(self._audit('signup', self.email + '##' + self.password), by);
+            resolve(self._audit('signup', '', self.email + '##' + self.password, by));
         });
         return promise;
     },
@@ -92,7 +76,7 @@ var Users = BaseModel.extend({
         var self = this;
         var promise = new Promise(function (resolve, reject) {
             self._invalidateSession();
-            self._audit('login success', ipaddress, by);
+            self._audit('login success', '', ipaddress, by);
             self._newSession();
             self.resetPwd = {};
             resolve(Users._findByIdAndUpdate(self._id, self));
@@ -103,7 +87,7 @@ var Users = BaseModel.extend({
         var self = this;
         var promise = new Promise(function (resolve, reject) {
             self._invalidateSession();
-            self._audit('login fail', ipaddress, by);
+            self._audit('login fail', '', ipaddress, by);
             resolve(Users._findByIdAndUpdate(self._id, self));
         });
         return promise;
@@ -112,7 +96,7 @@ var Users = BaseModel.extend({
         var self = this;
         var promise = new Promise(function (resolve, reject) {
             self._invalidateSession();
-            self._audit('logout', ipaddress, by);
+            self._audit('logout', '', ipaddress, by);
             resolve(Users._findByIdAndUpdate(self._id, self));
         });
         return promise;
@@ -124,7 +108,7 @@ var Users = BaseModel.extend({
                 token: Uuid.v4(),
                 expires: Date.now() + 10000000
             };
-            self._audit('reset password sent', self.resetPwd.token, by);
+            self._audit('reset password sent', '', self.resetPwd, by);
             resolve(Users._findByIdAndUpdate(self._id, self));
         });
         return promise;
@@ -133,8 +117,9 @@ var Users = BaseModel.extend({
         var self = this;
         var promise = new Promise(function (resolve, reject) {
             self._invalidateSession();
-            self._audit('reset password', self.password, by);
-            self.password = Bcrypt.hashSync(newPassword, 10);
+            var newHashedPassword = Bcrypt.hashSync(newPassword, 10);
+            self._audit('reset password', self.password, newHashedPassword, by);
+            self.password = newHashedPassword;
             self.resetPwd = {};
             resolve(Users._findByIdAndUpdate(self._id, self));
         });
@@ -143,30 +128,42 @@ var Users = BaseModel.extend({
     updateRoles: function (newRoles, by) {
         var self = this;
         var promise = new Promise(function (resolve, reject) {
-            self._audit('update roles', self.roles, by);
-            self.roles = newRoles;
-            self._invalidateSession();
-            resolve(Users._findByIdAndUpdate(self._id, self));
+            if (!_.isEqual(self.roles, newRoles)) {
+                self._audit('update roles', self.roles, newRoles, by);
+                self.roles = newRoles;
+                self._invalidateSession();
+                resolve(Users._findByIdAndUpdate(self._id, self));
+            } else {
+                resolve(self);
+            }
         });
         return promise;
     },
     deactivate: function (by) {
         var self = this;
         var promise = new Promise(function (resolve, reject) {
-            self._audit('deactivate', self.isActive, by);
-            self.isActive = false;
-            self._invalidateSession();
-            resolve(Users._findByIdAndUpdate(self._id, self));
+            if (self.isActive) {
+                self._audit('isActive', true, false, by);
+                self.isActive = false;
+                self._invalidateSession();
+                resolve(Users._findByIdAndUpdate(self._id, self));
+            } else {
+                resolve(self);
+            }
         });
         return promise;
     },
     reactivate: function (by) {
         var self = this;
         var promise = new Promise(function (resolve, reject) {
-            self._audit('reactivate', self.isActive, by);
-            self.isActive = true;
-            self._invalidateSession();
-            resolve(Users._findByIdAndUpdate(self._id, self));
+            if (!self.isActive) {
+                self._audit('isActive', false, true, by);
+                self.isActive = true;
+                self._invalidateSession();
+                resolve(Users._findByIdAndUpdate(self._id, self));
+            } else {
+                resolve(self);
+            }
         });
         return promise;
     }

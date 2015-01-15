@@ -34,7 +34,7 @@ var plugins = {
             AuthAttempts: './server/models/auth-attempts',
             Roles: './server/models/roles',
             Users: './server/models/users',
-            UsersAudit: './server/models/users-audit'
+            Audit: './server/models/audit'
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },

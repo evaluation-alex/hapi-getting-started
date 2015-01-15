@@ -8,14 +8,16 @@ exports.register = function (server, options, next) {
     options = Hoek.applyToDefaults({basePath: ''}, options);
     server.route({
         method: 'GET',
-        path: options.basePath + '/users-audit',
+        path: options.basePath + '/audit',
         config: {
             auth: {
                 strategy: 'simple'
             },
             validate: {
                 query: {
-                    userId: Joi.string().required(),
+                    by: Joi.string(),
+                    objectType: Joi.string(),
+                    objectChangedId: Joi.string(),
                     fields: Joi.string(),
                     sort: Joi.string(),
                     limit: Joi.number().default(20),
@@ -27,17 +29,26 @@ exports.register = function (server, options, next) {
             ]
         },
         handler: function (request, reply) {
-            var UsersAudit = request.server.plugins['hapi-mongo-models'].UsersAudit;
-            var query = {userId: new RegExp('^.*?' + request.query.userId + '.*$', 'i')};
+            var Audit = request.server.plugins['hapi-mongo-models'].Audit;
+            var query = {};
+            if (request.query.by) {
+                query = {by: new RegExp('^.*?' + request.query.by + '.*$', 'i')};
+            }
+            if (request.query.objectType) {
+                query = {objectChangedType: request.query.objectType};
+            }
+            if (request.query.objectChangedId) {
+                query = {objectChangedId: request.query.objectChangedId};
+            }
             var fields = request.query.fields;
             var sort = request.query.sort;
             var limit = request.query.limit;
             var page = request.query.page;
-            UsersAudit.pagedFind(query, fields, sort, limit, page, function (err, usersAudit) {
+            Audit.pagedFind(query, fields, sort, limit, page, function (err, audits) {
                 if (err) {
                     reply(Boom.badImplementation(err));
                 } else {
-                    reply(usersAudit);
+                    reply(audits);
                 }
             });
         }
@@ -47,5 +58,5 @@ exports.register = function (server, options, next) {
 };
 
 exports.register.attributes = {
-    name: 'users-audit'
+    name: 'audit'
 };

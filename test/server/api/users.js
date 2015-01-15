@@ -271,12 +271,12 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 expect(response.statusCode).to.equal(200);
                 var Users = server.plugins['hapi-mongo-models'].Users;
-                var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
+                var Audit = server.plugins['hapi-mongo-models'].Audit;
                 Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                     .then(function (foundUser) {
                         expect(foundUser.isActive).to.be.false();
                         expect(foundUser.session).to.not.exist();
-                        UsersAudit._findOne({userId: foundUser.email, action:'deactivate'})
+                        Audit.findUsersAudit({userId: foundUser.email, action:'deactivate'})
                             .then(function(foundAudit) {
                                 expect(foundAudit).to.exist();
                                 done();
@@ -300,12 +300,12 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 expect(response.statusCode).to.equal(200);
                 var Users = server.plugins['hapi-mongo-models'].Users;
-                var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit ;
+                var Audit = server.plugins['hapi-mongo-models'].Audit ;
                 Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                     .then(function (foundUser) {
                         expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
                         expect(foundUser.session).to.not.exist();
-                        UsersAudit._findOne({userId: foundUser.email, action:'update roles'})
+                        Audit.findUsersAudit({userId: foundUser.email, action:'update roles'})
                             .then(function(foundAudit) {
                                 expect(foundAudit).to.exist();
                                 done();
@@ -329,11 +329,11 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 expect(response.statusCode).to.equal(200);
                 var Users = server.plugins['hapi-mongo-models'].Users;
-                var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit ;
+                var Audit = server.plugins['hapi-mongo-models'].Audit;
                 Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                     .then(function (foundUser) {
                         expect(foundUser.session).to.not.exist();
-                        UsersAudit._findOne({userId: foundUser.email, action:'reset password'})
+                        Audit.findUsersAudit({userId: foundUser.email, action:'reset password'})
                             .then(function(foundAudit) {
                                 expect(foundAudit).to.exist();
                                 done();
@@ -374,22 +374,22 @@ describe('Users', function () {
     afterEach(function (done) {
         if (emails.length > 0) {
             var Users = server.plugins['hapi-mongo-models'].Users;
-            var UsersAudit = server.plugins['hapi-mongo-models'].UsersAudit;
+            var Audit = server.plugins['hapi-mongo-models'].Audit;
             Users.remove({email: {$in: emails}}, function (err) {
                 if (err) {
                     throw err;
                 }
-                UsersAudit.remove({userId: 'root'}, function (err) {
+                Audit.remove({objectChangedId: 'root'}, function (err) {
                     if (err) {
                         throw err;
                     }
                 });
-                UsersAudit.remove({userId: 'one@first.com'}, function (err) {
+                Audit.remove({objectChangedId: 'one@first.com'}, function (err) {
                     if (err) {
                         throw err;
                     }
                 });
-                UsersAudit.remove({userId: {$in: emails}}, function (err) {
+                Audit.remove({objectChangedId: {$in: emails}}, function (err) {
                     if (err) {
                         throw err;
                     }

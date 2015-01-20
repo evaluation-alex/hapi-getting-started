@@ -23,7 +23,7 @@ Audit.schema = Joi.object().keys({
 });
 
 Audit.indexes = [
-    [{objectChangedType: 1, objectChangedId: 1, action: 1, timestamp: 1}, {unique: true}]
+    [{objectChangedType: 1, objectChangedId: 1, action: 1}]
 ];
 
 Audit.createUsersAudit = function (email, action, origValues, newValues, by) {

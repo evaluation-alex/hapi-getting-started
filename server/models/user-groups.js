@@ -14,24 +14,38 @@ var UserGroups = BaseModel.extend({
         var self = this;
         return Audit.createUserGroupsAudit(self.name, action, oldValues, newValues, by);
     },
-    addUsers: function (toAdd, by) {
+    addUsers: function (toAdd, role, by) {
         var self = this;
-        var modified = false;
         var promise = new Promise(function (resolve, reject) {
-            toAdd.forEach(function (memberToAdd) {
-                var found = _.findWhere(self.members, {email: memberToAdd});
-                if (found) {
-                    if (!found.isActive) {
+            var isOwner = (role.indexOf('owner') !== -1 ||  role.indexOf('both') !== -1);
+            var isMember = (role.indexOf('member') !== -1 ||  role.indexOf('both') !== -1);
+            var modified = false;
+            if (isOwner || isMember) {
+                toAdd.forEach(function (memberToAdd) {
+                    var found = _.findWhere(self.members, {email: memberToAdd});
+                    if (found) {
+                        if (!found.isActive) {
+                            modified = true;
+                            found.isActive = true;
+                            self._audit('add user members.' + memberToAdd + '.isActive', false, true, by);
+                        }
+                        if (!found.isOwner && isOwner) {
+                            modified = true;
+                            found.isOwner = true;
+                            self._audit('add user members.' + memberToAdd + '.isOwner', false, true, by);
+                        }
+                        if (!found.isMember && isMember) {
+                            modified = true;
+                            found.isMember = true;
+                            self._audit('add user members.' + memberToAdd + '.isMember', false, true, by);
+                        }
+                    } else {
                         modified = true;
-                        found.isActive = true;
-                        self._audit('reactivate members.' + memberToAdd + '.isActive', false, true, by);
+                        self.members.push({email: memberToAdd, isOwner: isOwner, isMember: isMember, isActive: true});
+                        self._audit('add user isOwner:'+isOwner+',isMember:'+isMember, '', memberToAdd, by);
                     }
-                } else {
-                    modified = true;
-                    self.members.push({email: memberToAdd, role: 'member', isActive: true});
-                    self._audit('add user', '', memberToAdd, by);
-                }
-            });
+                });
+            }
             if (modified) {
                 resolve(UserGroups._findByIdAndUpdate(self._id, self));
             } else {
@@ -40,67 +54,34 @@ var UserGroups = BaseModel.extend({
         });
         return promise;
     },
-    removeUsers: function (toRemove, by) {
+    removeUsers: function (toRemove, role, by) {
         var self = this;
         var promise = new Promise(function (resolve, reject) {
+            var isOwner = (role.indexOf('owner') !== -1 ||  role.indexOf('both') !== -1);
+            var isMember = (role.indexOf('member') !== -1 ||  role.indexOf('both') !== -1);
             var modified = false;
-            toRemove.forEach(function (memberToRemove) {
-                var found = _.findWhere(self.members, {email: memberToRemove});
-                if (found) {
-                    if (found.isActive) {
-                        modified = true;
-                        found.isActive = false;
-                        self._audit('deactivate members.' + memberToRemove + '.isActive', true, false, by);
+            if (isOwner || isMember) {
+                toRemove.forEach(function (memberToRemove) {
+                    var found = _.findWhere(self.members, {email:memberToRemove});
+                    if (found) {
+                        if (found.isOwner && isOwner) {
+                            modified = true;
+                            found.isOwner = false;
+                            self._audit('remove user members.' + memberToRemove + '.isOwner', true, false, by);
+                        }
+                        if (found.isMember && isMember) {
+                            modified = true;
+                            found.isMember = false;
+                            self._audit('remove user members.' + memberToRemove + '.isMember', true, false, by);
+                        }
+                        if (!found.isMember && !found.isOwner && found.isActive) {
+                            modified = true;
+                            found.isActive = false;
+                            self._audit('remove user members.' + memberToRemove + '.isActive', true, false, by);
+                        }
                     }
-                }
-            });
-            if (modified) {
-                resolve(UserGroups._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
+                });
             }
-        });
-        return promise;
-    },
-    addOwners: function (toAdd, by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            var modified = false;
-            toAdd.forEach(function (ownerToAdd) {
-                var found = _.findWhere(self.owners, {email: ownerToAdd});
-                if (found) {
-                    if (!found.isActive) {
-                        modified = true;
-                        found.isActive = true;
-                        self._audit('reactivate owners.' + ownerToAdd + '.isActive', false, true, by);
-                    }
-                } else {
-                    self._audit('add owner', '', ownerToAdd, by);
-                    self.owners.push({email: ownerToAdd, isActive: true});
-                }
-            });
-            if (modified) {
-                resolve(UserGroups._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
-    },
-    removeOwners: function (toRemove, by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            var modified = false;
-            toRemove.forEach(function (ownerToRemove) {
-                var found = _.findWhere(self.owners, {email: ownerToRemove});
-                if (found) {
-                    if (found.isActive) {
-                        modified = true;
-                        found.isActive = false;
-                        self._audit('deactivate owners.' + ownerToRemove + '.isActive', true, false, by);
-                    }
-                }
-            });
             if (modified) {
                 resolve(UserGroups._findByIdAndUpdate(self._id, self));
             } else {
@@ -150,11 +131,13 @@ var UserGroups = BaseModel.extend({
     },
     isMember: function (email) {
         var self = this;
-        return _.findWhere(self.members, {email: email});
+        var ret = _.findWhere(self.members, {email: email, isMember: true, isActive: true});
+        return  !!ret;
     },
     isOwner: function (email) {
         var self = this;
-        return _.findWhere(self.owners, {email: email});
+        var ret = _.findWhere(self.members, {email: email, isOwner: true, isActive: true});
+        return !!ret;
     }
 });
 
@@ -166,10 +149,8 @@ UserGroups.schema = Joi.object().keys({
     description: Joi.string(),
     members: Joi.array().includes(Joi.object().keys({
         email: Joi.string().required(),
-        isActive: Joi.boolean().default(true)
-    })),
-    owners: Joi.array().includes(Joi.object().keys({
-        email: Joi.string().required(),
+        isMember: Joi.boolean().default(true),
+        isOwner: Joi.boolean().default(false),
         isActive: Joi.boolean().default(true)
     })),
     isActive: Joi.boolean().default(true)
@@ -177,7 +158,7 @@ UserGroups.schema = Joi.object().keys({
 
 UserGroups.indexes = [
     [{name: 1}, {unique: true}],
-    [{'members.email': 1, 'members.isActive': 1}]
+    [{'members.email': 1, 'members.isActive': 1, 'members.isMember': 1}]
 ];
 
 UserGroups.create = function (name, description, owner) {
@@ -186,8 +167,7 @@ UserGroups.create = function (name, description, owner) {
         var document = {
             name: name,
             description: description,
-            members: [{email: owner, isActive: true}],
-            owners: [{email: owner, isActive: true}],
+            members: [{email: owner, isActive: true, isMember: true, isOwner: true}],
             isActive: true
         };
         self.insert(document, function (err, results) {
@@ -197,7 +177,7 @@ UserGroups.create = function (name, description, owner) {
                 if (!results) {
                     resolve(false);
                 } else {
-                    Audit.createPermissionsAudit(name, 'create', '', results[0], owner);
+                    Audit.createUserGroupsAudit(name, 'create', '', results[0], owner);
                     resolve(results[0]);
                 }
             }
@@ -224,10 +204,19 @@ UserGroups.findByName = function (name) {
     return promise;
 };
 
-UserGroups.findGroupsForMember = function (email) {
+UserGroups.findGroupsForUser = function (email) {
     var self = this;
     var promise = new Promise(function (resolve, reject) {
-        self.find({'members.email': email, 'members.isActive': true}, function (err, groups) {
+        var conditions = {
+            members : {
+                $elemMatch : {
+                    email: email,
+                    isActive: true,
+                    isMember: true
+                }
+            }
+        };
+        self.find(conditions, function (err, groups) {
             if (err) {
                 reject(err);
             } else {

@@ -13,13 +13,13 @@ var Permissions = BaseModel.extend({
     },
     _audit: function (action, oldValues, newValues, by) {
         var self = this;
-        return Audit.createPermissionsAudit(self.name, action, oldValues, newValues, by);
+        return Audit.createPermissionsAudit(self._id, action, oldValues, newValues, by);
     },
     hasPermissions: function (forAction, onObject, byUser) {
         var self = this;
         var ret = (self.action === forAction || self.action === '*') &&
             (self.object === onObject || self.object === '*') &&
-            (_.findWhere(self.users, {user: byUser}));
+            (_.findWhere(self.users, {user: byUser, isActive: true}));
 
         return ret;
     },
@@ -179,7 +179,7 @@ Permissions.findByDescription = function (description) {
 Permissions.findAllPermissionsForUser = function (email) {
     var self = this;
     var promise = new Promise(function (resolve, reject) {
-        UserGroups.findGroupsForMember(email)
+        UserGroups.findGroupsForUser(email)
             .then(function (userGroups) {
                 userGroups.push(email);
                 var conditions = {

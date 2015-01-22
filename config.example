@@ -69,7 +69,7 @@ exports.config = function (argv) {
             mongodb: {
                 url: args.db
             },
-            autoIndex: false
+            autoIndex: true
         },
         sendmails: args.em,
         nodemailer: {

@@ -3,6 +3,7 @@ var Config = require('./../../../config').config({argv: []});
 var Permissions = require('./../../../server/models/permissions');
 var Audit = require('./../../../server/models/audit');
 var UserGroups = require('./../../../server/models/user-groups');
+var _ = require('lodash');
 //var expect = require('chai').expect;
 var Promise = require('bluebird');
 var Code = require('code');   // assertion library
@@ -277,41 +278,350 @@ describe.only('Permissions Model', function () {
     });
 
     describe('Permissions.isPermitted', function () {
+        before(function (done) {
+            groupsToClear.push('permittedTestGroup');
+            permissionsToClear.push('isPermittedTest');
+            var u1 = UserGroups.create('permittedTestGroup', 'testing permissions.isPermitted', 'permittedUser');
+            var userToInclude = [{
+                user: 'permittedTestGroup',
+                type: 'group',
+                isActive: true
+            }, {
+                user: 'directlyPermitted',
+                type: 'user',
+                isActive: true
+            }];
+            var p1 = Permissions.create('isPermittedTest', userToInclude, 'action6', 'object6', 'test5');
+            Promise.join(u1, p1, function (u11, p11) {
+                done();
+            });
+        });
         it('should return true when the user is root irrespective of object / action', function (done) {
-            done();
+            var error = null;
+            Permissions.isPermitted('root', 'action6', 'object6')
+                .then(function (perms) {
+                    expect(perms).to.be.true();
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
         });
         it('should return true when user has permissions directly granted', function (done) {
-            done();
+            var error = null;
+            Permissions.isPermitted('directlyPermitted', 'action6', 'object6')
+                .then(function (perms) {
+                    expect(perms).to.be.true();
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
         });
         it('should return true when user has permissions because of a user group membership', function (done) {
-            done();
+            var error = null;
+            Permissions.isPermitted('permittedUser', 'action6', 'object6')
+                .then(function (perms) {
+                    expect(perms).to.be.true();
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
         });
         it('should return false when user has no permissions', function (done) {
-            done();
+            var error = null;
+            Permissions.isPermitted('unknown', 'action6', 'object6')
+                .then(function (perms) {
+                    expect(perms).to.be.false();
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
         });
     });
 
     describe('Permissions.this.addUsers', function () {
+        before(function (done) {
+            groupsToClear.push('testPermissionsAddUsers');
+            permissionsToClear.push('addUsers1');
+            permissionsToClear.push('addUsers2');
+            permissionsToClear.push('addUsers3');
+            var u1 = UserGroups.create('testPermissionsAddUsers', 'testing permissions.addUsers', 'test5');
+            var userToInclude = [{
+                user: 'testPermissionsAddUsers',
+                type: 'group',
+                isActive: true
+            }, {
+                user: 'directlyPermitted',
+                type: 'user',
+                isActive: true
+            }];
+            var p1 = Permissions.create('addUsers1', userToInclude, 'action7', 'object7', 'test5');
+            var p2 = Permissions.create('addUsers2', userToInclude, 'action8', 'object8', 'test5');
+            var p3 = Permissions.create('addUsers3', userToInclude, 'action9', 'object9', 'test5');
+            Promise.join(u1, p1, p2, p3, function (u11, p11, p21, p31) {
+                done();
+            });
+        });
         it('should add a new entry to users when user/group is newly added', function (done) {
-            done();
+            var error = null;
+            Permissions.findByDescription('addUsers1')
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].addUsers(['newUserGroup'], 'group', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'newUserGroup', isActive: true})).to.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^add user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(1);
+                    expect(paudit[0].action).to.match(/^add user/);
+                    return Permissions.findByDescription('addUsers1');
+                })
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].addUsers(['newUser'], 'user', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'newUser', isActive: true})).to.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^add user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(2);
+                    expect(paudit[0].action).to.match(/^add user/);
+                    expect(paudit[1].action).to.match(/^add user/);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
         });
         it('should do nothing if the user/group is already active in the group', function (done) {
-            done();
+            var error = null;
+            Permissions.findByDescription('addUsers2')
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].addUsers(['testPermissionsAddUsers'], 'group', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'testPermissionsAddUsers', isActive: true})).to.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^add user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(0);
+                    return Permissions.findByDescription('addUsers2');
+                })
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].addUsers(['directlyPermitted'], 'user', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'directlyPermitted', isActive: true})).to.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^add user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(0);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
         });
         it('should mark the user/group as active again when it was deactivated and added again', function (done) {
-            done();
+            var error = null;
+            Permissions.findByDescription('addUsers3')
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    found[0].users.forEach(function (u) {
+                        u.isActive = false;
+                    });
+                    return Permissions._findByIdAndUpdate(found[0]._id, found[0]);
+                })
+                .then(function (p) {
+                    return p.addUsers(['testPermissionsAddUsers'], 'group', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'testPermissionsAddUsers', isActive: true})).to.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^add user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(1);
+                    expect(paudit[0].action).to.match(/^add user users/);
+                    return Permissions.findByDescription('addUsers3');
+                })
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].addUsers(['directlyPermitted'], 'user', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'directlyPermitted', isActive: true})).to.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^add user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(2);
+                    expect(paudit[0].action).to.match(/^add user users/);
+                    expect(paudit[1].action).to.match(/^add user users/);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
         });
     });
 
     describe('Permissions.this.removeUsers', function () {
+        before(function (done) {
+            permissionsToClear.push('removeUsers1');
+            var userToInclude = [{
+                user: 'testPermissionsRemoveUsers',
+                type: 'group',
+                isActive: true
+            }, {
+                user: 'directlyPermittedActive',
+                type: 'user',
+                isActive: true
+            },{
+                user: 'testPermissionsRemoveUsers2',
+                type: 'group',
+                isActive: false
+            }, {
+                user: 'directlyPermittedInactive',
+                type: 'user',
+                isActive: false
+            }];
+            var p1 = Permissions.create('removeUsers1', userToInclude, 'action10', 'object10', 'test5');
+            Promise.join(p1, function (p11) {
+                done();
+            });
+        });
         it('should do nothing if the user/group is already inactive in the group', function (done) {
-            done();
+            var error = null;
+            Permissions.findByDescription('removeUsers1')
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].removeUsers(['testPermissionsRemoveUsers2'], 'group', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'testPermissionsRemoveUsers2', isActive: false})).to.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^remove user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(0);
+                    return Permissions.findByDescription('removeUsers1');
+                })
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].removeUsers(['directlyPermittedInactive'], 'user', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'directlyPermittedInactive', isActive: false})).to.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^remove user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(0);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
         });
         it('should do nothing if the user/group is not present in the group', function (done) {
-            done();
+            var error = null;
+            Permissions.findByDescription('removeUsers1')
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].removeUsers(['unknownGroup'], 'group', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'unknownGroup'})).to.not.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^remove user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(0);
+                    return Permissions.findByDescription('removeUsers1');
+                })
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].removeUsers(['unknownUser'], 'user', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'unknownUser'})).to.not.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^remove user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(0);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
         });
         it('should mark the user/group as inactive if it is active', function (done) {
-            done();
+            var error = null;
+            Permissions.findByDescription('removeUsers1')
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].removeUsers(['testPermissionsRemoveUsers'], 'group', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'testPermissionsRemoveUsers', isActive: false})).to.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^remove user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(1);
+                    expect(paudit[0].action).to.match(/^remove user users/);
+                    return Permissions.findByDescription('removeUsers1');
+                })
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].removeUsers(['directlyPermittedActive'], 'user', 'test5');
+                })
+                .then(function (p) {
+                    expect(_.findWhere(p.users, {user: 'directlyPermittedActive', isActive: false})).to.exist();
+                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^remove user/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(2);
+                    expect(paudit[0].action).to.match(/^remove user users/);
+                    expect(paudit[1].action).to.match(/^remove user users/);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
         });
     });
 
@@ -319,7 +629,7 @@ describe.only('Permissions Model', function () {
         var activated = null, deactivated = null;
         before(function (done) {
             permissionsToClear.push('activated');
-            permissionsToClear.push('notActivated');
+            permissionsToClear.push('deactivated');
             var p1 = Permissions.create('activated', [{
                 user: 'testUser1',
                 type: 'user',
@@ -407,6 +717,7 @@ describe.only('Permissions Model', function () {
         var testPerm = null;
         before(function (done) {
             permissionsToClear.push('updateDesc1');
+            permissionsToClear.push('newDescription');
             Permissions.create('updateDesc1', [{
                 user: 'testUser1',
                 type: 'user',
@@ -456,21 +767,6 @@ describe.only('Permissions Model', function () {
         });
     });
 
-    describe('Permissions.this.hasPermissions', function () {
-        it('returns true when the user is present and active in the users array, action matches or is * and object matches or is *', function (done) {
-            done();
-        });
-        it('returns false if user not present or active', function (done) {
-            done();
-        });
-        it('returns false if action does not match', function (done) {
-            done();
-        });
-        it('returns false if object does not match', function (done) {
-            done();
-        });
-    });
-
     after(function (done) {
         Permissions.remove({description: {$in: permissionsToClear}}, function (err, result) {
             if (err) {
@@ -489,5 +785,4 @@ describe.only('Permissions Model', function () {
             });
         });
     });
-
 });

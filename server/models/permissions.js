@@ -15,11 +15,10 @@ var Permissions = BaseModel.extend({
         var self = this;
         return Audit.createPermissionsAudit(self._id, action, oldValues, newValues, by);
     },
-    hasPermissions: function (forAction, onObject, byUser) {
+    isPermissionFor: function (forAction, onObject) {
         var self = this;
         var ret = (self.action === forAction || self.action === '*') &&
-            (self.object === onObject || self.object === '*') &&
-            (_.findWhere(self.users, {user: byUser, isActive: true}));
+            (self.object === onObject || self.object === '*');
 
         return ret;
     },
@@ -33,7 +32,7 @@ var Permissions = BaseModel.extend({
                     if (!found.isActive) {
                         modified = true;
                         found.isActive = true;
-                        self._audit('reactivate users.' + userToAdd + 'isActive', false, true, by);
+                        self._audit('add user users.' + userToAdd + 'isActive', false, true, by);
                     }
                 } else {
                     modified = true;
@@ -59,7 +58,7 @@ var Permissions = BaseModel.extend({
                     if (found.isActive) {
                         modified = true;
                         found.isActive = false;
-                        self._audit('deactivate users.' + userToRemove + '.isActive', true, false, by);
+                        self._audit('remove user users.' + userToRemove + '.isActive', true, false, by);
                     }
                 }
             });
@@ -214,15 +213,16 @@ Permissions.findAllPermissionsForUser = function (email) {
 Permissions.isPermitted = function (user, action, object) {
     var self = this;
     var promise = new Promise(function (resolve, reject) {
-        var ret = false;
         if (user === 'root') { //root is god
             resolve(true);
         } else {
             self.findAllPermissionsForUser(user)
                 .then(function (permissions) {
-                    ret = _.find(permissions, function (p) {
-                        return p.hasPermissions(action, object, user);
-                    }) ? true : false;
+                    var ret = false;
+                    var len = permissions.length;
+                    for (var i = 0; i < len && !ret; i++) {
+                        ret = ret || permissions[i].isPermissionFor(action, object);
+                    }
                     resolve(ret);
                 })
                 .catch(function (err) {

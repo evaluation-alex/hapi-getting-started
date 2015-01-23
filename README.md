@@ -4,7 +4,6 @@ A user system API for Node.js. Bring your own front-end.
 
 Inspired by [frame](https://github.com/jedireza/frame)
 
-[![Build Status](https://travis-ci.org/k-sheth/hapi-getting-started.svg?branch=master)](https://travis-ci.org/k-sheth/hapi-getting-started)
 [![Dependency Status](https://david-dm.org/k-sheth/hapi-getting-started.svg?style=flat)](https://david-dm.org/k-sheth/hapi-getting-started)
 [![devDependency Status](https://david-dm.org/k-sheth/hapi-getting-started/dev-status.svg?style=flat)](https://david-dm.org/k-sheth/hapi-getting-started#info=devDependencies)
 
@@ -24,12 +23,12 @@ You need [Node.js](http://nodejs.org/download/) and
 [MongoDB](http://www.mongodb.org/downloads) installed and running.
 
 We use [`bcrypt`](https://github.com/ncb000gt/node.bcrypt.js) for hashing
-secrets.
+secrets. bcrypt module needs python / c++ compilers to work. see [Bcrypt installation](https://github.com/jedireza/frame/wiki/bcrypt-Installation-Trouble) for details.
 
 ## Installation
 
 ```bash
-$ git clone git@github.com:ksheth/hapi-getting-started.git && cd ./hapi-getting-started
+$ git clone git@github.com:k-sheth/hapi-getting-started.git && cd ./hapi-getting-started
 $ npm install
 ```
 
@@ -122,7 +121,7 @@ For command line output:
 ```bash
 $ npm test
 
-# > hapi-getting-started@0.0.0 test /Users/jedireza/projects/hapi-getting-started
+# > hapi-getting-started@0.0.0 test /Users/k-sheth/projects/hapi-getting-started
 # > ./node_modules/lab/bin/lab -c
 
 # ..................................................
@@ -143,7 +142,7 @@ With html code coverage report:
 ```bash
 $ npm run test-cover
 
-# > hapi-getting-started@0.0.0 test-cover /Users/jedireza/projects/hapi-getting-started
+# > hapi-getting-started@0.0.0 test-cover /Users/k-sheth/projects/hapi-getting-started
 # > ./node_modules/lab/bin/lab -c -r html -o ./test/artifacts/coverage.html && open ./test/artifacts/coverage.html
 ```
 

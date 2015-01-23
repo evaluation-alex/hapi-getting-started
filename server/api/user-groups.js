@@ -101,7 +101,10 @@ exports.register = function (server, options, next) {
                     removedOwners: Joi.array().includes(Joi.string()),
                     description: Joi.string()
                 }
-            }
+            },
+            pre: [
+                AuthPlugin.preware.ensurePermissions('update', 'user-groups')
+            ]
         },
         handler: function (request, reply) {
             var UserGroups = request.server.plugins['hapi-mongo-models'].UserGroups;
@@ -181,7 +184,9 @@ exports.register = function (server, options, next) {
                         })
                         .done();
                 }
-            }]
+            },
+                AuthPlugin.preware.ensurePermissions('update', 'user-groups')
+            ]
         },
         handler: function (request, reply) {
             var UserGroups = request.server.plugins['hapi-mongo-models'].UserGroups;

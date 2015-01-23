@@ -99,6 +99,9 @@ exports.register = function (server, options, next) {
             auth: {
                 strategy: 'simple'
             },
+            pre: [
+                AuthPlugin.preware.ensurePermissions('update', 'permissions')
+            ],
             validate: {
                 payload: {
                     isActive: Joi.boolean(),
@@ -193,7 +196,7 @@ exports.register = function (server, options, next) {
                         })
                         .done();
                 }
-            }]
+            },AuthPlugin.preware.ensurePermissions('update', 'permissions')]
         },
         handler: function (request, reply) {
             var Permissions = request.server.plugins['hapi-mongo-models'].Permissions;

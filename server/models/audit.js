@@ -119,8 +119,8 @@ Audit.findUserGroupsAudit = function (conditions) {
 Audit.findPermissionsAudit = function (conditions) {
     var self = this;
     conditions.objectChangedType = 'Permissions';
-    conditions.objectChangedId = conditions.name;
-    delete conditions.name;
+    conditions.objectChangedId = conditions._id;
+    delete conditions._id;
     return self._find(conditions);
 };
 

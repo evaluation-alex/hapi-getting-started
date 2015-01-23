@@ -149,7 +149,7 @@ Permissions.create = function (description, users, action, object, by) {
                 if (!results) {
                     resolve({});
                 } else {
-                    Audit.createPermissionsAudit(description, 'create', '', results[0], by);
+                    Audit.createPermissionsAudit(results[0]._id, 'create', '', results[0], by);
                     resolve(results[0]);
                 }
             }
@@ -161,7 +161,7 @@ Permissions.create = function (description, users, action, object, by) {
 Permissions.findByDescription = function (description) {
     var self = this;
     var promise = new Promise(function (resolve, reject) {
-        self.find({description: description, isActive: true}, function (err, permissions) {
+        self.find({description: {$regex: new RegExp(description)}, isActive: true}, function (err, permissions) {
             if (err) {
                 reject(err);
             } else {
@@ -181,9 +181,12 @@ Permissions.findAllPermissionsForUser = function (email) {
     var promise = new Promise(function (resolve, reject) {
         UserGroups.findGroupsForUser(email)
             .then(function (userGroups) {
-                userGroups.push(email);
+                var ug = userGroups.map(function (userGroup) {
+                    return userGroup.name;
+                });
+                ug.push(email);
                 var conditions = {
-                    'users.user': {$in: userGroups},
+                    'users.user': {$in: ug},
                     'users.isActive': true
                 };
                 self.find(conditions, function (err, permissions) {

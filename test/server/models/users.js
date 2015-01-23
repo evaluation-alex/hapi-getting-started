@@ -384,7 +384,7 @@ describe.only('Users Model', function () {
 
     after(function (done) {
         var testUsers = [firstEmail, secondEmail];
-        Users.remove({email: { $in: testUsers}}, function (err) {
+        Users.remove({email: {$in: testUsers}}, function (err) {
             if (err) {
                 return done(err);
             }

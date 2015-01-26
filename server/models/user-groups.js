@@ -231,6 +231,29 @@ UserGroups.findGroupsForUser = function (email) {
     return promise;
 };
 
+UserGroups.isValid = function (id, owner) {
+    var self = this;
+    var promise = new Promise(function (resolve, reject) {
+        self._findOne({_id: id})
+            .then(function (g) {
+                if (!g) {
+                    resolve({message: 'not found'});
+                } else {
+                    if (g.isOwner(owner) || (owner === 'root')) {
+                        resolve({message: 'valid'});
+                    } else {
+                        resolve({message: 'not an owner'});
+                    }
+                }
+            })
+            .catch(function (e) {
+                reject(e);
+            })
+            .done();
+    });
+    return promise;
+};
+
 UserGroups._findByIdAndUpdate = function (id, obj) {
     var self = this;
     var promise = new Promise(function (resolve, reject) {

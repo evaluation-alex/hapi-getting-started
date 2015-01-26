@@ -58,20 +58,19 @@ exports.register = function (server, options, next) {
                             }
                         };
                         var mailerP = mailer.sendEmail(options, 'welcome', request.payload);
-                        Promise.join(signupP, loginP, mailerP, function (s, l, m) {
+                        return Promise.join(signupP, loginP, mailerP, function (s, l, m) {
                             var credentials = user.email + ':' + user.session.key;
                             var authHeader = 'Basic ' + new Buffer(credentials).toString('base64');
-                            reply({
+                            return {
                                 user: user,
                                 session: user.session,
                                 authHeader: authHeader
-                            });
-                        }).catch(function (err) {
-                            if (err) {
-                                reply(Boom.badImplementation(err));
-                            }
+                            };
                         });
                     }
+                })
+                .then(function (r) {
+                    reply(r);
                 })
                 .catch(function (err) {
                     if (err) {

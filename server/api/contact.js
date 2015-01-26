@@ -1,7 +1,7 @@
 'use strict';
 var Joi = require('joi');
 var Hoek = require('hoek');
-var Config = require('./../../config').config({argv:[]});
+var Config = require('./../../config').config({argv: []});
 var Boom = require('boom');
 
 exports.register = function (server, options, next) {

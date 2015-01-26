@@ -23,25 +23,20 @@ exports.register = function (server, options, next) {
                     var AuthAttempts = request.server.plugins['hapi-mongo-models'].AuthAttempts;
                     var ip = request.info.remoteAddress;
                     var email = request.payload.email;
-                    var replied = false;
                     AuthAttempts.abuseDetected(ip, email)
                         .then(function (detected) {
                             if (detected) {
-                                replied = true;
                                 reply(Boom.tooManyRequests('Maximum number of auth attempts reached. Please try again later.'));
+                            } else {
+                                reply();
                             }
                         })
                         .catch(function (err) {
-                            if (err && !replied) {
-                                replied = true;
+                            if (err) {
                                 reply(Boom.badImplementation(err));
                             }
                         })
-                        .done(function () {
-                            if (!replied) {
-                                reply();
-                            }
-                        });
+                        .done();
                 }
             }, {
                 assign: 'user',
@@ -55,7 +50,7 @@ exports.register = function (server, options, next) {
                                 reply(Boom.notFound('user ' + email + ' not found'));
                             } else {
                                 if (user.fail === true) {
-                                    user.user.loginFail(request.info.remoteAddress, request.info.remoteAddress).done();
+                                    user.user.loginFail(request.info.remoteAddress, request.info.remoteAddress);
                                     reply(Boom.unauthorized('Invalid password'));
                                 } else {
                                     reply(user);
@@ -138,7 +133,7 @@ exports.register = function (server, options, next) {
             var Users = request.server.plugins['hapi-mongo-models'].Users;
             var mailer = request.server.plugins.mailer;
             var user = request.pre.user;
-            Users._findOne({_id:user._id})
+            Users._findOne({_id: user._id})
                 .then(function (foundUser) {
                     var options = {
                         subject: 'Reset your ' + Config.projectName + ' password',
@@ -146,7 +141,7 @@ exports.register = function (server, options, next) {
                     };
                     var p1 = foundUser.resetPasswordSent(request.pre.user.email);
                     var p2 = mailer.sendEmail(options, 'forgot-password', {key: foundUser.resetPwd.token});
-                    Promise.join(p1, p2).then(function (v1, v2) {
+                    return Promise.join(p1, p2).then(function (v1, v2) {
                         reply({message: 'Success.'});
                     });
                 })

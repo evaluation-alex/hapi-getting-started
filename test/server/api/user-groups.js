@@ -58,56 +58,76 @@ describe('Users', function () {
 
     describe('GET /user-groups', function () {
         it('should give active groups when isactive = true is sent', function (done) {
+            done();
         });
         it('should give inactive groups when isactive = false is sent', function (done) {
+            done();
         });
         it('should give only the groups whose name is sent in the parameter', function (done) {
+            done();
         });
         it('should give the groups where the user is a member when user id is sent in the parameters', function (done) {
+            done();
         });
         it('should return both inactive and active groups when nothing is sent', function (done) {
+            done();
         });
     });
 
     describe('GET /user-groups/{id}', function () {
         it('should only send back user-group with the id in params', function (done) {
+            done();
         });
         it('should send back not found when the user with the id in params is not found', function (done) {
+            done();
         });
     });
 
     describe('PUT /user-groups/{id}', function () {
         it('should send back not found error when you try to modify a non existent group', function (done) {
+            done();
         });
         it('should send back error if any of the users or owners to be added are not valid', function (done) {
+            done();
         });
         it('should send back forbidden error when you try to modify a group you are not an owner of', function (done) {
+            done();
         });
         it('should activate / deactivate group and have changes audited', function (done) {
+            done();
         });
         it('should add / remove users and have changes audited', function (done) {
+            done();
         });
         it('should add / remove owners and have changes audited', function (done) {
+            done();
         });
         it('should update description and have changes audited', function (done) {
+            done();
         });
     });
 
     describe('POST /user-groups/{id}', function () {
         it('should send back conflict when you try to create a group with name that already exists', function (done) {
+            done();
         });
         it('should send back error if any user sent in the request does not exist', function (done) {
+            done();
         });
         it('should create a group with the sender as owner, member and the list of users also sent as members of the group', function (done) {
+            done();
         });
     });
 
     describe('DELETE /user-groups/{id}', function () {
         it('should send back not found error when you try to modify a non existent group', function (done) {
+            done();
         });
         it('should send back forbidden error when you try to modify a group you are not an owner of', function (done) {
+            done();
         });
         it('should deactivate group and have changes audited', function (done) {
+            done();
         });
     });
 

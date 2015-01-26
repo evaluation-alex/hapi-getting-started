@@ -120,30 +120,34 @@ exports.register = function (server, options, next) {
                     if (!permissions) {
                         reply(Boom.notFound('Permissions not found.'));
                     } else {
+                        var p = [permissions];
                         var by = request.auth.credentials.user.email;
                         if (request.payload.isActive === true) {
-                            permissions.reactivate(by);
+                            p.push(permissions.reactivate(by));
                         }
                         if (request.payload.isActive === false) {
-                            permissions.deactivate(by);
+                            p.push(permissions.deactivate(by));
                         }
                         if (request.payload.addedUsers) {
-                            permissions.addUsers(request.payload.addedUsers, 'user', by);
+                            p.push(permissions.addUsers(request.payload.addedUsers, 'user', by));
                         }
                         if (request.payload.removedUsers) {
-                            permissions.removeUsers(request.payload.removedUsers, 'user', by);
+                            p.push(permissions.removeUsers(request.payload.removedUsers, 'user', by));
                         }
                         if (request.payload.addedGroups) {
-                            permissions.addUsers(request.payload.addedGroups, 'group', by);
+                            p.push(permissions.addUsers(request.payload.addedGroups, 'group', by));
                         }
                         if (request.payload.removedGroups) {
-                            permissions.removeUsers(request.payload.removedGroups, 'group', by);
+                            p.push(permissions.removeUsers(request.payload.removedGroups, 'group', by));
                         }
                         if (request.payload.description) {
-                            permissions.updateDesc(request.payload.description, by);
+                            p.push(permissions.updateDesc(request.payload.description, by));
                         }
-                        reply(permissions);
+                        return Promise.all(p);
                     }
+                })
+                .then(function (p) {
+                    reply(p[0]);
                 })
                 .catch(function (err) {
                     if (err) {
@@ -196,7 +200,7 @@ exports.register = function (server, options, next) {
                         })
                         .done();
                 }
-            },AuthPlugin.preware.ensurePermissions('update', 'permissions')]
+            }, AuthPlugin.preware.ensurePermissions('update', 'permissions')]
         },
         handler: function (request, reply) {
             var Permissions = request.server.plugins['hapi-mongo-models'].Permissions;

@@ -1,6 +1,7 @@
 'use strict';
 var Config = require('./../../../config').config({argv: []});
 var UserGroups = require('./../../../server/models/user-groups');
+var BaseModel = require('hapi-mongo-models').BaseModel;
 var Audit = require('./../../../server/models/audit');
 var _ = require('lodash');
 //var expect = require('chai').expect;
@@ -231,6 +232,81 @@ describe('UserGroups Model', function () {
             UserGroups.findGroupsForUser('bogus')
                 .then(function (ug) {
                     expect(ug.length).to.equal(0);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
+        });
+    });
+
+    describe('UserGroups.isValid', function () {
+        it ('should return with a not found message when group does not exist', function (done) {
+            var error = null;
+            UserGroups.isValid(BaseModel.ObjectID(null), 'unknown')
+                .then(function (m) {
+                    expect(m).to.exist();
+                    expect(m.message).to.equal('not found');
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
+        });
+        it ('should return with not an owner when the owner argument is not an owner (active or otherwise)', function (done) {
+            var error = null;
+            groupsToCleanup.push('isValidTest');
+            UserGroups.create('isValidTest', 'isValidTest', 'test5')
+                .then(function(ug) {
+                    return UserGroups.isValid(ug._id, 'unknown');
+                })
+                .then(function (m) {
+                    expect(m).to.exist();
+                    expect(m.message).to.equal('not an owner');
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
+        });
+        it ('should return valid when the group exists and the owner is an active owner', function (done) {
+            var error = null;
+            groupsToCleanup.push('isValidTest2');
+            UserGroups.create('isValidTest2', 'isValidTest2', 'test5')
+                .then(function(ug) {
+                    return UserGroups.isValid(ug._id, 'test5');
+                })
+                .then(function (m) {
+                    expect(m).to.exist();
+                    expect(m.message).to.equal('valid');
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    testComplete(done, error);
+                });
+        });
+        it ('should return valid when the group exists and we pass root as owner', function (done) {
+            var error = null;
+            groupsToCleanup.push('isValidTest3');
+            UserGroups.create('isValidTest3', 'isValidTest3', 'test5')
+                .then(function(ug) {
+                    return UserGroups.isValid(ug._id, 'root');
+                })
+                .then(function (m) {
+                    expect(m).to.exist();
+                    expect(m.message).to.equal('valid');
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();

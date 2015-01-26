@@ -20,8 +20,8 @@ exports.register = function (server, options, next) {
                     if (!user) {
                         reply(Boom.notFound('Session not found. Logout and login again'));
                     } else {
-                        user.logout(request.info.remoteAddress, user.email).done();
                         reply({message: 'Success.'});
+                        user.logout(request.info.remoteAddress, user.email);
                     }
                 })
                 .catch(function (err) {

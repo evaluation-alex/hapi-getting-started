@@ -4,9 +4,29 @@ var Hoek = require('hoek');
 var AuthPlugin = require('./../auth');
 var Boom = require('boom');
 var BaseModel = require('hapi-mongo-models').BaseModel;
+var _ = require('lodash');
 
 exports.register = function (server, options, next) {
     options = Hoek.applyToDefaults({basePath: ''}, options);
+    var validAndPermitted = function (request, reply) {
+        var UserGroups = request.server.plugins['hapi-mongo-models'].UserGroups;
+        UserGroups.isValid(BaseModel.ObjectID(request.params.id), request.auth.credentials.user.email)
+            .then(function (m) {
+                if (m.message === 'valid') {
+                    reply();
+                } else if (m.message === 'not found') {
+                    reply(Boom.notFound(JSON.stringify(m)));
+                } else if (m.message === 'not an owner') {
+                    reply(Boom.unauthorized(JSON.stringify(m)));
+                }
+            })
+            .catch(function (err) {
+                if (err) {
+                    reply(Boom.badImplementation(err));
+                }
+            })
+            .done();
+    };
     server.route({
         method: 'GET',
         path: options.basePath + '/user-groups',
@@ -103,44 +123,84 @@ exports.register = function (server, options, next) {
                 }
             },
             pre: [
-                AuthPlugin.preware.ensurePermissions('update', 'user-groups')
+                AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
+                {
+                    assign: 'validUsers',
+                    method: function (request, reply) {
+                        var Users = request.server.plugins['hapi-mongo-models'].Users;
+                        var invalidUsers = [];
+                        var invalidOwners = [];
+                        if (request.payload.addedMembers) {
+                            Users.areValid(request.payload.addedMembers)
+                                .then(function (found) {
+                                    _.forEach(request.payload.addedMembers, function (a) {
+                                        if (!found[a]) {
+                                            invalidUsers.push(a);
+                                        }
+                                    });
+                                });
+                        }
+                        if (request.payload.addedOwners) {
+                            Users.areValid(request.payload.addedOwners)
+                                .then(function (found) {
+                                    _.forEach(request.payload.addedOwners, function (a) {
+                                        if (!found[a]) {
+                                            invalidOwners.push(a);
+                                        }
+                                    });
+                                });
+                        }
+                        var msg = '';
+                        if (invalidUsers.length > 0) {
+                            msg = 'invalidMembers = [' + JSON.stringify(invalidUsers) + ']';
+                        }
+                        if (invalidOwners.length > 0) {
+                            msg += 'invalidOwners = [' + JSON.stringify(invalidOwners) + ']';
+                        }
+                        if (invalidUsers.length > 0 || invalidOwners.length > 0) {
+                            reply(Boom.badData(msg));
+                        } else {
+                            reply();
+                        }
+                    }
+                },
+                {
+                    assign: 'validAndPermitted',
+                    method: validAndPermitted
+                }
             ]
         },
         handler: function (request, reply) {
             var UserGroups = request.server.plugins['hapi-mongo-models'].UserGroups;
             UserGroups._findOne({_id: BaseModel.ObjectID(request.params.id)})
                 .then(function (userGroup) {
-                    if (!userGroup) {
-                        reply(Boom.notFound('User group not found.'));
-                    } else {
-                        var by = request.auth.credentials.user.email;
-                        if (userGroup.isOwner(by) || by === 'root') {
-                            if (request.payload.isActive === true) {
-                                userGroup.reactivate(by);
-                            }
-                            if (request.payload.isActive === false) {
-                                userGroup.deactivate(by);
-                            }
-                            if (request.payload.addedMembers) {
-                                userGroup.addUsers(request.payload.addedMembers, by);
-                            }
-                            if (request.payload.removedMembers) {
-                                userGroup.removeUsers(request.payload.removedMembers, by);
-                            }
-                            if (request.payload.addedOwners) {
-                                userGroup.addOwners(request.payload.addedOwners, by);
-                            }
-                            if (request.payload.removedOwners) {
-                                userGroup.removeOwners(request.payload.removedOwners, by);
-                            }
-                            if (request.payload.description) {
-                                userGroup.updateDesc(request.payload.description, by);
-                            }
-                            reply(userGroup);
-                        } else {
-                            reply(Boom.unauthorized('Only owners are allowed to modify groups'));
-                        }
+                    var p = [userGroup];
+                    var by = request.auth.credentials.user.email;
+                    if (request.payload.isActive === true) {
+                        p.push(userGroup.reactivate(by));
                     }
+                    if (request.payload.isActive === false) {
+                        p.push(userGroup.deactivate(by));
+                    }
+                    if (request.payload.addedMembers) {
+                        p.push(userGroup.addUsers(request.payload.addedMembers, 'member', by));
+                    }
+                    if (request.payload.removedMembers) {
+                        p.push(userGroup.removeUsers(request.payload.removedMembers, 'member', by));
+                    }
+                    if (request.payload.addedOwners) {
+                        p.push(userGroup.addUsers(request.payload.addedOwners, 'owner', by));
+                    }
+                    if (request.payload.removedOwners) {
+                        p.push(userGroup.removeUsers(request.payload.removedOwners, 'owner', by));
+                    }
+                    if (request.payload.description) {
+                        p.push(userGroup.updateDesc(request.payload.description, by));
+                    }
+                    return Promise.all(p);
+                })
+                .then(function (ug) {
+                    reply(ug[0]);
                 })
                 .catch(function (err) {
                     if (err) {
@@ -197,10 +257,13 @@ exports.register = function (server, options, next) {
                         reply(Boom.notFound('User group could not be created.'));
                     } else {
                         if (request.payload.members) {
-                            userGroup.addUsers(request.payload.members, by);
+                            return userGroup.addUsers(request.payload.members, by);
                         }
-                        reply(userGroup);
+                        return userGroup;
                     }
+                })
+                .then(function (ug) {
+                    reply(ug);
                 })
                 .catch(function (err) {
                     if (err) {
@@ -219,23 +282,19 @@ exports.register = function (server, options, next) {
                 strategy: 'simple'
             },
             pre: [
-                AuthPlugin.preware.ensurePermissions('update', 'user-groups')
+                AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
+                {
+                    assign: 'validAndPermitted',
+                    method: validAndPermitted
+                }
             ]
         },
         handler: function (request, reply) {
             var UserGroups = request.server.plugins['hapi-mongo-models'].UserGroups;
             UserGroups._findOne({_id: BaseModel.ObjectID(request.params.id)})
                 .then(function (userGroup) {
-                    if (!userGroup) {
-                        reply(Boom.notFound('User group not found.'));
-                    } else {
-                        var by = request.auth.credentials.user.email;
-                        if (userGroup.isOwner(by) || by === 'root') {
-                            reply(userGroup.deactivate(by));
-                        } else {
-                            reply(Boom.unauthorized('Only owners are allowed to modify groups'));
-                        }
-                    }
+                    var by = request.auth.credentials.user.email;
+                    reply(userGroup.deactivate(by));
                 })
                 .catch(function (err) {
                     if (err) {
@@ -251,5 +310,5 @@ exports.register = function (server, options, next) {
 ;
 
 exports.register.attributes = {
-    name: 'users'
+    name: 'user-groups'
 };

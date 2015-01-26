@@ -4,6 +4,7 @@ var Hoek = require('hoek');
 var AuthPlugin = require('./../auth');
 var Boom = require('boom');
 var BaseModel = require('hapi-mongo-models').BaseModel;
+var Promise = require('bluebird');
 
 exports.register = function (server, options, next) {
     options = Hoek.applyToDefaults({basePath: ''}, options);
@@ -106,20 +107,25 @@ exports.register = function (server, options, next) {
                     if (!user) {
                         reply(Boom.notFound('User not found.'));
                     } else {
+                        var p = [user];
+                        var by = request.auth.credentials.user.email;
                         if (request.payload.isActive === false) {
-                            user.deactivate(request.auth.credentials.user.email).done();
+                            p.push(user.deactivate(by));
                         }
                         if (request.payload.isActive === true) {
-                            user.reactivate(request.auth.credentials.user.email).done();
+                            p.push(user.reactivate(by));
                         }
                         if (request.payload.roles) {
-                            user.updateRoles(request.payload.roles, request.auth.credentials.user.email).done();
+                            p.push(user.updateRoles(request.payload.roles, by));
                         }
                         if (request.payload.password) {
-                            user.resetPassword(request.payload.password, request.auth.credentials.user.email).done();
+                            p.push(user.resetPassword(request.payload.password, by));
                         }
-                        reply(user);
+                        return Promise.all(p);
                     }
+                })
+                .then(function (u) {
+                    reply(u[0]);
                 })
                 .catch(function (err) {
                     if (err) {

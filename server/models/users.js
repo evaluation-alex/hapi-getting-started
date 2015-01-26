@@ -268,6 +268,41 @@ Users.findBySessionCredentials = function (email, key) {
     return promise;
 };
 
+Users.areValid = function (emails) {
+    var self = this;
+    var promise = new Promise(function (resolve, reject) {
+        if (emails.length === 0) {
+            resolve({});
+        } else {
+            var conditions = {
+                email: {$in : emails},
+                isActive: true
+            };
+            self.find(conditions, function (err, docs) {
+                if (err) {
+                    reject(err);
+                } else {
+                    if (!docs) {
+                        resolve({});
+                    } else {
+                        var results = Object.create(null);
+                        _.forEach(docs, function (doc) {
+                            results[doc.email] = true;
+                        });
+                        _.forEach(emails, function (e) {
+                            if (!results[e]) {
+                                results[e] = false;
+                            }
+                        });
+                        resolve(results);
+                    }
+                }
+            });
+        }
+    });
+    return promise;
+};
+
 Users.findByEmail = function (email) {
     var self = this;
     var promise = new Promise(function (resolve, reject) {

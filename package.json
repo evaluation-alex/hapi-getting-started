@@ -35,7 +35,7 @@
     },
     "dependencies": {
         "bcrypt": "^0.8.1",
-        "bluebird": "^2.9.2",
+        "bluebird": "^2.9.3",
         "boom": "^2.6.1",
         "bossy": "^1.0.2",
         "glue": "^2.0.0",

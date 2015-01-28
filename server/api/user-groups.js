@@ -54,12 +54,13 @@ exports.register = function (server, options, next) {
             var query = {};
             if (request.query.email) {
                 query.members.email = new RegExp('^.*?' + request.query.email + '.*$', 'i');
+                query.members.isActive = 1;
             }
             if (request.query.groupName) {
                 query.name = request.query.groupName;
             }
             if (request.query.isActive) {
-                query.isActive = request.query.isActive === true;
+                query.isActive = request.query.isActive === '"true"';
             }
             var fields = request.query.fields;
             var sort = request.query.sort;

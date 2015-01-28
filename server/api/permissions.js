@@ -42,11 +42,8 @@ exports.register = function (server, options, next) {
             if (request.query.object) {
                 query.object = request.query.object;
             }
-            if (request.query.isActive === true) {
-                query.isActive = true;
-            }
-            if (request.query.isActive === false) {
-                query.isActive = false;
+            if (request.query.isActive) {
+                query.isActive = request.query.isActive === '"true"';
             }
             var fields = request.query.fields;
             var sort = request.query.sort;

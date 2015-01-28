@@ -36,7 +36,7 @@ exports.register = function (server, options, next) {
                 query.email = new RegExp('^.*?' + request.query.email + '.*$', 'i');
             }
             if (request.query.isActive) {
-                query.isActive = request.query.isActive === 'true';
+                query.isActive = request.query.isActive === '"true"';
             }
             var fields = request.query.fields;
             var sort = request.query.sort;

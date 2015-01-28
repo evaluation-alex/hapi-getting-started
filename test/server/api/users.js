@@ -62,8 +62,12 @@ describe('Users', function () {
                     }
                 };
                 server.inject(request, function (response) {
-                    expect(response.statusCode).to.equal(401);
-                    done();
+                    try {
+                        expect(response.statusCode).to.equal(401);
+                        done();
+                    } catch (err) {
+                        done(err);
+                    }
                 });
             });
     });
@@ -85,8 +89,12 @@ describe('Users', function () {
                     }
                 };
                 server.inject(request, function (response) {
-                    expect(response.statusCode).to.equal(401);
-                    done();
+                    try {
+                        expect(response.statusCode).to.equal(401);
+                        done();
+                    } catch (err) {
+                        done(err);
+                    }
                 });
             });
     });
@@ -108,9 +116,13 @@ describe('Users', function () {
                     }
                 };
                 server.inject(request, function (response) {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
-                    done();
+                    try {
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.payload).to.exist();
+                        done();
+                    } catch (err) {
+                        done(err);
+                    }
                 });
             });
     });
@@ -141,10 +153,14 @@ describe('Users', function () {
                 }
             };
             server.inject(request, function (response) {
-                expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
-                expect(response.payload).to.not.contain('test.users2@test.api');
-                done();
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist();
+                    expect(response.payload).to.not.contain('test.users2@test.api');
+                    done();
+                } catch (err) {
+                    done(err);
+                }
             });
         });
         it('should give inactive users when isactive = false is sent', function (done) {
@@ -156,10 +172,14 @@ describe('Users', function () {
                 }
             };
             server.inject(request, function (response) {
-                expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
-                expect(response.payload).to.contain('test.users2@test.api');
-                done();
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist();
+                    expect(response.payload).to.contain('test.users2@test.api');
+                    done();
+                } catch (err) {
+                    done(err);
+                }
             });
         });
         it('should give only the user whose email is sent in the parameter', function (done) {
@@ -171,11 +191,15 @@ describe('Users', function () {
                 }
             };
             server.inject(request, function (response) {
-                expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
-                expect(response.payload).to.not.contain('test.users2@test.api');
-                expect(response.payload).to.contain('one@first.com');
-                done();
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist();
+                    expect(response.payload).to.not.contain('test.users2@test.api');
+                    expect(response.payload).to.contain('one@first.com');
+                    done();
+                } catch (err) {
+                    done(err);
+                }
             });
         });
         it('should return both inactive and active users when nothing is sent', function (done) {
@@ -187,11 +211,15 @@ describe('Users', function () {
                 }
             };
             server.inject(request, function (response) {
-                expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
-                expect(response.payload).to.contain('test.users2@test.api');
-                expect(response.payload).to.contain('one@first.com');
-                done();
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist();
+                    expect(response.payload).to.contain('test.users2@test.api');
+                    expect(response.payload).to.contain('one@first.com');
+                    done();
+                } catch (err) {
+                    done(err);
+                }
             });
         });
     });
@@ -218,10 +246,14 @@ describe('Users', function () {
                 }
             };
             server.inject(request, function (response) {
-                expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
-                expect(response.payload).to.contain(id);
-                done();
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist();
+                    expect(response.payload).to.contain(id);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
             });
         });
         it('should send back not found when the user with the id in params is not found', function (done) {
@@ -233,8 +265,12 @@ describe('Users', function () {
                 }
             };
             server.inject(request, function (response) {
-                expect(response.statusCode).to.equal(404);
-                done();
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
             });
         });
     });
@@ -269,21 +305,24 @@ describe('Users', function () {
                 }
             };
             server.inject(request, function (response) {
-                expect(response.statusCode).to.equal(200);
-                var Users = server.plugins['hapi-mongo-models'].Users;
-                var Audit = server.plugins['hapi-mongo-models'].Audit;
-                Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
-                    .then(function (foundUser) {
-                        expect(foundUser.isActive).to.be.false();
-                        expect(foundUser.session).to.not.exist();
-                        Audit.findUsersAudit({userId: foundUser.email, action:'deactivate'})
-                            .then(function(foundAudit) {
-                                expect(foundAudit).to.exist();
-                                done();
-                            })
-                            .done();
-                    })
-                    .done();
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var Users = server.plugins['hapi-mongo-models'].Users;
+                    var Audit = server.plugins['hapi-mongo-models'].Audit;
+                    Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
+                        .then(function (foundUser) {
+                            expect(foundUser.isActive).to.be.false();
+                            expect(foundUser.session).to.not.exist();
+                            return Audit.findUsersAudit({userId: foundUser.email, action:'deactivate'});
+                        })
+                        .then(function(foundAudit) {
+                            expect(foundAudit).to.exist();
+                            done();
+                        })
+                        .done();
+                } catch (err) {
+                    done(err);
+                }
             });
         });
         it('should update roles, session should be deactivated and changes audited', function (done) {
@@ -298,21 +337,24 @@ describe('Users', function () {
                 }
             };
             server.inject(request, function (response) {
-                expect(response.statusCode).to.equal(200);
-                var Users = server.plugins['hapi-mongo-models'].Users;
-                var Audit = server.plugins['hapi-mongo-models'].Audit ;
-                Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
-                    .then(function (foundUser) {
-                        expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
-                        expect(foundUser.session).to.not.exist();
-                        Audit.findUsersAudit({userId: foundUser.email, action:'update roles'})
-                            .then(function(foundAudit) {
-                                expect(foundAudit).to.exist();
-                                done();
-                            })
-                            .done();
-                    })
-                    .done();
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var Users = server.plugins['hapi-mongo-models'].Users;
+                    var Audit = server.plugins['hapi-mongo-models'].Audit ;
+                    Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
+                        .then(function (foundUser) {
+                            expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
+                            expect(foundUser.session).to.not.exist();
+                            return Audit.findUsersAudit({userId: foundUser.email, action:'update roles'});
+                        })
+                        .then(function(foundAudit) {
+                            expect(foundAudit).to.exist();
+                            done();
+                        })
+                        .done();
+                } catch (err) {
+                    done(err);
+                }
             });
         });
         it('should update password, session should be deactivated and changes audited', function (done) {
@@ -327,20 +369,23 @@ describe('Users', function () {
                 }
             };
             server.inject(request, function (response) {
-                expect(response.statusCode).to.equal(200);
-                var Users = server.plugins['hapi-mongo-models'].Users;
-                var Audit = server.plugins['hapi-mongo-models'].Audit;
-                Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
-                    .then(function (foundUser) {
-                        expect(foundUser.session).to.not.exist();
-                        Audit.findUsersAudit({userId: foundUser.email, action:'reset password'})
-                            .then(function(foundAudit) {
-                                expect(foundAudit).to.exist();
-                                done();
-                            })
-                            .done();
-                    })
-                    .done();
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var Users = server.plugins['hapi-mongo-models'].Users;
+                    var Audit = server.plugins['hapi-mongo-models'].Audit;
+                    Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
+                        .then(function (foundUser) {
+                            expect(foundUser.session).to.not.exist();
+                            return Audit.findUsersAudit({userId: foundUser.email, action:'reset password'});
+                        })
+                        .then(function(foundAudit) {
+                            expect(foundAudit).to.exist();
+                            done();
+                        })
+                        .done();
+                } catch (err) {
+                    done(err);
+                }
             });
         });
         it('should update roles, password and is active, session should be deactivated and all changes audited', function (done) {
@@ -357,16 +402,21 @@ describe('Users', function () {
                 }
             };
             server.inject(request, function (response) {
-                expect(response.statusCode).to.equal(200);
-                var Users = server.plugins['hapi-mongo-models'].Users;
-                Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
-                    .then(function (foundUser) {
-                        expect(foundUser.session).to.not.exist();
-                        expect(foundUser.roles).to.include(['readonly']);
-                        expect(foundUser.isActive).to.be.true();
-                        done();
-                    })
-                    .done();
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var Users = server.plugins['hapi-mongo-models'].Users;
+                    Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
+                        .then(function (foundUser) {
+                            expect(foundUser.session).to.not.exist();
+                            expect(foundUser.roles).to.include(['readonly']);
+                            expect(foundUser.isActive).to.be.true();
+                            done();
+                        })
+                        .done();
+
+                } catch (err) {
+                    done(err);
+                }
             });
         });
     });

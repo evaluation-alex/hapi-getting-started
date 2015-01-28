@@ -42,9 +42,13 @@ describe('Contact', function () {
             }
         };
         server.inject(request, function (response) {
-            expect(response.statusCode).to.equal(500);
-            Fs.renameSync('./server/emails/contact2.hbs.md', './server/emails/contact.hbs.md');
-            done();
+            try {
+                expect(response.statusCode).to.equal(500);
+                Fs.renameSync('./server/emails/contact2.hbs.md', './server/emails/contact.hbs.md');
+                done();
+            } catch (err) {
+                done(err);
+            }
         });
     });
 
@@ -59,8 +63,12 @@ describe('Contact', function () {
             }
         };
         server.inject(request, function (response) {
-            expect(response.statusCode).to.equal(200);
-            done();
+            try {
+                expect(response.statusCode).to.equal(200);
+                done();
+            } catch(err) {
+                done(err);
+            }
         });
     });
 });

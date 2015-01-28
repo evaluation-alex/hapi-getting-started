@@ -50,8 +50,12 @@ describe('Signup', function () {
             }
         };
         server.inject(request, function (response) {
-            expect(response.statusCode).to.equal(409);
-            done();
+            try {
+                expect(response.statusCode).to.equal(409);
+                done();
+            } catch (err) {
+                done(err);
+            }
         });
     });
 
@@ -67,9 +71,13 @@ describe('Signup', function () {
         };
         emails.push(request.payload.email);
         server.inject(request, function (response) {
-            Fs.renameSync('./server/emails/welcome2.hbs.md', './server/emails/welcome.hbs.md');
-            expect(response.statusCode).to.equal(500);
-            done();
+            try {
+                Fs.renameSync('./server/emails/welcome2.hbs.md', './server/emails/welcome.hbs.md');
+                expect(response.statusCode).to.equal(500);
+                done();
+            } catch (err) {
+                done(err);
+            }
         });
     });
 
@@ -84,26 +92,30 @@ describe('Signup', function () {
         };
         emails.push(request.payload.email);
         server.inject(request, function (response) {
-            expect(response.statusCode).to.equal(200);
-            var Users = server.plugins['hapi-mongo-models'].Users;
-            var Audit = server.plugins['hapi-mongo-models'].Audit;
-            var p1 = Users._findOne({email: 'test.signup2@signup.api'})
-                .then(function (foundUser) {
-                    expect(foundUser).to.exist();
-                    expect(foundUser.session).to.exist();
+            try {
+                expect(response.statusCode).to.equal(200);
+                var Users = server.plugins['hapi-mongo-models'].Users;
+                var Audit = server.plugins['hapi-mongo-models'].Audit;
+                var p1 = Users._findOne({email: 'test.signup2@signup.api'})
+                    .then(function (foundUser) {
+                        expect(foundUser).to.exist();
+                        expect(foundUser.session).to.exist();
+                    });
+                var p2 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'signup'})
+                    .then(function(foundSignup) {
+                        expect(foundSignup).to.exist();
+                        expect(foundSignup[0].newValues).to.include('test.signup2@signup.api');
+                    });
+                var p3 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'login success'})
+                    .then(function(foundLogin) {
+                        expect(foundLogin).to.exist();
+                    });
+                Promise.join(p1, p2, p3, function (v1, v2, v3) {
+                    done();
                 });
-            var p2 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'signup'})
-                .then(function(foundSignup) {
-                    expect(foundSignup).to.exist();
-                    expect(foundSignup[0].newValues).to.include('test.signup2@signup.api');
-                });
-            var p3 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'login success'})
-                .then(function(foundLogin) {
-                    expect(foundLogin).to.exist();
-                });
-            Promise.join(p1, p2, p3, function (v1, v2, v3) {
-                done();
-            });
+            } catch (err) {
+                done(err);
+            }
         });
     });
 

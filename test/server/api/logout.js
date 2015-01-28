@@ -47,8 +47,12 @@ describe('Logout', function () {
             url: '/logout'
         };
         server.inject(request, function (response) {
-            expect(response.statusCode).to.equal(401);
-            done();
+            try {
+                expect(response.statusCode).to.equal(401);
+                done();
+            } catch (err) {
+                done(err);
+            }
         });
     });
 
@@ -62,8 +66,12 @@ describe('Logout', function () {
         };
         emails.push('test.not.created@logout.api');
         server.inject(request, function (response) {
-            expect(response.statusCode).to.equal(401);
-            done();
+            try {
+                expect(response.statusCode).to.equal(401);
+                done();
+            } catch (err) {
+                done(err);
+            }
         });
     });
 
@@ -85,13 +93,17 @@ describe('Logout', function () {
             })
             .done();
         server.inject(request, function (response) {
-            expect(response.statusCode).to.equal(401);
-            Users._findOne({email: 'one@first.com'})
-                .then(function (foundUser) {
-                    foundUser.loginSuccess('test', 'test').done();
-                })
-                .done();
-            done();
+            try {
+                expect(response.statusCode).to.equal(401);
+                Users._findOne({email: 'one@first.com'})
+                    .then(function (foundUser) {
+                        foundUser.loginSuccess('test', 'test').done();
+                    })
+                    .done();
+                done();
+            } catch (err) {
+                done(err);
+            }
         });
     });
 
@@ -109,14 +121,18 @@ describe('Logout', function () {
                 foundUser.loginSuccess('test', 'test').done();
                 request.headers.Authorization = authorizationHeader(foundUser.email, foundUser.session.key);
                 server.inject(request, function (response) {
-                    expect(response.statusCode).to.equal(200);
-                    Users._findOne({email: 'one@first.com'})
-                        .then(function (foundUser) {
-                            expect(foundUser.session).to.not.exist();
-                            foundUser.loginSuccess('test', 'test').done();
-                        })
-                        .done();
-                    done();
+                    try {
+                        expect(response.statusCode).to.equal(200);
+                        Users._findOne({email: 'one@first.com'})
+                            .then(function (foundUser) {
+                                expect(foundUser.session).to.not.exist();
+                                foundUser.loginSuccess('test', 'test').done();
+                            })
+                            .done();
+                        done();
+                    } catch (err) {
+                        done(err);
+                    }
                 });
             }).done();
     });

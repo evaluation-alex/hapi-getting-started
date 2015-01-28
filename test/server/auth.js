@@ -77,7 +77,11 @@ describe('Auth', function () {
             }
         };
         server.inject(request, function (response) {
-            done();
+            try {
+                done();
+            } catch (err) {
+                done(err);
+            }
         });
     });
 
@@ -103,7 +107,11 @@ describe('Auth', function () {
         };
 
         server.inject(request, function (response) {
-            done();
+            try {
+                done();
+            } catch (err) {
+                done(err);
+            }
         });
     });
 
@@ -129,7 +137,11 @@ describe('Auth', function () {
         };
 
         server.inject(request, function (response) {
-            done();
+            try {
+                done();
+            } catch (err) {
+                done(err);
+            }
         });
     });
 
@@ -160,7 +172,11 @@ describe('Auth', function () {
                     }
                 };
                 server.inject(request, function (response) {
-                    done();
+                    try {
+                        done();
+                    } catch (err) {
+                        done(err);
+                    }
                 });
             })
             .done();
@@ -199,8 +215,12 @@ describe('Auth', function () {
                 };
 
                 server.inject(request, function (response) {
-                    expect(response.statusCode).to.equal(403);
-                    done();
+                    try {
+                        expect(response.statusCode).to.equal(403);
+                        done();
+                    } catch (err) {
+                        done(err);
+                    }
                 });
             })
             .done();
@@ -233,8 +253,12 @@ describe('Auth', function () {
         };
 
         server.inject(request, function (response) {
-            expect(response.statusCode).to.equal(403);
-            done();
+            try {
+                expect(response.statusCode).to.equal(403);
+                done();
+            } catch (err) {
+                done(err);
+            }
         });
     });
 

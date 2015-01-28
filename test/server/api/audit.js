@@ -72,11 +72,15 @@ describe('Audit', function () {
                         }
                     };
                     server.inject(request, function (response) {
-                        expect(response.statusCode).to.equal(200);
-                        expect(response.payload).to.exist();
-                        expect(response.payload).to.contain('test.users2@test.api');
-                        expect(response.payload).to.not.contain('test.users@test.api');
-                        done();
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            expect(response.payload).to.exist();
+                            expect(response.payload).to.contain('test.users2@test.api');
+                            expect(response.payload).to.not.contain('test.users@test.api');
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
                     });
                 });
         });

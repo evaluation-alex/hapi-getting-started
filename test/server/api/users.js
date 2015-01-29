@@ -147,7 +147,7 @@ describe('Users', function () {
         it('should give active users when isactive = true is sent', function (done) {
             var request = {
                 method: 'GET',
-                url: '/users?isActive=true',
+                url: '/users?isActive="true"',
                 headers: {
                     Authorization: authheader
                 }
@@ -166,7 +166,7 @@ describe('Users', function () {
         it('should give inactive users when isactive = false is sent', function (done) {
             var request = {
                 method: 'GET',
-                url: '/users?isActive=false',
+                url: '/users?isActive="false"',
                 headers: {
                     Authorization: authheader
                 }

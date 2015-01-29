@@ -33,7 +33,7 @@ exports.register = function (server, options, next) {
             var Users = request.server.plugins['hapi-mongo-models'].Users;
             var query = {};
             if (request.query.email) {
-                query.email = new RegExp('^.*?' + request.query.email + '.*$', 'i');
+                query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
             }
             if (request.query.isActive) {
                 query.isActive = request.query.isActive === '"true"';

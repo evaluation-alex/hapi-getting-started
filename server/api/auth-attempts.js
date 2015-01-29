@@ -38,7 +38,7 @@ exports.register = function (server, options, next) {
                 query.ip = request.query.ip;
             }
             if (request.query.email) {
-                query.email = new RegExp('^.*?' + request.query.email + '.*$', 'i');
+                query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
             }
             AuthAttempts.pagedFind(query, fields, sort, limit, page, function (err, results) {
                 if (err) {

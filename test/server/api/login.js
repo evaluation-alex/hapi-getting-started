@@ -275,7 +275,7 @@ describe('Login', function () {
                             Audit.findUsersAudit({userId: 'test.users@test.api', action: 'reset password'})
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
-                                    Users._findOne({email: 'test.users@test.api'});
+                                    return Users._findOne({email: 'test.users@test.api'});
                                 })
                                 .then(function (foundUser) {
                                     expect(foundUser.resetPwd).to.be.empty();

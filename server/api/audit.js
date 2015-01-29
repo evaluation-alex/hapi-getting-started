@@ -32,13 +32,13 @@ exports.register = function (server, options, next) {
             var Audit = request.server.plugins['hapi-mongo-models'].Audit;
             var query = {};
             if (request.query.by) {
-                query = {by: new RegExp('^.*?' + request.query.by + '.*$', 'i')};
+                query.by = {$regex: new RegExp('^.*?' + request.query.by + '.*$', 'i')};
             }
             if (request.query.objectType) {
-                query = {objectChangedType: request.query.objectType};
+                query.objectChangedType = request.query.objectType;
             }
             if (request.query.objectChangedId) {
-                query = {objectChangedId: request.query.objectChangedId};
+                query.objectChangedId = request.query.objectChangedId;
             }
             var fields = request.query.fields;
             var sort = request.query.sort;

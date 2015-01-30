@@ -6,8 +6,8 @@ services:
 env:
   global:
     - NODE_ENV=test
+    - COVERALLS_REPO_TOKEN=IYP8L16MHhTpbiZ5dWPkAJQ1dMjg1xt6S
 before_script:
   - npm run setup
 after_script:
-  - CODECLIMATE_REPO_TOKEN=IYP8L16MHhTpbiZ5dWPkAJQ1dMjg1xt6S cat lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js < lcov.info
   - cat lcov.info | node ./node_modules/coveralls/bin/coveralls.js

@@ -1,5 +1,5 @@
 'use strict';
-var Boom = require('Boom');
+var Boom = require('boom');
 
 exports.register = function (server, options, next) {
     server.connections.forEach(function (connection) {

@@ -14,6 +14,7 @@ var templateCache = {};
 
 var renderTemplate = function (signature, context) {
     var promise = new Promise(function (resolve, reject) {
+        context.projectName = Config.projectName;
         if (templateCache[signature]) {
             resolve(templateCache[signature](context));
         } else {
@@ -33,29 +34,26 @@ var renderTemplate = function (signature, context) {
 
 var sendEmail = exports.sendEmail = function (options, template, context) {
     var promise = new Promise(function (resolve, reject) {
-        var isDone = false;
         renderTemplate(template, context)
             .then(function (content) {
                 options = Hoek.applyToDefaults(options, {
                     from: Config.system.fromAddress,
                     markdown: content
                 });
-                if (Config.sendmails) {/*
+                if (Config.sendmails) {
                     transport.sendMail(options, function (err, res) {
-                        isDone = true;
                         if (err) {
                             reject(err);
                         } else {
                             resolve(true);
                         }
-                    });*/
-                    resolve(true);
+                    });
                 } else {
                     resolve(true);
                 }
             })
             .catch(function (err) {
-                if (err && !isDone) {
+                if (err) {
                     reject(err);
                 }
             })

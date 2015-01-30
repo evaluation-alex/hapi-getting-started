@@ -52,7 +52,7 @@ exports.config = function (argv) {
         em: {
             alias: 'sendemails',
             description: 'disable sending emails via the sendmail plugin',
-            default: true
+            default: false
         }
     };
 

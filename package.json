@@ -7,7 +7,9 @@
         "setup": "node ./setup.js",
         "start": "node ./index.js",
         "test": "node ./node_modules/lab/bin/lab --coverage --lint --timeout 20000 --reporter lcov > lcov.info",
-        "test-cover": "node ./node_modules/lab/bin/lab --coverage --reporter html --timeout 20000 --output ./test/artifacts/coverage.html"
+        "test-coverage-badge": "node ./node_modules/lab/bin/lab --coverage --timeout 20000 --reporter lcov | node ./node_modules/coveralls/bin/coveralls.js",
+        "test-climate-badge": "node ./node_modules/lab/bin/lab --coverage --timeout 20000 --reporter lcov | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
+        "test-with-report": "node ./node_modules/lab/bin/lab --coverage --reporter html --timeout 20000 --output ./test/artifacts/coverage.html"
     },
     "keywords": [
         "hapijs",
@@ -58,6 +60,7 @@
     },
     "devDependencies": {
         "coveralls": "^2.11.2",
+        "codeclimate-test-reporter": "^0.0.4",
         "chai": "^1.10.0",
         "code": "^1.3.0",
         "lab": "^5.2.1",

@@ -8,8 +8,6 @@ env:
     - NODE_ENV=test
 before_script:
   - npm run setup
-addons:
-  code_climate:
-    repo_token: IYP8L16MHhTpbiZ5dWPkAJQ1dMjg1xt6S
 after_script:
-  - cat lcov.info | codeclimate
+  - CODECLIMATE_REPO_TOKEN=IYP8L16MHhTpbiZ5dWPkAJQ1dMjg1xt6S cat lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js < lcov.info
+  - cat lcov.info | node ./node_modules/coveralls/bin/coveralls.js

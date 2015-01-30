@@ -5,3 +5,4 @@ logs/*
 config.js
 config.*.js
 mongouser.txt
+.coveralls.yml

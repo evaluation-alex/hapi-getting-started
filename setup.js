@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'test') {
     var context = {
         projectName: 'hapistart',
         mongodbUrl: 'mongodb://localhost:27017/hapistart',
-        rootEmail: 'you@yourself.com',
+        rootEmail: 'root',
         rootPassword: '^YOURPWD$',
         systemEmail: 'system@yoursystem.com',
         smtpHost: 'smtp.gmail.com',
@@ -97,6 +97,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
                     throw err;
                 }
             });
+            Users.create('one@first.com', 'password');
         });
     })
     .catch(function (err) {

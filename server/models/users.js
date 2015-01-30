@@ -271,7 +271,7 @@ Users.findBySessionCredentials = function (email, key) {
 Users.areValid = function (emails) {
     var self = this;
     var promise = new Promise(function (resolve, reject) {
-        if (emails.length === 0) {
+        if (!emails || emails.length === 0) {
             resolve({});
         } else {
             var conditions = {

@@ -51,17 +51,16 @@ exports.register = function (server, options, next) {
                         }
                     });
                 }
-                return [invalidUsers, invalidOwners];
             })
-            .then(function(arr) {
+            .then(function () {
                 var msg = '';
-                if (arr[0].length > 0) {
-                    msg += 'invalidMembers = ' + JSON.stringify(arr[0]) + ',';
+                if (invalidUsers.length > 0) {
+                    msg += 'invalidMembers = ' + JSON.stringify(invalidUsers) + ',';
                 }
-                if (arr[1].length > 0) {
-                    msg += 'invalidOwners = [' + JSON.stringify(arr[1]);
+                if (invalidOwners.length > 0) {
+                    msg += 'invalidOwners = ' + JSON.stringify(invalidOwners);
                 }
-                if (arr[0].length > 0 || arr[1].length > 0) {
+                if (invalidUsers.length > 0 || invalidOwners.length > 0) {
                     reply(Boom.badData(msg));
                 } else {
                     reply();

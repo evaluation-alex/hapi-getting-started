@@ -5,3 +5,8 @@ services:
   - mongodb
 before_script:
   - npm run setup
+addons:
+  code_climate:
+    repo_token: IYP8L16MHhTpbiZ5dWPkAJQ1dMjg1xt6S
+after_script:
+  - cat lcov.info | codeclimate

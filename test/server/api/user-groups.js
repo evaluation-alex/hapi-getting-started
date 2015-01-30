@@ -229,25 +229,87 @@ describe('UserGroups', function () {
 
     describe('PUT /user-groups/{id}', function () {
         it('should send back not found error when you try to modify a non existent group', function (done) {
-            try {
-                done();
-            } catch (err) {
-                done(err);
-            }
+            groupsToClear.push('testUserGroupPutNotFound');
+            var request = {
+                method: 'PUT',
+                url: '/user-groups/54c894fe1d1d4ab4032ed94e',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
         });
         it('should send back error if any of the users or owners to be added are not valid', function (done) {
-            try {
-                done();
-            } catch (err) {
-                done(err);
-            }
+            groupsToClear.push('testGroupUserExistPUT');
+            var id = '';
+            UserGroups.create('testGroupUserExistPUT', 'test PUT /user-groups', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    var request = {
+                        method: 'PUT',
+                        url: '/user-groups/'+id,
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedMembers: ['unknown'],
+                            addedOwners: ['madeup']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(422);
+                                    done();
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
         });
         it('should send back forbidden error when you try to modify a group you are not an owner of', function (done) {
-            try {
-                done();
-            } catch (err) {
-                done(err);
-            }
+            groupsToClear.push('testPutGroupNotOwner');
+            var request = {};
+            var authHeader = '';
+            var id = '';
+            UserGroups.create('testPutGroupNotOwner', 'test PUT /user-groups', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    return Users.findByEmail('one@first.com');
+                })
+                .then(function (u) {
+                    return u.updateRoles(['root'], 'test');
+                })
+                .then(function (u) {
+                    return u.loginSuccess('test', 'test');
+                })
+                .then(function (u) {
+                    authHeader = authorizationHeader(u.email, u.session.key);
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id,
+                        headers: {
+                            Authorization: authHeader
+                        },
+                        payload: {
+                            description: '    test PUT /user-groups'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
         });
         it('should activate / deactivate group and have changes audited', function (done) {
             try {

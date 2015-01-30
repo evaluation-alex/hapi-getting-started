@@ -1,10 +1,8 @@
 'use strict';
 var Hapi = require('hapi');
-var HapiAuthBasic = require('hapi-auth-basic');
-var HapiMongoModels = require('hapi-mongo-models');
 var AuthPlugin = require('./../../server/auth');
-var Config = require('./../../config').config({argv: []});
 //var expect = require('chai').expect;
+var tu = require('./testutils');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -17,42 +15,32 @@ var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('Auth', function () {
-    var ModelsPlugin;
     var server;
     var email = 'test.auth@plugin.auth';
     var authheader;
 
-    var authorizationHeader = function (user, password) {
-        return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
-    };
-
     beforeEach(function (done) {
-        var Manifest = require('./../../manifest').manifest;
-        ModelsPlugin = {
-            register: HapiMongoModels,
-            options: JSON.parse(JSON.stringify(Manifest)).plugins['hapi-mongo-models']
-        };
-
-        var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin];
-        server = new Hapi.Server();
-        server.connection({port: Config.port});
-        server.register(plugins, function (err) {
-            if (err) {
-                throw err;
-            }
-            var Users = server.plugins['hapi-mongo-models'].Users;
-            Users.create(email, 'auth123')
-                .then(function (user) {
-                    user.loginSuccess('test', 'test').done();
-                    authheader = authorizationHeader(email, user.session.key);
-                })
-                .catch(function (err) {
-                    throw err;
-                })
-                .done(function () {
-                    done();
-                });
-        });
+        var plugins = [];
+        server = tu.setupServer(plugins)
+            .then(function (s) {
+                server = s;
+                return tu.setupRolesAndUsers();
+            })
+            .then(function () {
+                var Users = server.plugins['hapi-mongo-models'].Users;
+                return Users.create(email, 'auth123');
+            })
+            .then(function (user) {
+                user.loginSuccess('test', 'test').done();
+                authheader = tu.authorizationHeader(user);
+                done();
+            })
+            .catch(function (err) {
+                if (err) {
+                    done(err);
+                }
+            })
+            .done();
     });
 
     it('returns authentication credentials when correct authorization header is sent in the request', function (done) {
@@ -102,7 +90,7 @@ describe('Auth', function () {
             method: 'GET',
             url: '/',
             headers: {
-                Authorization: authorizationHeader(email, 'randomsessionkey')
+                Authorization: tu.authorizationHeader2(email, 'randomsessionkey')
             }
         };
 
@@ -132,7 +120,7 @@ describe('Auth', function () {
             method: 'GET',
             url: '/',
             headers: {
-                Authorization: authorizationHeader('unknown@test.auth', 'doesnt matter')
+                Authorization: tu.authorizationHeader2('unknown@test.auth', 'doesnt matter')
             }
         };
 
@@ -205,7 +193,7 @@ describe('Auth', function () {
             .then(function (user) {
                 user.updateRoles([], 'test').done();
                 user.loginSuccess('test', 'test').done();
-                authheader = authorizationHeader(email, user.session.key);
+                authheader = tu.authorizationHeader2(email, user.session.key);
                 var request = {
                     method: 'GET',
                     url: '/',
@@ -263,19 +251,7 @@ describe('Auth', function () {
     });
 
     afterEach(function (done) {
-        var Users = server.plugins['hapi-mongo-models'].Users;
-        var Audit = server.plugins['hapi-mongo-models'].Audit;
-        Users.remove({email: email}, function (err, result) {
-            if (err) {
-                throw err;
-            }
-            Audit.remove({objectChangedId: email}, function (err, result) {
-                if (err) {
-                    throw err;
-                }
-                done();
-            });
-        });
+        tu.cleanup([email], null, null, done);
     });
 });
 

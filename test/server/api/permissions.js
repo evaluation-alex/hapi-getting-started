@@ -1,10 +1,5 @@
 'use strict';
-var Config = require('./../../../config').config({argv: []});
-var Manifest = require('./../../../manifest').manifest;
 var Hapi = require('hapi');
-var HapiAuthBasic = require('hapi-auth-basic');
-var AuthPlugin = require('../../../server/auth');
-var HapiMongoModels = require('hapi-mongo-models');
 var PermissionsPlugin = require('./../../../server/api/permissions');
 var Users = require('./../../../server/models/users');
 var Permissions = require('./../../../server/models/permissions');
@@ -12,6 +7,7 @@ var UserGroups = require('./../../../server/models/user-groups');
 var Audit = require('./../../../server/models/audit');
 
 //var expect = require('chai').expect;
+var tu = require('./../testutils');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -24,34 +20,34 @@ var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('Users', function () {
-    var authorizationHeader = function (user, password) {
-        return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
-    };
     var rootAuthHeader = null;
-    var ModelsPlugin, server;
+    var server = null;
     var permissionsToClear = [];
     var groupsToClear = [];
     beforeEach(function (done) {
-        ModelsPlugin = {
-            register: HapiMongoModels,
-            options: JSON.parse(JSON.stringify(Manifest)).plugins['hapi-mongo-models']
-        };
-        var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, PermissionsPlugin];
-        server = new Hapi.Server();
-        server.connection({port: Config.port.web});
-        server.register(plugins, function (err) {
-            if (err) {
-                throw err;
-            }
-            Users.findByEmail('root')
-                .then(function (root) {
-                    return root.loginSuccess('test', 'test');
-                })
-                .then(function(root) {
-                    rootAuthHeader = authorizationHeader(root.email, root.session.key);
-                    done();
-                });
-        });
+        var plugins = [PermissionsPlugin];
+        server = tu.setupServer(plugins)
+            .then(function (s) {
+                server = s;
+                return tu.setupRolesAndUsers();
+            })
+            .then(function () {
+                return Users.findByEmail('root');
+            })
+            .then(function (root) {
+                return root.loginSuccess('test', 'test');
+            })
+            .then(function (root) {
+                rootAuthHeader = tu.authorizationHeader(root);
+                done();
+            })
+            .catch(function (err) {
+                if (err) {
+                    done(err);
+                }
+            })
+            .done();
+
     });
 
     describe('GET /permissions', function () {
@@ -121,22 +117,7 @@ describe('Users', function () {
     });
 
     afterEach(function (done) {
-        Permissions.remove({description: {$in: permissionsToClear}}, function (err, result) {
-            if (err) {
-                throw err;
-            }
-            UserGroups.remove({name: {$in: groupsToClear}}, function (err, result) {
-                if (err) {
-                    throw err;
-                }
-                Audit.remove({objectChangedType: {$in: ['Permissions', 'UserGroups', 'Users']}}, function (err, result) {
-                    if (err) {
-                        throw err;
-                    }
-                    done();
-                });
-            });
-        });
+        tu.cleanup(null, groupsToClear, permissionsToClear, done);
     });
 
 });

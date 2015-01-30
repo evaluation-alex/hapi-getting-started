@@ -1,9 +1,9 @@
 'use strict';
-var Config = require('./../../../config').config({argv: []});
 var Users = require('./../../../server/models/users');
 var Audit = require('./../../../server/models/audit');
 var Roles = require('./../../../server/models/roles');
 //var expect = require('chai').expect;
+var tu = require('./../testutils');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -15,26 +15,11 @@ var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
 
-describe.only('Users Model', function () {
+describe('Users Model', function () {
     var firstEmail = 'test.create@users.module';
     var secondEmail = 'test.search@users.module';
-    var testComplete = function (notify, err) {
-        if (notify) {
-            if (err) {
-                notify(err);
-            } else {
-                notify();
-            }
-        }
-    };
-
     before(function (done) {
-        Users.connect(Config.hapiMongoModels.mongodb, function (err, db) {
-            if (err || !db) {
-                throw err;
-            }
-            done();
-        });
+        tu.setupConnect(done);
     });
 
     describe('Users.create', function () {
@@ -51,7 +36,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
 
@@ -64,7 +49,7 @@ describe.only('Users Model', function () {
                     expect(err).to.be.an.instanceof(Error);
                 })
                 .finally(function () {
-                    testComplete(done, null);
+                    tu.testComplete(done, null);
                 });
         });
     });
@@ -90,7 +75,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
 
@@ -106,7 +91,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
 
@@ -121,7 +106,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
 
@@ -136,7 +121,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -153,7 +138,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return an object with as many entries as emails sent, appropriately populated', function(done) {
@@ -170,7 +155,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -192,7 +177,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -213,7 +198,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
 
@@ -232,7 +217,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -257,7 +242,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -281,7 +266,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -306,7 +291,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -331,7 +316,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -354,7 +339,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('resetPassword should create audit entries and invalidate sessions', function (done) {
@@ -375,7 +360,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -400,7 +385,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -425,7 +410,7 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('reactivate should create audit entries and the user should be active again', function (done) {
@@ -447,23 +432,13 @@ describe.only('Users Model', function () {
                     error = err;
                 })
                 .finally(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
 
     after(function (done) {
         var testUsers = [firstEmail, secondEmail];
-        Users.remove({email: {$in: testUsers}}, function (err) {
-            if (err) {
-                return done(err);
-            }
-            Audit.remove({objectChangedId: {$in: testUsers}}, function (err) {
-                if (err) {
-                    return done(err);
-                }
-                done();
-            });
-        });
+        tu.cleanup(testUsers, null, null, done);
     });
 });

@@ -1,14 +1,11 @@
 'use strict';
-var Config = require('./../../../config').config({argv: []});
-var Manifest = require('./../../../manifest').manifest;
 var Hapi = require('hapi');
-var HapiAuthBasic = require('hapi-auth-basic');
 var SignupPlugin = require('./../../../server/api/signup');
 var MailerPlugin = require('./../../../server/mailer');
-var HapiMongoModels = require('hapi-mongo-models');
 var Fs = require('fs');
 var Promise = require('bluebird');
 //var expect = require('chai').expect;
+var tu = require('./../testutils');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -22,22 +19,23 @@ var expect = Code.expect;
 
 
 describe('Signup', function () {
-    var ModelsPlugin, server, emails = [];
+    var server = null;
+    var emails = [];
 
     beforeEach(function (done) {
-        ModelsPlugin = {
-            register: HapiMongoModels,
-            options: JSON.parse(JSON.stringify(Manifest)).plugins['hapi-mongo-models']
-        };
-        var plugins = [ HapiAuthBasic, ModelsPlugin, MailerPlugin, SignupPlugin ];
-        server = new Hapi.Server();
-        server.connection({ port: Config.port.web });
-        server.register(plugins, function (err) {
-            if (err) {
-                throw err;
-            }
-            done();
-        });
+        var plugins = [MailerPlugin, SignupPlugin];
+        tu.setupServer(plugins)
+            .then(function (s) {
+                server = s;
+                tu.setupRolesAndUsers();
+                done();
+            })
+            .catch(function (err) {
+                if (err) {
+                    done(err);
+                }
+            })
+            .done();
     });
 
     it('returns a conflict when you try to signup with user that already exists', function (done) {
@@ -120,23 +118,7 @@ describe('Signup', function () {
     });
 
     afterEach(function (done) {
-        if (emails.length > 0 ){
-            var Users = server.plugins['hapi-mongo-models'].Users;
-            var Audit = server.plugins['hapi-mongo-models'].Audit;
-            Users.remove({email: { $in: emails}}, function (err) {
-                if (err) {
-                    throw err;
-                }
-                Audit.remove({objectChangedId: { $in: emails}}, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                    done();
-                });
-            });
-        } else {
-            done();
-        }
+        tu.cleanup(emails, null, null, done);
     });
 
 });

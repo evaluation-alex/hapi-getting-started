@@ -1,16 +1,12 @@
 'use strict';
-var Config = require('./../../../config').config({argv: []});
-var Manifest = require('./../../../manifest').manifest;
 var Hapi = require('hapi');
-var HapiAuthBasic = require('hapi-auth-basic');
-var AuthPlugin = require('../../../server/auth');
-var HapiMongoModels = require('hapi-mongo-models');
 var UserGroupsPlugin = require('./../../../server/api/user-groups');
 var Users = require('./../../../server/models/users');
 var UserGroups = require('./../../../server/models/user-groups');
 var Audit = require('./../../../server/models/audit');
 var Promise = require('bluebird');
 //var expect = require('chai').expect;
+var tu = require('./../testutils');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -23,35 +19,33 @@ var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('UserGroups', function () {
-    var authorizationHeader = function (user, password) {
-        return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
-    };
     var rootAuthHeader = null;
-    var ModelsPlugin, server;
+    var server = null;
     var groupsToClear = [];
     beforeEach(function (done) {
-        ModelsPlugin = {
-            register: HapiMongoModels,
-            options: JSON.parse(JSON.stringify(Manifest)).plugins['hapi-mongo-models']
-        };
-        var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, UserGroupsPlugin];
-        server = new Hapi.Server();
-        server.connection({port: Config.port.web});
-        server.register(plugins, function (err) {
-            if (err) {
-                throw err;
-            }
-            Users.findByEmail('root')
-                .then(function (root) {
-                    return root.loginSuccess('test', 'test');
-                })
-                .then(function (root) {
-                    rootAuthHeader = authorizationHeader(root.email, root.session.key);
-                })
-                .then(function () {
-                    done();
-                });
-        });
+        var plugins = [UserGroupsPlugin];
+        server = tu.setupServer(plugins)
+            .then(function (s) {
+                server = s;
+                return tu.setupRolesAndUsers();
+            })
+            .then(function () {
+                return Users.findByEmail('root');
+            })
+            .then(function (root) {
+                return root.loginSuccess('test', 'test');
+            })
+            .then(function (root) {
+                rootAuthHeader = tu.authorizationHeader(root);
+                done();
+            })
+            .catch(function (err) {
+                if (err) {
+                    done(err);
+                }
+            })
+            .done();
+
     });
 
     describe('GET /user-groups', function () {
@@ -211,7 +205,7 @@ describe('UserGroups', function () {
         it('should send back not found when the user-group with the id in params is not found', function (done) {
             var request = {
                 method: 'GET',
-                url: '/user-groups/' + id.replace('a', 'b'),
+                url: '/user-groups/' + id.replace('a', '0').replace('b', '0').replace('c', '0').replace('d', '0').replace('e', '0').replace('f', '0'),
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -254,7 +248,7 @@ describe('UserGroups', function () {
                     id = ug._id.toString();
                     var request = {
                         method: 'PUT',
-                        url: '/user-groups/'+id,
+                        url: '/user-groups/' + id,
                         headers: {
                             Authorization: rootAuthHeader
                         },
@@ -266,7 +260,7 @@ describe('UserGroups', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(422);
-                                    done();
+                            done();
                         } catch (err) {
                             done(err);
                         }
@@ -290,7 +284,7 @@ describe('UserGroups', function () {
                     return u.loginSuccess('test', 'test');
                 })
                 .then(function (u) {
-                    authHeader = authorizationHeader(u.email, u.session.key);
+                    authHeader = tu.authorizationHeader(u);
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id,
@@ -466,7 +460,7 @@ describe('UserGroups', function () {
                     return u.loginSuccess('test', 'test');
                 })
                 .then(function (u) {
-                    authHeader = authorizationHeader(u.email, u.session.key);
+                    authHeader = tu.authorizationHeader(u);
                     request = {
                         method: 'DELETE',
                         url: '/user-groups/' + id,
@@ -513,21 +507,7 @@ describe('UserGroups', function () {
     });
 
     afterEach(function (done) {
-        if (groupsToClear.length > 0) {
-            UserGroups.remove({name: {$in: groupsToClear}}, function (err) {
-                if (err) {
-                    throw err;
-                }
-                Audit.remove({}, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                    done();
-                });
-            });
-        } else {
-            done();
-        }
+        tu.cleanup(null, groupsToClear, null, done);
     });
 
 });

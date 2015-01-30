@@ -1,15 +1,11 @@
 'use strict';
 var Config = require('./../../../config').config({argv: []});
-var Manifest = require('./../../../manifest').manifest;
 var Hapi = require('hapi');
-var HapiAuthBasic = require('hapi-auth-basic');
-var AuthPlugin = require('../../../server/auth');
-var HapiMongoModels = require('hapi-mongo-models');
 var LoginPlugin = require('./../../../server/api/login');
 var MailerPlugin = require('./../../../server/mailer');
-var AuthAttempts = require('./../../../server/models/auth-attempts');
 var Promise = require('bluebird');
 //var expect = require('chai').expect;
+var tu = require('./../testutils');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -22,30 +18,30 @@ var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('Login', function () {
-    var authorizationHeader = function (user, password) {
-        return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
-    };
-    var ModelsPlugin, server, emails = [];
+    var server = null;
+    var emails = [];
     beforeEach(function (done) {
-        ModelsPlugin = {
-            register: HapiMongoModels,
-            options: JSON.parse(JSON.stringify(Manifest)).plugins['hapi-mongo-models']
-        };
-        var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, MailerPlugin, LoginPlugin];
-        server = new Hapi.Server();
-        server.connection({port: Config.port.web});
-        server.register(plugins, function (err) {
-            if (err) {
-                throw err;
-            }
-            var Users = server.plugins['hapi-mongo-models'].Users;
-            emails.push('test.users@test.api');
-            Users.create('test.users@test.api', 'password123')
-                .then(function (newUser) {
-                    newUser.loginSuccess('test', 'test').done();
-                    done();
-                });
-        });
+       var plugins = [MailerPlugin, LoginPlugin];
+        server = tu.setupServer(plugins)
+            .then(function (s) {
+                server = s;
+                return tu.setupRolesAndUsers();
+            })
+            .then(function () {
+                var Users = server.plugins['hapi-mongo-models'].Users;
+                emails.push('test.users@test.api');
+                return Users.create('test.users@test.api', 'password123');
+            })
+            .then(function (newUser) {
+                newUser.loginSuccess('test', 'test').done();
+                done();
+            })
+            .catch(function (err) {
+                if (err) {
+                    done(err);
+                }
+            })
+            .done();
     });
 
     describe('POST /login', function () {
@@ -54,6 +50,7 @@ describe('Login', function () {
             var authSpam = [];
             var authRequest = function () {
                 var promise = new Promise(function (resolve, reject) {
+                    var AuthAttempts = server.plugins['hapi-mongo-models'].AuthAttempts;
                     AuthAttempts.create('', 'test.users@test.api')
                         .then(function (result) {
                             resolve(true);
@@ -289,28 +286,6 @@ describe('Login', function () {
         });
     });
     afterEach(function (done) {
-        if (emails.length > 0) {
-            var Users = server.plugins['hapi-mongo-models'].Users;
-            var Audit = server.plugins['hapi-mongo-models'].Audit;
-            var AuthAttemps = server.plugins['hapi-mongo-models'].AuthAttempts;
-            Users.remove({email: {$in: emails}}, function (err) {
-                if (err) {
-                    throw err;
-                }
-                Audit.remove({objectChangedId: {$in: emails}}, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                    AuthAttemps.remove({}, function (err) {
-                        if (err) {
-                            throw err;
-                        }
-                        done();
-                    });
-                });
-            });
-        } else {
-            done();
-        }
+        tu.cleanup(emails, null, null, done);
     });
 });

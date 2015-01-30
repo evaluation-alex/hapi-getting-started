@@ -2,6 +2,7 @@
 var Config = require('./../../../config').config({argv: []});
 var AuthAttempts = require('./../../../server/models/auth-attempts');
 //var expect = require('chai').expect;
+var tu = require('./../testutils');
 var Promise = require('bluebird');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
@@ -15,23 +16,9 @@ var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('AuthAttempts Model', function () {
-    var testComplete = function (notify, err) {
-        if (notify) {
-            if (err) {
-                notify(err);
-            } else {
-                notify();
-            }
-        }
-    };
 
     before(function (done) {
-        AuthAttempts.connect(Config.hapiMongoModels.mongodb, function (err, db) {
-            if (err || !db) {
-                throw err;
-            }
-            done();
-        });
+        tu.setupConnect(done);
     });
 
     it('returns a new instance when create succeeds', function (done) {
@@ -45,7 +32,7 @@ describe('AuthAttempts Model', function () {
                 error = err;
             })
             .finally(function () {
-                testComplete(done, error);
+                tu.testComplete(done, error);
             });
     });
 
@@ -82,7 +69,7 @@ describe('AuthAttempts Model', function () {
                 error = err;
             })
             .finally(function() {
-                testComplete(done, error);
+                tu.testComplete(done, error);
             });
     });
 
@@ -121,17 +108,12 @@ describe('AuthAttempts Model', function () {
                 error = err;
             })
             .finally(function() {
-                testComplete(done, error);
+                tu.testComplete(done, error);
             });
     });
 
     after(function (done) {
-        AuthAttempts.remove({}, function (err, result) {
-            if (err) {
-                throw err;
-            }
-            done();
-        });
+        tu.cleanup(null, null, null, done);
     });
 
 });

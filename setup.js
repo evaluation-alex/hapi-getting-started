@@ -39,6 +39,14 @@ var fromStdIn = function (results, property, message, opts) {
     return p;
 };
 
+var handleErr = function (err) {
+    if (err) {
+        console.error('Setup failed.');
+        console.error(err);
+        return process.exit(1);
+    }
+};
+
 fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'})
     .then(function (results) {
         return fromStdIn(results, 'mongodbUrl', 'MongoDB URL: (mongodb://localhost:27017/' + results.projectName + ') ', {default: 'mongodb://localhost:27017/' + results.projectName});
@@ -83,22 +91,18 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
             var r2 = Roles.create('readonly', [{action: 'view', object: '*'}]);
             var u1 = Users.create('root', results.rootPassword);
             var u2 = Users.create('one@first.com', 'password');
-            return Promise.join(r1, r2, u1, u2, function (r1, r2, u1, u2) {
+            Promise.join(r1, r2, u1, u2, function (r1, r2, u1, u2) {
                 console.log('Role(root) - ' + JSON.stringify(r1));
                 console.log('Role(readonly) - ' + JSON.stringify(r2));
-                u1.updateRoles(['root'], 'setup');
+                u1.updateRoles(['root'], 'setup').done();
                 console.log('User(root) - ' + JSON.stringify(u1));
                 console.log('User(one@first.com) - ' + JSON.stringify(u2));
-            });
+            })
+                .catch(handleErr)
+                .done();
         });
     })
-    .catch(function (err) {
-        if (err) {
-            console.error('Setup failed.');
-            console.error(err);
-            return process.exit(1);
-        }
-    })
+    .catch(handleErr)
     .done(function () {
         console.log('Setup complete.');
         process.exit(0);

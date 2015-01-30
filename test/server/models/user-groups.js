@@ -1,10 +1,10 @@
 'use strict';
-var Config = require('./../../../config').config({argv: []});
 var UserGroups = require('./../../../server/models/user-groups');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Audit = require('./../../../server/models/audit');
 var _ = require('lodash');
 //var expect = require('chai').expect;
+var tu = require('./../testutils');
 var Promise = require('bluebird');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
@@ -19,23 +19,8 @@ var expect = Code.expect;
 
 describe('UserGroups Model', function () {
     var groupsToCleanup = [];
-    var testComplete = function (notify, err) {
-        if (notify) {
-            if (err) {
-                notify(err);
-            } else {
-                notify();
-            }
-        }
-    };
-
     before(function (done) {
-        UserGroups.connect(Config.hapiMongoModels.mongodb, function (err, db) {
-            if (err || !db) {
-                throw err;
-            }
-            done();
-        });
+        tu.setupConnect(done);
     });
 
     describe('UserGroups.create', function () {
@@ -62,7 +47,7 @@ describe('UserGroups Model', function () {
                     expect(err).to.not.exist();
                 })
                 .done(function () {
-                    testComplete(done, null);
+                    tu.testComplete(done, null);
                 });
         });
         it('should not allow two groups with the name', function (done) {
@@ -84,7 +69,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -109,7 +94,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return false when nothing matches', function (done) {
@@ -123,7 +108,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should only return a user group that is currently active', function (done) {
@@ -149,7 +134,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -200,7 +185,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return groups only where the user is active', function (done) {
@@ -224,7 +209,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return an empty array when user is not part of any group', function (done) {
@@ -238,7 +223,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -256,7 +241,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it ('should return with not an owner when the owner argument is not an owner (active or otherwise)', function (done) {
@@ -275,7 +260,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it ('should return valid when the group exists and the owner is an active owner', function (done) {
@@ -294,7 +279,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it ('should return valid when the group exists and we pass root as owner', function (done) {
@@ -313,7 +298,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -342,7 +327,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should do nothing if the user is already present as a owner and you add user as a owner', function (done) {
@@ -368,7 +353,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should do nothing if the user is already present as owner AND member and you add as owner AND member', function (done) {
@@ -394,7 +379,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should add the user as a owner who was not already present and added with the owner role', function (done) {
@@ -418,7 +403,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should add the user as a member who was not already present and added with the member role', function (done) {
@@ -442,7 +427,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should add the user as a member and owner who was not already present and added with the member and owner / both role', function (done) {
@@ -484,7 +469,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should mark the user as a member if it was previously in the list either as owner or member and now added as member', function (done) {
@@ -533,7 +518,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should mark the user as a owner if it was previously in the list either as owner or member and now added as owner', function (done) {
@@ -582,7 +567,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should mark the user as a owner and member if it was previously in the list either as owner or member and now added as both', function (done) {
@@ -614,7 +599,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -646,7 +631,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should do nothing if the user is not already present as a owner and you remove user as a owner', function (done) {
@@ -675,7 +660,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should do nothing if the user is not present as owner OR member and you remove as owner AND member', function (done) {
@@ -714,7 +699,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should deactivate the users owner role if already present the owner role', function (done) {
@@ -767,7 +752,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should deactivate the user as a member if already present with the member role', function (done) {
@@ -820,7 +805,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -863,7 +848,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should mark the group as inactive / active when you deactivate / activate', function (done) {
@@ -905,7 +890,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -930,7 +915,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should update to the new description', function (done) {
@@ -953,24 +938,13 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
 
     after(function (done) {
-        UserGroups.remove({name: {$in: groupsToCleanup}}, function (err, result) {
-            if (err) {
-                throw err;
-            }
-            var query = {objectChangedId: {$in: groupsToCleanup}};
-            Audit.remove(query, function (err, result) {
-                if (err) {
-                    throw err;
-                }
-                done();
-            });
-        });
+        tu.cleanup(null, groupsToCleanup, null, done);
     });
 
 });

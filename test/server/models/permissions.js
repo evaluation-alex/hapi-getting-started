@@ -1,10 +1,10 @@
 'use strict';
-var Config = require('./../../../config').config({argv: []});
 var Permissions = require('./../../../server/models/permissions');
 var Audit = require('./../../../server/models/audit');
 var UserGroups = require('./../../../server/models/user-groups');
 var _ = require('lodash');
 //var expect = require('chai').expect;
+var tu = require('./../testutils');
 var Promise = require('bluebird');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
@@ -17,26 +17,12 @@ var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
 
-describe.only('Permissions Model', function () {
+describe('Permissions Model', function () {
     var permissionsToClear = [];
     var groupsToClear = [];
-    var testComplete = function (notify, err) {
-        if (notify) {
-            if (err) {
-                notify(err);
-            } else {
-                notify();
-            }
-        }
-    };
 
     before(function (done) {
-        Permissions.connect(Config.hapiMongoModels.mongodb, function (err, db) {
-            if (err || !db) {
-                throw err;
-            }
-            done();
-        });
+        tu.setupConnect(done);
     });
 
     describe('Permissions.create', function () {
@@ -63,7 +49,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should not allow two objects with the same action, object set on it', function (done) {
@@ -96,7 +82,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -134,7 +120,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return an empty array when nothing matches', function (done) {
@@ -149,7 +135,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should only return permissions that are currently active', function (done) {
@@ -174,7 +160,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -225,7 +211,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return permissions array with permissions that directly have the user', function (done) {
@@ -241,7 +227,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return permissions only where the user is active in the group permissioned', function (done) {
@@ -257,7 +243,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return an empty array when user has no permissions', function (done) {
@@ -272,7 +258,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -307,7 +293,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return true when user has permissions directly granted', function (done) {
@@ -321,7 +307,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return true when user has permissions because of a user group membership', function (done) {
@@ -335,7 +321,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should return false when user has no permissions', function (done) {
@@ -349,7 +335,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -411,7 +397,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should do nothing if the user/group is already active in the group', function (done) {
@@ -445,7 +431,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should mark the user/group as active again when it was deactivated and added again', function (done) {
@@ -488,7 +474,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -549,7 +535,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should do nothing if the user/group is not present in the group', function (done) {
@@ -583,7 +569,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should mark the user/group as inactive if it is active', function (done) {
@@ -620,7 +606,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -678,7 +664,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should mark the group as inactive / active when you deactivate / activate', function (done) {
@@ -708,7 +694,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
@@ -743,7 +729,7 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
         it('should update to the new description', function (done) {
@@ -762,27 +748,12 @@ describe.only('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
-                    testComplete(done, error);
+                    tu.testComplete(done, error);
                 });
         });
     });
 
     after(function (done) {
-        Permissions.remove({description: {$in: permissionsToClear}}, function (err, result) {
-            if (err) {
-                throw err;
-            }
-            UserGroups.remove({name: {$in: groupsToClear}}, function (err, result) {
-                if (err) {
-                    throw err;
-                }
-                Audit.remove({objectChangedType: {$in: ['Permissions', 'UserGroups', 'Users']}}, function (err, result) {
-                    if (err) {
-                        throw err;
-                    }
-                    done();
-                });
-            });
-        });
+        tu.cleanup(null, groupsToClear, permissionsToClear, done);
     });
 });

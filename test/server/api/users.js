@@ -1,12 +1,8 @@
 'use strict';
-var Config = require('./../../../config').config({argv: []});
-var Manifest = require('./../../../manifest').manifest;
 var Hapi = require('hapi');
-var HapiAuthBasic = require('hapi-auth-basic');
-var AuthPlugin = require('../../../server/auth');
-var HapiMongoModels = require('hapi-mongo-models');
 var UsersPlugin = require('./../../../server/api/users');
 //var expect = require('chai').expect;
+var tu = require('./../testutils');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -19,30 +15,30 @@ var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('Users', function () {
-    var authorizationHeader = function (user, password) {
-        return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
-    };
-    var ModelsPlugin, server, emails = [];
+    var server = null;
+    var emails = [];
     beforeEach(function (done) {
-        ModelsPlugin = {
-            register: HapiMongoModels,
-            options: JSON.parse(JSON.stringify(Manifest)).plugins['hapi-mongo-models']
-        };
-        var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, UsersPlugin];
-        server = new Hapi.Server();
-        server.connection({port: Config.port.web});
-        server.register(plugins, function (err) {
-            if (err) {
-                throw err;
-            }
-            var Users = server.plugins['hapi-mongo-models'].Users;
-            emails.push('test.users@test.api');
-            Users.create('test.users@test.api', 'password123')
-                .then(function (newUser) {
-                    newUser.loginSuccess('test', 'test').done();
-                    done();
-                });
-        });
+        var plugins = [UsersPlugin];
+        server = tu.setupServer(plugins)
+            .then(function (s) {
+                server = s;
+                return tu.setupRolesAndUsers();
+            })
+            .then(function () {
+                var Users = server.plugins['hapi-mongo-models'].Users;
+                emails.push('test.users@test.api');
+                return Users.create('test.users@test.api', 'password123');
+            })
+            .then(function (newUser) {
+                newUser.loginSuccess('test', 'test').done();
+                done();
+            })
+            .catch(function (err) {
+                if (err) {
+                    done(err);
+                }
+            })
+            .done();
     });
 
     it('should send back a not authorized when user is not logged in', function (done) {
@@ -50,7 +46,7 @@ describe('Users', function () {
         var authheader = '';
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
-                authheader = authorizationHeader(foundUser.email, foundUser.session.key);
+                authheader = tu.authorizationHeader(foundUser);
                 foundUser.logout('test', 'test');
             })
             .then(function () {
@@ -77,7 +73,7 @@ describe('Users', function () {
         var authheader = '';
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
-                authheader = authorizationHeader(foundUser.email, foundUser.session.key);
+                authheader = tu.authorizationHeader(foundUser);
                 foundUser.updateRoles([], 'test');
             })
             .then(function () {
@@ -105,7 +101,7 @@ describe('Users', function () {
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
                 foundUser.loginSuccess('test', 'test').done();
-                authheader = authorizationHeader(foundUser.email, foundUser.session.key);
+                authheader = tu.authorizationHeader(foundUser);
             })
             .then(function () {
                 var request = {
@@ -134,7 +130,7 @@ describe('Users', function () {
             Users._findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
                     foundUser.loginSuccess('test', 'test').done();
-                    authheader = authorizationHeader(foundUser.email, foundUser.session.key);
+                    authheader = tu.authorizationHeader(foundUser);
                 });
             emails.push('test.users2@test.api');
             Users.create('test.users2@test.api', 'password123')
@@ -227,12 +223,12 @@ describe('Users', function () {
     describe('GET /users/{id}', function () {
         var authheader = '';
         var id = '';
-        beforeEach(function(done) {
+        beforeEach(function (done) {
             var Users = server.plugins['hapi-mongo-models'].Users;
             Users._findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
                     foundUser.loginSuccess('test', 'test').done();
-                    authheader = authorizationHeader(foundUser.email, foundUser.session.key);
+                    authheader = tu.authorizationHeader(foundUser);
                     id = foundUser._id.toString();
                     done();
                 });
@@ -240,7 +236,7 @@ describe('Users', function () {
         it('should only send back user with the id in params', function (done) {
             var request = {
                 method: 'GET',
-                url: '/users/'+id,
+                url: '/users/' + id,
                 headers: {
                     Authorization: authheader
                 }
@@ -282,11 +278,13 @@ describe('Users', function () {
             var Users = server.plugins['hapi-mongo-models'].Users;
             Users._findOne({email: 'root'})
                 .then(function (foundUser) {
-                    foundUser.loginSuccess('test', 'test').done();
-                    authheader = authorizationHeader(foundUser.email, foundUser.session.key);
-                });
-            emails.push('test.users2@test.api');
-            Users.create('test.users2@test.api', 'password123')
+                    return foundUser.loginSuccess('test', 'test');
+                })
+                .then(function (foundUser) {
+                    authheader = tu.authorizationHeader(foundUser);
+                    emails.push('test.users2@test.api');
+                    return Users.create('test.users2@test.api', 'password123');
+                })
                 .then(function (newUser) {
                     newUser.loginSuccess('test', 'test').done();
                     id = newUser._id.toString();
@@ -313,9 +311,9 @@ describe('Users', function () {
                         .then(function (foundUser) {
                             expect(foundUser.isActive).to.be.false();
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findUsersAudit({userId: foundUser.email, action:'deactivate'});
+                            return Audit.findUsersAudit({userId: foundUser.email, action: 'deactivate'});
                         })
-                        .then(function(foundAudit) {
+                        .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
                             done();
                         })
@@ -340,14 +338,14 @@ describe('Users', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     var Users = server.plugins['hapi-mongo-models'].Users;
-                    var Audit = server.plugins['hapi-mongo-models'].Audit ;
+                    var Audit = server.plugins['hapi-mongo-models'].Audit;
                     Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findUsersAudit({userId: foundUser.email, action:'update roles'});
+                            return Audit.findUsersAudit({userId: foundUser.email, action: 'update roles'});
                         })
-                        .then(function(foundAudit) {
+                        .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
                             done();
                         })
@@ -376,9 +374,9 @@ describe('Users', function () {
                     Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findUsersAudit({userId: foundUser.email, action:'reset password'});
+                            return Audit.findUsersAudit({userId: foundUser.email, action: 'reset password'});
                         })
-                        .then(function(foundAudit) {
+                        .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
                             done();
                         })
@@ -422,33 +420,7 @@ describe('Users', function () {
     });
 
     afterEach(function (done) {
-        if (emails.length > 0) {
-            var Users = server.plugins['hapi-mongo-models'].Users;
-            var Audit = server.plugins['hapi-mongo-models'].Audit;
-            Users.remove({email: {$in: emails}}, function (err) {
-                if (err) {
-                    throw err;
-                }
-                Audit.remove({objectChangedId: 'root'}, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                });
-                Audit.remove({objectChangedId: 'one@first.com'}, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                });
-                Audit.remove({objectChangedId: {$in: emails}}, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                    done();
-                });
-            });
-        } else {
-            done();
-        }
+        tu.cleanup(emails, null, null, done);
     });
 
 });

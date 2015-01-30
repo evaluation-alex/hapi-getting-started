@@ -1,5 +1,5 @@
 'use strict';
-var Bossy = require('Bossy');
+var Bossy = require('bossy');
 var miscutils = require('./miscutils');
 
 exports.config = function (argv) {

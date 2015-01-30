@@ -5,39 +5,36 @@ var Promptly = require('promptly');
 var Handlebars = require('handlebars');
 var Promise = require('bluebird');
 
-if (process.env.NODE_ENV === 'test') {
-    var context = {
-        projectName: 'hapistart',
-        mongodbUrl: 'mongodb://127.0.0.1:27017/hapistart',
-        rootEmail: 'root',
-        rootPassword: '^YOURPWD$',
-        systemEmail: 'system@yoursystem.com',
-        smtpHost: 'smtp.gmail.com',
-        smtpPort: 465,
-        smtpUsername: 'you',
-        smtpPassword: '^YOURSMTPWD$'
-    };
-    var source = Fs.readFileSync(Path.resolve(__dirname, 'config.example'), {encoding: 'utf-8'});
-    var configTemplate = Handlebars.compile(source);
-    Fs.writeFileSync(Path.resolve(__dirname, 'config.js'), configTemplate(context));
-    console.log('Setup complete.');
-    process.exit(0);
-}
+var test = {
+    projectName: 'hapistart',
+    mongodbUrl: 'mongodb://127.0.0.1:27017/hapistart',
+    rootEmail: 'root',
+    rootPassword: '^YOURPWD$',
+    systemEmail: 'system@yoursystem.com',
+    smtpHost: 'smtp.gmail.com',
+    smtpPort: 465,
+    smtpUsername: 'you',
+    smtpPassword: '^YOURSMTPWD$'
+};
 
 var fromStdIn = function (results, property, message, opts) {
     var p = new Promise(function (resolve, reject) {
-        Promptly.prompt(message, opts, function (err, out) {
-            if (err) {
-                reject(err);
-            } else {
-                if (out) {
-                    results[property] = out;
+        if (process.env.NODE_ENV === 'test') {
+            results[property] = test[property];
+        } else {
+            Promptly.prompt(message, opts, function (err, out) {
+                if (err) {
+                    reject(err);
                 } else {
-                    results[property] = opts.default;
+                    if (out) {
+                        results[property] = out;
+                    } else {
+                        results[property] = opts.default;
+                    }
                 }
-                resolve(results);
-            }
-        });
+            });
+        }
+        resolve(results);
     });
     return p;
 };
@@ -75,29 +72,24 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
         return results;
     })
     .then(function (results) {
+        console.log('setting up with - ' + JSON.stringify(results));
         var BaseModel = require('hapi-mongo-models').BaseModel;
         var Users = require('./server/models/users');
         var Roles = require('./server/models/roles');
         BaseModel.connect({url: results.mongodbUrl}, function (err, db) {
             Users.remove.bind(Users, {});
             Roles.remove.bind(Roles, {});
-            Roles.create('root', [{action: 'update', object: '*'}], function (err) {
-                if (err) {
-                    throw err;
-                }
+            var r1 = Roles.create('root', [{action: 'update', object: '*'}]);
+            var r2 = Roles.create('readonly', [{action: 'view', object: '*'}]);
+            var u1 = Users.create('root', results.rootPassword);
+            var u2 = Users.create('one@first.com', 'password');
+            return Promise.join(r1, r2, u1, u2, function (r1, r2, u1, u2) {
+                console.log('Role(root) - ' + JSON.stringify(r1));
+                console.log('Role(readonly) - ' + JSON.stringify(r2));
+                u1.updateRoles(['root'], 'setup');
+                console.log('User(root) - ' + JSON.stringify(u1));
+                console.log('User(one@first.com) - ' + JSON.stringify(u2));
             });
-            Roles.create('readonly', [{action: 'view', object: '*'}], function (err) {
-                if (err) {
-                    throw err;
-                }
-            });
-            Users.create(results.rootEmail, results.rootPassword);
-            Users.update({email: results.rootEmail}, {$set: {roles: ['root']}}, function (err) {
-                if (err) {
-                    throw err;
-                }
-            });
-            Users.create('one@first.com', 'password');
         });
     })
     .catch(function (err) {

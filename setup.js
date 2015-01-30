@@ -8,7 +8,7 @@ var Promise = require('bluebird');
 if (process.env.NODE_ENV === 'test') {
     var context = {
         projectName: 'hapistart',
-        mongodbUrl: 'mongodb://localhost:27017/hapistart',
+        mongodbUrl: 'mongodb://127.0.0.1:27017/hapistart',
         rootEmail: 'root',
         rootPassword: '^YOURPWD$',
         systemEmail: 'system@yoursystem.com',

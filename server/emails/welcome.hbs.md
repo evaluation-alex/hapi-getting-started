@@ -5,9 +5,8 @@ Here are your login credentials:
 
 | Details   |              |
 | ---------:|:------------ |
-| Username: | {{username}} |
 | Email:    | {{email}}    |
 
-Love,
+Regards,
 
-The Plot Device
+{{projectName}}

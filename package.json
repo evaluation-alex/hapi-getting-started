@@ -1,15 +1,15 @@
 {
     "name": "hapi-getting-started",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "User management, authentication and authorization api for Node.js using hapi",
     "main": "index.js",
     "scripts": {
         "setup": "node ./setup.js",
         "start": "node ./index.js",
-        "test": "node ./node_modules/lab/bin/lab --coverage --lint --timeout 20000 --reporter lcov > lcov.info",
-        "coveralls": "npm run test && cat lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
-        "climate": "npm run test && cat lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
-        "test-with-report": "node ./node_modules/lab/bin/lab --coverage --reporter html --timeout 20000 --output ./test/artifacts/coverage.html"
+        "test": "node ./node_modules/lab/bin/lab --coverage --reporter lcov > ./test/artifacts/lcov.info",
+        "coveralls": "cat ./test/artifacts/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
+        "climate": "cat ./test/artifacts/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
+        "test-with-report": "node ./node_modules/lab/bin/lab --coverage --reporter html --output ./test/artifacts/coverage.html"
     },
     "keywords": [
         "hapijs",

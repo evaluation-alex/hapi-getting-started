@@ -1,10 +1,11 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var ExtendedModel = require('./extended-model').ExtendedModel;
 var Promise = require('bluebird');
+var _ = require('lodash');
 
-var Audit = BaseModel.extend({
+var Audit = ExtendedModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
@@ -66,64 +67,19 @@ Audit.create = function (type, id, action, origValues, newValues, by) {
     return promise;
 };
 
-Audit._findOne = function (conditions) {
-    var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        self.findOne(conditions, function (err, doc) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!doc) {
-                    reject(new Error('Audit docs not found for conditions - ' + JSON.stringify(conditions)));
-                } else {
-                    resolve(doc);
-                }
-            }
-        });
-    });
-    return promise;
-};
-
-Audit._find = function (conditions) {
-    var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        self.find(conditions, function (err, docs) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!docs) {
-                    reject(new Error('Audit docs not found for conditions - ' + JSON.stringify(conditions)));
-                } else {
-                    resolve(docs);
-                }
-            }
-        });
-    });
-    return promise;
-};
-
 Audit.findUsersAudit = function (conditions) {
     var self = this;
-    conditions.objectChangedType = 'Users';
-    conditions.objectChangedId = conditions.userId;
-    delete conditions.userId;
-    return self._find(conditions);
+    return self._find(_.merge(_.omit(conditions, ['userId']), {objectChangedType: 'Users', objectChangedId: conditions.userId}));
 };
 
 Audit.findUserGroupsAudit = function (conditions) {
     var self = this;
-    conditions.objectChangedType = 'UserGroups';
-    conditions.objectChangedId = conditions.name;
-    delete conditions.name;
-    return self._find(conditions);
+    return self._find(_.merge(_.omit(conditions, ['name']), {objectChangedType: 'UserGroups', objectChangedId: conditions.name}));
 };
 
 Audit.findPermissionsAudit = function (conditions) {
     var self = this;
-    conditions.objectChangedType = 'Permissions';
-    conditions.objectChangedId = conditions._id;
-    delete conditions._id;
-    return self._find(conditions);
+    return self._find(_.merge(_.omit(conditions, ['_id']), {objectChangedType: 'Permissions', objectChangedId: conditions._id}));
 };
 
 Audit.findChangesByUser = function (by) {

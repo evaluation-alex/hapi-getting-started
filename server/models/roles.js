@@ -1,10 +1,10 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var ExtendedModel = require('./extended-model').ExtendedModel;
 var Promise = require('bluebird');
 
-var Roles = BaseModel.extend({
+var Roles = ExtendedModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);

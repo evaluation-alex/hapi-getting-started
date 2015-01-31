@@ -3,13 +3,13 @@ var Joi = require('joi');
 var Uuid = require('node-uuid');
 var Bcrypt = require('bcrypt');
 var ObjectAssign = require('object-assign');
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var ExtendedModel = require('./extended-model').ExtendedModel;
 var Roles = require('./roles');
 var Audit = require('./audit');
 var Promise = require('bluebird');
 var _ = require('lodash');
 
-var Users = BaseModel.extend({
+var Users = ExtendedModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
@@ -317,34 +317,6 @@ Users.findByEmail = function (email) {
                 } else {
                     resolve(obj);
                 }
-            }
-        });
-    });
-    return promise;
-};
-
-Users._findByIdAndUpdate = function (id, obj) {
-    var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        self.findByIdAndUpdate(id, obj, function (err, doc) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(obj);
-            }
-        });
-    });
-    return promise;
-};
-
-Users._findOne = function (conditions) {
-    var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        self.findOne(conditions, function (err, doc) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(doc);
             }
         });
     });

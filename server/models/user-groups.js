@@ -1,12 +1,12 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var ExtendedModel = require('./extended-model').ExtendedModel;
 var Promise = require('bluebird');
 var Audit = require('./audit.js');
 var _ = require('lodash');
 
-var UserGroups = BaseModel.extend({
+var UserGroups = ExtendedModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
@@ -252,34 +252,6 @@ UserGroups.isValid = function (id, owner) {
                 reject(e);
             })
             .done();
-    });
-    return promise;
-};
-
-UserGroups._findByIdAndUpdate = function (id, obj) {
-    var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        self.findByIdAndUpdate(id, obj, function (err, doc) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(obj);
-            }
-        });
-    });
-    return promise;
-};
-
-UserGroups._findOne = function (conditions) {
-    var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        self.findOne(conditions, function (err, doc) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(doc);
-            }
-        });
     });
     return promise;
 };

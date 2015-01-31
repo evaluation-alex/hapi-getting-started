@@ -1,13 +1,13 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var ExtendedModel = require('./extended-model').ExtendedModel;
 var Promise = require('bluebird');
 var Audit = require('./audit');
 var UserGroups = require('./user-groups');
 var _ = require('lodash');
 
-var Permissions = BaseModel.extend({
+var Permissions = ExtendedModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
@@ -234,34 +234,6 @@ Permissions.isPermitted = function (user, action, object) {
                 })
                 .done();
         }
-    });
-    return promise;
-};
-
-Permissions._findByIdAndUpdate = function (id, obj) {
-    var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        self.findByIdAndUpdate(id, obj, function (err, doc) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(obj);
-            }
-        });
-    });
-    return promise;
-};
-
-Permissions._findOne = function (conditions) {
-    var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        self.findOne(conditions, function (err, doc) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(doc);
-            }
-        });
     });
     return promise;
 };

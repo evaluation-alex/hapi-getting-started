@@ -1,13 +1,13 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var ExtendedModel = require('./extended-model').ExtendedModel;
 var Config = require('../../config').config({argv: []});
 var Promise = require('bluebird');
 
 var authAttemptsConfig = Config.authAttempts;
 
-var AuthAttempts = BaseModel.extend({
+var AuthAttempts = ExtendedModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
@@ -42,20 +42,6 @@ AuthAttempts.create = function (ip, email) {
                 reject(err);
             } else {
                 resolve(docs[0]);
-            }
-        });
-    });
-    return promise;
-};
-
-AuthAttempts._count = function(query) {
-    var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        self.count(query, function (err, count) {
-            if (err) {
-                reject (err);
-            } else {
-                resolve(count);
             }
         });
     });

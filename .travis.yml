@@ -5,6 +5,8 @@ services:
   - mongodb
 before_script:
   - npm run setup
+  - mkdir ./test/artifacts
 after_script:
   - npm run coveralls
   - npm run climate
+  - npm run jshint

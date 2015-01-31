@@ -8,9 +8,11 @@ var Promise = require('bluebird');
 var authAttemptsConfig = Config.authAttempts;
 
 var AuthAttempts = BaseModel.extend({
+    /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
     }
+    /* jshint +W064 */
 });
 
 AuthAttempts._collection = 'authAttempts';

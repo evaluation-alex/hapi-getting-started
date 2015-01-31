@@ -4,6 +4,7 @@ var Hoek = require('hoek');
 var AuthPlugin = require('./../auth');
 var Boom = require('boom');
 var BaseModel = require('hapi-mongo-models').BaseModel;
+var Promise = require('bluebird');
 
 exports.register = function (server, options, next) {
     options = Hoek.applyToDefaults({basePath: ''}, options);

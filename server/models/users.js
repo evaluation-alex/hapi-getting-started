@@ -10,6 +10,7 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 
 var Users = BaseModel.extend({
+    /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
         Object.defineProperty(this, '_roles', {
@@ -17,6 +18,7 @@ var Users = BaseModel.extend({
             enumerable: false
         });
     },
+    /* jshint +W064 */
     hasPermissionsTo: function (performAction, onObject) {
         var ret = false;
         if (this._roles) {

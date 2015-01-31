@@ -8,9 +8,11 @@ var UserGroups = require('./user-groups');
 var _ = require('lodash');
 
 var Permissions = BaseModel.extend({
+    /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
     },
+    /* jshint +W064 */
     _audit: function (action, oldValues, newValues, by) {
         var self = this;
         return Audit.createPermissionsAudit(self._id, action, oldValues, newValues, by);

@@ -5,9 +5,11 @@ var BaseModel = require('hapi-mongo-models').BaseModel;
 var Promise = require('bluebird');
 
 var Audit = BaseModel.extend({
+    /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
     }
+    /* jshint +W064 */
 });
 
 Audit._collection = 'audit';

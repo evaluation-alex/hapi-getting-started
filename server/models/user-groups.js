@@ -7,9 +7,11 @@ var Audit = require('./audit.js');
 var _ = require('lodash');
 
 var UserGroups = BaseModel.extend({
+    /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
     },
+    /* jshint +W064 */
     _audit: function (action, oldValues, newValues, by) {
         var self = this;
         return Audit.createUserGroupsAudit(self.name, action, oldValues, newValues, by);

@@ -1,7 +1,7 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./extended-model').ExtendedModel;
+var ExtendedModel = require('./../common/extended-model').ExtendedModel;
 var Promise = require('bluebird');
 
 var Roles = ExtendedModel.extend({
@@ -40,24 +40,11 @@ Roles.indexes = [
 
 Roles.create = function (name, permissions) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        var document = {
-            name: name,
-            permissions: permissions
-        };
-        self.insert(document, function (err, roles) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!roles) {
-                    reject(new Error('No role found - ' + name));
-                } else {
-                    resolve(roles[0]);
-                }
-            }
-        });
-    });
-    return promise;
+    var document = {
+        name: name,
+        permissions: permissions
+    };
+    return self._insert(document, new Error('No role created - ' + name));
 };
 
 Roles.findByName = function (names) {

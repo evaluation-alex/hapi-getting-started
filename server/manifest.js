@@ -1,6 +1,6 @@
 'use strict';
-var Config = require('./config').config({argv:[]});
-var ExtendedModel = require('./server/models/extended-model');
+var Config = require('./../config').config({argv:[]});
+var ExtendedModel = require('./common/extended-model');
 var server = {
     connections: {
         routes: {
@@ -32,27 +32,28 @@ var plugins = {
     'hapi-mongo-models': {
         mongodb: Config.hapiMongoModels.mongodb,
         models: {
-            AuthAttempts: './server/models/auth-attempts',
-            Roles: './server/models/roles',
-            Users: './server/models/users',
-            Audit: './server/models/audit',
-            UserGroups: './server/models/user-groups',
-            Permissions: './server/models/permissions'
+            AuthAttempts: './auth-attempts/model',
+            Roles: './roles/model',
+            Users: './users/model',
+            Audit: './audit/model',
+            UserGroups: './user-groups/model',
+            Permissions: './permissions/model'
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },
-    './server/auth': {},
-    './server/mailer': {},
-    './server/api/auth-attempts': {basePath: '/api'},
-    './server/api/contact': {basePath: '/api'},
-    './server/api/login': {basePath: '/api'},
-    './server/api/logout': {basePath: '/api'},
-    './server/api/signup': {basePath: '/api'},
-    './server/api/users': {basePath: '/api'},
-    './server/api/user-groups': {basePath: '/api'},
-    './server/api/permissions': {basePath: '/api'},
-    './server/api/audit': {basePath: '/api'}
+    './server/auth': {}
 };
+
+var components = ['./server/auth-attempts',
+    './server/audit',
+    './server/contact',
+    './server/permissions',
+    './server/session',
+    './server/user-groups',
+    './server/users'
+];
+
+module.exports.components = components;
 
 var manifest = {
     server: server,
@@ -60,4 +61,4 @@ var manifest = {
     plugins: plugins
 };
 
-exports.manifest = manifest;
+module.exports.manifest = manifest;

@@ -1,6 +1,6 @@
 'use strict';
 var Bossy = require('bossy');
-var miscutils = require('./miscutils');
+var miscutils = require('./server/common/miscutils');
 
 exports.config = function (argv) {
     var opts = {

@@ -71,4 +71,22 @@ ExtendedModel._count = function(query) {
     return promise;
 };
 
+ExtendedModel._insert = function(document, notCreated) {
+    var self = this;
+    var promise = new Promise(function (resolve, reject) {
+        self.insert(document, function (err, docs) {
+            if (err) {
+                reject(err);
+            } else {
+                if (!docs) {
+                    resolve(notCreated);
+                } else {
+                    resolve(docs[0]);
+                }
+            }
+        });
+    });
+    return promise;
+};
+
 module.exports.ExtendedModel = ExtendedModel;

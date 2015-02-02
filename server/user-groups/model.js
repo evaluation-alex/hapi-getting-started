@@ -1,9 +1,9 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./extended-model').ExtendedModel;
+var ExtendedModel = require('./../common/extended-model').ExtendedModel;
 var Promise = require('bluebird');
-var Audit = require('./audit.js');
+var Audit = require('./../audit/model');
 var _ = require('lodash');
 
 var UserGroups = ExtendedModel.extend({
@@ -165,25 +165,23 @@ UserGroups.indexes = [
 
 UserGroups.create = function (name, description, owner) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    var promise = new Promise(function (resolve, reject){
         var document = {
             name: name,
             description: description,
             members: [{email: owner, isActive: true, isMember: true, isOwner: true}],
             isActive: true
         };
-        self.insert(document, function (err, results) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!results) {
-                    resolve(false);
-                } else {
-                    Audit.createUserGroupsAudit(name, 'create', '', results[0], owner);
-                    resolve(results[0]);
+        self._insert(document, false)
+            .then(function (userGroup) {
+                Audit.createUserGroupsAudit(name, 'create', '', userGroup, owner);
+                resolve(userGroup);
+            })
+            .catch(function(err) {
+                if (err) {
+                    reject(err);
                 }
-            }
-        });
+            });
     });
     return promise;
 };

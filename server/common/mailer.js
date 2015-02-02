@@ -4,7 +4,7 @@ var Fs = require('fs');
 var Handlebars = require('handlebars');
 var Nodemailer = require('nodemailer');
 var markdown = require('nodemailer-markdown').markdown;
-var Config = require('../config').config({argv:[]});
+var Config = require('./../../config').config({argv:[]});
 var Promise = require('bluebird');
 
 var transport = Nodemailer.createTransport(Hoek.clone(Config.nodemailer));
@@ -12,19 +12,18 @@ transport.use('compile', markdown({useEmbeddedImages: true}));
 
 var templateCache = {};
 
-var renderTemplate = function (signature, context) {
+var renderTemplate = function (template, context) {
     var promise = new Promise(function (resolve, reject) {
         context.projectName = Config.projectName;
-        if (templateCache[signature]) {
-            resolve(templateCache[signature](context));
+        if (templateCache[template]) {
+            resolve(templateCache[template](context));
         } else {
-            var filePath = __dirname + '/emails/' + signature + '.hbs.md';
-            Fs.readFile(filePath, {encoding: 'utf-8'}, function (err, source) {
+            Fs.readFile(template, {encoding: 'utf-8'}, function (err, source) {
                 if (err) {
                     reject(err);
                 } else {
-                    templateCache[signature] = Handlebars.compile(source);
-                    resolve(templateCache[signature](context));
+                    templateCache[template] = Handlebars.compile(source);
+                    resolve(templateCache[template](context));
                 }
             });
         }
@@ -62,11 +61,4 @@ var sendEmail = exports.sendEmail = function (options, template, context) {
     return promise;
 };
 
-exports.register = function (server, options, next) {
-    server.expose('sendEmail', sendEmail);
-    next();
-};
-
-exports.register.attributes = {
-    name: 'mailer'
-};
+module.exports.sendEmail = sendEmail;

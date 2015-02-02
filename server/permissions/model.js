@@ -1,10 +1,10 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./extended-model').ExtendedModel;
+var ExtendedModel = require('./../common/extended-model').ExtendedModel;
 var Promise = require('bluebird');
-var Audit = require('./audit');
-var UserGroups = require('./user-groups');
+var Audit = require('./../audit/model');
+var UserGroups = require('./../user-groups/model');
 var _ = require('lodash');
 
 var Permissions = ExtendedModel.extend({
@@ -143,18 +143,17 @@ Permissions.create = function (description, users, action, object, by) {
             object: object,
             isActive: true
         };
-        self.insert(document, function (err, results) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!results) {
-                    resolve({});
-                } else {
-                    Audit.createPermissionsAudit(results[0]._id, 'create', '', results[0], by);
-                    resolve(results[0]);
+        self._insert(document, {})
+            .then(function(doc) {
+                Audit.createPermissionsAudit(doc._id, 'create', '', doc, by);
+                resolve(doc);
+            })
+            .catch(function(err) {
+                if (err) {
+                    reject(err);
                 }
-            }
-        });
+            })
+            .done();
     });
     return promise;
 };

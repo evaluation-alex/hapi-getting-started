@@ -3,9 +3,9 @@ var Joi = require('joi');
 var Uuid = require('node-uuid');
 var Bcrypt = require('bcrypt');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./extended-model').ExtendedModel;
-var Roles = require('./roles');
-var Audit = require('./audit');
+var ExtendedModel = require('./../common/extended-model').ExtendedModel;
+var Roles = require('./../roles/model');
+var Audit = require('./../audit/model');
 var Promise = require('bluebird');
 var _ = require('lodash');
 
@@ -43,7 +43,9 @@ var Users = ExtendedModel.extend({
                         resolve(self);
                     })
                     .catch(function (err) {
-                        reject(err);
+                        if (err) {
+                            reject(err);
+                        }
                     })
                     .done();
             }
@@ -196,28 +198,15 @@ Users.indexes = [
 
 Users.create = function (email, password) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        var hash = Bcrypt.hashSync(password, 10);
-        var document = {
-            email: email,
-            password: hash,
-            roles: ['readonly'],
-            isActive: true,
-            session: {}
-        };
-        self.insert(document, function (err, results) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!results) {
-                    resolve(false);
-                } else {
-                    resolve(results[0]);
-                }
-            }
-        });
-    });
-    return promise;
+    var hash = Bcrypt.hashSync(password, 10);
+    var document = {
+        email: email,
+        password: hash,
+        roles: ['readonly'],
+        isActive: true,
+        session: {}
+    };
+    return self._insert(document, false);
 };
 
 Users.findByCredentials = function (email, password) {
@@ -277,7 +266,7 @@ Users.areValid = function (emails) {
             resolve({});
         } else {
             var conditions = {
-                email: {$in : emails},
+                email: {$in: emails},
                 isActive: true
             };
             self.find(conditions, function (err, docs) {

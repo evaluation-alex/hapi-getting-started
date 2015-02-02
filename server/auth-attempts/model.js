@@ -1,8 +1,8 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./extended-model').ExtendedModel;
-var Config = require('../../config').config({argv: []});
+var ExtendedModel = require('./../common/extended-model').ExtendedModel;
+var Config = require('./../../config').config({argv: []});
 var Promise = require('bluebird');
 
 var authAttemptsConfig = Config.authAttempts;
@@ -25,33 +25,24 @@ AuthAttempts.schema = Joi.object().keys({
 });
 
 AuthAttempts.indexes = [
-    [{ ip: 1, email: 1 }],
-    [{ email: 1 }]
+    [{ip: 1, email: 1}],
+    [{email: 1}]
 ];
 
 AuthAttempts.create = function (ip, email) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
-        var document = {
-            ip: ip,
-            email: email,
-            time: new Date()
-        };
-        self.insert(document, function (err, docs) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(docs[0]);
-            }
-        });
-    });
-    return promise;
+    var document = {
+        ip: ip,
+        email: email,
+        time: new Date()
+    };
+    return self._insert(document, {});
 };
 
 AuthAttempts.abuseDetected = function (ip, email) {
     var self = this;
     var promise = new Promise(function (resolve, reject) {
-        Promise.join(self._count({ ip: ip }), self._count({ip: ip, email: email}),
+        Promise.join(self._count({ip: ip}), self._count({ip: ip, email: email}),
             function (abusiveIpCount, abusiveIpUserCount) {
                 var ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;
                 var ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;

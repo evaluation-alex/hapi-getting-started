@@ -5,11 +5,19 @@ var Controller = require('./controller').Controller;
 module.exports.Routes = [
     RouteFactory.newRoute()
         .forGET()
-        .onPath('/audit')
+        .onPath('/auth-attempts')
         .usingAuthStrategy('simple')
         .withValidation(Controller.find.validator)
-        .ensureRolePermissions('view', 'audit')
+        .ensureRolePermissions('view', 'auth-attempts')
         .handleUsing(Controller.find.handler)
+        .doneConfiguring()
+        .describeRoute(),
+    RouteFactory.newRoute()
+        .forDELETE()
+        .onPath('/auth-attempts/{id}')
+        .usingAuthStrategy('simple')
+        .ensureRolePermissions('update', 'auth-attempts')
+        .handleUsing(Controller.delete.handler)
         .doneConfiguring()
         .describeRoute()
 ];

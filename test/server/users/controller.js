@@ -487,23 +487,21 @@ describe('Signup', function () {
         server.inject(request, function (response) {
             try {
                 expect(response.statusCode).to.equal(200);
-                var p1 = Users._findOne({email: 'test.signup2@signup.api'})
+                Users._findOne({email: 'test.signup2@signup.api'})
                     .then(function (foundUser) {
                         expect(foundUser).to.exist();
                         expect(foundUser.session).to.exist();
-                    });
-                var p2 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'signup'})
-                    .then(function(foundSignup) {
+                        return Audit.findUsersAudit({userId: 'test.signup2@signup.api', action: 'signup'});
+                    })
+                    .then(function (foundSignup) {
                         expect(foundSignup).to.exist();
                         expect(foundSignup[0].newValues).to.include('test.signup2@signup.api');
-                    });
-                var p3 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'login success'})
-                    .then(function(foundLogin) {
+                        return Audit.findUsersAudit({userId: 'test.signup2@signup.api', action: 'login success'});
+                    })
+                    .then(function (foundLogin) {
                         expect(foundLogin).to.exist();
+                        done();
                     });
-                Promise.join(p1, p2, p3, function (v1, v2, v3) {
-                    done();
-                });
             } catch (err) {
                 done(err);
             }

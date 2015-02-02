@@ -1,24 +1,25 @@
 'use strict';
 var _ = require('lodash');
 var AuthPlugin = require('./../common/auth');
+var mu = require('./miscutils');
 
 var RouteFactory = function () {
     var self = this;
-    self.addedToServer = false;
     self._canContinueConfiguring = function () {
         if (!self.addedToServer) {
             return self;
         } else {
-            throw new Error('register existing route with server first before creating a new route');
+            throw new Error('Route already configured, cannot modify now');
         }
     };
     self.newRoute = function () {
-        if (self._canContinueConfiguring()) {
+        self.addedToServer = false;
+        if (self.route) {
             delete self.route;
-            self.route = {
-                config: {}
-            };
         }
+        self.route = {
+            config: {}
+        };
         return self;
     };
     self.forMethod = function (method) {
@@ -95,16 +96,7 @@ var RouteFactory = function () {
         } else {
             throw new Error('already registered route, create new route before registering with server again');
         }
-    };
-    self.registerWith = function (server) {
-        if (self._canContinueConfiguring()) {
-            self.doneConfiguring();
-            server.route(self.route);
-        }
-        return self;
-    };
-    self.describeRoute = function () {
-        return self.route;
+        return mu.deepFreeze(self.route);
     };
     return self;
 };

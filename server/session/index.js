@@ -9,13 +9,11 @@ module.exports.Routes = [
         .withValidation(Controller.login.validator)
         .preProcessWith(Controller.login.pre)
         .handleUsing(Controller.login.handler)
-        .doneConfiguring()
-        .describeRoute(),
+        .doneConfiguring(),
     RouteFactory.newRoute()
         .forDELETE()
         .onPath('/logout')
         .usingAuthStrategy('simple')
         .handleUsing(Controller.logout.handler)
         .doneConfiguring()
-        .describeRoute()
 ];

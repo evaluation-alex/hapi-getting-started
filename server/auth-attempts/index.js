@@ -10,8 +10,7 @@ module.exports.Routes = [
         .withValidation(Controller.find.validator)
         .ensureRolePermissions('view', 'auth-attempts')
         .handleUsing(Controller.find.handler)
-        .doneConfiguring()
-        .describeRoute(),
+        .doneConfiguring(),
     RouteFactory.newRoute()
         .forDELETE()
         .onPath('/auth-attempts/{id}')
@@ -19,5 +18,4 @@ module.exports.Routes = [
         .ensureRolePermissions('update', 'auth-attempts')
         .handleUsing(Controller.delete.handler)
         .doneConfiguring()
-        .describeRoute()
 ];

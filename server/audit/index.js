@@ -11,5 +11,4 @@ module.exports.Routes = [
         .ensureRolePermissions('view', 'audit')
         .handleUsing(Controller.find.handler)
         .doneConfiguring()
-        .describeRoute()
 ];

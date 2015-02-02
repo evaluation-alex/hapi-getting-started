@@ -10,16 +10,14 @@ module.exports.Routes = [
         .withValidation(Controller.find.validator)
         .ensureRolePermissions('view', 'permissions')
         .handleUsing(Controller.find.handler)
-        .doneConfiguring()
-        .describeRoute(),
+        .doneConfiguring(),
     RouteFactory.newRoute()
         .forGET()
         .onPath('/permissions/{id}')
         .usingAuthStrategy('simple')
         .ensureRolePermissions('view', 'permissions')
         .handleUsing(Controller.findOne.handler)
-        .doneConfiguring()
-        .describeRoute(),
+        .doneConfiguring(),
     RouteFactory.newRoute()
         .forPUT()
         .onPath('/permissions/{id}')
@@ -28,8 +26,7 @@ module.exports.Routes = [
         .ensureRolePermissions('update', 'permissions')
         .preProcessWith(Controller.update.pre)
         .handleUsing(Controller.update.handler)
-        .doneConfiguring()
-        .describeRoute(),
+        .doneConfiguring(),
     RouteFactory.newRoute()
         .forPOST()
         .onPath('/permissions')
@@ -37,8 +34,8 @@ module.exports.Routes = [
         .withValidation(Controller.new.validator)
         .ensureRolePermissions('update', 'permissions')
         .preProcessWith(Controller.new.pre)
-        .doneConfiguring()
-        .describeRoute(),
+        .handleUsing(Controller.new.handler)
+        .doneConfiguring(),
     RouteFactory.newRoute()
         .forDELETE()
         .onPath('/permissions/{id}')
@@ -47,5 +44,4 @@ module.exports.Routes = [
         .preProcessWith(Controller.delete.pre)
         .handleUsing(Controller.delete.handler)
         .doneConfiguring()
-        .describeRoute()
 ];

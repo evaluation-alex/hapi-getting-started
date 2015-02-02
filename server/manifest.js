@@ -32,20 +32,21 @@ var plugins = {
     'hapi-mongo-models': {
         mongodb: Config.hapiMongoModels.mongodb,
         models: {
-            AuthAttempts: './auth-attempts/model',
-            Roles: './roles/model',
-            Users: './users/model',
-            Audit: './audit/model',
-            UserGroups: './user-groups/model',
-            Permissions: './permissions/model'
+            AuthAttempts: './server/auth-attempts/model',
+            Roles: './server/roles/model',
+            Users: './server/users/model',
+            Audit: './server/audit/model',
+            UserGroups: './server/user-groups/model',
+            Permissions: './server/permissions/model'
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },
-    './server/auth': {}
+    './server/common/auth': {}
 };
 
-var components = ['./server/auth-attempts',
+var components = [
     './server/audit',
+    './server/auth-attempts',
     './server/contact',
     './server/permissions',
     './server/session',

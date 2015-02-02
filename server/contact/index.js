@@ -7,7 +7,6 @@ module.exports.Routes = [
         .forPOST()
         .onPath('/contact')
         .withValidation(Controller.contact.validator)
-        .handleUsing(Controller.signup.handler)
+        .handleUsing(Controller.contact.handler)
         .doneConfiguring()
-        .describeRoute()
 ];

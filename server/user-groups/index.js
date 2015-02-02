@@ -10,16 +10,14 @@ module.exports.Routes = [
         .withValidation(Controller.find.validator)
         .ensureRolePermissions('view', 'user-groups')
         .handleUsing(Controller.find.handler)
-        .doneConfiguring()
-        .describeRoute(),
+        .doneConfiguring(),
     RouteFactory.newRoute()
         .forGET()
         .onPath('/user-groups/{id}')
         .usingAuthStrategy('simple')
         .ensureRolePermissions('view', 'user-groups')
         .handleUsing(Controller.findOne.handler)
-        .doneConfiguring()
-        .describeRoute(),
+        .doneConfiguring(),
     RouteFactory.newRoute()
         .forPUT()
         .onPath('/user-groups/{id}')
@@ -28,8 +26,7 @@ module.exports.Routes = [
         .ensureRolePermissions('update', 'user-groups')
         .preProcessWith(Controller.update.pre)
         .handleUsing(Controller.update.handler)
-        .doneConfiguring()
-        .describeRoute(),
+        .doneConfiguring(),
     RouteFactory.newRoute()
         .forPOST()
         .onPath('/user-groups')
@@ -38,8 +35,7 @@ module.exports.Routes = [
         .ensureRolePermissions('update', 'user-groups')
         .preProcessWith(Controller.new.pre)
         .handleUsing(Controller.new.handler)
-        .doneConfiguring()
-        .describeRoute(),
+        .doneConfiguring(),
     RouteFactory.newRoute()
         .forDELETE()
         .onPath('/user-groups/{id}')
@@ -48,5 +44,4 @@ module.exports.Routes = [
         .preProcessWith(Controller.delete.pre)
         .handleUsing(Controller.delete.handler)
         .doneConfiguring()
-        .describeRoute()
 ];

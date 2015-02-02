@@ -82,8 +82,8 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
     .then(function (results) {
         console.log('setting up with - ' + JSON.stringify(results));
         var BaseModel = require('hapi-mongo-models').BaseModel;
-        var Users = require('./server/models/users');
-        var Roles = require('./server/models/roles');
+        var Users = require('./server/users/model');
+        var Roles = require('./server/roles/model');
         BaseModel.connect({url: results.mongodbUrl}, function (err, db) {
             Users.remove.bind(Users, {});
             Roles.remove.bind(Roles, {});

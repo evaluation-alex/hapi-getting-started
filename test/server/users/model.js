@@ -22,7 +22,10 @@ describe('Users Model', function () {
     var firstEmail = 'test.create@users.module';
     var secondEmail = 'test.search@users.module';
     before(function (done) {
-        tu.setupConnect(done);
+        tu.setupConnect()
+            .then(function() {
+                done();
+            });
     });
 
     describe('Users.create', function () {

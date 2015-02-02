@@ -3,13 +3,10 @@ var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
 
 var Config = require(relativeTo + 'config').config({argv: []});
-var Hapi = require('hapi');
-var LoginPlugin = require(relativeToServer + 'session');
-var LogoutPlugin = require(relativeToServer + 'session');
-var MailerPlugin = require(relativeToServer + 'common/mailer');
 var Users = require(relativeToServer + 'users/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Promise = require('bluebird');
+var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -27,8 +24,7 @@ describe('Login', function () {
     var server = null;
     var emails = [];
     beforeEach(function (done) {
-       var plugins = [MailerPlugin, LoginPlugin];
-        server = tu.setupServer(plugins)
+        server = tu.setupServer()
             .then(function (s) {
                 server = s;
                 return tu.setupRolesAndUsers();
@@ -55,7 +51,6 @@ describe('Login', function () {
             var authSpam = [];
             var authRequest = function () {
                 var promise = new Promise(function (resolve, reject) {
-                    var AuthAttempts = server.plugins['hapi-mongo-models'].AuthAttempts;
                     AuthAttempts.create('', 'test.users@test.api')
                         .then(function (result) {
                             resolve(true);
@@ -248,7 +243,6 @@ describe('Login', function () {
         });
 
         it('successfully sets a password, invalidates session and logs user out', function (done) {
-            var Users = server.plugins['hapi-mongo-models'].Users;
             var key = '';
             Users._findOne({email: 'test.users@test.api'})
                 .then(function (foundUser) {
@@ -295,8 +289,7 @@ describe('Logout', function () {
     var emails = [];
 
     beforeEach(function (done) {
-        var plugins = [LogoutPlugin];
-        server = tu.setupServer(plugins)
+        server = tu.setupServer()
             .then(function (s) {
                 server = s;
                 tu.setupRolesAndUsers();
@@ -376,7 +369,6 @@ describe('Logout', function () {
     });
 
     it('removes the authenticated user session successfully', function (done) {
-        var Users = server.plugins['hapi-mongo-models'].Users;
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
                 var request = {

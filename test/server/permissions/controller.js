@@ -2,8 +2,6 @@
 var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
 
-var Hapi = require('hapi');
-var PermissionsPlugin = require(relativeTo + 'permissions');
 var Users = require(relativeToServer + 'users/model');
 var Permissions = require(relativeToServer + 'permissions/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
@@ -22,14 +20,13 @@ var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
 
-describe('Users', function () {
+describe('Permissions', function () {
     var rootAuthHeader = null;
     var server = null;
     var permissionsToClear = [];
     var groupsToClear = [];
     beforeEach(function (done) {
-        var plugins = [PermissionsPlugin];
-        server = tu.setupServer(plugins)
+        server = tu.setupServer()
             .then(function (s) {
                 server = s;
                 return tu.setupRolesAndUsers();
@@ -101,7 +98,7 @@ describe('Users', function () {
         });
     });
 
-    describe('POST /user-groups/{id}', function () {
+    describe('POST /permissions/{id}', function () {
         it('should send back conflict when you try to create a permission with object, action that already exists', function (done) {
             done();
         });
@@ -110,7 +107,7 @@ describe('Users', function () {
         });
     });
 
-    describe('DELETE /user-groups/{id}', function () {
+    describe('DELETE /permissions/{id}', function () {
         it('should send back not found error when you try to modify a non existent permissions', function (done) {
             done();
         });

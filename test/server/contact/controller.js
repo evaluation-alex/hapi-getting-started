@@ -2,10 +2,9 @@
 var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
 
-var Hapi = require('hapi');
 var Config = require(relativeTo + 'config').config({argv: []});
 var MailerPlugin = require(relativeToServer + 'common/mailer');
-var ContactPlugin = require(relativeToServer + 'contact');
+var tu = require('./../testutils');
 var Fs = require('fs');
 //var expect = require('chai').expect;
 var Code = require('code');   // assertion library
@@ -22,15 +21,20 @@ var expect = Code.expect;
 describe('Contact', function () {
     var server;
     beforeEach(function (done) {
-        var plugins = [ MailerPlugin, ContactPlugin ];
-        server = new Hapi.Server();
-        server.connection({ port: Config.port.web });
-        server.register(plugins, function (err) {
-            if (err) {
-                throw err;
-            }
-            done();
-        });
+        server = tu.setupServer()
+            .then(function (s) {
+                server = s;
+                return tu.setupRolesAndUsers();
+            })
+            .then(function () {
+                done();
+            })
+            .catch(function (err) {
+                if (err) {
+                    done(err);
+                }
+            })
+            .done();
     });
 
     it.skip('returns an error when send email fails', function (done) {

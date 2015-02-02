@@ -1,7 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var Hapi = require('hapi');
-var AuditPlugin = require(relativeToServer + 'audit');
 var Users = require(relativeToServer + 'users/model');
  //var expect = require('chai').expect;
 var Code = require('code');   // assertion library
@@ -21,8 +19,7 @@ describe('Audit', function () {
     var server = null;
     var emails = [];
     beforeEach(function (done) {
-        var plugins = [AuditPlugin];
-        server = tu.setupServer(plugins)
+        server = tu.setupServer()
             .then(function (s) {
                 server = s;
                 return tu.setupRolesAndUsers();

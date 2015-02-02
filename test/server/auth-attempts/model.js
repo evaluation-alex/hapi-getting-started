@@ -21,7 +21,10 @@ var expect = Code.expect;
 describe('AuthAttempts Model', function () {
 
     before(function (done) {
-        tu.setupConnect(done);
+        tu.setupConnect()
+            .then(function() {
+                done();
+            });
     });
 
     it('returns a new instance when create succeeds', function (done) {

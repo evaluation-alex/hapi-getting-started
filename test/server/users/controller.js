@@ -2,10 +2,6 @@
 var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
 
-var Hapi = require('hapi');
-var SignupPlugin = require(relativeToServer + 'users');
-var MailerPlugin = require(relativeToServer + 'common/mailer');
-var UsersPlugin = require(relativeToServer + 'users');
 var Users = require(relativeToServer + 'users/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Fs = require('fs');
@@ -26,8 +22,7 @@ describe('Users', function () {
     var server = null;
     var emails = [];
     beforeEach(function (done) {
-        var plugins = [UsersPlugin];
-        server = tu.setupServer(plugins)
+        server = tu.setupServer()
             .then(function (s) {
                 server = s;
                 return tu.setupRolesAndUsers();
@@ -424,8 +419,7 @@ describe('Signup', function () {
     var emails = [];
 
     beforeEach(function (done) {
-        var plugins = [MailerPlugin, SignupPlugin];
-        tu.setupServer(plugins)
+        tu.setupServer()
             .then(function (s) {
                 server = s;
                 tu.setupRolesAndUsers();

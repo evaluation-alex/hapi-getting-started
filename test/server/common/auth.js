@@ -2,8 +2,8 @@
 var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
 
-var AuthPlugin = require(relativeToServer + 'common/auth');
 var Users = require(relativeToServer + 'users/model');
+var AuthPlugin = require(relativeToServer + 'common/auth');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -23,8 +23,7 @@ describe('Auth', function () {
     var authheader;
 
     beforeEach(function (done) {
-        var plugins = [];
-        server = tu.setupServer(plugins)
+        server = tu.setupServer()
             .then(function (s) {
                 server = s;
                 return tu.setupRolesAndUsers();
@@ -53,7 +52,7 @@ describe('Auth', function () {
                 server.auth.test('simple', request, function (err, credentials) {
                     expect(err).to.not.exist();
                     expect(credentials).to.exist();
-                    expect(credentials.user).to.be.an.instanceof(server.plugins['hapi-mongo-models'].Users);
+                    expect(credentials.user).to.be.an.instanceof(Users);
                     reply('ok').takeover();
                 });
             }

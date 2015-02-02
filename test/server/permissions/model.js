@@ -25,7 +25,10 @@ describe('Permissions Model', function () {
     var groupsToClear = [];
 
     before(function (done) {
-        tu.setupConnect(done);
+        tu.setupConnect()
+            .then(function() {
+                done();
+            });
     });
 
     describe('Permissions.create', function () {

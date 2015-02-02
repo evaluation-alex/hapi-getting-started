@@ -71,7 +71,8 @@ var RouteFactory = function () {
         return self;
     };
     self.ensureRolePermissions = function (forAction, onObject) {
-        return self.preProcessWith(AuthPlugin.preware.ensurePermissions(forAction, onObject));
+        var pre = AuthPlugin.preware.ensurePermissions(forAction, onObject);
+        return self.preProcessWith({ ensurePermissions: pre.method });
     };
     self.preProcessWith = function (preProcess) {
         if (self._canContinueConfiguring()) {

@@ -22,13 +22,13 @@ describe('Mailer', function () {
         Mailer.sendEmail({}, 'path', {})
             .then(function (info) {
                 expect(info).to.not.exist();
+                done(info);
             })
             .catch(function (err) {
                 expect(err).to.be.an.instanceof(Error);
-            })
-            .done(function () {
                 done();
-            });
+            })
+            .done();
     });
 
 
@@ -44,15 +44,14 @@ describe('Mailer', function () {
             email: 'email',
             password: 'password'
         };
-        Mailer.sendEmail(options, relativeToServer + 'users/welcome.hbs.md', payload)
+        Mailer.sendEmail(options, 'server/users/welcome.hbs.md', payload)
             .then(function (info) {
                 expect(info).to.exist();
+                done();
             })
             .catch(function (err) {
                 expect(err).to.not.exist();
-            })
-            .done(function () {
-                done();
+                done(err);
             });
     });
 });

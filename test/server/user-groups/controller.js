@@ -2,8 +2,6 @@
 var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
 
-var Hapi = require('hapi');
-var UserGroupsPlugin = require(relativeToServer+'user-groups');
 var Users = require(relativeToServer + 'users/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
@@ -26,8 +24,7 @@ describe('UserGroups', function () {
     var server = null;
     var groupsToClear = [];
     beforeEach(function (done) {
-        var plugins = [UserGroupsPlugin];
-        server = tu.setupServer(plugins)
+        server = tu.setupServer()
             .then(function (s) {
                 server = s;
                 return tu.setupRolesAndUsers();

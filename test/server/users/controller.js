@@ -1,6 +1,14 @@
 'use strict';
+var relativeToServer = './../../../server/';
+var relativeTo = './../../../';
+
 var Hapi = require('hapi');
-var UsersPlugin = require('./../../../server/api/users');
+var SignupPlugin = require(relativeToServer + 'users');
+var MailerPlugin = require(relativeToServer + 'common/mailer');
+var UsersPlugin = require(relativeToServer + 'users');
+var Users = require(relativeToServer + 'users/model');
+var Audit = require(relativeToServer + 'audit/model');
+var Fs = require('fs');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -25,7 +33,6 @@ describe('Users', function () {
                 return tu.setupRolesAndUsers();
             })
             .then(function () {
-                var Users = server.plugins['hapi-mongo-models'].Users;
                 emails.push('test.users@test.api');
                 return Users.create('test.users@test.api', 'password123');
             })
@@ -42,7 +49,6 @@ describe('Users', function () {
     });
 
     it('should send back a not authorized when user is not logged in', function (done) {
-        var Users = server.plugins['hapi-mongo-models'].Users;
         var authheader = '';
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
@@ -69,7 +75,6 @@ describe('Users', function () {
     });
 
     it('should send back a not authorized when user does not have permissions to view', function (done) {
-        var Users = server.plugins['hapi-mongo-models'].Users;
         var authheader = '';
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
@@ -96,7 +101,6 @@ describe('Users', function () {
     });
 
     it('should send back users when requestor has permissions and is authenticated, Users:GET /users', function (done) {
-        var Users = server.plugins['hapi-mongo-models'].Users;
         var authheader = '';
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
@@ -126,7 +130,6 @@ describe('Users', function () {
     describe('GET /users', function () {
         var authheader = '';
         beforeEach(function (done) {
-            var Users = server.plugins['hapi-mongo-models'].Users;
             Users._findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
                     foundUser.loginSuccess('test', 'test').done();
@@ -224,7 +227,6 @@ describe('Users', function () {
         var authheader = '';
         var id = '';
         beforeEach(function (done) {
-            var Users = server.plugins['hapi-mongo-models'].Users;
             Users._findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
                     foundUser.loginSuccess('test', 'test').done();
@@ -275,7 +277,6 @@ describe('Users', function () {
         var authheader = '';
         var id = '';
         beforeEach(function (done) {
-            var Users = server.plugins['hapi-mongo-models'].Users;
             Users._findOne({email: 'root'})
                 .then(function (foundUser) {
                     return foundUser.loginSuccess('test', 'test');
@@ -305,8 +306,6 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var Users = server.plugins['hapi-mongo-models'].Users;
-                    var Audit = server.plugins['hapi-mongo-models'].Audit;
                     Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.isActive).to.be.false();
@@ -337,8 +336,6 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var Users = server.plugins['hapi-mongo-models'].Users;
-                    var Audit = server.plugins['hapi-mongo-models'].Audit;
                     Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
@@ -369,8 +366,6 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var Users = server.plugins['hapi-mongo-models'].Users;
-                    var Audit = server.plugins['hapi-mongo-models'].Audit;
                     Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.session).to.not.exist();
@@ -402,7 +397,6 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var Users = server.plugins['hapi-mongo-models'].Users;
                     Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.session).to.not.exist();
@@ -416,6 +410,109 @@ describe('Users', function () {
                     done(err);
                 }
             });
+        });
+    });
+
+    afterEach(function (done) {
+        tu.cleanup(emails, null, null, done);
+    });
+
+});
+
+describe('Signup', function () {
+    var server = null;
+    var emails = [];
+
+    beforeEach(function (done) {
+        var plugins = [MailerPlugin, SignupPlugin];
+        tu.setupServer(plugins)
+            .then(function (s) {
+                server = s;
+                tu.setupRolesAndUsers();
+                done();
+            })
+            .catch(function (err) {
+                if (err) {
+                    done(err);
+                }
+            })
+            .done();
+    });
+
+    it('returns a conflict when you try to signup with user that already exists', function (done) {
+        var request = {
+            method: 'POST',
+            url: '/signup',
+            payload: {
+                email: 'one@first.com',
+                password: 'try becoming the first'
+            }
+        };
+        server.inject(request, function (response) {
+            try {
+                expect(response.statusCode).to.equal(409);
+                done();
+            } catch (err) {
+                done(err);
+            }
+        });
+    });
+
+    it.skip('fails when the signup email send fails', function (done) {
+        Fs.renameSync('./server/emails/welcome.hbs.md', './server/emails/welcome2.hbs.md');
+        var request = {
+            method: 'POST',
+            url: '/signup',
+            payload: {
+                email: 'test.signup@signup.api',
+                password: 'p4ssw0rd'
+            }
+        };
+        emails.push(request.payload.email);
+        server.inject(request, function (response) {
+            try {
+                Fs.renameSync('./server/emails/welcome2.hbs.md', './server/emails/welcome.hbs.md');
+                expect(response.statusCode).to.equal(500);
+                done();
+            } catch (err) {
+                done(err);
+            }
+        });
+    });
+
+    it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records', function (done) {
+        var request = {
+            method: 'POST',
+            url: '/signup',
+            payload: {
+                email: 'test.signup2@signup.api',
+                password: 'an0th3r1'
+            }
+        };
+        emails.push(request.payload.email);
+        server.inject(request, function (response) {
+            try {
+                expect(response.statusCode).to.equal(200);
+                var p1 = Users._findOne({email: 'test.signup2@signup.api'})
+                    .then(function (foundUser) {
+                        expect(foundUser).to.exist();
+                        expect(foundUser.session).to.exist();
+                    });
+                var p2 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'signup'})
+                    .then(function(foundSignup) {
+                        expect(foundSignup).to.exist();
+                        expect(foundSignup[0].newValues).to.include('test.signup2@signup.api');
+                    });
+                var p3 = Audit.findUsersAudit({userId: 'test.signup2@signup.api',action:'login success'})
+                    .then(function(foundLogin) {
+                        expect(foundLogin).to.exist();
+                    });
+                Promise.join(p1, p2, p3, function (v1, v2, v3) {
+                    done();
+                });
+            } catch (err) {
+                done(err);
+            }
         });
     });
 

@@ -1,8 +1,11 @@
 'use strict';
-var Hapi = require('hapi');
-var AuthPlugin = require('./../../server/auth');
+var relativeToServer = './../../../server/';
+var relativeTo = './../../../';
+
+var AuthPlugin = require(relativeToServer + 'common/auth');
+var Users = require(relativeToServer + 'users/model');
 //var expect = require('chai').expect;
-var tu = require('./testutils');
+var tu = require('./../testutils');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -27,7 +30,6 @@ describe('Auth', function () {
                 return tu.setupRolesAndUsers();
             })
             .then(function () {
-                var Users = server.plugins['hapi-mongo-models'].Users;
                 return Users.create(email, 'auth123');
             })
             .then(function (user) {
@@ -146,7 +148,6 @@ describe('Auth', function () {
             }
         });
 
-        var Users = server.plugins['hapi-mongo-models'].Users;
         Users.findByEmail(email)
             .then(function (user) {
                 user.logout('test', 'test').done();
@@ -188,7 +189,6 @@ describe('Auth', function () {
             }
         });
 
-        var Users = server.plugins['hapi-mongo-models'].Users;
         Users.findByEmail(email)
             .then(function (user) {
                 user.updateRoles([], 'test').done();

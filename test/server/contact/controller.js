@@ -1,8 +1,11 @@
 'use strict';
+var relativeToServer = './../../../server/';
+var relativeTo = './../../../';
+
 var Hapi = require('hapi');
-var Config = require('./../../../config').config({argv: []});
-var MailerPlugin = require('./../../../server/mailer');
-var ContactPlugin = require('./../../../server/api/contact');
+var Config = require(relativeTo + 'config').config({argv: []});
+var MailerPlugin = require(relativeToServer + 'common/mailer');
+var ContactPlugin = require(relativeToServer + 'contact');
 var Fs = require('fs');
 //var expect = require('chai').expect;
 var Code = require('code');   // assertion library

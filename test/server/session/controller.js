@@ -1,8 +1,14 @@
 'use strict';
-var Config = require('./../../../config').config({argv: []});
+var relativeToServer = './../../../server/';
+var relativeTo = './../../../';
+
+var Config = require(relativeTo + 'config').config({argv: []});
 var Hapi = require('hapi');
-var LoginPlugin = require('./../../../server/api/login');
-var MailerPlugin = require('./../../../server/mailer');
+var LoginPlugin = require(relativeToServer + 'session');
+var LogoutPlugin = require(relativeToServer + 'session');
+var MailerPlugin = require(relativeToServer + 'common/mailer');
+var Users = require(relativeToServer + 'users/model');
+var Audit = require(relativeToServer + 'audit/model');
 var Promise = require('bluebird');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
@@ -28,7 +34,6 @@ describe('Login', function () {
                 return tu.setupRolesAndUsers();
             })
             .then(function () {
-                var Users = server.plugins['hapi-mongo-models'].Users;
                 emails.push('test.users@test.api');
                 return Users.create('test.users@test.api', 'password123');
             })
@@ -97,7 +102,6 @@ describe('Login', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(401);
-                    var Audit = server.plugins['hapi-mongo-models'].Audit;
                     Audit.findUsersAudit({userId: 'test.users@test.api', action: 'login fail'})
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -142,7 +146,6 @@ describe('Login', function () {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.exist();
                     expect(response.payload).to.contain('test.users@test.api');
-                    var Audit = server.plugins['hapi-mongo-models'].Audit;
                     Audit.findUsersAudit({userId: 'test.users@test.api', action: 'login success'})
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -187,8 +190,6 @@ describe('Login', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.contain('Success');
-                    var Audit = server.plugins['hapi-mongo-models'].Audit;
-                    var Users = server.plugins['hapi-mongo-models'].Users;
                     Audit.findUsersAudit({userId: 'test.users@test.api', action: 'reset password sent'})
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -268,7 +269,6 @@ describe('Login', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             expect(response.payload).to.contain('Success');
-                            var Audit = server.plugins['hapi-mongo-models'].Audit;
                             Audit.findUsersAudit({userId: 'test.users@test.api', action: 'reset password'})
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
@@ -289,3 +289,124 @@ describe('Login', function () {
         tu.cleanup(emails, null, null, done);
     });
 });
+
+describe('Logout', function () {
+    var server = null;
+    var emails = [];
+
+    beforeEach(function (done) {
+        var plugins = [LogoutPlugin];
+        server = tu.setupServer(plugins)
+            .then(function (s) {
+                server = s;
+                tu.setupRolesAndUsers();
+                done();
+            })
+            .catch(function (err) {
+                if (err) {
+                    done(err);
+                }
+            })
+            .done();
+    });
+
+    it('returns an error when no authorization is passed', function (done) {
+        var request = {
+            method: 'DELETE',
+            url: '/logout'
+        };
+        server.inject(request, function (response) {
+            try {
+                expect(response.statusCode).to.equal(401);
+                done();
+            } catch (err) {
+                done(err);
+            }
+        });
+    });
+
+    it('returns a not found when user does not exist', function (done) {
+        var request = {
+            method: 'DELETE',
+            url: '/logout',
+            headers: {
+                Authorization: tu.authorizationHeader2('test.not.created@logout.api', '123')
+            }
+        };
+        emails.push('test.not.created@logout.api');
+        server.inject(request, function (response) {
+            try {
+                expect(response.statusCode).to.equal(401);
+                done();
+            } catch (err) {
+                done(err);
+            }
+        });
+    });
+
+    it('returns a not found when user has already logged out', function (done) {
+        var request = {
+            method: 'DELETE',
+            url: '/logout',
+            headers: {
+                Authorization: ''
+            }
+        };
+        emails.push('one@first.com');
+        Users._findOne({email: 'one@first.com'})
+            .then(function (foundUser) {
+                foundUser.loginSuccess('test', 'test').done();
+                request.headers.Authorization = tu.authorizationHeader(foundUser);
+                foundUser.logout('test', 'test').done();
+            })
+            .done();
+        server.inject(request, function (response) {
+            try {
+                expect(response.statusCode).to.equal(401);
+                Users._findOne({email: 'one@first.com'})
+                    .then(function (foundUser) {
+                        foundUser.loginSuccess('test', 'test').done();
+                    })
+                    .done();
+                done();
+            } catch (err) {
+                done(err);
+            }
+        });
+    });
+
+    it('removes the authenticated user session successfully', function (done) {
+        var Users = server.plugins['hapi-mongo-models'].Users;
+        Users._findOne({email: 'one@first.com'})
+            .then(function (foundUser) {
+                var request = {
+                    method: 'DELETE',
+                    url: '/logout',
+                    headers: {
+                        Authorization: ''
+                    }
+                };
+                foundUser.loginSuccess('test', 'test').done();
+                request.headers.Authorization = tu.authorizationHeader(foundUser);
+                server.inject(request, function (response) {
+                    try {
+                        expect(response.statusCode).to.equal(200);
+                        Users._findOne({email: 'one@first.com'})
+                            .then(function (foundUser) {
+                                expect(foundUser.session).to.not.exist();
+                                foundUser.loginSuccess('test', 'test').done();
+                            })
+                            .done();
+                        done();
+                    } catch (err) {
+                        done(err);
+                    }
+                });
+            }).done();
+    });
+
+    afterEach(function (done) {
+        tu.cleanup(emails, null, null, done);
+    });
+});
+

@@ -1,10 +1,13 @@
 'use strict';
+var relativeToServer = './../../../server/';
+var relativeTo = './../../../';
+
 var Hapi = require('hapi');
-var PermissionsPlugin = require('./../../../server/api/permissions');
-var Users = require('./../../../server/models/users');
-var Permissions = require('./../../../server/models/permissions');
-var UserGroups = require('./../../../server/models/user-groups');
-var Audit = require('./../../../server/models/audit');
+var PermissionsPlugin = require(relativeTo + 'permissions');
+var Users = require(relativeToServer + 'users/model');
+var Permissions = require(relativeToServer + 'permissions/model');
+var UserGroups = require(relativeToServer + 'user-groups/model');
+var Audit = require(relativeToServer + 'audit/model');
 
 //var expect = require('chai').expect;
 var tu = require('./../testutils');

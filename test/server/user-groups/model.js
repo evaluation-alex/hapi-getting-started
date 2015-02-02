@@ -1,7 +1,10 @@
 'use strict';
-var UserGroups = require('./../../../server/models/user-groups');
+var relativeToServer = './../../../server/';
+var relativeTo = './../../../';
+
+var UserGroups = require(relativeToServer + 'user-groups/model');
 var BaseModel = require('hapi-mongo-models').BaseModel;
-var Audit = require('./../../../server/models/audit');
+var Audit = require(relativeToServer + 'audit/model');
 var _ = require('lodash');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');

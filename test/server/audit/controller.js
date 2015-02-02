@@ -1,7 +1,9 @@
 'use strict';
+var relativeToServer = './../../../server/';
 var Hapi = require('hapi');
-var AuditPlugin = require('./../../../server/api/audit');
-//var expect = require('chai').expect;
+var AuditPlugin = require(relativeToServer + 'audit');
+var Users = require(relativeToServer + 'users/model');
+ //var expect = require('chai').expect;
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var tu = require('./../testutils');
@@ -26,7 +28,6 @@ describe('Audit', function () {
                 return tu.setupRolesAndUsers();
             })
             .then(function () {
-                var Users = server.plugins['hapi-mongo-models'].Users;
                 emails.push('test.users@test.api');
                 return Users.create('test.users@test.api', 'password123');
             })
@@ -35,7 +36,6 @@ describe('Audit', function () {
             })
             .then(function () {
                 emails.push('test.users2@test.api');
-                var Users = server.plugins['hapi-mongo-models'].Users;
                 return Users.create('test.users2@test.api', 'password123');
             })
             .then(function (newUser2) {
@@ -53,7 +53,6 @@ describe('Audit', function () {
 
     describe('GET /audit', function () {
         it('should give audit of only the user whose email is sent in the parameter', function (done) {
-            var Users = server.plugins['hapi-mongo-models'].Users;
             Users._findOne({email: 'root'})
                 .then(function (foundUser) {
                     foundUser.loginSuccess('test', 'test').done();
@@ -83,7 +82,4 @@ describe('Audit', function () {
     afterEach(function (done) {
         tu.cleanup(emails, null, null, done);
     });
-
-})
-;
-
+});

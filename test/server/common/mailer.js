@@ -1,6 +1,9 @@
 'use strict';
-var Hapi = require('hapi');
-var Config = require('./../../config').config({argv: []});
+var relativeToServer = './../../../server/';
+var relativeTo = './../../../';
+
+var Config = require(relativeTo+'config').config({argv: []});
+var Mailer = require(relativeToServer + 'common/mailer');
 //var expect = require('chai').expect;
 var Code = require('code');   // assertion library
 var Lab = require('lab');
@@ -15,27 +18,8 @@ var expect = Code.expect;
 
 describe('Mailer', function () {
 
-    var server;
-    before(function (done) {
-        server = new Hapi.Server();
-        server.connection({ port: Config.port.web });
-        server.register(require('./../../server/mailer'), {}, function (err) {
-            if (err) {
-                throw err;
-            }
-            done();
-        });
-    });
-
-    it('successfuly registers itself', function (done) {
-        expect(server.plugins.mailer).to.exist();
-        expect(server.plugins.mailer.sendEmail).to.be.an.instanceof(Function);
-        done();
-    });
-
-
     it('returns error when read file fails', function (done) {
-        server.plugins.mailer.sendEmail({}, 'path', {})
+        Mailer.sendEmail({}, 'path', {})
             .then(function (info) {
                 expect(info).to.not.exist();
             })
@@ -60,7 +44,7 @@ describe('Mailer', function () {
             email: 'email',
             password: 'password'
         };
-        server.plugins.mailer.sendEmail(options, 'welcome', payload)
+        Mailer.sendEmail(options, relativeToServer + 'users/welcome.hbs.md', payload)
             .then(function (info) {
                 expect(info).to.exist();
             })

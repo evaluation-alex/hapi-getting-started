@@ -1,7 +1,10 @@
 'use strict';
-var Permissions = require('./../../../server/models/permissions');
-var Audit = require('./../../../server/models/audit');
-var UserGroups = require('./../../../server/models/user-groups');
+var relativeToServer = './../../../server/';
+var relativeTo = './../../../';
+
+var Permissions = require(relativeToServer + 'permissions/model');
+var Audit = require(relativeToServer + 'audit/model');
+var UserGroups = require(relativeToServer + 'user-groups/model');
 var _ = require('lodash');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');

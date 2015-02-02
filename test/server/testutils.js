@@ -1,18 +1,20 @@
 'use strict';
-var Config = require('./../../config').config({argv: []});
-var Manifest = require('./../../manifest').manifest;
+var relativeTo = './../../';
+var relativeToServer = './../../server/';
+var Promise = require('bluebird');
+var Config = require(relativeTo + 'config').config({argv: []});
+var Manifest = require(relativeToServer + 'manifest').manifest;
 var Hapi = require('hapi');
 var HapiAuthBasic = require('hapi-auth-basic');
-var AuthPlugin = require('../../server/auth');
 var HapiMongoModels = require('hapi-mongo-models');
 var BaseModel = require('hapi-mongo-models').BaseModel;
-var Users = require('./../../server/models/users');
-var UserGroups = require('./../../server/models/user-groups');
-var Audit = require('./../../server/models/audit');
-var Permissions = require('./../../server/models/permissions');
-var AuthAttempts = require('./../../server/models/auth-attempts');
-var Roles = require('./../../server/models/roles');
-var Promise = require('bluebird');
+var AuthPlugin = require(relativeToServer + 'common/auth');
+var Users = require(relativeToServer + 'users/model');
+var UserGroups = require(relativeToServer + 'user-groups/model');
+var Audit = require(relativeToServer + 'audit/model');
+var Permissions = require(relativeToServer + 'permissions/model');
+var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
+var Roles = require(relativeToServer + 'roles/model');
 
 function setupRootRole() {
     var promise = new Promise(function (resolve, reject) {
@@ -98,16 +100,19 @@ function setupRolesAndUsers() {
 
 exports.setupRolesAndUsers = setupRolesAndUsers;
 
-var setupServer = function(plugins) {
+var setupServer = function(routes) {
     var promise = new Promise(function (resolve, reject) {
         var ModelsPlugin = {
             register: HapiMongoModels,
             options: JSON.parse(JSON.stringify(Manifest)).plugins['hapi-mongo-models']
         };
-        plugins.unshift(HapiAuthBasic, ModelsPlugin, AuthPlugin);
+        var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin];
         var server = new Hapi.Server();
         server.connection({port: Config.port.web});
         server.register(plugins, function (err) {
+            routes.forEach(function(route) {
+                server.route(require(route).Routes);
+            });
             if (err) {
                 reject(err);
             } else {

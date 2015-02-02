@@ -1,6 +1,9 @@
 'use strict';
-var Config = require('./../../../config').config({argv: []});
-var AuthAttempts = require('./../../../server/models/auth-attempts');
+var relativeToServer = './../../../server/';
+var relativeTo = './../../../';
+
+var Config = require(relativeTo + 'config').config({argv: []});
+var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Promise = require('bluebird');

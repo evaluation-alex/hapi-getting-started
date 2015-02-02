@@ -1,9 +1,12 @@
 'use strict';
+var relativeToServer = './../../../server/';
+var relativeTo = './../../../';
+
 var Hapi = require('hapi');
-var UserGroupsPlugin = require('./../../../server/api/user-groups');
-var Users = require('./../../../server/models/users');
-var UserGroups = require('./../../../server/models/user-groups');
-var Audit = require('./../../../server/models/audit');
+var UserGroupsPlugin = require(relativeToServer+'user-groups');
+var Users = require(relativeToServer + 'users/model');
+var UserGroups = require(relativeToServer + 'user-groups/model');
+var Audit = require(relativeToServer + 'audit/model');
 var Promise = require('bluebird');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');

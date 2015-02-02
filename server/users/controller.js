@@ -201,9 +201,9 @@ Controller.loginForgot = {
             email: Joi.string().email().required()
         }
     },
-    pre : {
-        user: prePopulateUser2
-    },
+    pre : [
+        {assign: 'user', method: prePopulateUser2}
+    ],
     handler: function (request, reply) {
         var user = request.pre.user;
         Users._findOne({_id: user._id})

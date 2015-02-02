@@ -112,7 +112,7 @@ describe('Auth', function () {
                 server.auth.test('simple', request, function (err, credentials) {
                     expect(err).to.be.an.instanceof(Error);
                     expect(credentials).to.not.exist();
-                    reply('ok').statusCode(200).takeover();
+                    reply('ok').takeover();
                 });
             }
         });

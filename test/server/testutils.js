@@ -3,7 +3,7 @@ var relativeTo = './../../';
 var relativeToServer = './../../server/';
 var Hapi = require('hapi');
 var HapiAuthBasic = require('hapi-auth-basic');
-var AuthPlugin = require(relativeToServer+'common/auth');
+var AuthPlugin = require(relativeToServer + 'common/auth');
 var _ = require('lodash');
 var Promise = require('bluebird');
 var Config = require(relativeTo + 'config').config({argv: []});
@@ -16,7 +16,7 @@ var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
 var Roles = require(relativeToServer + 'roles/model');
 
 var setupConnect = function () {
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new Promise(function (resolve, reject) {
         BaseModel.connect(Config.hapiMongoModels.mongodb, function (err, db) {
             if (err || !db) {
                 reject(err);
@@ -92,24 +92,24 @@ function setupFirstUser () {
 }
 
 function setupRolesAndUsers () {
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new Promise(function (resolve, reject) {
         setupConnect()
             .then(function () {
                 setupRootRole();
             })
-            .then(function() {
+            .then(function () {
                 setupReadonlyRole();
             })
-            .then(function() {
+            .then(function () {
                 setupRootUser();
             })
-            .then(function() {
+            .then(function () {
                 setupFirstUser();
             })
-            .then(function() {
+            .then(function () {
                 resolve(true);
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 if (err) {
                     reject(err);
                 }
@@ -121,11 +121,10 @@ function setupRolesAndUsers () {
 
 exports.setupRolesAndUsers = setupRolesAndUsers;
 
-
 var setupServer = function () {
     var promise = new Promise(function (resolve, reject) {
         setupConnect()
-            .then(function() {
+            .then(function () {
                 var Manifest = require('./../../server/manifest').manifest;
                 var components = [
                     '../../server/audit',
@@ -146,19 +145,21 @@ var setupServer = function () {
                 server.register(plugins, function (err) {
                     if (err) {
                         reject(err);
+                    } else {
+                        components.forEach(function (component) {
+                            var routes = require(component).Routes;
+                            server.route(routes);
+                        });
+                        resolve(server);
                     }
-                    components.forEach(function (component) {
-                        var routes = require(component).Routes;
-                        server.route(routes);
-                    });
-                    resolve(server);
                 });
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 if (err) {
                     reject(err);
                 }
-            });
+            })
+            .done();
     });
     return promise;
 };

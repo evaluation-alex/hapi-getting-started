@@ -1,7 +1,8 @@
 'use strict';
 var relativeToServer = './../../../server/';
 var Users = require(relativeToServer + 'users/model');
- //var expect = require('chai').expect;
+var Promise = require('bluebird');
+//var expect = require('chai').expect;
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var tu = require('./../testutils');
@@ -19,7 +20,7 @@ describe('Audit', function () {
     var server = null;
     var emails = [];
     beforeEach(function (done) {
-        server = tu.setupServer()
+        tu.setupServer()
             .then(function (s) {
                 server = s;
                 return tu.setupRolesAndUsers();

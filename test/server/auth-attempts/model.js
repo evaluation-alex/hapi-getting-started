@@ -21,7 +21,7 @@ var expect = Code.expect;
 describe('AuthAttempts Model', function () {
 
     before(function (done) {
-        tu.setupConnect()
+        tu.setupRolesAndUsers()
             .then(function() {
                 done();
             });

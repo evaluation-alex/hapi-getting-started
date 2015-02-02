@@ -2,6 +2,8 @@
 var relativeTo = './../../';
 var relativeToServer = './../../server/';
 var Hapi = require('hapi');
+var HapiAuthBasic = require('hapi-auth-basic');
+var AuthPlugin = require(relativeToServer+'common/auth');
 var _ = require('lodash');
 var Promise = require('bluebird');
 var Config = require(relativeTo + 'config').config({argv: []});
@@ -61,6 +63,7 @@ function setupRootUser () {
         Users.findByEmail('root')
             .then(function (found) {
                 if (found) {
+                    found.updateRoles(['root'], 'testSetup');
                     resolve(found);
                 } else {
                     Users.create('root', 'password123')
@@ -137,7 +140,7 @@ var setupServer = function () {
                     register: require('hapi-mongo-models'),
                     options: JSON.parse(JSON.stringify(Manifest.plugins['hapi-mongo-models']))
                 };
-                var plugins = [require('hapi-auth-basic'), ModelsPlugin, require('../../server/common/auth')];
+                var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin];
                 var server = new Hapi.Server();
                 server.connection({port: Config.port.web});
                 server.register(plugins, function (err) {

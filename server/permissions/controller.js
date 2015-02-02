@@ -5,6 +5,7 @@ var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');
 var Promise = require('bluebird');
 var Permissions = require('./model');
+var AuthPlugin = require('./../common/auth');
 
 var permissionCheck = function (request, reply) {
     var query = {
@@ -43,6 +44,7 @@ Controller.find = {
             page: Joi.number().default(1)
         }
     },
+    pre: [AuthPlugin.preware.ensurePermissions('view', 'permissions')],
     handler: function (request, reply) {
         var query = {};
         if (request.query.user) {
@@ -72,6 +74,7 @@ Controller.find = {
 };
 
 Controller.findOne = {
+    pre: [AuthPlugin.preware.ensurePermissions('view', 'permissions')],
     handler: function (request, reply) {
         Permissions._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (permission) {
@@ -101,6 +104,7 @@ Controller.update = {
             description: Joi.string()
         }
     },
+    pre: [AuthPlugin.preware.ensurePermissions('update', 'permissions')],
     handler: function (request, reply) {
         Permissions._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (permissions) {
@@ -158,9 +162,10 @@ Controller.new = {
             object: Joi.string().required()
         }
     },
-    pre: {
-        permissionCheck: permissionCheck
-    },
+    pre: [
+        AuthPlugin.preware.ensurePermissions('update', 'permissions'),
+        {assign: 'permissionCheck', method: permissionCheck}
+    ],
     handler: function (request, reply) {
         var by = request.auth.credentials.user.email;
         Permissions.create(request.payload.descriptions, request.payload.users, request.payload.action, request.payload.object, by)
@@ -181,6 +186,7 @@ Controller.new = {
 };
 
 Controller.delete = {
+    pre: [AuthPlugin.preware.ensurePermissions('update', 'permissions')],
     handler: function (request, reply) {
         Permissions._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (permissions) {

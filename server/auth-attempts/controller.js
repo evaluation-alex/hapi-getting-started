@@ -3,7 +3,7 @@ var Joi = require('joi');
 var Boom = require('boom');
 var Promise = require('bluebird');
 var AuthAttempts = require('./model');
-
+var AuthPlugin = require('./../common/auth');
 var Controller = {};
 
 Controller.find = {
@@ -17,6 +17,7 @@ Controller.find = {
             page: Joi.number().default(1)
         }
     },
+    pre: [AuthPlugin.preware.ensurePermissions('view', 'auth-attempts')],
     handler: function (request, reply) {
         var query = {};
         var fields = request.query.fields;
@@ -40,6 +41,7 @@ Controller.find = {
 };
 
 Controller.delete = {
+    pre: [AuthPlugin.preware.ensurePermissions('view', 'auth-attempts')],
     handler: function (request, reply) {
         AuthAttempts.findByIdAndRemove(request.params.id, function (err, count) {
             if (err) {

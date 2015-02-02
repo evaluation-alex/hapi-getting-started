@@ -7,6 +7,7 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var Users = require('./model');
 var Mailer = require('./../common/mailer');
+var AuthPlugin = require('./../common/auth');
 
 var emailCheck = function (request, reply) {
     Users._findOne({email: request.payload.email})
@@ -39,6 +40,7 @@ Controller.find = {
             page: Joi.number().default(1)
         }
     },
+    pre: [AuthPlugin.preware.ensurePermissions('view', 'users')],
     handler: function (request, reply) {
         var query = {};
         if (request.query.email) {
@@ -62,6 +64,7 @@ Controller.find = {
 };
 
 Controller.findOne = {
+    pre: [AuthPlugin.preware.ensurePermissions('view', 'users')],
     handler: function (request, reply) {
         Users._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (user) {
@@ -88,6 +91,7 @@ Controller.update = {
             password: Joi.string()
         }
     },
+    pre: [AuthPlugin.preware.ensurePermissions('update', 'users')],
     handler: function (request, reply) {
         Users._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (user) {
@@ -130,9 +134,9 @@ Controller.signup = {
             password: Joi.string().required()
         }
     },
-    pre: {
-        emailCheck: emailCheck
-    },
+    pre: [
+        {assign: 'emailCheck', method: emailCheck}
+    ],
     handler: function (request, reply) {
         var email = request.payload.email;
         var password = request.payload.password;
@@ -253,9 +257,9 @@ Controller.loginReset = {
             password: Joi.string().required()
         }
     },
-    pre: {
-        user: prePopulateUser3
-    },
+    pre: [
+        {assign: 'user', method: prePopulateUser3}
+    ],
     handler: function (request, reply) {
         var key = request.payload.key;
         var token = request.pre.user.resetPwd.token;

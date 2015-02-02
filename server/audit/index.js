@@ -8,7 +8,7 @@ module.exports.Routes = [
         .onPath('/audit')
         .usingAuthStrategy('simple')
         .withValidation(Controller.find.validator)
-        .ensureRolePermissions('view', 'audit')
+        .preProcessWith(Controller.find.pre)
         .handleUsing(Controller.find.handler)
         .doneConfiguring()
 ];

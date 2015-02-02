@@ -23,7 +23,7 @@ var expect = Code.expect;
 describe('UserGroups Model', function () {
     var groupsToCleanup = [];
     before(function (done) {
-        tu.setupConnect()
+        tu.setupRolesAndUsers()
             .then(function() {
                 done();
             });

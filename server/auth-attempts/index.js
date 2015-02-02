@@ -8,14 +8,14 @@ module.exports.Routes = [
         .onPath('/auth-attempts')
         .usingAuthStrategy('simple')
         .withValidation(Controller.find.validator)
-        .ensureRolePermissions('view', 'auth-attempts')
+        .preProcessWith(Controller.find.pre)
         .handleUsing(Controller.find.handler)
         .doneConfiguring(),
     RouteFactory.newRoute()
         .forDELETE()
         .onPath('/auth-attempts/{id}')
         .usingAuthStrategy('simple')
-        .ensureRolePermissions('update', 'auth-attempts')
+        .preProcessWith(Controller.delete.pre)
         .handleUsing(Controller.delete.handler)
         .doneConfiguring()
 ];

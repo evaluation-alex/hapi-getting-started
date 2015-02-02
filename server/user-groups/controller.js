@@ -6,6 +6,7 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var UserGroups = require('./model');
 var Users = require('./../users/model');
+var AuthPlugin = require('./../common/auth');
 
 var validAndPermitted = function (request, reply) {
     UserGroups.isValid(BaseModel.ObjectID(request.params.id), request.auth.credentials.user.email)
@@ -103,6 +104,7 @@ Controller.find = {
             page: Joi.number().default(1)
         }
     },
+    pre: [AuthPlugin.preware.ensurePermissions('view', 'user-groups')],
     handler: function (request, reply) {
         var query = {};
         if (request.query.email) {
@@ -130,6 +132,7 @@ Controller.find = {
 };
 
 Controller.findOne = {
+    pre: [AuthPlugin.preware.ensurePermissions('view', 'user-groups')],
     handler: function (request, reply) {
         UserGroups._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (userGroup) {
@@ -159,10 +162,11 @@ Controller.update = {
             description: Joi.string()
         }
     },
-    pre: {
-        validUsers: validUsers,
-        validAndPermitted: validAndPermitted
-    },
+    pre: [
+        AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
+        {assign: 'validUsers', method: validUsers},
+        {assign: 'validAndPermitted', method: validAndPermitted}
+    ],
     handler: function (request, reply) {
         UserGroups._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (userGroup) {
@@ -212,10 +216,11 @@ Controller.new = {
             description: Joi.string()
         }
     },
-    pre: {
-        groupCheck: groupCheck,
-        validUsers: validUsers
-    },
+    pre: [
+        AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
+        {assign: 'groupCheck', method: groupCheck},
+        {assign: 'validUsers', method: validUsers}
+    ],
     handler: function (request, reply) {
         var by = request.auth.credentials.user.email;
         UserGroups.create(request.payload.name, request.payload.description, by)
@@ -246,9 +251,10 @@ Controller.new = {
 };
 
 Controller.delete = {
-    pre: {
-        validAndPermitted: validAndPermitted
-    },
+    pre: [
+        AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
+        {assign: 'validAndPermitted', method: validAndPermitted}
+    ],
     handler: function (request, reply) {
         UserGroups._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (userGroup) {

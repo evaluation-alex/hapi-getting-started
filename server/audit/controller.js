@@ -2,6 +2,7 @@
 var Joi = require('joi');
 var Boom = require('boom');
 var Audit = require('./model');
+var AuthPlugin = require('./../common/auth');
 
 var Controller = {};
 
@@ -17,6 +18,7 @@ Controller.find = {
             page: Joi.number().default(1)
         }
     },
+    pre: [AuthPlugin.preware.ensurePermissions('view', 'audit')],
     handler: function (request, reply) {
         var query = {};
         if (request.query.by) {

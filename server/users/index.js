@@ -8,14 +8,14 @@ module.exports.Routes = [
         .onPath('/users')
         .usingAuthStrategy('simple')
         .withValidation(Controller.find.validator)
-        .ensureRolePermissions('view', 'users')
+        .preProcessWith(Controller.find.pre)
         .handleUsing(Controller.find.handler)
         .doneConfiguring(),
     RouteFactory.newRoute()
         .forGET()
         .onPath('/users/{id}')
         .usingAuthStrategy('simple')
-        .ensureRolePermissions('view', 'users')
+        .preProcessWith(Controller.findOne.pre)
         .handleUsing(Controller.findOne.handler)
         .doneConfiguring(),
     RouteFactory.newRoute()
@@ -23,7 +23,7 @@ module.exports.Routes = [
         .onPath('/users/{id}')
         .usingAuthStrategy('simple')
         .withValidation(Controller.update.validator)
-        .ensureRolePermissions('update', 'users')
+        .preProcessWith(Controller.update.pre)
         .handleUsing(Controller.update.handler)
         .doneConfiguring(),
     RouteFactory.newRoute()

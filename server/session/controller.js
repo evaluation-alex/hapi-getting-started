@@ -72,11 +72,11 @@ Controller.login = {
             password: Joi.string().required()
         }
     },
-    pre: {
-        abuseDetected: abuseDetected,
-        user: prePopulateUser,
-        logAttempt: logAttempt
-    },
+    pre: [
+        {assign: 'abuseDetected', method: abuseDetected},
+        {assign: 'user', method: prePopulateUser},
+        {assign: 'logAttempt', method: logAttempt}
+    ],
     handler: function (request, reply) {
         var user = request.pre.user;
         user.loginSuccess(request.info.remoteAddress, user.email)

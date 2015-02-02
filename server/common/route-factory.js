@@ -1,7 +1,5 @@
 'use strict';
 var _ = require('lodash');
-var AuthPlugin = require('./../common/auth');
-var mu = require('./miscutils');
 
 var RouteFactory = function () {
     var self = this;
@@ -70,18 +68,18 @@ var RouteFactory = function () {
         }
         return self;
     };
-    self.ensureRolePermissions = function (forAction, onObject) {
-        var pre = AuthPlugin.preware.ensurePermissions(forAction, onObject);
-        return self.preProcessWith({ ensurePermissions: pre.method });
-    };
     self.preProcessWith = function (preProcess) {
         if (self._canContinueConfiguring()) {
             if (!self.route.config.pre) {
                 self.route.config.pre = [];
             }
-            _.pairs(preProcess).map(function (pair) {
-                self.route.config.pre.unshift({assign: pair[0], method: pair[1]});
-            });
+            if (_.isArray(preProcess)) {
+                preProcess.forEach(function (pre) {
+                    self.route.config.pre.push(pre);
+                });
+            } else {
+                self.route.config.pre.push(preProcess);
+            }
         }
         return self;
     };
@@ -97,7 +95,7 @@ var RouteFactory = function () {
         } else {
             throw new Error('already registered route, create new route before registering with server again');
         }
-        return mu.deepFreeze(self.route);
+        return self.route;
     };
     return self;
 };

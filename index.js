@@ -1,14 +1,13 @@
 'use strict';
 var Glue = require('glue');
-var Manifest = require('./server/manifest').manifest;
-var Components = require('./server/manifest').components;
+var Manifest = require('./server/manifest');
 var Loader = require('./server/common/component');
 
-Glue.compose(Manifest, {relativeTo: __dirname}, function (err, server) {
+Glue.compose(Manifest.manifest, {relativeTo: __dirname}, function (err, server) {
     if (err) {
         throw err;
     }
-    Loader.load(server, {basePath: '/api'}, Components);
+    Loader.load(server, {basePath: '/api'}, Manifest.components);
     server.start(function () {
         console.log('engage');
     });

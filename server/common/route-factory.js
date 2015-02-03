@@ -97,6 +97,57 @@ var RouteFactory = function () {
         }
         return self.route;
     };
+    self._defaultRoute = function (method, path, controller) {
+        self.newRoute()
+            .forMethod(method)
+            .onPath(path)
+            .usingAuthStrategy('simple')
+            .handleUsing(controller.handler);
+        if (controller.validator) {
+            self.withValidation(controller.validator);
+        }
+        if (controller.pre) {
+            self.preProcessWith(controller.pre);
+        }
+        return self;
+    };
+    var path = function (component) {
+        return '/' + component;
+    };
+    var pathWithId = function (component) {
+        return '/' + component + '/{id}';
+    };
+    self.defaultFindRoute = function (component, controller) {
+        return self._defaultRoute('GET', path(component), controller).doneConfiguring();
+    };
+    self.defaultFindOneRoute = function (component, controller) {
+        return self._defaultRoute('GET', pathWithId(component), controller).doneConfiguring();
+    };
+    self.defaultUpdateRoute = function (component, controller) {
+        return self._defaultRoute('PUT', pathWithId(component), controller).doneConfiguring();
+    };
+    self.defaultNewRoute = function (component, controller) {
+        return self._defaultRoute('POST', path(component), controller).doneConfiguring();
+    };
+    self.defaultDeleteRoute = function (component, controller) {
+        return self._defaultRoute('DELETE', pathWithId(component), controller).doneConfiguring();
+    };
+    self.discoverDefaultRoutes = function (component, controller) {
+        var routes = [];
+        var discover = {
+            find: self.defaultFindRoute,
+            findOne: self.defaultFindOneRoute,
+            update: self.defaultUpdateRoute,
+            'new': self.defaultNewRoute,
+            'delete': self.defaultDeleteRoute
+        };
+        _.forOwn(discover, function (dfn, mthd) {
+            if (controller[mthd]) {
+                routes.push(dfn(component, controller[mthd]));
+            }
+        });
+        return routes;
+    };
     return self;
 };
 

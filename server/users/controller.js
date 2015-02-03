@@ -2,7 +2,7 @@
 var Joi = require('joi');
 var Boom = require('boom');
 var BaseModel = require('hapi-mongo-models').BaseModel;
-var Config = require('./../../config').config({argv: []});
+var Config = require('./../../config');
 var _ = require('lodash');
 var Promise = require('bluebird');
 var Users = require('./model');

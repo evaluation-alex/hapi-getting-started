@@ -1,6 +1,6 @@
 'use strict';
 var Joi = require('joi');
-var Config = require('./../../config').config({argv: []});
+var Config = require('./../../config');
 var Boom = require('boom');
 var Promise = require('bluebird');
 var Users = require('./../users/model');

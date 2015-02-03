@@ -42,6 +42,7 @@
         "bluebird": "^2.9.3",
         "boom": "^2.6.1",
         "bossy": "^1.0.2",
+        "deep-freeze-strict": "^1.1.0",
         "glue": "^2.0.0",
         "good": "^5.1.1",
         "good-console": "^4.1.0",

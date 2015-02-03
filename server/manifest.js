@@ -1,5 +1,5 @@
 'use strict';
-var Config = require('./../config').config({argv:[]});
+var Config = require('./../config');
 var ExtendedModel = require('./common/extended-model');
 var server = {
     connections: {

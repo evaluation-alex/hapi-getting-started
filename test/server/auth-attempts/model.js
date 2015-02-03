@@ -2,7 +2,7 @@
 var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
 
-var Config = require(relativeTo + 'config').config({argv: []});
+var Config = require(relativeTo + 'config');
 var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');

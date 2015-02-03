@@ -2,7 +2,7 @@
 var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
 
-var Config = require(relativeTo + 'config').config({argv: []});
+var Config = require(relativeTo + 'config');
 var Users = require(relativeToServer + 'users/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Promise = require('bluebird');

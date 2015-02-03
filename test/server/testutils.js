@@ -6,7 +6,7 @@ var HapiAuthBasic = require('hapi-auth-basic');
 var AuthPlugin = require(relativeToServer + 'common/auth');
 var _ = require('lodash');
 var Promise = require('bluebird');
-var Config = require(relativeTo + 'config').config({argv: []});
+var Config = require(relativeTo + 'config');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Users = require(relativeToServer + 'users/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
@@ -141,7 +141,7 @@ var setupServer = function () {
                 };
                 var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin];
                 var server = new Hapi.Server();
-                server.connection({port: Config.port.web});
+                server.connection({port: Config.port});
                 server.register(plugins, function (err) {
                     if (err) {
                         reject(err);

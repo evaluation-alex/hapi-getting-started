@@ -2,7 +2,7 @@
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
-var Config = require('./../../config').config({argv: []});
+var Config = require('./../../config');
 var Promise = require('bluebird');
 
 var authAttemptsConfig = Config.authAttempts;

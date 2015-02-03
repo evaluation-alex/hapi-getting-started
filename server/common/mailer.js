@@ -4,7 +4,7 @@ var Fs = require('fs');
 var Handlebars = require('handlebars');
 var Nodemailer = require('nodemailer');
 var markdown = require('nodemailer-markdown').markdown;
-var Config = require('./../../config').config({argv:[]});
+var Config = require('./../../config');
 var Promise = require('bluebird');
 
 var transport = Nodemailer.createTransport(Hoek.clone(Config.nodemailer));

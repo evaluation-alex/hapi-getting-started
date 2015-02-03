@@ -2,8 +2,7 @@
 var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
 
-var Config = require(relativeTo + 'config').config({argv: []});
-var MailerPlugin = require(relativeToServer + 'common/mailer');
+var Config = require(relativeTo + 'config');
 var tu = require('./../testutils');
 var Fs = require('fs');
 //var expect = require('chai').expect;

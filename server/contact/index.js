@@ -6,7 +6,6 @@ module.exports.Routes = [
     RouteFactory.newRoute()
         .forPOST()
         .onPath('/contact')
-        .withValidation(Controller.contact.validator)
-        .handleUsing(Controller.contact.handler)
+        .withController(Controller.contact)
         .doneConfiguring()
 ];

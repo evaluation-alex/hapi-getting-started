@@ -97,18 +97,22 @@ var RouteFactory = function () {
         }
         return self.route;
     };
-    self._defaultRoute = function (method, path, controller) {
-        self.newRoute()
-            .forMethod(method)
-            .onPath(path)
-            .usingAuthStrategy('simple')
-            .handleUsing(controller.handler);
+    self.withController = function(controller) {
+        self.handleUsing(controller.handler);
         if (controller.validator) {
             self.withValidation(controller.validator);
         }
         if (controller.pre) {
             self.preProcessWith(controller.pre);
         }
+        return self;
+    };
+    self._defaultRoute = function (method, path, controller) {
+        self.newRoute()
+            .forMethod(method)
+            .onPath(path)
+            .usingAuthStrategy('simple')
+            .withController(controller);
         return self;
     };
     var path = function (component) {

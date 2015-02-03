@@ -6,14 +6,12 @@ module.exports.Routes = [
     RouteFactory.newRoute()
         .forPOST()
         .onPath('/login')
-        .withValidation(Controller.login.validator)
-        .preProcessWith(Controller.login.pre)
-        .handleUsing(Controller.login.handler)
+        .withController(Controller.login)
         .doneConfiguring(),
     RouteFactory.newRoute()
         .forDELETE()
         .onPath('/logout')
         .usingAuthStrategy('simple')
-        .handleUsing(Controller.logout.handler)
+        .withController(Controller.logout)
         .doneConfiguring()
 ];

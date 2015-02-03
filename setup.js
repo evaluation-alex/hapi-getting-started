@@ -12,7 +12,8 @@ var test = {
     smtpHost: 'smtp.gmail.com',
     smtpPort: 465,
     smtpUsername: 'you',
-    smtpPassword: '^YOURSMTPWD$'
+    smtpPassword: '^YOURSMTPWD$',
+    port: 3000
 };
 
 var fromStdIn = function (results, property, message, opts) {
@@ -68,6 +69,9 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
     })
     .then(function (results) {
         return fromStdIn(results, 'smtpPassword', 'SMTP password: ', {default: ''});
+    })
+    .then(function (results) {
+        return fromStdIn(results, 'port', 'port: ', {default: 3000});
     })
     .then(function (results) {
         return fromStdIn(results, 'logdir', 'log directory: ', {default: './logs'});

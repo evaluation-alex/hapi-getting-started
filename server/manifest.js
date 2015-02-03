@@ -29,6 +29,7 @@ var plugins = {
         logResponsePayload: true
     },
     'hapi-auth-basic': {},
+    'lout': {},
     'hapi-mongo-models': {
         mongodb: Config.hapiMongoModels.mongodb,
         models: {

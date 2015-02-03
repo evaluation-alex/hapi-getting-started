@@ -8,6 +8,9 @@ var Promise = require('bluebird');
 var Users = require('./model');
 var Mailer = require('./../common/mailer');
 var AuthPlugin = require('./../common/auth');
+var BaseController = require('./../common/controller').BaseController;
+
+var Controller = {};
 
 var emailCheck = function (request, reply) {
     Users._findOne({email: request.payload.email})
@@ -26,62 +29,29 @@ var emailCheck = function (request, reply) {
         .done();
 };
 
-var Controller = {
-};
+Controller.find = BaseController.find('users', Users, function (request) {
+    var query = {};
+    if (request.query.email) {
+        query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
+    }
+    if (request.query.isActive) {
+        query.isActive = request.query.isActive === '"true"';
+    }
+    return query;
+});
 
-Controller.find = {
-    validator: {
-        query: {
-            email: Joi.string(),
-            isActive: Joi.string(),
-            fields: Joi.string(),
-            sort: Joi.string(),
-            limit: Joi.number().default(20),
-            page: Joi.number().default(1)
-        }
-    },
-    pre: [AuthPlugin.preware.ensurePermissions('view', 'users')],
-    handler: function (request, reply) {
-        var query = {};
-        if (request.query.email) {
-            query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
-        }
-        if (request.query.isActive) {
-            query.isActive = request.query.isActive === '"true"';
-        }
-        var fields = request.query.fields;
-        var sort = request.query.sort;
-        var limit = request.query.limit;
-        var page = request.query.page;
-        Users.pagedFind(query, fields, sort, limit, page, function (err, results) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            } else {
-                reply(results);
-            }
-        });
+Controller.find.validator = {
+    query: {
+        email: Joi.string(),
+        isActive: Joi.string(),
+        fields: Joi.string(),
+        sort: Joi.string(),
+        limit: Joi.number().default(20),
+        page: Joi.number().default(1)
     }
 };
 
-Controller.findOne = {
-    pre: [AuthPlugin.preware.ensurePermissions('view', 'users')],
-    handler: function (request, reply) {
-        Users._findOne({_id: BaseModel.ObjectID(request.params.id)})
-            .then(function (user) {
-                if (!user) {
-                    reply(Boom.notFound('Document not found.'));
-                } else {
-                    reply(user);
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            })
-            .done();
-    }
-};
+Controller.findOne = BaseController.findOne('users', Users);
 
 Controller.update = {
     validator: {
@@ -201,7 +171,7 @@ Controller.loginForgot = {
             email: Joi.string().email().required()
         }
     },
-    pre : [
+    pre: [
         {assign: 'user', method: prePopulateUser2}
     ],
     handler: function (request, reply) {

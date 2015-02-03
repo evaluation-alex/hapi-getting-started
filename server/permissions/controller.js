@@ -6,6 +6,11 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var Permissions = require('./model');
 var AuthPlugin = require('./../common/auth');
+var BaseController = require('./../common/controller').BaseController;
+
+var Controller = {
+
+};
 
 var permissionCheck = function (request, reply) {
     var query = {
@@ -28,70 +33,37 @@ var permissionCheck = function (request, reply) {
         .done();
 };
 
-var Controller = {
-};
+Controller.find = BaseController.find('permissions', Permissions, function (request) {
+    var query = {};
+    if (request.query.user) {
+        query.users.user = new RegExp('^.*?' + request.query.user + '.*$', 'i');
+    }
+    if (request.query.action) {
+        query.action = request.query.action;
+    }
+    if (request.query.object) {
+        query.object = request.query.object;
+    }
+    if (request.query.isActive) {
+        query.isActive = request.query.isActive === '"true"';
+    }
+    return query;
+});
 
-Controller.find = {
-    validator: {
-        query: {
-            user: Joi.string(),
-            action: Joi.string(),
-            object: Joi.string(),
-            isActive: Joi.string(),
-            fields: Joi.string(),
-            sort: Joi.string(),
-            limit: Joi.number().default(20),
-            page: Joi.number().default(1)
-        }
-    },
-    pre: [AuthPlugin.preware.ensurePermissions('view', 'permissions')],
-    handler: function (request, reply) {
-        var query = {};
-        if (request.query.user) {
-            query.users.user = new RegExp('^.*?' + request.query.user + '.*$', 'i');
-        }
-        if (request.query.action) {
-            query.action = request.query.action;
-        }
-        if (request.query.object) {
-            query.object = request.query.object;
-        }
-        if (request.query.isActive) {
-            query.isActive = request.query.isActive === '"true"';
-        }
-        var fields = request.query.fields;
-        var sort = request.query.sort;
-        var limit = request.query.limit;
-        var page = request.query.page;
-        Permissions.pagedFind(query, fields, sort, limit, page, function (err, results) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            } else {
-                reply(results);
-            }
-        });
+Controller.find.validator = {
+    query: {
+        user: Joi.string(),
+        action: Joi.string(),
+        object: Joi.string(),
+        isActive: Joi.string(),
+        fields: Joi.string(),
+        sort: Joi.string(),
+        limit: Joi.number().default(20),
+        page: Joi.number().default(1)
     }
 };
 
-Controller.findOne = {
-    pre: [AuthPlugin.preware.ensurePermissions('view', 'permissions')],
-    handler: function (request, reply) {
-        Permissions._findOne({_id: BaseModel.ObjectID(request.params.id)})
-            .then(function (permission) {
-                if (!permission) {
-                    reply(Boom.notFound('permission definition not found.'));
-                } else {
-                    reply(permission);
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            })
-            .done();
-    }
-};
+Controller.findOne = BaseController.findOne('permissions', Permissions);
 
 Controller.update = {
     validator: {

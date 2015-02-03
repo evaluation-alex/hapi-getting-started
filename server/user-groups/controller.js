@@ -7,6 +7,11 @@ var Promise = require('bluebird');
 var UserGroups = require('./model');
 var Users = require('./../users/model');
 var AuthPlugin = require('./../common/auth');
+var BaseController = require('./../common/controller').BaseController;
+
+var Controller = {
+
+};
 
 var validAndPermitted = function (request, reply) {
     UserGroups.isValid(BaseModel.ObjectID(request.params.id), request.auth.credentials.user.email)
@@ -89,67 +94,34 @@ var groupCheck = function (request, reply) {
         .done();
 };
 
-var Controller = {
-};
+Controller.find = BaseController.find('user-groups', UserGroups, function (request) {
+    var query = {};
+    if (request.query.email) {
+        query['members.email'] = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
+        query['members.isActive'] = true;
+    }
+    if (request.query.groupName) {
+        query.name = {$regex: new RegExp('^.*?' + request.query.groupName + '.*$', 'i')};
+    }
+    if (request.query.isActive) {
+        query.isActive = request.query.isActive === '"true"';
+    }
+    return query;
+});
 
-Controller.find = {
-    validator: {
-        query: {
-            email: Joi.string(),
-            groupName: Joi.string(),
-            isActive: Joi.string(),
-            fields: Joi.string(),
-            sort: Joi.string(),
-            limit: Joi.number().default(20),
-            page: Joi.number().default(1)
-        }
-    },
-    pre: [AuthPlugin.preware.ensurePermissions('view', 'user-groups')],
-    handler: function (request, reply) {
-        var query = {};
-        if (request.query.email) {
-            query['members.email'] = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
-            query['members.isActive'] = true;
-        }
-        if (request.query.groupName) {
-            query.name = {$regex: new RegExp('^.*?' + request.query.groupName + '.*$', 'i')};
-        }
-        if (request.query.isActive) {
-            query.isActive = request.query.isActive === '"true"';
-        }
-        var fields = request.query.fields;
-        var sort = request.query.sort;
-        var limit = request.query.limit;
-        var page = request.query.page;
-        UserGroups.pagedFind(query, fields, sort, limit, page, function (err, results) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            } else {
-                reply(results);
-            }
-        });
+Controller.find.validator = {
+    query: {
+        email: Joi.string(),
+        groupName: Joi.string(),
+        isActive: Joi.string(),
+        fields: Joi.string(),
+        sort: Joi.string(),
+        limit: Joi.number().default(20),
+        page: Joi.number().default(1)
     }
 };
 
-Controller.findOne = {
-    pre: [AuthPlugin.preware.ensurePermissions('view', 'user-groups')],
-    handler: function (request, reply) {
-        UserGroups._findOne({_id: BaseModel.ObjectID(request.params.id)})
-            .then(function (userGroup) {
-                if (!userGroup) {
-                    reply(Boom.notFound('User group not found.'));
-                } else {
-                    reply(userGroup);
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            })
-            .done();
-    }
-};
+Controller.findOne = BaseController.findOne('user-groups', UserGroups);
 
 Controller.update = {
     validator: {

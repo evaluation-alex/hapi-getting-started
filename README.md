@@ -39,7 +39,7 @@ $ npm install
 
 ## Setup
 
-__WARNING:__ This will clear all data in existing `users`, `roles` MongoDB collections. It will also overwrite `/config.js` if one
+__WARNING:__ This will clear all data in existing `users`, `roles` MongoDB collections. It will also overwrite `/.opts` if one
 exists.
 
 ```bash
@@ -144,7 +144,7 @@ $ npm test
 With html code coverage report:
 
 ```bash
-$ npm run test-cover
+$ npm run test-with-report
 
 # > hapi-getting-started@0.0.0 test-cover /Users/k-sheth/projects/hapi-getting-started
 # > ./node_modules/lab/bin/lab -c -r html -o ./test/artifacts/coverage.html && open ./test/artifacts/coverage.html

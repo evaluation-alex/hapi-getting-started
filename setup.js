@@ -17,7 +17,7 @@ var test = {
 };
 
 var fromStdIn = function (results, property, message, opts) {
-    var p = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         if (process.env.NODE_ENV === 'test') {
             results[property] = test[property];
             resolve(results);
@@ -36,7 +36,6 @@ var fromStdIn = function (results, property, message, opts) {
             });
         }
     });
-    return p;
 };
 
 var handleErr = function (err) {

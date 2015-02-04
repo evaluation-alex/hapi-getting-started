@@ -8,7 +8,12 @@ var BaseController = require('./../common/controller').BaseController;
 
 var Controller = {};
 
-Controller.find = BaseController.find('auth-attempts', AuthAttempts, function (request) {
+Controller.find = BaseController.find('auth-attempts', AuthAttempts, {
+    query: {
+        ip: Joi.string(),
+        email: Joi.string()
+    }
+}, function (request) {
     var query = {};
     if (request.query.ip) {
         query.ip = request.query.ip;
@@ -18,17 +23,6 @@ Controller.find = BaseController.find('auth-attempts', AuthAttempts, function (r
     }
     return query;
 });
-
-Controller.find.validator = {
-    query: {
-        ip: Joi.string(),
-        email: Joi.string(),
-        fields: Joi.string(),
-        sort: Joi.string(),
-        limit: Joi.number().default(20),
-        page: Joi.number().default(1)
-    }
-};
 
 Controller.delete = {
     pre: [AuthPlugin.preware.ensurePermissions('view', 'auth-attempts')],

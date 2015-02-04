@@ -29,7 +29,12 @@ var emailCheck = function (request, reply) {
         .done();
 };
 
-Controller.find = BaseController.find('users', Users, function (request) {
+Controller.find = BaseController.find('users', Users, {
+    query: {
+        email: Joi.string(),
+        isActive: Joi.string()
+    }
+}, function (request) {
     var query = {};
     if (request.query.email) {
         query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
@@ -39,17 +44,6 @@ Controller.find = BaseController.find('users', Users, function (request) {
     }
     return query;
 });
-
-Controller.find.validator = {
-    query: {
-        email: Joi.string(),
-        isActive: Joi.string(),
-        fields: Joi.string(),
-        sort: Joi.string(),
-        limit: Joi.number().default(20),
-        page: Joi.number().default(1)
-    }
-};
 
 Controller.findOne = BaseController.findOne('users', Users);
 

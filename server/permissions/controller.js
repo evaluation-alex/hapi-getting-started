@@ -31,7 +31,15 @@ var permissionCheck = function (request, reply) {
         .done();
 };
 
-Controller.find = BaseController.find('permissions', Permissions, function (request) {
+Controller.find = BaseController.find('permissions', Permissions, {
+    query: {
+        by: Joi.string(),
+        user: Joi.string(),
+        action: Joi.string(),
+        object: Joi.string(),
+        isActive: Joi.string()
+    }
+}, function (request) {
     var query = {};
     if (request.query.by) {
         query.by = new RegExp('^.*?' + request.query.by + '.*$', 'i');
@@ -50,20 +58,6 @@ Controller.find = BaseController.find('permissions', Permissions, function (requ
     }
     return query;
 });
-
-Controller.find.validator = {
-    query: {
-        by: Joi.string(),
-        user: Joi.string(),
-        action: Joi.string(),
-        object: Joi.string(),
-        isActive: Joi.string(),
-        fields: Joi.string(),
-        sort: Joi.string(),
-        limit: Joi.number().default(20),
-        page: Joi.number().default(1)
-    }
-};
 
 Controller.findOne = BaseController.findOne('permissions', Permissions);
 

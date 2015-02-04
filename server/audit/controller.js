@@ -5,7 +5,13 @@ var BaseController = require('./../common/controller').BaseController;
 
 var Controller = {};
 
-Controller.find = BaseController.find('audit', Audit, function (request) {
+Controller.find = BaseController.find('audit', Audit, {
+    query: {
+        by: Joi.string(),
+        objectType: Joi.string(),
+        objectChangedId: Joi.string()
+    }
+}, function (request) {
     var query = {};
     if (request.query.by) {
         query.by = {$regex: new RegExp('^.*?' + request.query.by + '.*$', 'i')};
@@ -18,17 +24,5 @@ Controller.find = BaseController.find('audit', Audit, function (request) {
     }
     return query;
 });
-
-Controller.find.validator = {
-    query: {
-        by: Joi.string(),
-        objectType: Joi.string(),
-        objectChangedId: Joi.string(),
-        fields: Joi.string(),
-        sort: Joi.string(),
-        limit: Joi.number().default(20),
-        page: Joi.number().default(1)
-    }
-};
 
 module.exports.Controller = Controller;

@@ -7,8 +7,14 @@ var BaseModel = require('hapi-mongo-models').BaseModel;
 
 var Controller = {};
 
-Controller.find = function (component, model, queryBuilder) {
+Controller.find = function (component, model, validator, queryBuilder) {
+    validator.query.fields =  Joi.string();
+    validator.query.sort = Joi.string();
+    validator.query.limit = Joi.number().default(20);
+    validator.query.page = Joi.number().default(1);
+
     return {
+        validator: validator,
         pre: [AuthPlugin.preware.ensurePermissions('view', component)],
         handler: function (request, reply) {
             var query = queryBuilder(request);

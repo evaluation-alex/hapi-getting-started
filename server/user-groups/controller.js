@@ -97,7 +97,13 @@ var groupCheck = function (request, reply) {
         .done();
 };
 
-Controller.find = BaseController.find('user-groups', UserGroups, function (request) {
+Controller.find = BaseController.find('user-groups', UserGroups, {
+    query: {
+        email: Joi.string(),
+        groupName: Joi.string(),
+        isActive: Joi.string()
+    }
+}, function (request) {
     var query = {};
     if (request.query.email) {
         query['members.email'] = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
@@ -111,18 +117,6 @@ Controller.find = BaseController.find('user-groups', UserGroups, function (reque
     }
     return query;
 });
-
-Controller.find.validator = {
-    query: {
-        email: Joi.string(),
-        groupName: Joi.string(),
-        isActive: Joi.string(),
-        fields: Joi.string(),
-        sort: Joi.string(),
-        limit: Joi.number().default(20),
-        page: Joi.number().default(1)
-    }
-};
 
 Controller.findOne = BaseController.findOne('user-groups', UserGroups);
 

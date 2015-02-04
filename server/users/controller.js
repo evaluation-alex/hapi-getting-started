@@ -63,30 +63,26 @@ Controller.update = {
     },
     pre: [AuthPlugin.preware.ensurePermissions('update', 'users')],
     handler: function (request, reply) {
+        var by = request.auth.credentials.user.email;
         Users._findOne({_id: BaseModel.ObjectID(request.params.id)})
+            .then(function (user) {
+                return (user && request.payload.isActive === false) ? user.deactivate(by) : user;
+            })
+            .then(function (user) {
+                return (user && request.payload.isActive === true) ? user.reactivate(by) : user;
+            })
+            .then(function (user) {
+                return (user && request.payload.roles) ? user.updateRoles(request.payload.roles, by) : user;
+            })
+            .then(function (user) {
+                return (user && request.payload.password) ? user.resetPassword(request.payload.password, by) : user;
+            })
             .then(function (user) {
                 if (!user) {
                     reply(Boom.notFound('User not found.'));
                 } else {
-                    var p = [user];
-                    var by = request.auth.credentials.user.email;
-                    if (request.payload.isActive === false) {
-                        p.push(user.deactivate(by));
-                    }
-                    if (request.payload.isActive === true) {
-                        p.push(user.reactivate(by));
-                    }
-                    if (request.payload.roles) {
-                        p.push(user.updateRoles(request.payload.roles, by));
-                    }
-                    if (request.payload.password) {
-                        p.push(user.resetPassword(request.payload.password, by));
-                    }
-                    return Promise.all(p);
+                    reply(user);
                 }
-            })
-            .then(function (u) {
-                reply(u[0]);
             })
             .catch(function (err) {
                 if (err) {
@@ -112,11 +108,13 @@ Controller.signup = {
         var password = request.payload.password;
         Users.create(email, password)
             .then(function (user) {
-                if (!user) {
-                    reply(Boom.badImplementation('User could not be created'));
-                } else {
-                    var signupP = user.signup(user.email);
-                    var loginP = user.loginSuccess(request.info.remoteAddress, user.email);
+                return (user) ? user.signup(user.email) : user;
+            })
+            .then(function (user) {
+                return (user) ? user.loginSuccess(request.info.remoteAddress, user.email) : user;
+            })
+            .then(function (user) {
+                if (user) {
                     var options = {
                         subject: 'Your ' + Config.projectName + ' account',
                         to: {
@@ -124,20 +122,20 @@ Controller.signup = {
                             address: email
                         }
                     };
-                    var mailerP = Mailer.sendEmail(options, __dirname + '/welcome.hbs.md', request.payload);
-                    return Promise.join(signupP, loginP, mailerP, function (s, l, m) {
-                        var credentials = user.email + ':' + user.session.key;
-                        var authHeader = 'Basic ' + new Buffer(credentials).toString('base64');
-                        return {
-                            user: user,
-                            session: user.session,
-                            authHeader: authHeader
-                        };
+                    Mailer.sendEmail(options, __dirname + '/welcome.hbs.md', request.payload);
+                }
+                return user;
+            })
+            .then(function (user) {
+                if (!user) {
+                    reply(Boom.badImplementation('User could not be created'));
+                } else {
+                    reply({
+                        user: user,
+                        session: user.session,
+                        authHeader: 'Basic ' + new Buffer(user.email + ':' + user.session.key).toString('base64')
                     });
                 }
-            })
-            .then(function (r) {
-                reply(r);
             })
             .catch(function (err) {
                 if (err) {
@@ -175,19 +173,17 @@ Controller.loginForgot = {
         {assign: 'user', method: prePopulateUser2}
     ],
     handler: function (request, reply) {
-        var user = request.pre.user;
-        Users._findOne({_id: user._id})
-            .then(function (foundUser) {
+        var foundUser = request.pre.user;
+        foundUser.resetPasswordSent(request.pre.user.email)
+            .then(function () {
                 var options = {
                     subject: 'Reset your ' + Config.projectName + ' password',
                     to: request.payload.email
                 };
-                var p1 = foundUser.resetPasswordSent(request.pre.user.email);
-                var p2 = Mailer.sendEmail(options, __dirname + '/forgot-password.hbs.md', {key: foundUser.resetPwd.token});
-                return Promise.join(p1, p2)
-                    .then(function (v1, v2) {
-                        reply({message: 'Success.'});
-                    });
+                Mailer.sendEmail(options, __dirname + '/forgot-password.hbs.md', {key: foundUser.resetPwd.token});
+            })
+            .then(function () {
+                reply({message: 'Success.'});
             })
             .catch(function (err) {
                 if (err) {
@@ -231,13 +227,13 @@ Controller.loginReset = {
         {assign: 'user', method: prePopulateUser3}
     ],
     handler: function (request, reply) {
+        var user = request.pre.user;
         var key = request.payload.key;
-        var token = request.pre.user.resetPwd.token;
+        var token = user.resetPwd.token;
         if (key !== token) {
             reply(Boom.badRequest('Invalid email or key.'));
         } else {
-            var user = request.pre.user;
-            user.resetPassword(request.payload.password, request.pre.user.email).done();
+            user.resetPassword(request.payload.password, user.email).done();
             reply({message: 'Success.'});
         }
     }

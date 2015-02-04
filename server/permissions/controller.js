@@ -8,9 +8,7 @@ var Permissions = require('./model');
 var AuthPlugin = require('./../common/auth');
 var BaseController = require('./../common/controller').BaseController;
 
-var Controller = {
-
-};
+var Controller = {};
 
 var permissionCheck = function (request, reply) {
     var query = {
@@ -35,6 +33,9 @@ var permissionCheck = function (request, reply) {
 
 Controller.find = BaseController.find('permissions', Permissions, function (request) {
     var query = {};
+    if (request.query.by) {
+        query.by = new RegExp('^.*?' + request.query.by + '.*$', 'i');
+    }
     if (request.query.user) {
         query.users.user = new RegExp('^.*?' + request.query.user + '.*$', 'i');
     }
@@ -52,6 +53,7 @@ Controller.find = BaseController.find('permissions', Permissions, function (requ
 
 Controller.find.validator = {
     query: {
+        by: Joi.string(),
         user: Joi.string(),
         action: Joi.string(),
         object: Joi.string(),
@@ -78,39 +80,35 @@ Controller.update = {
     },
     pre: [AuthPlugin.preware.ensurePermissions('update', 'permissions')],
     handler: function (request, reply) {
+        var by = request.auth.credentials.user.email;
         Permissions._findOne({_id: BaseModel.ObjectID(request.params.id)})
+            .then(function (permissions) {
+                return (permissions && request.payload.isActive === true) ? permissions.reactivate(by) : permissions;
+            })
+            .then(function (permissions) {
+                return (permissions && request.payload.isActive === false) ? permissions.deactivate(by) : permissions;
+            })
+            .then(function (permissions) {
+                return (permissions && request.payload.addedUsers) ? permissions.addUsers(request.payload.addedUsers, 'user', by) : permissions;
+            })
+            .then(function (permissions) {
+                return (permissions && request.payload.removedUsers) ? permissions.removeUsers(request.payload.removedUsers, 'user', by) : permissions;
+            })
+            .then(function (permissions) {
+                return (permissions && request.payload.addedGroups) ? permissions.addUsers(request.payload.addedGroups, 'group', by) : permissions;
+            })
+            .then(function (permissions) {
+                return (permissions && request.payload.removedGroups) ? permissions.removeUsers(request.payload.removedGroups, 'group', by) : permissions;
+            })
+            .then(function (permissions) {
+                return (permissions && request.payload.description) ? permissions.updateDesc(request.payload.description, by) : permissions;
+            })
             .then(function (permissions) {
                 if (!permissions) {
                     reply(Boom.notFound('Permissions not found.'));
                 } else {
-                    var p = [permissions];
-                    var by = request.auth.credentials.user.email;
-                    if (request.payload.isActive === true) {
-                        p.push(permissions.reactivate(by));
-                    }
-                    if (request.payload.isActive === false) {
-                        p.push(permissions.deactivate(by));
-                    }
-                    if (request.payload.addedUsers) {
-                        p.push(permissions.addUsers(request.payload.addedUsers, 'user', by));
-                    }
-                    if (request.payload.removedUsers) {
-                        p.push(permissions.removeUsers(request.payload.removedUsers, 'user', by));
-                    }
-                    if (request.payload.addedGroups) {
-                        p.push(permissions.addUsers(request.payload.addedGroups, 'group', by));
-                    }
-                    if (request.payload.removedGroups) {
-                        p.push(permissions.removeUsers(request.payload.removedGroups, 'group', by));
-                    }
-                    if (request.payload.description) {
-                        p.push(permissions.updateDesc(request.payload.description, by));
-                    }
-                    return Promise.all(p);
+                    reply(permissions);
                 }
-            })
-            .then(function (p) {
-                reply(p[0]);
             })
             .catch(function (err) {
                 if (err) {

@@ -82,9 +82,4 @@ Audit.findPermissionsAudit = function (conditions) {
     }));
 };
 
-Audit.findChangesByUser = function (by) {
-    var self = this;
-    return self._find({by: by});
-};
-
 module.exports = Audit;

@@ -9,20 +9,23 @@ var Users = require('./../users/model');
 var AuthPlugin = require('./../common/auth');
 var BaseController = require('./../common/controller').BaseController;
 
-var Controller = {
-
-};
+var Controller = {};
 
 var validAndPermitted = function (request, reply) {
     UserGroups.isValid(BaseModel.ObjectID(request.params.id), request.auth.credentials.user.email)
         .then(function (m) {
-            if (m.message === 'valid') {
-                reply();
-            } else if (m.message === 'not found') {
-                reply(Boom.notFound(JSON.stringify(m)));
-            } else if (m.message === 'not an owner') {
-                reply(Boom.unauthorized(JSON.stringify(m)));
-            }
+            var cases = {
+                'valid': function () {
+                    reply();
+                },
+                'not found': function () {
+                    reply(Boom.notFound(JSON.stringify(m)));
+                },
+                'not an owner': function () {
+                    reply(Boom.unauthorized(JSON.stringify(m)));
+                }
+            };
+            cases[m.message]();
         })
         .catch(function (err) {
             if (err) {
@@ -140,35 +143,31 @@ Controller.update = {
         {assign: 'validAndPermitted', method: validAndPermitted}
     ],
     handler: function (request, reply) {
+        var by = request.auth.credentials.user.email;
         UserGroups._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (userGroup) {
-                var p = [userGroup];
-                var by = request.auth.credentials.user.email;
-                if (request.payload.isActive === true) {
-                    p.push(userGroup.reactivate(by));
-                }
-                if (request.payload.isActive === false) {
-                    p.push(userGroup.deactivate(by));
-                }
-                if (request.payload.addedMembers) {
-                    p.push(userGroup.addUsers(request.payload.addedMembers, 'member', by));
-                }
-                if (request.payload.removedMembers) {
-                    p.push(userGroup.removeUsers(request.payload.removedMembers, 'member', by));
-                }
-                if (request.payload.addedOwners) {
-                    p.push(userGroup.addUsers(request.payload.addedOwners, 'owner', by));
-                }
-                if (request.payload.removedOwners) {
-                    p.push(userGroup.removeUsers(request.payload.removedOwners, 'owner', by));
-                }
-                if (request.payload.description) {
-                    p.push(userGroup.updateDesc(request.payload.description, by));
-                }
-                return Promise.all(p);
+                return (request.payload.isActive === true) ? userGroup.reactivate(by) : userGroup;
             })
-            .then(function (ug) {
-                reply(ug[0]);
+            .then(function (userGroup) {
+                return (request.payload.isActive === false) ? userGroup.deactivate(by) : userGroup;
+            })
+            .then(function (userGroup) {
+                return (request.payload.addedMembers) ? userGroup.addUsers(request.payload.addedMembers, 'member', by) : userGroup;
+            })
+            .then(function (userGroup) {
+                return (request.payload.removedMembers) ? userGroup.removeUsers(request.payload.removedMembers, 'member', by) : userGroup;
+            })
+            .then(function (userGroup) {
+                return (request.payload.addedOwners) ? userGroup.addUsers(request.payload.addedOwners, 'owner', by) : userGroup;
+            })
+            .then(function (userGroup) {
+                return (request.payload.removedOwners) ? userGroup.removeUsers(request.payload.removedOwners, 'owner', by) : userGroup;
+            })
+            .then(function (userGroup) {
+                return (request.payload.description) ? userGroup.updateDesc(request.payload.description, by) : userGroup;
+            })
+            .then(function (userGroup) {
+                reply(userGroup);
             })
             .catch(function (err) {
                 if (err) {
@@ -197,21 +196,17 @@ Controller.new = {
         var by = request.auth.credentials.user.email;
         UserGroups.create(request.payload.name, request.payload.description, by)
             .then(function (userGroup) {
+                return (userGroup && request.payload.addedMembers) ? userGroup.addUsers(request.payload.addedMembers, 'member', by) : userGroup;
+            })
+            .then(function (userGroup) {
+                    return (userGroup && request.payload.addedOwners) ? userGroup.addUsers(request.payload.addedOwners, 'owner', by) : userGroup;
+            })
+            .then(function (userGroup) {
                 if (!userGroup) {
                     reply(Boom.notFound('User group could not be created.'));
                 } else {
-                    var p = [userGroup];
-                    if (request.payload.addedMembers) {
-                        p.push(userGroup.addUsers(request.payload.addedMembers, 'member', by));
-                    }
-                    if (request.payload.addedOwners) {
-                        p.push(userGroup.addUsers(request.payload.addedOwners, 'owner', by));
-                    }
-                    return Promise.all(p);
+                    reply(userGroup);
                 }
-            })
-            .then(function (ug) {
-                reply(ug[0]);
             })
             .catch(function (err) {
                 if (err) {

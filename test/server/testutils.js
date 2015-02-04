@@ -95,16 +95,16 @@ function setupRolesAndUsers () {
     var promise = new Promise(function (resolve, reject) {
         setupConnect()
             .then(function () {
-                setupRootRole();
+                setupRootRole().done();
             })
             .then(function () {
-                setupReadonlyRole();
+                setupReadonlyRole().done();
             })
             .then(function () {
-                setupRootUser();
+                setupRootUser().done();
             })
             .then(function () {
-                setupFirstUser();
+                setupFirstUser().done();
             })
             .then(function () {
                 resolve(true);

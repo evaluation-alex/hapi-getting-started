@@ -11,107 +11,102 @@ var Permissions = ExtendedModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
-    },
-    /* jshint +W064 */
-    _audit: function (action, oldValues, newValues, by) {
-        var self = this;
-        return Audit.createPermissionsAudit(self._id, action, oldValues, newValues, by);
-    },
-    isPermissionFor: function (forAction, onObject) {
-        var self = this;
-        var ret = (self.action === forAction || self.action === '*') &&
-            (self.object === onObject || self.object === '*');
-
-        return ret;
-    },
-    addUsers: function (toAdd, userType, by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            var modified = false;
-            toAdd.forEach(function (userToAdd) {
-                var found = _.findWhere(self.users, {user: userToAdd});
-                if (found) {
-                    if (!found.isActive) {
-                        modified = true;
-                        found.isActive = true;
-                        self._audit('add user users.' + userToAdd + 'isActive', false, true, by);
-                    }
-                } else {
-                    modified = true;
-                    self.users.push({user: userToAdd, type: userType, isActive: true});
-                    self._audit('add user', '', userToAdd, by);
-                }
-            });
-            if (modified) {
-                resolve(Permissions._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
-    },
-    removeUsers: function (toRemove, by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            var modified = false;
-            toRemove.forEach(function (userToRemove) {
-                var found = _.findWhere(self.users, {user: userToRemove});
-                if (found) {
-                    if (found.isActive) {
-                        modified = true;
-                        found.isActive = false;
-                        self._audit('remove user users.' + userToRemove + '.isActive', true, false, by);
-                    }
-                }
-            });
-            if (modified) {
-                resolve(Permissions._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
-    },
-    deactivate: function (by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            if (self.isActive) {
-                self._audit('isActive', true, false, by);
-                self.isActive = false;
-                resolve(Permissions._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
-    },
-    reactivate: function (by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            if (!self.isActive) {
-                self._audit('isActive', false, true, by);
-                self.isActive = true;
-                resolve(Permissions._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
-    },
-    updateDesc: function (newDesc, by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            if (self.description !== newDesc) {
-                self._audit('change desc', self.description, newDesc, by);
-                self.description = newDesc;
-                resolve(Permissions._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
     }
+    /* jshint +W064 */
 });
+Permissions.prototype._audit = function (action, oldValues, newValues, by) {
+    var self = this;
+    return Audit.createPermissionsAudit(self._id, action, oldValues, newValues, by);
+};
+Permissions.prototype.isPermissionFor = function (forAction, onObject) {
+    var self = this;
+    var ret = (self.action === forAction || self.action === '*') &&
+        (self.object === onObject || self.object === '*');
+
+    return ret;
+};
+Permissions.prototype.addUsers = function (toAdd, userType, by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        var modified = false;
+        toAdd.forEach(function (userToAdd) {
+            var found = _.findWhere(self.users, {user: userToAdd});
+            if (found) {
+                if (!found.isActive) {
+                    modified = true;
+                    found.isActive = true;
+                    self._audit('add user users.' + userToAdd + 'isActive', false, true, by);
+                }
+            } else {
+                modified = true;
+                self.users.push({user: userToAdd, type: userType, isActive: true});
+                self._audit('add user', '', userToAdd, by);
+            }
+        });
+        if (modified) {
+            resolve(Permissions._findByIdAndUpdate(self._id, self));
+        } else {
+            resolve(self);
+        }
+    });
+};
+Permissions.prototype.removeUsers = function (toRemove, by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        var modified = false;
+        toRemove.forEach(function (userToRemove) {
+            var found = _.findWhere(self.users, {user: userToRemove});
+            if (found) {
+                if (found.isActive) {
+                    modified = true;
+                    found.isActive = false;
+                    self._audit('remove user users.' + userToRemove + '.isActive', true, false, by);
+                }
+            }
+        });
+        if (modified) {
+            resolve(Permissions._findByIdAndUpdate(self._id, self));
+        } else {
+            resolve(self);
+        }
+    });
+};
+Permissions.prototype.deactivate = function (by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        if (self.isActive) {
+            self._audit('isActive', true, false, by);
+            self.isActive = false;
+            resolve(Permissions._findByIdAndUpdate(self._id, self));
+        } else {
+            resolve(self);
+        }
+    });
+};
+Permissions.prototype.reactivate = function (by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        if (!self.isActive) {
+            self._audit('isActive', false, true, by);
+            self.isActive = true;
+            resolve(Permissions._findByIdAndUpdate(self._id, self));
+        } else {
+            resolve(self);
+        }
+    });
+};
+Permissions.prototype.updateDesc = function (newDesc, by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        if (self.description !== newDesc) {
+            self._audit('change desc', self.description, newDesc, by);
+            self.description = newDesc;
+            resolve(Permissions._findByIdAndUpdate(self._id, self));
+        } else {
+            resolve(self);
+        }
+    });
+};
 
 Permissions._collection = 'permissions';
 
@@ -135,7 +130,7 @@ Permissions.indexes = [
 
 Permissions.create = function (description, users, action, object, by) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         var document = {
             description: description,
             users: users,
@@ -144,23 +139,22 @@ Permissions.create = function (description, users, action, object, by) {
             isActive: true
         };
         self._insert(document, {})
-            .then(function(doc) {
+            .then(function (doc) {
                 Audit.createPermissionsAudit(doc._id, 'create', '', doc, by);
                 resolve(doc);
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 if (err) {
                     reject(err);
                 }
             })
             .done();
     });
-    return promise;
 };
 
 Permissions.findByDescription = function (description) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         self.find({description: {$regex: new RegExp(description)}, isActive: true}, function (err, permissions) {
             if (err) {
                 reject(err);
@@ -173,12 +167,11 @@ Permissions.findByDescription = function (description) {
             }
         });
     });
-    return promise;
 };
 
 Permissions.findAllPermissionsForUser = function (email) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         UserGroups.findGroupsForUser(email)
             .then(function (userGroups) {
                 var ug = userGroups.map(function (userGroup) {
@@ -208,12 +201,11 @@ Permissions.findAllPermissionsForUser = function (email) {
             })
             .done();
     });
-    return promise;
 };
 
 Permissions.isPermitted = function (user, action, object) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         if (user === 'root') { //root is god
             resolve(true);
         } else {
@@ -234,7 +226,6 @@ Permissions.isPermitted = function (user, action, object) {
                 .done();
         }
     });
-    return promise;
 };
 
 module.exports = Permissions;

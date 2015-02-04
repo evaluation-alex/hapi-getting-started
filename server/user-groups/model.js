@@ -10,138 +10,133 @@ var UserGroups = ExtendedModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
-    },
-    /* jshint +W064 */
-    _audit: function (action, oldValues, newValues, by) {
-        var self = this;
-        return Audit.createUserGroupsAudit(self.name, action, oldValues, newValues, by);
-    },
-    addUsers: function (toAdd, role, by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            var isOwner = (role.indexOf('owner') !== -1 ||  role.indexOf('both') !== -1);
-            var isMember = (role.indexOf('member') !== -1 ||  role.indexOf('both') !== -1);
-            var modified = false;
-            if (isOwner || isMember) {
-                toAdd.forEach(function (memberToAdd) {
-                    var found = _.findWhere(self.members, {email: memberToAdd});
-                    if (found) {
-                        if (!found.isActive) {
-                            modified = true;
-                            found.isActive = true;
-                            self._audit('add user members.' + memberToAdd + '.isActive', false, true, by);
-                        }
-                        if (!found.isOwner && isOwner) {
-                            modified = true;
-                            found.isOwner = true;
-                            self._audit('add user members.' + memberToAdd + '.isOwner', false, true, by);
-                        }
-                        if (!found.isMember && isMember) {
-                            modified = true;
-                            found.isMember = true;
-                            self._audit('add user members.' + memberToAdd + '.isMember', false, true, by);
-                        }
-                    } else {
-                        modified = true;
-                        self.members.push({email: memberToAdd, isOwner: isOwner, isMember: isMember, isActive: true});
-                        self._audit('add user isOwner:'+isOwner+',isMember:'+isMember, '', memberToAdd, by);
-                    }
-                });
-            }
-            if (modified) {
-                resolve(UserGroups._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
-    },
-    removeUsers: function (toRemove, role, by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            var isOwner = (role.indexOf('owner') !== -1 ||  role.indexOf('both') !== -1);
-            var isMember = (role.indexOf('member') !== -1 ||  role.indexOf('both') !== -1);
-            var modified = false;
-            if (isOwner || isMember) {
-                toRemove.forEach(function (memberToRemove) {
-                    var found = _.findWhere(self.members, {email:memberToRemove});
-                    if (found) {
-                        if (found.isOwner && isOwner) {
-                            modified = true;
-                            found.isOwner = false;
-                            self._audit('remove user members.' + memberToRemove + '.isOwner', true, false, by);
-                        }
-                        if (found.isMember && isMember) {
-                            modified = true;
-                            found.isMember = false;
-                            self._audit('remove user members.' + memberToRemove + '.isMember', true, false, by);
-                        }
-                        if (!found.isMember && !found.isOwner && found.isActive) {
-                            modified = true;
-                            found.isActive = false;
-                            self._audit('remove user members.' + memberToRemove + '.isActive', true, false, by);
-                        }
-                    }
-                });
-            }
-            if (modified) {
-                resolve(UserGroups._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
-    },
-    deactivate: function (by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            if (self.isActive) {
-                self._audit('isActive', true, false, by);
-                self.isActive = false;
-                resolve(UserGroups._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
-    },
-    reactivate: function (by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            if (!self.isActive) {
-                self._audit('isActive', false, true, by);
-                self.isActive = true;
-                resolve(UserGroups._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
-    },
-    updateDesc: function (newDesc, by) {
-        var self = this;
-        var promise = new Promise(function (resolve, reject) {
-            if (self.description !== newDesc) {
-                self._audit('change desc', self.description, newDesc, by);
-                self.description = newDesc;
-                resolve(UserGroups._findByIdAndUpdate(self._id, self));
-            } else {
-                resolve(self);
-            }
-        });
-        return promise;
-    },
-    isMember: function (email) {
-        var self = this;
-        var ret = _.findWhere(self.members, {email: email, isMember: true, isActive: true});
-        return  !!ret;
-    },
-    isOwner: function (email) {
-        var self = this;
-        var ret = _.findWhere(self.members, {email: email, isOwner: true, isActive: true});
-        return !!ret;
     }
+    /* jshint +W064 */
 });
+UserGroups.prototype._audit = function (action, oldValues, newValues, by) {
+    var self = this;
+    return Audit.createUserGroupsAudit(self.name, action, oldValues, newValues, by);
+};
+UserGroups.prototype.addUsers = function (toAdd, role, by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        var isOwner = (role.indexOf('owner') !== -1 || role.indexOf('both') !== -1);
+        var isMember = (role.indexOf('member') !== -1 || role.indexOf('both') !== -1);
+        var modified = false;
+        if (isOwner || isMember) {
+            toAdd.forEach(function (memberToAdd) {
+                var found = _.findWhere(self.members, {email: memberToAdd});
+                if (found) {
+                    if (!found.isActive) {
+                        modified = true;
+                        found.isActive = true;
+                        self._audit('add user members.' + memberToAdd + '.isActive', false, true, by);
+                    }
+                    if (!found.isOwner && isOwner) {
+                        modified = true;
+                        found.isOwner = true;
+                        self._audit('add user members.' + memberToAdd + '.isOwner', false, true, by);
+                    }
+                    if (!found.isMember && isMember) {
+                        modified = true;
+                        found.isMember = true;
+                        self._audit('add user members.' + memberToAdd + '.isMember', false, true, by);
+                    }
+                } else {
+                    modified = true;
+                    self.members.push({email: memberToAdd, isOwner: isOwner, isMember: isMember, isActive: true});
+                    self._audit('add user isOwner:' + isOwner + ',isMember:' + isMember, '', memberToAdd, by);
+                }
+            });
+        }
+        if (modified) {
+            resolve(UserGroups._findByIdAndUpdate(self._id, self));
+        } else {
+            resolve(self);
+        }
+    });
+};
+UserGroups.prototype.removeUsers = function (toRemove, role, by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        var isOwner = (role.indexOf('owner') !== -1 || role.indexOf('both') !== -1);
+        var isMember = (role.indexOf('member') !== -1 || role.indexOf('both') !== -1);
+        var modified = false;
+        if (isOwner || isMember) {
+            toRemove.forEach(function (memberToRemove) {
+                var found = _.findWhere(self.members, {email: memberToRemove});
+                if (found) {
+                    if (found.isOwner && isOwner) {
+                        modified = true;
+                        found.isOwner = false;
+                        self._audit('remove user members.' + memberToRemove + '.isOwner', true, false, by);
+                    }
+                    if (found.isMember && isMember) {
+                        modified = true;
+                        found.isMember = false;
+                        self._audit('remove user members.' + memberToRemove + '.isMember', true, false, by);
+                    }
+                    if (!found.isMember && !found.isOwner && found.isActive) {
+                        modified = true;
+                        found.isActive = false;
+                        self._audit('remove user members.' + memberToRemove + '.isActive', true, false, by);
+                    }
+                }
+            });
+        }
+        if (modified) {
+            resolve(UserGroups._findByIdAndUpdate(self._id, self));
+        } else {
+            resolve(self);
+        }
+    });
+};
+UserGroups.prototype.deactivate = function (by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        if (self.isActive) {
+            self._audit('isActive', true, false, by);
+            self.isActive = false;
+            resolve(UserGroups._findByIdAndUpdate(self._id, self));
+        } else {
+            resolve(self);
+        }
+    });
+};
+UserGroups.prototype.reactivate = function (by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        if (!self.isActive) {
+            self._audit('isActive', false, true, by);
+            self.isActive = true;
+            resolve(UserGroups._findByIdAndUpdate(self._id, self));
+        } else {
+            resolve(self);
+        }
+    });
+};
+UserGroups.prototype.updateDesc = function (newDesc, by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        if (self.description !== newDesc) {
+            self._audit('change desc', self.description, newDesc, by);
+            self.description = newDesc;
+            resolve(UserGroups._findByIdAndUpdate(self._id, self));
+        } else {
+            resolve(self);
+        }
+    });
+};
+UserGroups.prototype.isMember = function (email) {
+    var self = this;
+    var ret = _.findWhere(self.members, {email: email, isMember: true, isActive: true});
+    return !!ret;
+};
+UserGroups.prototype.isOwner = function (email) {
+    var self = this;
+    var ret = _.findWhere(self.members, {email: email, isOwner: true, isActive: true});
+    return !!ret;
+};
 
 UserGroups._collection = 'userGroups';
 
@@ -165,7 +160,7 @@ UserGroups.indexes = [
 
 UserGroups.create = function (name, description, owner) {
     var self = this;
-    var promise = new Promise(function (resolve, reject){
+    return new Promise(function (resolve, reject) {
         var document = {
             name: name,
             description: description,
@@ -177,18 +172,17 @@ UserGroups.create = function (name, description, owner) {
                 Audit.createUserGroupsAudit(name, 'create', '', userGroup, owner);
                 resolve(userGroup);
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 if (err) {
                     reject(err);
                 }
             });
     });
-    return promise;
 };
 
 UserGroups.findByName = function (name) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         self.findOne({name: name, isActive: true}, function (err, group) {
             if (err) {
                 reject(err);
@@ -201,15 +195,14 @@ UserGroups.findByName = function (name) {
             }
         });
     });
-    return promise;
 };
 
 UserGroups.findGroupsForUser = function (email) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         var conditions = {
-            members : {
-                $elemMatch : {
+            members: {
+                $elemMatch: {
                     email: email,
                     isActive: true,
                     isMember: true
@@ -228,12 +221,11 @@ UserGroups.findGroupsForUser = function (email) {
             }
         });
     });
-    return promise;
 };
 
 UserGroups.isValid = function (id, owner) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         self._findOne({_id: id})
             .then(function (g) {
                 if (!g) {
@@ -251,7 +243,6 @@ UserGroups.isValid = function (id, owner) {
             })
             .done();
     });
-    return promise;
 };
 
 module.exports = UserGroups;

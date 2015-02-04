@@ -8,10 +8,11 @@ var Roles = ExtendedModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
-    },
+    }
     /* jshint +W064 */
+});
 
-    hasPermissionsTo: function (performAction, onObject) {
+Roles.prototype.hasPermissionsTo= function (performAction, onObject) {
         var ret = false;
         if (this.permissions) {
             this.permissions.forEach(function (permission) {
@@ -21,8 +22,7 @@ var Roles = ExtendedModel.extend({
             });
         }
         return ret;
-    }
-});
+    };
 
 Roles._collection = 'roles';
 Roles.schema = Joi.object().keys({
@@ -49,7 +49,7 @@ Roles.create = function (name, permissions) {
 
 Roles.findByName = function (names) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         self.find({name: {$in: names}}, function (err, results) {
             if (err) {
                 reject(err);
@@ -62,7 +62,6 @@ Roles.findByName = function (names) {
             }
         });
     });
-    return promise;
 };
 
 module.exports = Roles;

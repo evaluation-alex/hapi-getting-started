@@ -100,29 +100,6 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
         Fs.writeFileSync('.opts', JSON.stringify(opts, null, 4));
         return results;
     })
-    .then(function (results) {
-        var BaseModel = require('hapi-mongo-models').BaseModel;
-        var Users = require('./server/users/model');
-        var Roles = require('./server/roles/model');
-        BaseModel.connect({url: results.mongodbUrl}, function (err, db) {
-            Users.remove.bind(Users, {});
-            Roles.remove.bind(Roles, {});
-            Roles.create('root', [{action: 'update', object: '*'}])
-                .then(function () {
-                    return Roles.create('readonly', [{action: 'view', object: '*'}]);
-                })
-                .then(function () {
-                    Users.create('root', results.rootPassword);
-                })
-                .then(function (u1) {
-                    return u1.updateRoles(['root'], 'setup');
-                }).then(function () {
-                    return Users.create('one@first.com', 'password');
-                })
-                .catch(handleErr)
-                .done();
-        });
-    })
     .catch(handleErr)
     .done(function () {
         console.log('Setup complete.');

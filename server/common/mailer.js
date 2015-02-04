@@ -13,7 +13,7 @@ transport.use('compile', markdown({useEmbeddedImages: true}));
 var templateCache = {};
 
 var renderTemplate = function (template, context) {
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         context.projectName = Config.projectName;
         if (templateCache[template]) {
             resolve(templateCache[template](context));
@@ -28,11 +28,10 @@ var renderTemplate = function (template, context) {
             });
         }
     });
-    return promise;
 };
 
 var sendEmail = exports.sendEmail = function (options, template, context) {
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         renderTemplate(template, context)
             .then(function (content) {
                 options = Hoek.applyToDefaults(options, {
@@ -58,7 +57,6 @@ var sendEmail = exports.sendEmail = function (options, template, context) {
             })
             .done();
     });
-    return promise;
 };
 
 module.exports.sendEmail = sendEmail;

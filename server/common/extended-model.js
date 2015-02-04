@@ -13,7 +13,7 @@ var ExtendedModel = BaseModel.extend({
 
 ExtendedModel._find = function (conditions) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         self.find(conditions, function (err, res) {
             if (err) {
                 reject(err);
@@ -26,12 +26,11 @@ ExtendedModel._find = function (conditions) {
             }
         });
     });
-    return promise;
 };
 
 ExtendedModel._findOne = function (conditions) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         self.findOne(conditions, function (err, doc) {
             if (err) {
                 reject(err);
@@ -40,12 +39,11 @@ ExtendedModel._findOne = function (conditions) {
             }
         });
     });
-    return promise;
 };
 
 ExtendedModel._findByIdAndUpdate = function (id, obj) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         self.findByIdAndUpdate(id, obj, function (err, doc) {
             if (err) {
                 reject(err);
@@ -54,12 +52,11 @@ ExtendedModel._findByIdAndUpdate = function (id, obj) {
             }
         });
     });
-    return promise;
 };
 
 ExtendedModel._count = function(query) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         self.count(query, function (err, count) {
             if (err) {
                 reject (err);
@@ -68,12 +65,11 @@ ExtendedModel._count = function(query) {
             }
         });
     });
-    return promise;
 };
 
 ExtendedModel._insert = function(document, notCreated) {
     var self = this;
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         self.insert(document, function (err, docs) {
             if (err) {
                 reject(err);
@@ -86,7 +82,6 @@ ExtendedModel._insert = function(document, notCreated) {
             }
         });
     });
-    return promise;
 };
 
 module.exports.ExtendedModel = ExtendedModel;

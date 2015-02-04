@@ -150,7 +150,7 @@ describe('Permissions Model', function () {
                 .then(function (found) {
                     expect(found).to.exist();
                     expect(found.length).to.equal(1);
-                    return found[0].deactivate();
+                    return found[0].deactivate('test');
                 })
                 .then(function () {
                     return Permissions.findByDescription('search');

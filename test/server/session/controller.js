@@ -50,7 +50,7 @@ describe('Login', function () {
             var authAttemptsConfig = Config.authAttempts;
             var authSpam = [];
             var authRequest = function () {
-                var promise = new Promise(function (resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     AuthAttempts.create('', 'test.users@test.api')
                         .then(function (result) {
                             resolve(true);
@@ -59,7 +59,6 @@ describe('Login', function () {
                             resolve(false);
                         });
                 });
-                return promise;
             };
             for (var i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
                 authSpam.push(authRequest());

@@ -47,7 +47,7 @@ describe('AuthAttempts Model', function () {
         var authAttemptsConfig = Config.authAttempts;
         var authSpam = [];
         var authRequest = function () {
-            var promise = new Promise(function (resolve, reject) {
+            return new Promise(function (resolve, reject) {
                 AuthAttempts.create('127.0.0.1', 'test.abuse@auth.attempts')
                     .then(function (result) {
                         expect(result).to.be.an.instanceof(AuthAttempts);
@@ -58,7 +58,6 @@ describe('AuthAttempts Model', function () {
                         resolve(false);
                     });
             });
-            return promise;
         };
         for (var i = 0; i < authAttemptsConfig.forIpAndUser+1; i++) {
             authSpam.push(authRequest());
@@ -84,7 +83,7 @@ describe('AuthAttempts Model', function () {
         var authAttemptsConfig = Config.authAttempts;
         var authSpam = [];
         var authRequest = function () {
-            var promise = new Promise(function (resolve, reject) {
+            return new Promise(function (resolve, reject) {
                 var randomUsername = 'test.abuse' + i + '@auth.attempts';
                 AuthAttempts.create('127.0.0.2', randomUsername)
                     .then(function (result) {
@@ -96,7 +95,6 @@ describe('AuthAttempts Model', function () {
                         resolve(false);
                     });
             });
-            return promise;
         };
 
         for (var i = 0; i < authAttemptsConfig.forIp + 2; i++) {

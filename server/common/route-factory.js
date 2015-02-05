@@ -56,30 +56,14 @@ var RouteFactory = function () {
         }
         return self;
     };
-    self.withPayloadValidation = function (validator) {
-        if (self._canContinueConfiguring()) {
-            self.route.config.validate = {payload: validator};
-        }
-        return self;
-    };
-    self.withQueryValidation = function (validator) {
-        if (self._canContinueConfiguring()) {
-            self.route.config.validate = {query: validator};
-        }
-        return self;
-    };
     self.preProcessWith = function (preProcess) {
         if (self._canContinueConfiguring()) {
             if (!self.route.config.pre) {
                 self.route.config.pre = [];
             }
-            if (_.isArray(preProcess)) {
-                preProcess.forEach(function (pre) {
-                    self.route.config.pre.push(pre);
-                });
-            } else {
-                self.route.config.pre.push(preProcess);
-            }
+            preProcess.forEach(function (pre) {
+                self.route.config.pre.push(pre);
+            });
         }
         return self;
     };
@@ -97,7 +81,7 @@ var RouteFactory = function () {
         }
         return self.route;
     };
-    self.withController = function(controller) {
+    self.withController = function (controller) {
         self.handleUsing(controller.handler);
         if (controller.validator) {
             self.withValidation(controller.validator);

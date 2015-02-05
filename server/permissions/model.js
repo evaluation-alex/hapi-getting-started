@@ -25,33 +25,51 @@ Permissions.prototype.isPermissionFor = function (forAction, onObject) {
 
     return ret;
 };
-Permissions.prototype.addUsers = function (toAdd, userType, by) {
+Permissions.prototype._find = function (role, toFind) {
+    var self = this;
+    return _.findWhere(self[role], toFind);
+};
+Permissions.prototype._add = function (toAdd, role, by) {
+    var self = this;
+    var modified = false;
+    _.forEach(toAdd, function (memberToAdd) {
+        var found = self._find(role, memberToAdd);
+        if (!found) {
+            modified = true;
+            self[role].push(memberToAdd);
+            self._audit('add ' + role, null, memberToAdd, by);
+        }
+    });
+    return modified;
+};
+Permissions.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        var modified = false;
-        _.forEach(toAdd, function (userToAdd) {
-            var found = _.findWhere(self.users, {user: userToAdd});
-            if (!found) {
-                modified = true;
-                self.users.push({user: userToAdd, type: userType});
-                self._audit('add user', null, {user: userToAdd, type: userType}, by);
-            }
-        });
-        resolve(modified ? Permissions._findByIdAndUpdate(self._id, self) : self);
+        var modified = toAdd && (role.indexOf('user') !== -1) && self._add(toAdd, 'users', by);
+        var modified2 = toAdd && (role.indexOf('group') !== -1) && self._add(toAdd, 'groups', by);
+        resolve(modified || modified2 ? Permissions._findByIdAndUpdate(self._id, self) : self);
     });
 };
-Permissions.prototype.removeUsers = function (toRemove, by) {
+Permissions.prototype._remove = function (toRemove, role, by) {
+    var self = this;
+    var modified = false;
+    _.forEach(toRemove, function (memberToRemove) {
+        var found = _.remove(self[role], function (m) {
+            return m === memberToRemove;
+        });
+        if (found && found.length > 0) {
+            modified = true;
+            self._audit('remove ' + role, memberToRemove, null, by);
+        }
+    });
+    return modified;
+};
+Permissions.prototype.removeUsers = function (toRemove, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        var modified = false;
-        _.forEach(toRemove, function (userToRemove) {
-            var found = _.remove(self.users, {user: userToRemove});
-            if (found && found.length > 0) {
-                modified = true;
-                self._audit('remove user', found, null, by);
-            }
-        });
-        resolve(modified ? Permissions._findByIdAndUpdate(self._id, self) : self);
+        var modified = toRemove && (role.indexOf('user') !== -1) && self._remove(toRemove, 'users', by);
+        var modified2 = toRemove && (role.indexOf('group') !== -1) && self._remove(toRemove, 'groups', by);
+        resolve(modified || modified2 ? Permissions._findByIdAndUpdate(self._id, self) : self);
     });
 };
 Permissions.prototype.deactivate = function (by) {
@@ -96,26 +114,26 @@ Permissions._collection = 'permissions';
 Permissions.schema = Joi.object().keys({
     _id: Joi.object(),
     description: Joi.string(),
-    users: Joi.array().includes(Joi.object().keys({
-        user: Joi.string(),
-        type: Joi.string().valid('user', 'group')
-    })),
+    users: Joi.array().includes(Joi.string()).unique(),
+    groups: Joi.array().includes(Joi.string()).unique(),
     action: Joi.string(),
     object: Joi.string(),
     isActive: Joi.boolean().default(true)
 });
 
 Permissions.indexes = [
-    [{'users.user': 1}],
+    [{'users': 1}],
+    [{'groups': 1}],
     [{'action': 1, 'object': 1}, {unique: true}]
 ];
 
-Permissions.create = function (description, users, action, object, by) {
+Permissions.create = function (description, users, groups, action, object, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var document = {
             description: description,
             users: users,
+            groups: groups,
             action: action,
             object: object,
             isActive: true
@@ -136,15 +154,7 @@ Permissions.create = function (description, users, action, object, by) {
 
 Permissions.findByDescription = function (description) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        self.find({description: {$regex: new RegExp(description)}, isActive: true}, function (err, permissions) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(permissions);
-            }
-        });
-    });
+    return self._find({description: {$regex: new RegExp(description)}, isActive: true});
 };
 
 Permissions.findAllPermissionsForUser = function (email) {
@@ -155,17 +165,7 @@ Permissions.findAllPermissionsForUser = function (email) {
                 var ug = userGroups.map(function (userGroup) {
                     return userGroup.name;
                 });
-                ug.push(email);
-                var conditions = {
-                    'users.user': {$in: ug}
-                };
-                self.find(conditions, function (err, permissions) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(permissions);
-                    }
-                });
+                resolve(self._find({$or: [{'users': email}, {'groups': {$in: ug}}]}));
             })
             .catch(function (err) {
                 if (err) {

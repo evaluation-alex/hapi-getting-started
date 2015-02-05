@@ -123,10 +123,10 @@ Controller.update = {
     validator: {
         payload: {
             isActive: Joi.boolean(),
-            addedMembers: Joi.array().includes(Joi.string()),
-            removedMembers: Joi.array().includes(Joi.string()),
-            addedOwners: Joi.array().includes(Joi.string()),
-            removedOwners: Joi.array().includes(Joi.string()),
+            addedMembers: Joi.array().includes(Joi.string()).unique(),
+            removedMembers: Joi.array().includes(Joi.string()).unique(),
+            addedOwners: Joi.array().includes(Joi.string()).unique(),
+            removedOwners: Joi.array().includes(Joi.string()).unique(),
             description: Joi.string()
         }
     },

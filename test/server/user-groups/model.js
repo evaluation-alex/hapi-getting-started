@@ -164,13 +164,13 @@ describe('UserGroups Model', function () {
                     ug2.members.push('anotherUser');
                     return UserGroups._findByIdAndUpdate(ug2._id, ug2);
                 })
-                .done(function () {
-                    done();
-                })
                 .catch(function(err) {
                     if (err) {
                         done(err);
                     }
+                })
+                .done(function () {
+                    done();
                 });
         });
         it('should return user groups array with groups that have the user as a member', function (done) {

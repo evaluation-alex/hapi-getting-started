@@ -35,6 +35,7 @@ Controller.find = BaseController.find('permissions', Permissions, {
     query: {
         by: Joi.string(),
         user: Joi.string(),
+        group: Joi.string(),
         action: Joi.string(),
         object: Joi.string(),
         isActive: Joi.string()
@@ -45,7 +46,10 @@ Controller.find = BaseController.find('permissions', Permissions, {
         query.by = new RegExp('^.*?' + request.query.by + '.*$', 'i');
     }
     if (request.query.user) {
-        query.users.user = new RegExp('^.*?' + request.query.user + '.*$', 'i');
+        query.users = new RegExp('^.*?' + request.query.user + '.*$', 'i');
+    }
+    if (request.query.group) {
+        query.groups = new RegExp('^.*?' + request.query.group + '.*$', 'i');
     }
     if (request.query.action) {
         query.action = request.query.action;
@@ -65,10 +69,10 @@ Controller.update = {
     validator: {
         payload: {
             isActive: Joi.boolean(),
-            addedUsers: Joi.array().includes(Joi.string()),
-            removedUsers: Joi.array().includes(Joi.string()),
-            addedGroups: Joi.array().includes(Joi.string()),
-            removedGroups: Joi.array().includes(Joi.string()),
+            addedUsers: Joi.array().includes(Joi.string()).unique(),
+            removedUsers: Joi.array().includes(Joi.string()).unique(),
+            addedGroups: Joi.array().includes(Joi.string()).unique(),
+            removedGroups: Joi.array().includes(Joi.string()).unique(),
             description: Joi.string()
         }
     },
@@ -116,14 +120,11 @@ Controller.update = {
 Controller.new = {
     validator: {
         payload: {
-            description: Joi.string().required(),
-            users: Joi.array().includes(Joi.object().keys({
-                user: Joi.string(),
-                type: Joi.string().valid('user', 'group'),
-                isActive: Joi.boolean().default(true)
-            })),
-            action: Joi.string().required(),
-            object: Joi.string().required()
+            description: Joi.string(),
+            users: Joi.array().includes(Joi.string()).unique(),
+            groups: Joi.array().includes(Joi.string()).unique(),
+            action: Joi.string(),
+            object: Joi.string()
         }
     },
     pre: [
@@ -132,7 +133,7 @@ Controller.new = {
     ],
     handler: function (request, reply) {
         var by = request.auth.credentials.user.email;
-        Permissions.create(request.payload.descriptions, request.payload.users, request.payload.action, request.payload.object, by)
+        Permissions.create(request.payload.descriptions, request.payload.users, request.payload.groups, request.payload.action, request.payload.object, by)
             .then(function (permissions) {
                 if (!permissions) {
                     reply(Boom.notFound('permissions could not be created.'));

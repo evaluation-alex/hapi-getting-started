@@ -36,14 +36,15 @@ var validAndPermitted = function (request, reply) {
 };
 
 var validUsers = function (request, reply) {
-    var invalidUsers = [];
-    var invalidOwners = [];
+    var msg1 = 'invalidMembers = ';
+    var msg2 = 'invalidOwners = ';
+    var msg = '';
     Users.areValid(request.payload.addedMembers)
         .then(function (validatedMembers) {
             if (request.payload.addedMembers) {
                 _.forEach(request.payload.addedMembers, function (a) {
                     if (!validatedMembers[a]) {
-                        invalidUsers.push(a);
+                        msg1 += a + ',';
                     }
                 });
             }
@@ -53,20 +54,19 @@ var validUsers = function (request, reply) {
             if (request.payload.addedOwners) {
                 _.forEach(request.payload.addedOwners, function (a) {
                     if (!validatedOwners[a]) {
-                        invalidOwners.push(a);
+                        msg2 += a + ',';
                     }
                 });
             }
         })
         .then(function () {
-            var msg = '';
-            if (invalidUsers.length > 0) {
-                msg += 'invalidMembers = ' + JSON.stringify(invalidUsers) + ',';
+            if (msg1.indexOf(',') > -1) {
+                msg += msg1;
             }
-            if (invalidOwners.length > 0) {
-                msg += 'invalidOwners = ' + JSON.stringify(invalidOwners);
+            if (msg2.indexOf(',') > -1) {
+                msg += msg2;
             }
-            if (invalidUsers.length > 0 || invalidOwners.length > 0) {
+            if (msg.indexOf('invalid') > -1) {
                 reply(Boom.badData(msg));
             } else {
                 reply();
@@ -106,8 +106,7 @@ Controller.find = BaseController.find('user-groups', UserGroups, {
 }, function (request) {
     var query = {};
     if (request.query.email) {
-        query['members.email'] = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
-        query['members.isActive'] = true;
+        query.members = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
     }
     if (request.query.groupName) {
         query.name = {$regex: new RegExp('^.*?' + request.query.groupName + '.*$', 'i')};

@@ -29,46 +29,29 @@ Permissions.prototype.addUsers = function (toAdd, userType, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var modified = false;
-        toAdd.forEach(function (userToAdd) {
+        _.forEach(toAdd, function (userToAdd) {
             var found = _.findWhere(self.users, {user: userToAdd});
-            if (found) {
-                if (!found.isActive) {
-                    modified = true;
-                    found.isActive = true;
-                    self._audit('add user users.' + userToAdd + 'isActive', false, true, by);
-                }
-            } else {
+            if (!found) {
                 modified = true;
-                self.users.push({user: userToAdd, type: userType, isActive: true});
-                self._audit('add user', '', userToAdd, by);
+                self.users.push({user: userToAdd, type: userType});
+                self._audit('add user', null, {user: userToAdd, type: userType}, by);
             }
         });
-        if (modified) {
-            resolve(Permissions._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
+        resolve(modified ? Permissions._findByIdAndUpdate(self._id, self) : self);
     });
 };
 Permissions.prototype.removeUsers = function (toRemove, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var modified = false;
-        toRemove.forEach(function (userToRemove) {
-            var found = _.findWhere(self.users, {user: userToRemove});
-            if (found) {
-                if (found.isActive) {
-                    modified = true;
-                    found.isActive = false;
-                    self._audit('remove user users.' + userToRemove + '.isActive', true, false, by);
-                }
+        _.forEach(toRemove, function (userToRemove) {
+            var found = _.remove(self.users, {user: userToRemove});
+            if (found && found.length > 0) {
+                modified = true;
+                self._audit('remove user', found, null, by);
             }
         });
-        if (modified) {
-            resolve(Permissions._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
+        resolve(modified ? Permissions._findByIdAndUpdate(self._id, self) : self);
     });
 };
 Permissions.prototype.deactivate = function (by) {
@@ -115,8 +98,7 @@ Permissions.schema = Joi.object().keys({
     description: Joi.string(),
     users: Joi.array().includes(Joi.object().keys({
         user: Joi.string(),
-        type: Joi.string().valid('user', 'group'),
-        isActive: Joi.boolean().default(true)
+        type: Joi.string().valid('user', 'group')
     })),
     action: Joi.string(),
     object: Joi.string(),
@@ -124,8 +106,8 @@ Permissions.schema = Joi.object().keys({
 });
 
 Permissions.indexes = [
-    [{'users.user': 1, 'users.isActive': 1}],
-    [{'action': 1, 'object': 1}, {unique: true}],
+    [{'users.user': 1}],
+    [{'action': 1, 'object': 1}, {unique: true}]
 ];
 
 Permissions.create = function (description, users, action, object, by) {
@@ -159,11 +141,7 @@ Permissions.findByDescription = function (description) {
             if (err) {
                 reject(err);
             } else {
-                if (!permissions) {
-                    resolve([]);
-                } else {
-                    resolve(permissions);
-                }
+                resolve(permissions);
             }
         });
     });
@@ -179,18 +157,13 @@ Permissions.findAllPermissionsForUser = function (email) {
                 });
                 ug.push(email);
                 var conditions = {
-                    'users.user': {$in: ug},
-                    'users.isActive': true
+                    'users.user': {$in: ug}
                 };
                 self.find(conditions, function (err, permissions) {
                     if (err) {
                         reject(err);
                     } else {
-                        if (!permissions) {
-                            resolve([]);
-                        } else {
-                            resolve(permissions);
-                        }
+                        resolve(permissions);
                     }
                 });
             })

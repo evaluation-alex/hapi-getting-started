@@ -13,82 +13,59 @@ var UserGroups = ExtendedModel.extend({
     }
     /* jshint +W064 */
 });
+var isRoleOwner = function (role) {
+    return (role.indexOf('owner') !== -1 || role.indexOf('both') !== -1);
+};
+var isRoleMember = function (role) {
+    return (role.indexOf('member') !== -1 || role.indexOf('both') !== -1);
+};
 UserGroups.prototype._audit = function (action, oldValues, newValues, by) {
     var self = this;
     return Audit.createUserGroupsAudit(self.name, action, oldValues, newValues, by);
 };
+UserGroups.prototype._find = function(role, toFind) {
+    var self = this;
+    return _.findWhere(self[role], toFind);
+};
+UserGroups.prototype._add = function (toAdd, role, by) {
+    var self = this;
+        var modified = false;
+        _.forEach(toAdd, function (memberToAdd) {
+            var found = self._find(role, memberToAdd);
+            if (!found) {
+                modified = true;
+                self[role].push(memberToAdd);
+                self._audit('add ' + role, null, memberToAdd, by);
+            }
+        });
+    return modified;
+};
 UserGroups.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        var isOwner = (role.indexOf('owner') !== -1 || role.indexOf('both') !== -1);
-        var isMember = (role.indexOf('member') !== -1 || role.indexOf('both') !== -1);
-        var modified = false;
-        if (isOwner || isMember) {
-            toAdd.forEach(function (memberToAdd) {
-                var found = _.findWhere(self.members, {email: memberToAdd});
-                if (found) {
-                    if (!found.isActive) {
-                        modified = true;
-                        found.isActive = true;
-                        self._audit('add user members.' + memberToAdd + '.isActive', false, true, by);
-                    }
-                    if (!found.isOwner && isOwner) {
-                        modified = true;
-                        found.isOwner = true;
-                        self._audit('add user members.' + memberToAdd + '.isOwner', false, true, by);
-                    }
-                    if (!found.isMember && isMember) {
-                        modified = true;
-                        found.isMember = true;
-                        self._audit('add user members.' + memberToAdd + '.isMember', false, true, by);
-                    }
-                } else {
-                    modified = true;
-                    self.members.push({email: memberToAdd, isOwner: isOwner, isMember: isMember, isActive: true});
-                    self._audit('add user isOwner:' + isOwner + ',isMember:' + isMember, '', memberToAdd, by);
-                }
-            });
-        }
-        if (modified) {
-            resolve(UserGroups._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
+        var modified = toAdd && isRoleOwner(role) && self._add(toAdd, 'owners', by);
+        var modified2 = toAdd && isRoleMember(role) && self._add(toAdd, 'members', by);
+        resolve(modified || modified2 ? UserGroups._findByIdAndUpdate(self._id, self) : self);
+    });
+};
+UserGroups.prototype._remove = function (toRemove, role, by) {
+    var self = this;
+    var modified = false;
+    _.forEach(toRemove, function (memberToRemove) {
+        var found = _.remove(self[role], function (m) {return m === memberToRemove;});
+        if (found && found.length > 0) {
+            modified = true;
+            self._audit('remove ' + role, memberToRemove, null, by);
         }
     });
+    return modified;
 };
 UserGroups.prototype.removeUsers = function (toRemove, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        var isOwner = (role.indexOf('owner') !== -1 || role.indexOf('both') !== -1);
-        var isMember = (role.indexOf('member') !== -1 || role.indexOf('both') !== -1);
-        var modified = false;
-        if (isOwner || isMember) {
-            toRemove.forEach(function (memberToRemove) {
-                var found = _.findWhere(self.members, {email: memberToRemove});
-                if (found) {
-                    if (found.isOwner && isOwner) {
-                        modified = true;
-                        found.isOwner = false;
-                        self._audit('remove user members.' + memberToRemove + '.isOwner', true, false, by);
-                    }
-                    if (found.isMember && isMember) {
-                        modified = true;
-                        found.isMember = false;
-                        self._audit('remove user members.' + memberToRemove + '.isMember', true, false, by);
-                    }
-                    if (!found.isMember && !found.isOwner && found.isActive) {
-                        modified = true;
-                        found.isActive = false;
-                        self._audit('remove user members.' + memberToRemove + '.isActive', true, false, by);
-                    }
-                }
-            });
-        }
-        if (modified) {
-            resolve(UserGroups._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
+        var modified = toRemove && isRoleOwner(role) && self._remove(toRemove, 'owners', by);
+        var modified2 = toRemove && isRoleMember(role) && self._remove(toRemove, 'members', by);
+        resolve(modified || modified2 ? UserGroups._findByIdAndUpdate(self._id, self) : self);
     });
 };
 UserGroups.prototype.deactivate = function (by) {
@@ -129,13 +106,11 @@ UserGroups.prototype.updateDesc = function (newDesc, by) {
 };
 UserGroups.prototype.isMember = function (email) {
     var self = this;
-    var ret = _.findWhere(self.members, {email: email, isMember: true, isActive: true});
-    return !!ret;
+    return !!self._find('members', email);
 };
 UserGroups.prototype.isOwner = function (email) {
     var self = this;
-    var ret = _.findWhere(self.members, {email: email, isOwner: true, isActive: true});
-    return !!ret;
+    return !!self._find('owners', email);
 };
 
 UserGroups._collection = 'userGroups';
@@ -144,18 +119,15 @@ UserGroups.schema = Joi.object().keys({
     _id: Joi.object(),
     name: Joi.string().required(),
     description: Joi.string(),
-    members: Joi.array().includes(Joi.object().keys({
-        email: Joi.string().required(),
-        isMember: Joi.boolean().default(true),
-        isOwner: Joi.boolean().default(false),
-        isActive: Joi.boolean().default(true)
-    })),
+    members: Joi.array().includes(Joi.string()).unique(),
+    owners: Joi.array().includes(Joi.string()).unique(),
     isActive: Joi.boolean().default(true)
 });
 
 UserGroups.indexes = [
     [{name: 1}, {unique: true}],
-    [{'members.email': 1, 'members.isActive': 1, 'members.isMember': 1}]
+    [{'members': 1}],
+    [{'owners': 1}]
 ];
 
 UserGroups.create = function (name, description, owner) {
@@ -164,7 +136,8 @@ UserGroups.create = function (name, description, owner) {
         var document = {
             name: name,
             description: description,
-            members: [{email: owner, isActive: true, isMember: true, isOwner: true}],
+            members: [owner],
+            owners: [owner],
             isActive: true
         };
         self._insert(document, false)
@@ -183,43 +156,38 @@ UserGroups.create = function (name, description, owner) {
 UserGroups.findByName = function (name) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.findOne({name: name, isActive: true}, function (err, group) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!group) {
+        self._findOne({name: name, isActive: true})
+            .then(function(found) {
+                if (!found) {
                     resolve(false);
                 } else {
-                    resolve(group);
+                    resolve(found);
                 }
-            }
-        });
+            })
+            .catch(function(err) {
+                if (err) {
+                    reject(err);
+                }
+            });
     });
 };
 
 UserGroups.findGroupsForUser = function (email) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        var conditions = {
-            members: {
-                $elemMatch: {
-                    email: email,
-                    isActive: true,
-                    isMember: true
-                }
-            }
-        };
-        self.find(conditions, function (err, groups) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!groups) {
+        self._find({members: email})
+            .then(function(g) {
+                if (!g) {
                     resolve([]);
                 } else {
-                    resolve(groups);
+                    resolve(g);
                 }
-            }
-        });
+            })
+            .catch(function(err) {
+                if (err) {
+                    reject(err);
+                }
+            });
     });
 };
 

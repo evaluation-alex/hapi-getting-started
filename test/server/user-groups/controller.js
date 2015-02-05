@@ -54,20 +54,32 @@ describe('UserGroups', function () {
             groupsToClear.push('GetUserGroupsTestMemberActive');
             groupsToClear.push('GetUserGroupsTestMemberInactive');
             groupsToClear.push('GetUserGroupsTestInactive');
-            var g1 = UserGroups.create('GetUserGroupsTestName', 'GET /user-groups', 'root');
-            var g2 = UserGroups.create('GetUserGroupsTestMemberActive', 'GET /user-groups', 'root');
-            var g3 = UserGroups.create('GetUserGroupsTestMemberInactive', 'GET /user-groups', 'root');
-            var g4 = UserGroups.create('GetUserGroupsTestInactive', 'GET /user-groups', 'root');
-            Promise.join(g1, g2, g3, g4, function (g1, g2, g3, g4) {
-                var p = [];
-                p.push(g2.addUsers(['user1', 'user2'], 'member', 'root'));
-                p.push(g3.addUsers(['user3', 'user4'], 'member', 'root'));
-                p.push(g3.removeUsers(['user3'], 'member', 'root'));
-                p.push(g4.deactivate('root'));
-                return Promise.all(p);
-            })
+            UserGroups.create('GetUserGroupsTestName', 'GET /user-groups', 'root')
+                .then(function (g1) {
+                    return UserGroups.create('GetUserGroupsTestMemberActive', 'GET /user-groups', 'root');
+                })
+                .then(function (g2) {
+                    return g2.addUsers(['user1', 'user2'], 'member', 'root');
+                })
+                .then(function (g3) {
+                    return UserGroups.create('GetUserGroupsTestMemberInactive', 'GET /user-groups', 'root');
+                })
+                .then(function (g3) {
+                    return g3.addUsers(['user4'], 'member', 'root');
+                })
+                .then(function (g4) {
+                    return UserGroups.create('GetUserGroupsTestInactive', 'GET /user-groups', 'root');
+                })
+                .then(function (g4) {
+                    return g4.deactivate('root');
+                })
                 .then(function () {
                     done();
+                })
+                .catch(function (err) {
+                    if (err) {
+                        done(err);
+                    }
                 });
         });
         it('should give active groups when isactive = true is sent', function (done) {

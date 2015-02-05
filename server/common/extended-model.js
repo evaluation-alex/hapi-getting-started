@@ -2,6 +2,7 @@
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var ObjectAssign = require('object-assign');
 var Promise = require('bluebird');
+var _ = require('lodash');
 
 var ExtendedModel = BaseModel.extend({
     /* jshint -W064 */
@@ -85,3 +86,82 @@ ExtendedModel._insert = function(document, notCreated) {
 };
 
 module.exports.ExtendedModel = ExtendedModel;
+
+
+var CommonMixinAddRemove = {
+    _find: function (role, toFind) {
+        var self = this;
+        return _.findWhere(self[role], toFind);
+    },
+    _add: function (toAdd, role, by) {
+        var self = this;
+        var modified = false;
+        _.forEach(toAdd, function (memberToAdd) {
+            var found = self._find(role, memberToAdd);
+            if (!found) {
+                modified = true;
+                self[role].push(memberToAdd);
+                self._audit('add ' + role, null, memberToAdd, by);
+            }
+        });
+        return modified;
+    },
+    _remove: function (toRemove, role, by) {
+        var self = this;
+        var modified = false;
+        _.forEach(toRemove, function (memberToRemove) {
+            var found = _.remove(self[role], function (m) {
+                return m === memberToRemove;
+            });
+            if (found && found.length > 0) {
+                modified = true;
+                self._audit('remove ' + role, memberToRemove, null, by);
+            }
+        });
+        return modified;
+    }
+};
+var CommonMixinIsActive = {
+    deactivate: function (by) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            if (self.isActive) {
+                self._audit('isActive', true, false, by);
+                self.isActive = false;
+                resolve(self._save());
+            } else {
+                resolve(self);
+            }
+        });
+    },
+    reactivate: function (by) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            if (!self.isActive) {
+                self._audit('isActive', false, true, by);
+                self.isActive = true;
+                resolve(self._save());
+            } else {
+                resolve(self);
+            }
+        });
+    }
+};
+var CommonMixinDescription = {
+    updateDesc: function (newDesc, by) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            if (self.description !== newDesc) {
+                self._audit('change desc', self.description, newDesc, by);
+                self.description = newDesc;
+                resolve(self._save());
+            } else {
+                resolve(self);
+            }
+        });
+    }
+};
+
+module.exports.CommonMixinAddRemove = CommonMixinAddRemove;
+module.exports.CommonMixinIsActive = CommonMixinIsActive;
+module.exports.CommonMixinDescription = CommonMixinDescription;

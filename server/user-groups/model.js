@@ -2,6 +2,9 @@
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
+var CommonMixinAddRemove = require('./../common/extended-model').CommonMixinAddRemove;
+var CommonMixinIsActive = require('./../common/extended-model').CommonMixinIsActive;
+var CommonMixinDescription = require('./../common/extended-model').CommonMixinDescription;
 var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var _ = require('lodash');
@@ -19,89 +22,33 @@ var isRoleOwner = function (role) {
 var isRoleMember = function (role) {
     return (role.indexOf('member') !== -1 || role.indexOf('both') !== -1);
 };
+
+_.extend(UserGroups.prototype, CommonMixinAddRemove);
+_.extend(UserGroups.prototype, CommonMixinIsActive);
+_.extend(UserGroups.prototype, CommonMixinDescription);
+
 UserGroups.prototype._audit = function (action, oldValues, newValues, by) {
     var self = this;
     return Audit.createUserGroupsAudit(self.name, action, oldValues, newValues, by);
 };
-UserGroups.prototype._find = function(role, toFind) {
+UserGroups.prototype._save = function () {
     var self = this;
-    return _.findWhere(self[role], toFind);
-};
-UserGroups.prototype._add = function (toAdd, role, by) {
-    var self = this;
-        var modified = false;
-        _.forEach(toAdd, function (memberToAdd) {
-            var found = self._find(role, memberToAdd);
-            if (!found) {
-                modified = true;
-                self[role].push(memberToAdd);
-                self._audit('add ' + role, null, memberToAdd, by);
-            }
-        });
-    return modified;
+    return UserGroups._findByIdAndUpdate(self._id, self);
 };
 UserGroups.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var modified = toAdd && isRoleOwner(role) && self._add(toAdd, 'owners', by);
         var modified2 = toAdd && isRoleMember(role) && self._add(toAdd, 'members', by);
-        resolve(modified || modified2 ? UserGroups._findByIdAndUpdate(self._id, self) : self);
+        resolve(modified || modified2 ? self._save() : self);
     });
-};
-UserGroups.prototype._remove = function (toRemove, role, by) {
-    var self = this;
-    var modified = false;
-    _.forEach(toRemove, function (memberToRemove) {
-        var found = _.remove(self[role], function (m) {return m === memberToRemove;});
-        if (found && found.length > 0) {
-            modified = true;
-            self._audit('remove ' + role, memberToRemove, null, by);
-        }
-    });
-    return modified;
 };
 UserGroups.prototype.removeUsers = function (toRemove, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var modified = toRemove && isRoleOwner(role) && self._remove(toRemove, 'owners', by);
         var modified2 = toRemove && isRoleMember(role) && self._remove(toRemove, 'members', by);
-        resolve(modified || modified2 ? UserGroups._findByIdAndUpdate(self._id, self) : self);
-    });
-};
-UserGroups.prototype.deactivate = function (by) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        if (self.isActive) {
-            self._audit('isActive', true, false, by);
-            self.isActive = false;
-            resolve(UserGroups._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
-    });
-};
-UserGroups.prototype.reactivate = function (by) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        if (!self.isActive) {
-            self._audit('isActive', false, true, by);
-            self.isActive = true;
-            resolve(UserGroups._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
-    });
-};
-UserGroups.prototype.updateDesc = function (newDesc, by) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        if (self.description !== newDesc) {
-            self._audit('change desc', self.description, newDesc, by);
-            self.description = newDesc;
-            resolve(UserGroups._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
+        resolve(modified || modified2 ? self._save() : self);
     });
 };
 UserGroups.prototype.isMember = function (email) {

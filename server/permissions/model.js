@@ -2,6 +2,9 @@
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
+var CommonMixinAddRemove = require('./../common/extended-model').CommonMixinAddRemove;
+var CommonMixinIsActive = require('./../common/extended-model').CommonMixinIsActive;
+var CommonMixinDescription = require('./../common/extended-model').CommonMixinDescription;
 var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var UserGroups = require('./../user-groups/model');
@@ -14,6 +17,11 @@ var Permissions = ExtendedModel.extend({
     }
     /* jshint +W064 */
 });
+
+_.extend(Permissions.prototype, CommonMixinAddRemove);
+_.extend(Permissions.prototype, CommonMixinIsActive);
+_.extend(Permissions.prototype, CommonMixinDescription);
+
 Permissions.prototype._audit = function (action, oldValues, newValues, by) {
     var self = this;
     return Audit.createPermissionsAudit(self._id, action, oldValues, newValues, by);
@@ -25,90 +33,26 @@ Permissions.prototype.isPermissionFor = function (forAction, onObject) {
 
     return ret;
 };
-Permissions.prototype._find = function (role, toFind) {
+Permissions.prototype._save = function() {
     var self = this;
-    return _.findWhere(self[role], toFind);
-};
-Permissions.prototype._add = function (toAdd, role, by) {
-    var self = this;
-    var modified = false;
-    _.forEach(toAdd, function (memberToAdd) {
-        var found = self._find(role, memberToAdd);
-        if (!found) {
-            modified = true;
-            self[role].push(memberToAdd);
-            self._audit('add ' + role, null, memberToAdd, by);
-        }
-    });
-    return modified;
+    return Permissions._findByIdAndUpdate(self._id, self);
 };
 Permissions.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var modified = toAdd && (role.indexOf('user') !== -1) && self._add(toAdd, 'users', by);
         var modified2 = toAdd && (role.indexOf('group') !== -1) && self._add(toAdd, 'groups', by);
-        resolve(modified || modified2 ? Permissions._findByIdAndUpdate(self._id, self) : self);
+        resolve(modified || modified2 ? self._save() : self);
     });
-};
-Permissions.prototype._remove = function (toRemove, role, by) {
-    var self = this;
-    var modified = false;
-    _.forEach(toRemove, function (memberToRemove) {
-        var found = _.remove(self[role], function (m) {
-            return m === memberToRemove;
-        });
-        if (found && found.length > 0) {
-            modified = true;
-            self._audit('remove ' + role, memberToRemove, null, by);
-        }
-    });
-    return modified;
 };
 Permissions.prototype.removeUsers = function (toRemove, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var modified = toRemove && (role.indexOf('user') !== -1) && self._remove(toRemove, 'users', by);
         var modified2 = toRemove && (role.indexOf('group') !== -1) && self._remove(toRemove, 'groups', by);
-        resolve(modified || modified2 ? Permissions._findByIdAndUpdate(self._id, self) : self);
+        resolve(modified || modified2 ? self._save() : self);
     });
 };
-Permissions.prototype.deactivate = function (by) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        if (self.isActive) {
-            self._audit('isActive', true, false, by);
-            self.isActive = false;
-            resolve(Permissions._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
-    });
-};
-Permissions.prototype.reactivate = function (by) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        if (!self.isActive) {
-            self._audit('isActive', false, true, by);
-            self.isActive = true;
-            resolve(Permissions._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
-    });
-};
-Permissions.prototype.updateDesc = function (newDesc, by) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        if (self.description !== newDesc) {
-            self._audit('change desc', self.description, newDesc, by);
-            self.description = newDesc;
-            resolve(Permissions._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
-    });
-};
-
 Permissions._collection = 'permissions';
 
 Permissions.schema = Joi.object().keys({

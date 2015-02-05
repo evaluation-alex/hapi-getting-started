@@ -40,17 +40,25 @@ Permissions.prototype._save = function() {
 Permissions.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        var modified = toAdd && (role.indexOf('user') !== -1) && self._add(toAdd, 'users', by);
-        var modified2 = toAdd && (role.indexOf('group') !== -1) && self._add(toAdd, 'groups', by);
-        resolve(modified || modified2 ? self._save() : self);
+        var modified = false;
+        if (role.indexOf('user') !== -1) {
+            modified = toAdd && self._add(toAdd, 'users', by);
+        } else {
+            modified = toAdd && (role.indexOf('group') !== -1) && self._add(toAdd, 'groups', by);
+        }
+        resolve(modified ? self._save() : self);
     });
 };
 Permissions.prototype.removeUsers = function (toRemove, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        var modified = toRemove && (role.indexOf('user') !== -1) && self._remove(toRemove, 'users', by);
-        var modified2 = toRemove && (role.indexOf('group') !== -1) && self._remove(toRemove, 'groups', by);
-        resolve(modified || modified2 ? self._save() : self);
+        var modified = false;
+        if (role.indexOf('user') !== -1) {
+            modified = toRemove && self._remove(toRemove, 'users', by);
+        } else {
+            modified = toRemove && (role.indexOf('group') !== -1) && self._remove(toRemove, 'groups', by);
+        }
+        resolve(modified ? self._save() : self);
     });
 };
 Permissions._collection = 'permissions';

@@ -196,13 +196,30 @@ Users.create = function (email, password) {
     return self._insert(document, false);
 };
 
+Users.findByEmail = function (email) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        self._findOne({email: email})
+            .then(function (obj) {
+                if (!obj) {
+                    resolve(false);
+                } else {
+                    resolve(obj);
+                }
+            })
+            .catch(function (err) {
+                if (err) {
+                    reject(err);
+                }
+            });
+    });
+};
+
 Users.findByCredentials = function (email, password) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.findOne({email: email, isActive: true}, function (err, user) {
-            if (err) {
-                reject(err);
-            } else {
+        self._findOne({email: email, isActive: true})
+            .then(function (user) {
                 if (!user) {
                     resolve(false);
                 } else {
@@ -213,18 +230,20 @@ Users.findByCredentials = function (email, password) {
                         resolve({fail: true, user: user});
                     }
                 }
-            }
-        });
+            })
+            .catch(function (err) {
+                if (err) {
+                    reject(err);
+                }
+            });
     });
 };
 
 Users.findBySessionCredentials = function (email, key) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.findOne({email: email}, function (err, user) {
-            if (err) {
-                reject(err);
-            } else {
+        self._findOne({email: email})
+            .then(function (user) {
                 if (!user) {
                     resolve(false);
                 } else {
@@ -239,8 +258,12 @@ Users.findBySessionCredentials = function (email, key) {
                         }
                     }
                 }
-            }
-        });
+            })
+            .catch(function (err) {
+                if (err) {
+                    reject(err);
+                }
+            });
     });
 };
 
@@ -250,14 +273,8 @@ Users.areValid = function (emails) {
         if (!emails || emails.length === 0) {
             resolve({});
         } else {
-            var conditions = {
-                email: {$in: emails},
-                isActive: true
-            };
-            self.find(conditions, function (err, docs) {
-                if (err) {
-                    reject(err);
-                } else {
+            self._find({email: {$in: emails}, isActive: true})
+                .then(function (docs) {
                     if (!docs) {
                         resolve({});
                     } else {
@@ -272,26 +289,13 @@ Users.areValid = function (emails) {
                         });
                         resolve(results);
                     }
-                }
-            });
+                })
+                .catch(function (err) {
+                    if (err) {
+                        reject(err);
+                    }
+                });
         }
-    });
-};
-
-Users.findByEmail = function (email) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        self.findOne({email: email}, function (err, obj) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!obj) {
-                    resolve(false);
-                } else {
-                    resolve(obj);
-                }
-            }
-        });
     });
 };
 

@@ -248,8 +248,8 @@ describe('Login', function () {
                         } catch (err) {
                             done(err);
                         }
+                    });
                 });
-            });
         });
 
         it('successfully sets a password, invalidates session and logs user out', function (done) {
@@ -381,6 +381,7 @@ describe('Logout', function () {
     it('removes the authenticated user session successfully', function (done) {
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
+                foundUser.loginSuccess('test', 'test');
                 var request = {
                     method: 'DELETE',
                     url: '/logout',
@@ -388,27 +389,28 @@ describe('Logout', function () {
                         Authorization: ''
                     }
                 };
-                foundUser.loginSuccess('test', 'test').done();
                 request.headers.Authorization = tu.authorizationHeader(foundUser);
+                return request;
+            })
+            .then(function (request) {
                 server.inject(request, function (response) {
                     try {
                         expect(response.statusCode).to.equal(200);
                         Users._findOne({email: 'one@first.com'})
                             .then(function (foundUser) {
                                 expect(foundUser.session).to.not.exist();
-                                foundUser.loginSuccess('test', 'test').done();
-                            })
-                            .done();
-                        done();
+                                foundUser.loginSuccess('test', 'test');
+                                done();
+                            });
                     } catch (err) {
                         done(err);
                     }
                 });
-            }).done();
+            });
     });
 
-    afterEach(function (done) {
-        tu.cleanup(emails, null, null, done);
+        afterEach(function (done) {
+            tu.cleanup(emails, null, null, done);
+        });
     });
-});
 

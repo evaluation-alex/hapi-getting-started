@@ -2,9 +2,11 @@
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
-var CommonMixinAddRemove = require('./../common/extended-model').CommonMixinAddRemove;
-var CommonMixinIsActive = require('./../common/extended-model').CommonMixinIsActive;
-var CommonMixinDescription = require('./../common/extended-model').CommonMixinDescription;
+var AddRemove = require('./../common/extended-model').AddRemove;
+var IsActive = require('./../common/extended-model').IsActive;
+var Description = require('./../common/extended-model').Description;
+var Save = require('./../common/extended-model').Save;
+var CAudit = require('./../common/extended-model').Audit;
 var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var UserGroups = require('./../user-groups/model');
@@ -18,24 +20,18 @@ var Permissions = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
-_.extend(Permissions.prototype, CommonMixinAddRemove);
-_.extend(Permissions.prototype, CommonMixinIsActive);
-_.extend(Permissions.prototype, CommonMixinDescription);
+_.extend(Permissions.prototype, AddRemove);
+_.extend(Permissions.prototype, IsActive);
+_.extend(Permissions.prototype, Description);
+_.extend(Permissions.prototype, new Save(Permissions));
+_.extend(Permissions.prototype, new CAudit(Audit, 'Permissions', '_id'));
 
-Permissions.prototype._audit = function (action, oldValues, newValues, by) {
-    var self = this;
-    return Audit.createPermissionsAudit(self._id, action, oldValues, newValues, by);
-};
 Permissions.prototype.isPermissionFor = function (forAction, onObject) {
     var self = this;
     var ret = (self.action === forAction || self.action === '*') &&
         (self.object === onObject || self.object === '*');
 
     return ret;
-};
-Permissions.prototype._save = function() {
-    var self = this;
-    return Permissions._findByIdAndUpdate(self._id, self);
 };
 Permissions.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
@@ -92,7 +88,9 @@ Permissions.create = function (description, users, groups, action, object, by) {
         };
         self._insert(document, {})
             .then(function (doc) {
-                Audit.createPermissionsAudit(doc._id, 'create', '', doc, by);
+                if (!_.isEmpty(doc)) {
+                    Audit.create('Permissions', doc._id, 'create', null, doc, by);
+                }
                 resolve(doc);
             })
             .catch(function (err) {

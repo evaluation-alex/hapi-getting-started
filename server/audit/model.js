@@ -34,16 +34,6 @@ Audit.createUsersAudit = function (email, action, origValues, newValues, by) {
     return self.create('Users', email, action, origValues, newValues, by);
 };
 
-Audit.createUserGroupsAudit = function (name, action, origValues, newValues, by) {
-    var self = this;
-    return self.create('UserGroups', name, action, origValues, newValues, by);
-};
-
-Audit.createPermissionsAudit = function (name, action, origValues, newValues, by) {
-    var self = this;
-    return self.create('Permissions', name, action, origValues, newValues, by);
-};
-
 Audit.create = function (type, id, action, origValues, newValues, by) {
     var self = this;
     var doc = {

@@ -268,7 +268,7 @@ describe('Login', function () {
                                     return Users._findOne({email: 'test.users@test.api'});
                                 })
                                 .then(function (foundUser) {
-                                    expect(foundUser.resetPwd).to.be.empty();
+                                    expect(foundUser.resetPwd).to.not.exist();
                                     done();
                                 });
                         } catch (err) {

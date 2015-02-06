@@ -228,31 +228,6 @@ describe('Users Model', function () {
         });
     });
 
-    describe('Users.this.signup', function () {
-        it('signup should not create a new session object on the user and should create an audit entry', function (done) {
-            var error = null;
-            Users.findByEmail(firstEmail)
-                .then(function (user) {
-                    return user.signup(user.email);
-                })
-                .then(function (user) {
-                    expect(user.session).to.not.exist();
-                    return Audit.findUsersAudit({userId: user.email, action: 'signup'});
-                })
-                .then(function (userAudit) {
-                    expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].newValues).to.contain(firstEmail);
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .finally(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-    });
-
     describe('Users.this.loginSuccess', function () {
         it('should create a new session object on the user and should create an audit entry', function (done) {
             var error = null;
@@ -307,7 +282,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.loginFail('test');
+                    return user.loginFail('test', 'test');
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
@@ -405,7 +380,7 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.false();
-                    return Audit.findUsersAudit({userId: user.email, action: 'deactivate'});
+                    return Audit.findUsersAudit({userId: user.email, action: 'isActive'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -427,7 +402,7 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.true();
-                    return Audit.findUsersAudit({userId: user.email, action: 'reactivate'});
+                    return Audit.findUsersAudit({userId: user.email, action: 'isActive'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);

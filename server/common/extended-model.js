@@ -101,7 +101,7 @@ var CommonMixinAddRemove = {
             if (!found) {
                 modified = true;
                 self[role].push(memberToAdd);
-                self._audit('add ' + role, null, memberToAdd, by);
+                self._audit('add ' + role, null, memberToAdd, by).done();
             }
         });
         return modified;
@@ -115,18 +115,21 @@ var CommonMixinAddRemove = {
             });
             if (found && found.length > 0) {
                 modified = true;
-                self._audit('remove ' + role, memberToRemove, null, by);
+                self._audit('remove ' + role, memberToRemove, null, by).done();
             }
         });
         return modified;
     }
 };
+
+module.exports.AddRemove = CommonMixinAddRemove;
+
 var CommonMixinIsActive = {
     deactivate: function (by) {
         var self = this;
         return new Promise(function (resolve, reject) {
             if (self.isActive) {
-                self._audit('isActive', true, false, by);
+                self._audit('isActive', true, false, by).done();
                 self.isActive = false;
                 resolve(self._save());
             } else {
@@ -138,7 +141,7 @@ var CommonMixinIsActive = {
         var self = this;
         return new Promise(function (resolve, reject) {
             if (!self.isActive) {
-                self._audit('isActive', false, true, by);
+                self._audit('isActive', false, true, by).done();
                 self.isActive = true;
                 resolve(self._save());
             } else {
@@ -147,12 +150,15 @@ var CommonMixinIsActive = {
         });
     }
 };
+
+module.exports.IsActive = CommonMixinIsActive;
+
 var CommonMixinDescription = {
     updateDesc: function (newDesc, by) {
         var self = this;
         return new Promise(function (resolve, reject) {
             if (self.description !== newDesc) {
-                self._audit('change desc', self.description, newDesc, by);
+                self._audit('change desc', self.description, newDesc, by).done();
                 self.description = newDesc;
                 resolve(self._save());
             } else {
@@ -162,6 +168,26 @@ var CommonMixinDescription = {
     }
 };
 
-module.exports.CommonMixinAddRemove = CommonMixinAddRemove;
-module.exports.CommonMixinIsActive = CommonMixinIsActive;
-module.exports.CommonMixinDescription = CommonMixinDescription;
+module.exports.Description = CommonMixinDescription;
+
+var CommonMixinSave = function (Model) {
+    return {
+        _save: function () {
+            var self = this;
+            return Model._findByIdAndUpdate(self._id, self);
+        }
+    };
+};
+
+module.exports.Save = CommonMixinSave;
+
+var CommonMixinAudit = function (Audit, type, idToUse) {
+    return {
+        _audit: function (action, oldValues, newValues, by) {
+            var self = this;
+            return Audit.create(type, self[idToUse], action, oldValues, newValues, by);
+        }
+    };
+};
+
+module.exports.Audit = CommonMixinAudit;

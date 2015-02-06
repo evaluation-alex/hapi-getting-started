@@ -4,6 +4,9 @@ var Uuid = require('node-uuid');
 var Bcrypt = require('bcrypt');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
+var IsActive = require('./../common/extended-model').IsActive;
+var Save = require('./../common/extended-model').Save;
+var CAudit = require('./../common/extended-model').Audit;
 var Roles = require('./../roles/model');
 var Audit = require('./../audit/model');
 var Promise = require('bluebird');
@@ -20,6 +23,11 @@ var Users = ExtendedModel.extend({
     }
     /* jshint +W064 */
 });
+
+_.extend(Users.prototype, IsActive);
+_.extend(Users.prototype, new Save(Users));
+_.extend(Users.prototype, new CAudit(Audit, 'Users', 'email'));
+
 Users.prototype.hasPermissionsTo = function (performAction, onObject) {
     var ret = false;
     if (this._roles) {
@@ -49,10 +57,6 @@ Users.prototype.hydrateRoles = function () {
         }
     });
 };
-Users.prototype._audit = function (action, oldValues, newValues, by) {
-    var self = this;
-    return Audit.createUsersAudit(self.email, action, oldValues, newValues, by);
-};
 Users.prototype._invalidateSession = function () {
     var self = this;
     self.session = {};
@@ -65,96 +69,50 @@ Users.prototype._newSession = function () {
         timestamp: new Date()
     };
 };
-Users.prototype.signup = function (by) {
+Users.prototype._auditAndSave = function (action, origValues, newValues, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        self._invalidateSession();
-        self._audit('signup', '', self.email + '##' + self.password, by);
-        resolve(self);
-    });
+    self._audit(action, origValues, newValues, by);
+    return self._save();
 };
 Users.prototype.loginSuccess = function (ipaddress, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        self._invalidateSession();
-        self._audit('login success', '', ipaddress, by);
-        self._newSession();
-        self.resetPwd = {};
-        resolve(Users._findByIdAndUpdate(self._id, self));
-    });
+    self._newSession();
+    delete self.resetPwd;
+    return self._auditAndSave('login success', null, ipaddress, by);
 };
 Users.prototype.loginFail = function (ipaddress, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        self._invalidateSession();
-        self._audit('login fail', '', ipaddress, by);
-        resolve(Users._findByIdAndUpdate(self._id, self));
-    });
+    self._invalidateSession();
+    return self._auditAndSave('login fail', null, ipaddress, by);
 };
 Users.prototype.logout = function (ipaddress, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        self._invalidateSession();
-        self._audit('logout', '', ipaddress, by);
-        resolve(Users._findByIdAndUpdate(self._id, self));
-    });
+    self._invalidateSession();
+    return self._auditAndSave('logout', null, ipaddress, by);
 };
 Users.prototype.resetPasswordSent = function (by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
         self.resetPwd = {
             token: Uuid.v4(),
             expires: Date.now() + 10000000
         };
-        self._audit('reset password sent', '', self.resetPwd, by);
-        resolve(Users._findByIdAndUpdate(self._id, self));
-    });
+        return self._auditAndSave('reset password sent', null, self.resetPwd, by);
 };
 Users.prototype.resetPassword = function (newPassword, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        self._invalidateSession();
-        var newHashedPassword = Bcrypt.hashSync(newPassword, 10);
-        self._audit('reset password', self.password, newHashedPassword, by);
-        self.password = newHashedPassword;
-        self.resetPwd = {};
-        resolve(Users._findByIdAndUpdate(self._id, self));
-    });
+    var oldPassword = self.password;
+    var newHashedPassword = Bcrypt.hashSync(newPassword, 10);
+    self.password = newHashedPassword;
+    delete self.resetPwd;
+    return self._auditAndSave('reset password', oldPassword, newHashedPassword, by);
 };
 Users.prototype.updateRoles = function (newRoles, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         if (!_.isEqual(self.roles, newRoles)) {
-            self._audit('update roles', self.roles, newRoles, by);
+            var oldRoles = self.roles;
             self.roles = newRoles;
-            self._invalidateSession();
-            resolve(Users._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
-    });
-};
-Users.prototype.deactivate = function (by) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        if (self.isActive) {
-            self._audit('deactivate', true, false, by);
-            self.isActive = false;
-            self._invalidateSession();
-            resolve(Users._findByIdAndUpdate(self._id, self));
-        } else {
-            resolve(self);
-        }
-    });
-};
-Users.prototype.reactivate = function (by) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        if (!self.isActive) {
-            self._audit('reactivate', false, true, by);
-            self.isActive = true;
-            self._invalidateSession();
-            resolve(Users._findByIdAndUpdate(self._id, self));
+            resolve(self._auditAndSave('update roles', oldRoles, newRoles, by));
         } else {
             resolve(self);
         }
@@ -185,15 +143,28 @@ Users.indexes = [
 
 Users.create = function (email, password) {
     var self = this;
-    var hash = Bcrypt.hashSync(password, 10);
-    var document = {
-        email: email,
-        password: hash,
-        roles: ['readonly'],
-        isActive: true,
-        session: {}
-    };
-    return self._insert(document, false);
+    return new Promise(function (resolve, reject) {
+        var hash = Bcrypt.hashSync(password, 10);
+        var document = {
+            email: email,
+            password: hash,
+            roles: ['readonly'],
+            isActive: true,
+            session: {}
+        };
+        self._insert(document, false)
+            .then(function (user) {
+                if (user) {
+                    Audit.create('Users', email, 'signup', null, user, email);
+                }
+                resolve(user);
+            })
+            .catch(function (err) {
+                if (err) {
+                    reject(err);
+                }
+            });
+    });
 };
 
 Users.findByEmail = function (email) {

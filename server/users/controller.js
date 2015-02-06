@@ -60,6 +60,12 @@ Controller.update = {
         var by = request.auth.credentials.user.email;
         Users._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (user) {
+                if (user) {
+                    user._invalidateSession();
+                }
+                return user;
+            })
+            .then(function (user) {
                 return (user && request.payload.isActive === false) ? user.deactivate(by) : user;
             })
             .then(function (user) {
@@ -101,9 +107,6 @@ Controller.signup = {
         var email = request.payload.email;
         var password = request.payload.password;
         Users.create(email, password)
-            .then(function (user) {
-                return (user) ? user.signup(user.email) : user;
-            })
             .then(function (user) {
                 return (user) ? user.loginSuccess(request.info.remoteAddress, user.email) : user;
             })
@@ -227,6 +230,7 @@ Controller.loginReset = {
         if (key !== token) {
             reply(Boom.badRequest('Invalid email or key.'));
         } else {
+            user._invalidateSession();
             user.resetPassword(request.payload.password, user.email).done();
             reply({message: 'Success.'});
         }

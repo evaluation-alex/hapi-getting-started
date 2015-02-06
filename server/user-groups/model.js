@@ -2,9 +2,11 @@
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
-var CommonMixinAddRemove = require('./../common/extended-model').CommonMixinAddRemove;
-var CommonMixinIsActive = require('./../common/extended-model').CommonMixinIsActive;
-var CommonMixinDescription = require('./../common/extended-model').CommonMixinDescription;
+var AddRemove = require('./../common/extended-model').AddRemove;
+var IsActive = require('./../common/extended-model').IsActive;
+var Description = require('./../common/extended-model').Description;
+var Save = require('./../common/extended-model').Save;
+var CAudit = require('./../common/extended-model').Audit;
 var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var _ = require('lodash');
@@ -23,18 +25,12 @@ var isRoleMember = function (role) {
     return (role.indexOf('member') !== -1 || role.indexOf('both') !== -1);
 };
 
-_.extend(UserGroups.prototype, CommonMixinAddRemove);
-_.extend(UserGroups.prototype, CommonMixinIsActive);
-_.extend(UserGroups.prototype, CommonMixinDescription);
+_.extend(UserGroups.prototype, AddRemove);
+_.extend(UserGroups.prototype, IsActive);
+_.extend(UserGroups.prototype, Description);
+_.extend(UserGroups.prototype, new Save(UserGroups));
+_.extend(UserGroups.prototype, new CAudit(Audit, 'UserGroups', 'name'));
 
-UserGroups.prototype._audit = function (action, oldValues, newValues, by) {
-    var self = this;
-    return Audit.createUserGroupsAudit(self.name, action, oldValues, newValues, by);
-};
-UserGroups.prototype._save = function () {
-    var self = this;
-    return UserGroups._findByIdAndUpdate(self._id, self);
-};
 UserGroups.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
@@ -89,7 +85,9 @@ UserGroups.create = function (name, description, owner) {
         };
         self._insert(document, false)
             .then(function (userGroup) {
-                Audit.createUserGroupsAudit(name, 'create', '', userGroup, owner);
+                if (userGroup) {
+                    Audit.create('UserGroups', name, 'create', null, userGroup, owner);
+                }
                 resolve(userGroup);
             })
             .catch(function (err) {

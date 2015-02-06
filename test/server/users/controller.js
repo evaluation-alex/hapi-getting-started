@@ -48,7 +48,7 @@ describe('Users', function () {
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
-                foundUser.logout('test', 'test');
+                return foundUser.logout('test', 'test');
             })
             .then(function () {
                 var request = {
@@ -74,7 +74,7 @@ describe('Users', function () {
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
-                foundUser.updateRoles([], 'test');
+                return foundUser.updateRoles([], 'test');
             })
             .then(function () {
                 var request = {
@@ -86,7 +86,7 @@ describe('Users', function () {
                 };
                 server.inject(request, function (response) {
                     try {
-                        expect(response.statusCode).to.equal(401);
+                        expect(response.statusCode).to.equal(403);
                         done();
                     } catch (err) {
                         done(err);
@@ -305,7 +305,7 @@ describe('Users', function () {
                         .then(function (foundUser) {
                             expect(foundUser.isActive).to.be.false();
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findUsersAudit({userId: foundUser.email, action: 'deactivate'});
+                            return Audit.findUsersAudit({userId: foundUser.email, action: 'isActive'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -495,7 +495,6 @@ describe('Signup', function () {
                     })
                     .then(function (foundSignup) {
                         expect(foundSignup).to.exist();
-                        expect(foundSignup[0].newValues).to.include('test.signup2@signup.api');
                         return Audit.findUsersAudit({userId: 'test.signup2@signup.api', action: 'login success'});
                     })
                     .then(function (foundLogin) {

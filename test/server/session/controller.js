@@ -227,22 +227,28 @@ describe('Login', function () {
         });
 
         it('returns a bad request if the key does not match', function (done) {
-            var request = {
-                method: 'POST',
-                url: '/login/reset',
-                payload: {
-                    key: 'abcdefgh-ijkl-mnop-qrst-uvwxyz123456',
-                    email: 'test.users@test.api',
-                    password: 'password1234'
-                }
-            };
-            server.inject(request, function (response) {
-                try {
-                    expect(response.statusCode).to.equal(400);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            Users._findOne({email: 'test.users@test.api'})
+                .then(function (foundUser) {
+                    foundUser.resetPasswordSent('test');
+                })
+                .then(function () {
+                    var request = {
+                        method: 'POST',
+                        url: '/login/reset',
+                        payload: {
+                            key: 'abcdefgh-ijkl-mnop-qrst-uvwxyz123456',
+                            email: 'test.users@test.api',
+                            password: 'password1234'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(400);
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
+                });
             });
         });
 

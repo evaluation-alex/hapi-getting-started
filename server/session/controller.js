@@ -88,25 +88,11 @@ Controller.login = {
     }
 };
 
-
 Controller.logout = {
     handler: function (request, reply) {
-        var credentials = request.auth.credentials || {user: {}};
-        Users._findOne({email: credentials.user.email})
-            .then(function (user) {
-                if (!user) {
-                    reply(Boom.notFound('Session not found. Logout and login again'));
-                } else {
-                    user.logout(request.info.remoteAddress, user.email);
-                    reply({message: 'Success.'});
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            })
-            .done();
+        var user = request.auth.credentials.user;
+        user.logout(request.info.remoteAddress, user.email).done();
+        reply({message: 'Success.'});
     }
 };
 

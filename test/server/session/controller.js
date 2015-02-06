@@ -96,11 +96,16 @@ describe('Login', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(401);
-                    Audit.findAudit('Users', 'test.users@test.api', {action: 'login fail'})
+                    AuthAttempts._find({email: 'test.users@test.api'})
+                        .then(function (aa) {
+                            expect(aa).to.exist();
+                            expect(aa.length).to.equal(1);
+                            return Audit.findAudit('Users', 'test.users@test.api', {action: 'login fail'});
+                        })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
+                            done();
                         });
-                    done();
                 } catch (err) {
                     done(err);
                 }

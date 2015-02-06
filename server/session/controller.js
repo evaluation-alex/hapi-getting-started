@@ -41,6 +41,9 @@ var prePopulateUser = function (request, reply) {
                     reply(user);
                 }
             }
+            if (!user || user.fail) {
+                AuthAttempts.create(request.info.remoteAddress, request.payload.email).done();
+            }
         })
         .catch(function (err) {
             if (err) {
@@ -48,17 +51,6 @@ var prePopulateUser = function (request, reply) {
             }
         })
         .done();
-};
-
-var logAttempt = function (request, reply) {
-    if (request.pre.user) {
-        return reply();
-    } else {
-        var ip = request.info.remoteAddress;
-        var email = request.payload.email;
-        AuthAttempts.create(ip, email);
-        return reply(Boom.unauthorized('Username and password combination not found or account is inactive.'));
-    }
 };
 
 var Controller = {
@@ -74,8 +66,7 @@ Controller.login = {
     },
     pre: [
         {assign: 'abuseDetected', method: abuseDetected},
-        {assign: 'user', method: prePopulateUser},
-        {assign: 'logAttempt', method: logAttempt}
+        {assign: 'user', method: prePopulateUser}
     ],
     handler: function (request, reply) {
         var user = request.pre.user;

@@ -253,9 +253,13 @@ describe('Permissions Model', function () {
         before(function (done) {
             groupsToClear.push('permittedTestGroup');
             permissionsToClear.push('isPermittedTest');
+            permissionsToClear.push('isPermittedTest2');
             UserGroups.create('permittedTestGroup', 'testing permissions.isPermitted', 'permittedUser')
                 .then(function () {
                     return Permissions.create('isPermittedTest', ['directlyPermitted'], ['permittedTestGroup'], 'action6', 'object6', 'test5');
+                })
+                .then(function() {
+                    return Permissions.create('isPermittedTest2', ['luckyfellow'], [], '*', '*', 'test5');
                 })
                 .then(function() {
                     done();
@@ -264,6 +268,28 @@ describe('Permissions Model', function () {
                     if (err) {
                         done(err);
                     }
+                });
+        });
+        it('should return true when the action is * or is object is * irrespective of action / object passed', function (done) {
+            var error = null;
+            Permissions.isPermitted('luckyfellow', 'action6', 'object6')
+                .then(function (perms) {
+                    expect(perms).to.be.true();
+                    return Permissions.isPermitted('luckyfellow', '*', 'object6');
+                })
+                .then(function (perms) {
+                    expect(perms).to.be.true();
+                    return Permissions.isPermitted('luckyfellow', 'anything', '*');
+                })
+                .then(function (perms) {
+                    expect(perms).to.be.true();
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    tu.testComplete(done, error);
                 });
         });
         it('should return true when the user is root irrespective of object / action', function (done) {

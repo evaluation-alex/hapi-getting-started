@@ -305,7 +305,7 @@ describe('Users', function () {
                         .then(function (foundUser) {
                             expect(foundUser.isActive).to.be.false();
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findUsersAudit({userId: foundUser.email, action: 'isActive'});
+                            return Audit.findAudit('Users',  foundUser.email, {action: 'isActive'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -335,7 +335,7 @@ describe('Users', function () {
                         .then(function (foundUser) {
                             expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findUsersAudit({userId: foundUser.email, action: 'update roles'});
+                            return Audit.findAudit('Users',  foundUser.email, {action: 'update roles'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -364,7 +364,7 @@ describe('Users', function () {
                     Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findUsersAudit({userId: foundUser.email, action: 'reset password'});
+                            return Audit.findAudit('Users',  foundUser.email, {action: 'reset password'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -491,11 +491,11 @@ describe('Signup', function () {
                     .then(function (foundUser) {
                         expect(foundUser).to.exist();
                         expect(foundUser.session).to.exist();
-                        return Audit.findUsersAudit({userId: 'test.signup2@signup.api', action: 'signup'});
+                        return Audit.findAudit('Users',  'test.signup2@signup.api', {action: 'signup'});
                     })
                     .then(function (foundSignup) {
                         expect(foundSignup).to.exist();
-                        return Audit.findUsersAudit({userId: 'test.signup2@signup.api', action: 'login success'});
+                        return Audit.findAudit('Users',  'test.signup2@signup.api', {action: 'login success'});
                     })
                     .then(function (foundLogin) {
                         expect(foundLogin).to.exist();

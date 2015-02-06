@@ -236,7 +236,7 @@ describe('Users Model', function () {
                     return user.loginSuccess('test', 'test');
                 }).then(function (user) {
                     expect(user.session).to.exist();
-                    return Audit.findUsersAudit({userId: user.email, action: 'login success'});
+                    return Audit.findAudit('Users',  user.email, {action: 'login success'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -261,7 +261,7 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
-                    return Audit.findUsersAudit({userId: user.email, action: 'logout'});
+                    return Audit.findAudit('Users',  user.email, {action: 'logout'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -286,7 +286,7 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
-                    return Audit.findUsersAudit({userId: user.email, action: 'login fail'});
+                    return Audit.findAudit('Users',  user.email, {action: 'login fail'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -310,7 +310,7 @@ describe('Users Model', function () {
                     return user.resetPasswordSent('test');
                 })
                 .then(function (user) {
-                    return Audit.findUsersAudit({userId: user.email, action: 'reset password sent'});
+                    return Audit.findAudit('Users',  user.email, {action: 'reset password sent'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -331,7 +331,7 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
-                    return Audit.findUsersAudit({userId: user.email, action: 'reset password'});
+                    return Audit.findAudit('Users',  user.email, {action: 'reset password'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -355,7 +355,7 @@ describe('Users Model', function () {
                 }).then(function (user) {
                     expect(user.session).to.not.exist();
                     expect(user.roles).to.include(['root']);
-                    return Audit.findUsersAudit({userId: user.email, action: 'update roles'});
+                    return Audit.findAudit('Users',  user.email, {action: 'update roles'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -380,7 +380,7 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.false();
-                    return Audit.findUsersAudit({userId: user.email, action: 'isActive'});
+                    return Audit.findAudit('Users',  user.email, {action: 'isActive'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -402,11 +402,10 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.true();
-                    return Audit.findUsersAudit({userId: user.email, action: 'isActive'});
+                    return Audit.findAudit('Users',  user.email, {action: 'isActive'});
                 })
                 .then(function (userAudit) {
-                    expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].origValues).to.be.false();
+                    expect(userAudit.length).to.equal(2);
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();

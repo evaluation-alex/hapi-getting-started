@@ -42,7 +42,7 @@ describe('UserGroups Model', function () {
                     expect(userGroup.isOwner('test')).to.be.true();
                 })
                 .then(function () {
-                    return Audit.findUserGroupsAudit({name: 'test.group@test.api', action: 'create'});
+                    return Audit.findAudit('UserGroups', 'test.group@test.api', {action: 'create'});
                 })
                 .then(function (ugAudit) {
                     expect(ugAudit.length).to.equal(1);
@@ -305,7 +305,7 @@ describe('UserGroups Model', function () {
                     return ug.addUsers(['alreadyMember'], 'member', 'test3');
                 })
                 .then(function (ug) {
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^add member/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add member/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(0);
@@ -331,7 +331,7 @@ describe('UserGroups Model', function () {
                     return ug.addUsers(['alreadyOwner'], 'owner', 'test3');
                 })
                 .then(function (ug) {
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^add owner/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add owner/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(0);
@@ -357,7 +357,7 @@ describe('UserGroups Model', function () {
                     return ug;
                 })
                 .then(function (ug) {
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^add/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(0);
@@ -379,7 +379,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug.isOwner('newOwner')).to.be.true();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^add owner/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add owner/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(1);
@@ -403,7 +403,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug.isMember('newMember')).to.be.true();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^add member/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add member/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(1);
@@ -429,7 +429,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('newMemberOwner')).to.be.true();
                     expect(ug.isOwner('newMemberOwner')).to.be.true();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^add/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(2);
@@ -445,7 +445,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('newBoth')).to.be.true();
                     expect(ug.isOwner('newBoth')).to.be.true();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^add/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(2);
@@ -479,7 +479,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('notMemberButOwner')).to.be.false();
                     expect(ug.isOwner('notMemberButOwner')).to.be.true();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^remove user/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^remove user/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(0);
@@ -508,7 +508,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('notOwnerButMember')).to.be.true();
                     expect(ug.isOwner('notOwnerButMember')).to.be.false();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^remove user/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^remove user/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(0);
@@ -543,7 +543,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('neither')).to.be.false();
                     expect(ug.isOwner('neither')).to.be.false();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^remove user/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^remove user/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(0);
@@ -573,7 +573,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('owner')).to.be.false();
                     expect(ug.isOwner('owner')).to.be.false();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^remove owner/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^remove owner/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(1);
@@ -604,7 +604,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('member')).to.be.false();
                     expect(ug.isOwner('member')).to.be.false();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^remove member/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^remove member/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(1);
@@ -631,7 +631,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug.isActive).to.be.true();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^isActive/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^isActive/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(0);
@@ -648,7 +648,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug.isActive).to.be.false();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^isActive/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^isActive/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(0);
@@ -671,7 +671,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug.isActive).to.be.false();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^isActive/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^isActive/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(1);
@@ -689,7 +689,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug.isActive).to.be.true();
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^isActive/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^isActive/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(1);
@@ -715,7 +715,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug.description).to.equal('UserGroups.this.updateDesc');
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^change desc/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^change desc/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(0);
@@ -737,7 +737,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug.description).to.equal('UserGroups.this.updateDescnew');
-                    return Audit.findUserGroupsAudit({name: ug.name, action: {$regex: /^change desc/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^change desc/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(1);

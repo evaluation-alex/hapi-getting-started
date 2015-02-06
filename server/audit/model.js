@@ -29,11 +29,6 @@ Audit.indexes = [
     [{objectChangedType: 1, objectChangedId: 1, action: 1}]
 ];
 
-Audit.createUsersAudit = function (email, action, origValues, newValues, by) {
-    var self = this;
-    return self.create('Users', email, action, origValues, newValues, by);
-};
-
 Audit.create = function (type, id, action, origValues, newValues, by) {
     var self = this;
     var doc = {
@@ -48,20 +43,11 @@ Audit.create = function (type, id, action, origValues, newValues, by) {
     return self._insert(doc, undefined);
 };
 
-Audit.findUsersAudit = function (conditions) {
+Audit.findAudit = function(type, id, conditions) {
     var self = this;
-    return self._find(_.merge(_.omit(conditions, ['userId']), {
-        objectChangedType: 'Users',
-        objectChangedId: conditions.userId
-    }));
-};
-
-Audit.findUserGroupsAudit = function (conditions) {
-    var self = this;
-    return self._find(_.merge(_.omit(conditions, ['name']), {
-        objectChangedType: 'UserGroups',
-        objectChangedId: conditions.name
-    }));
+    conditions.objectChangedType = type;
+    conditions.objectChangedId = id;
+    return self._find(conditions);
 };
 
 Audit.findPermissionsAudit = function (conditions) {

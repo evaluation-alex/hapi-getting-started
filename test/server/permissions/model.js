@@ -42,7 +42,7 @@ describe('Permissions Model', function () {
                 .then(function (p) {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Permissions);
-                    return Audit.findPermissionsAudit({_id: p._id});
+                    return Audit.findAudit('Permissions',  p._id, {});
                 })
                 .then(function (paudit) {
                     expect(paudit).to.exist();
@@ -371,7 +371,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.groups, 'newUserGroup')).to.exist();
-                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^add group/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^add group/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -384,7 +384,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.users, 'newUser')).to.exist();
-                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^add user/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^add user/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -407,7 +407,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.groups, 'testPermissionsAddUsers')).to.exist();
-                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^add group/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^add group/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -419,7 +419,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.users, 'directlyPermitted')).to.exist();
-                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^add user/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^add user/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -456,7 +456,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.groups, 'unknownGroup')).to.not.exist();
-                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^remove group/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^remove group/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -468,7 +468,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.users, 'unknownUser')).to.not.exist();
-                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^remove user/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^remove user/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -490,7 +490,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.groups, 'testPermissionsRemoveUsers')).to.not.exist();
-                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^remove group/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^remove group/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -503,7 +503,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.users, 'directlyPermittedActive')).to.not.exist();
-                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^remove user/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^remove user/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -544,7 +544,7 @@ describe('Permissions Model', function () {
             activated.reactivate('test')
                 .then(function (a) {
                     expect(a.isActive).to.be.true();
-                    return Audit.findPermissionsAudit({_id: a._id, action: {$regex: /^isActive/}});
+                    return Audit.findAudit('Permissions',  a._id, {action: {$regex: /^isActive/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -554,7 +554,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (d) {
                     expect(d.isActive).to.be.false();
-                    return Audit.findPermissionsAudit({_id: d._id, action: {$regex: /^isActive/}});
+                    return Audit.findAudit('Permissions',  d._id, {action: {$regex: /^isActive/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -572,7 +572,7 @@ describe('Permissions Model', function () {
             activated.deactivate('test')
                 .then(function (a) {
                     expect(a.isActive).to.be.false();
-                    return Audit.findPermissionsAudit({_id: a._id, action: {$regex: /^isActive/}});
+                    return Audit.findAudit('Permissions',  a._id, {action: {$regex: /^isActive/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -583,7 +583,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (d) {
                     expect(d.isActive).to.be.true();
-                    return Audit.findPermissionsAudit({_id: d._id, action: {$regex: /^isActive/}});
+                    return Audit.findAudit('Permissions',  d._id, {action: {$regex: /^isActive/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -615,7 +615,7 @@ describe('Permissions Model', function () {
             testPerm.updateDesc(testPerm.description, 'test6')
                 .then(function (p) {
                     expect(p.description).to.equal('updateDesc1');
-                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^change desc/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^change desc/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -633,7 +633,7 @@ describe('Permissions Model', function () {
             testPerm.updateDesc('newDescription', 'test6')
                 .then(function (p) {
                     expect(p.description).to.equal('newDescription');
-                    return Audit.findPermissionsAudit({_id: p._id, action: {$regex: /^change desc/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^change desc/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);

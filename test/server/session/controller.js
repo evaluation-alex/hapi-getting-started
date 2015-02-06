@@ -96,7 +96,7 @@ describe('Login', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(401);
-                    Audit.findUsersAudit({userId: 'test.users@test.api', action: 'login fail'})
+                    Audit.findAudit('Users', 'test.users@test.api', {action: 'login fail'})
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
                         });
@@ -140,7 +140,7 @@ describe('Login', function () {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.exist();
                     expect(response.payload).to.contain('test.users@test.api');
-                    Audit.findUsersAudit({userId: 'test.users@test.api', action: 'login success'})
+                    Audit.findAudit('Users', 'test.users@test.api', {action: 'login success'})
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
                         });
@@ -184,7 +184,7 @@ describe('Login', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.contain('Success');
-                    Audit.findUsersAudit({userId: 'test.users@test.api', action: 'reset password sent'})
+                    Audit.findAudit('Users', 'test.users@test.api', {action: 'reset password sent'})
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
                             return Users._findOne({email: 'test.users@test.api'});
@@ -262,7 +262,7 @@ describe('Login', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             expect(response.payload).to.contain('Success');
-                            Audit.findUsersAudit({userId: 'test.users@test.api', action: 'reset password'})
+                            Audit.findAudit('Users', 'test.users@test.api', {action: 'reset password'})
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
                                     return Users._findOne({email: 'test.users@test.api'});

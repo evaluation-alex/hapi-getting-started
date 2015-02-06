@@ -5,3 +5,4 @@ logs/*
 mongouser.txt
 .coveralls.yml
 .opts
+npm-debug.log

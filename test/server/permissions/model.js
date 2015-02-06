@@ -35,10 +35,7 @@ describe('Permissions Model', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
             permissionsToClear.push('newPermission');
             var error = null;
-            Permissions.create('newPermission', [{
-                user: 'testUser1',
-                type: 'user'
-            }], 'someAction', 'someObject', 'test')
+            Permissions.create('newPermission', ['testUser1'], [], 'someAction', 'someObject', 'test')
                 .then(function (p) {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Permissions);
@@ -60,19 +57,13 @@ describe('Permissions Model', function () {
         it('should not allow two objects with the same action, object set on it', function (done) {
             var error = null;
             permissionsToClear.push('dupePermission');
-            Permissions.create('dupePermission', [{
-                user: 'testUser2 ',
-                type: 'user'
-            }], 'dupeAction', 'dupeObject', 'test')
+            Permissions.create('dupePermission', ['testUser2'], [], 'dupeAction', 'dupeObject', 'test')
                 .then(function (p) {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Permissions);
                 })
                 .then(function () {
-                    Permissions.create('dupePermission', [{
-                        user: 'testUser1',
-                        type: 'user'
-                    }], 'dupeAction', 'dupeObject', 'test')
+                    Permissions.create('dupePermission', ['testUser2'], [], 'dupeAction', 'dupeObject', 'test')
                         .then(function (p) {
                             expect(p).to.not.exist();
                         })
@@ -92,16 +83,12 @@ describe('Permissions Model', function () {
 
     describe('Permissions.findByDescription', function () {
         before(function (done) {
-            var userToInclude = [{
-                user: 'testUser2 ',
-                type: 'user'
-            }];
             permissionsToClear.push('search1');
             permissionsToClear.push('search2');
             permissionsToClear.push('search3');
-            var p1 = Permissions.create('search1', userToInclude, 'action1', 'object1', 'test5');
-            var p2 = Permissions.create('search2', userToInclude, 'action2', 'object2', 'test5');
-            var p3 = Permissions.create('search3', userToInclude, 'action3', 'object3', 'test5');
+            var p1 = Permissions.create('search1', ['testUser2'], [], 'action1', 'object1', 'test5');
+            var p2 = Permissions.create('search2', ['testUser2'], [], 'action2', 'object2', 'test5');
+            var p3 = Permissions.create('search3', ['testUser2'], [], 'action3', 'object3', 'test5');
             Promise.join(p1, p2, p3)
                 .then(function (p11, p12, p13) {
                     done();

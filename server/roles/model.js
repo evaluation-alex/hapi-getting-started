@@ -50,17 +50,19 @@ Roles.create = function (name, permissions) {
 Roles.findByName = function (names) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.find({name: {$in: names}}, function (err, results) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!results) {
+        self._find({name: {$in: names}})
+            .then(function (roles) {
+                if (!roles) {
                     reject(new Error('no roles found'));
                 } else {
-                    resolve(results);
+                    resolve(roles);
                 }
-            }
-        });
+            })
+            .catch(function (err) {
+                if (err) {
+                    reject(err);
+                }
+            });
     });
 };
 

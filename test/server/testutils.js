@@ -223,6 +223,20 @@ function cleanupAuthAttempts () {
     });
 }
 
+var cleanupRoles = function(roles) {
+    return new Promise(function (resolve, reject) {
+        Roles.remove({name: {$in : roles}}, function (err) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(true);
+            }
+        });
+    });
+};
+
+module.exports.cleanupRoles = cleanupRoles;
+
 function cleanupConnect (cb) {
     BaseModel.disconnect();
     cb();

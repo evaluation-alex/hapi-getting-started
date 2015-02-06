@@ -47,7 +47,6 @@ describe('Mailer', function () {
         Mailer.sendEmail(options, 'server/users/welcome.hbs.md', payload)
             .then(function (info) {
                 expect(info).to.exist();
-                done();
             })
             .then(function() {
                 return Mailer.sendEmail(options, 'server/users/welcome.hbs.md', payload);

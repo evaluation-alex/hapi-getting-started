@@ -39,11 +39,11 @@ Controller.findOne = function (component, model) {
         handler: function (request, reply) {
             var id = BaseModel.ObjectID(request.params.id);
             model._findOne({_id: id})
-                .then(function (permission) {
-                    if (!permission) {
-                        reply(Boom.notFound(component + ' (' + id + ' ) not found'));
+                .then(function (f) {
+                    if (!f) {
+                        reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
                     } else {
-                        reply(permission);
+                        reply(f);
                     }
                 })
                 .catch(function (err) {

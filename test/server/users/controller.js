@@ -406,6 +406,28 @@ describe('Users', function () {
                 }
             });
         });
+        it('should return not found if the user is not found', function (done) {
+            var request = {
+                method: 'PUT',
+                url: '/users/' + id.replace('a','0').replace('b','0').replace('c','0').replace('d','0').replace('e','0').replace('f', '0'),
+                headers: {
+                    Authorization: authheader
+                },
+                payload: {
+                    isActive: true,
+                    roles: ['readonly'],
+                    password: 'newpassword'
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
     });
 
     afterEach(function (done) {

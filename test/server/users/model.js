@@ -186,6 +186,52 @@ describe('Users Model', function () {
                     tu.testComplete(done, error);
                 });
         });
+        it('should have _roles to be an empty object / not exist when there are no roles', function (done) {
+            var error = null;
+            Users.findByEmail(firstEmail)
+                .then(function (user) {
+                    user.roles = [];
+                    return user.hydrateRoles();
+                })
+                .then(function (decoratedUser) {
+                    expect(decoratedUser._roles).to.be.empty();
+                    decoratedUser.roles = ['readonly'];
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .finally(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should do nothing if already populated or no roles defined', function (done) {
+            var error = null;
+            Users.findByEmail(firstEmail)
+                .then(function (user) {
+                    delete user.roles;
+                    return user;
+                })
+                .then(function (user) {
+                    return user.hydrateRoles();
+                })
+                .then(function (decoratedUser) {
+                    expect(decoratedUser._roles).to.be.undefined();
+                    decoratedUser.roles = ['readonly'];
+                    return decoratedUser.hydrateRoles();
+                })
+                .then(function (decoratedUser) {
+                    expect(decoratedUser._roles.length).to.equal(1);
+                    return decoratedUser.hydrateRoles();
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .finally(function () {
+                    tu.testComplete(done, error);
+                });
+        });
     });
 
     describe('Users.this.hasPermissionsTo', function () {

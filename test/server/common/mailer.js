@@ -32,7 +32,7 @@ describe('Mailer', function () {
     });
 
 
-    it('sends an email', function (done) {
+    it('sends an email, if sent repeatedly, hits the cache', function (done) {
         var options = {
             subject: 'Your ' + Config.projectName + ' account',
             to: {
@@ -45,6 +45,13 @@ describe('Mailer', function () {
             password: 'password'
         };
         Mailer.sendEmail(options, 'server/users/welcome.hbs.md', payload)
+            .then(function (info) {
+                expect(info).to.exist();
+                done();
+            })
+            .then(function() {
+                return Mailer.sendEmail(options, 'server/users/welcome.hbs.md', payload);
+            })
             .then(function (info) {
                 expect(info).to.exist();
                 done();

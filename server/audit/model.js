@@ -50,12 +50,4 @@ Audit.findAudit = function(type, id, conditions) {
     return self._find(conditions);
 };
 
-Audit.findPermissionsAudit = function (conditions) {
-    var self = this;
-    return self._find(_.merge(_.omit(conditions, ['_id']), {
-        objectChangedType: 'Permissions',
-        objectChangedId: conditions._id
-    }));
-};
-
 module.exports = Audit;

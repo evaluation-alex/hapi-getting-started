@@ -33,7 +33,6 @@ describe('Permissions Model', function () {
 
     describe('Permissions.create', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
-            permissionsToClear.push('newPermission');
             var error = null;
             Permissions.create('newPermission', ['testUser1'], [], 'someAction', 'someObject', 'test')
                 .then(function (p) {
@@ -51,12 +50,12 @@ describe('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    permissionsToClear.push('newPermission');
                     tu.testComplete(done, error);
                 });
         });
         it('should not allow two objects with the same action, object set on it', function (done) {
             var error = null;
-            permissionsToClear.push('dupePermission');
             Permissions.create('dupePermission', ['testUser2'], [], 'dupeAction', 'dupeObject', 'test')
                 .then(function (p) {
                     expect(p).to.exist();
@@ -76,6 +75,7 @@ describe('Permissions Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    permissionsToClear.push('dupePermission');
                     tu.testComplete(done, error);
                 });
         });
@@ -83,9 +83,6 @@ describe('Permissions Model', function () {
 
     describe('Permissions.findByDescription', function () {
         before(function (done) {
-            permissionsToClear.push('search1');
-            permissionsToClear.push('search2');
-            permissionsToClear.push('search3');
             var p1 = Permissions.create('search1', ['testUser2'], [], 'action1', 'object1', 'test5');
             var p2 = Permissions.create('search2', ['testUser2'], [], 'action2', 'object2', 'test5');
             var p3 = Permissions.create('search3', ['testUser2'], [], 'action3', 'object3', 'test5');
@@ -152,14 +149,16 @@ describe('Permissions Model', function () {
                     tu.testComplete(done, error);
                 });
         });
+        after(function(done) {
+            permissionsToClear.push('search1');
+            permissionsToClear.push('search2');
+            permissionsToClear.push('search3');
+            done();
+        });
     });
 
     describe('Permissions.findAllPermissionsForUser', function () {
         before(function (done) {
-            groupsToClear.push('permissionsTest1');
-            groupsToClear.push('permissionsTest2');
-            permissionsToClear.push('findForUser1');
-            permissionsToClear.push('findForUser2');
             UserGroups.create('permissionsTest1', 'testing permissions for users', 'permissionedUser')
                 .then(function (u1) {
                     return u1.addUsers(['testUserActive'], 'both', 'test5');
@@ -247,13 +246,17 @@ describe('Permissions Model', function () {
                     tu.testComplete(done, error);
                 });
         });
+        after(function (done) {
+            groupsToClear.push('permissionsTest1');
+            groupsToClear.push('permissionsTest2');
+            permissionsToClear.push('findForUser1');
+            permissionsToClear.push('findForUser2');
+            done();
+        });
     });
 
     describe('Permissions.isPermitted', function () {
         before(function (done) {
-            groupsToClear.push('permittedTestGroup');
-            permissionsToClear.push('isPermittedTest');
-            permissionsToClear.push('isPermittedTest2');
             UserGroups.create('permittedTestGroup', 'testing permissions.isPermitted', 'permittedUser')
                 .then(function () {
                     return Permissions.create('isPermittedTest', ['directlyPermitted'], ['permittedTestGroup'], 'action6', 'object6', 'test5');
@@ -348,14 +351,16 @@ describe('Permissions Model', function () {
                     tu.testComplete(done, error);
                 });
         });
+        after (function(done) {
+            groupsToClear.push('permittedTestGroup');
+            permissionsToClear.push('isPermittedTest');
+            permissionsToClear.push('isPermittedTest2');
+            done();
+        });
     });
 
     describe('Permissions.this.addUsers', function () {
         before(function (done) {
-            groupsToClear.push('testPermissionsAddUsers');
-            permissionsToClear.push('addUsers1');
-            permissionsToClear.push('addUsers2');
-            permissionsToClear.push('addUsers3');
             UserGroups.create('testPermissionsAddUsers', 'testing permissions.addUsers', 'test5')
                 .then(function() {
                     return Permissions.create('addUsers1', ['directlyPermitted'], ['testPermissionsAddUsers'], 'action7', 'object7', 'test5');
@@ -445,11 +450,17 @@ describe('Permissions Model', function () {
                     tu.testComplete(done, error);
                 });
         });
+        after(function (done) {
+            groupsToClear.push('testPermissionsAddUsers');
+            permissionsToClear.push('addUsers1');
+            permissionsToClear.push('addUsers2');
+            permissionsToClear.push('addUsers3');
+            done();
+        });
     });
 
     describe('Permissions.this.removeUsers', function () {
         before(function (done) {
-            permissionsToClear.push('removeUsers1');
             Permissions.create('removeUsers1', ['directlyPermittedActive'], ['testPermissionsRemoveUsers'], 'action10', 'object10', 'test5')
                 .then(function () {
                     done();
@@ -530,13 +541,15 @@ describe('Permissions Model', function () {
                     tu.testComplete(done, error);
                 });
         });
+        after(function (done) {
+            permissionsToClear.push('removeUsers1');
+            done();
+        });
     });
 
     describe('Permissions.this.activate/deactivate', function () {
         var activated = null, deactivated = null;
         before(function (done) {
-            permissionsToClear.push('activated');
-            permissionsToClear.push('deactivated');
             var p1 = Permissions.create('activated', ['testUser1'], [], 'someOtherAction', 'someOtherObject', 'test');
             var p2 = Permissions.create('deactivated', ['testUser1'], [], 'someNewAction', 'someNewObject', 'test');
             Promise.join(p1, p2, function (p11, p12) {
@@ -610,13 +623,16 @@ describe('Permissions Model', function () {
                     tu.testComplete(done, error);
                 });
         });
+        after(function (done) {
+            permissionsToClear.push('activated');
+            permissionsToClear.push('deactivated');
+            done();
+        });
     });
 
     describe('Permissions.this.updateDesc', function () {
         var testPerm = null;
         before(function (done) {
-            permissionsToClear.push('updateDesc1');
-            permissionsToClear.push('newDescription');
             Permissions.create('updateDesc1', ['testUser1'], [], 'descAction', 'descObject', 'test')
                 .then(function (p) {
                     testPerm = p;
@@ -659,6 +675,11 @@ describe('Permissions Model', function () {
                 .done(function () {
                     tu.testComplete(done, error);
                 });
+        });
+        after(function (done) {
+            permissionsToClear.push('updateDesc1');
+            permissionsToClear.push('newDescription');
+            done();
         });
     });
 

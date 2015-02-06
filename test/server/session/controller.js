@@ -336,12 +336,13 @@ describe('Logout', function () {
                 Authorization: tu.authorizationHeader2('test.not.created@logout.api', '123')
             }
         };
-        emails.push('test.not.created@logout.api');
         server.inject(request, function (response) {
             try {
                 expect(response.statusCode).to.equal(401);
+                emails.push('test.not.created@logout.api');
                 done();
             } catch (err) {
+                emails.push('test.not.created@logout.api');
                 done(err);
             }
         });
@@ -355,7 +356,6 @@ describe('Logout', function () {
                 Authorization: ''
             }
         };
-        emails.push('one@first.com');
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
                 foundUser.loginSuccess('test', 'test').done();

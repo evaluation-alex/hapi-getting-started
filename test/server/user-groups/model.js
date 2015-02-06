@@ -32,7 +32,6 @@ describe('UserGroups Model', function () {
     describe('UserGroups.create', function () {
         it('should create a new document when it succeeds, the creator should be owner and member and have appropriate audit entries', function (done) {
             var error = null;
-            groupsToCleanup.push('test.group@test.api');
             UserGroups.create('test.group@test.api', 'creating groups', 'test')
                 .then(function (userGroup) {
                     expect(userGroup).to.exist();
@@ -53,12 +52,12 @@ describe('UserGroups Model', function () {
                     expect(err).to.not.exist();
                 })
                 .done(function () {
+                    groupsToCleanup.push('test.group@test.api');
                     tu.testComplete(done, null);
                 });
         });
         it('should not allow two groups with the name', function (done) {
             var error = null;
-            groupsToCleanup.push('test.dupe@test.api');
             UserGroups.create('test.dupe@test.api', 'testing dupes', 'test')
                 .then(function (userGroup) {
                     return UserGroups.create('test.dupe@test.api', 'testing dupes', 'test')
@@ -75,6 +74,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('test.dupe@test.api');
                     tu.testComplete(done, error);
                 });
         });
@@ -82,7 +82,6 @@ describe('UserGroups Model', function () {
 
     describe('UserGroups.findByName', function () {
         before(function (done) {
-            groupsToCleanup.push('test.search@test.api');
             UserGroups.create('test.search@test.api', 'testing search', 'test')
                 .done(function () {
                     done();
@@ -142,13 +141,15 @@ describe('UserGroups Model', function () {
                 .done(function () {
                     tu.testComplete(done, error);
                 });
+        })
+        after(function (done) {
+            groupsToCleanup.push('test.search@test.api');
+            done();
         });
     });
 
     describe('UserGroups.findGroupsForUser', function () {
         before(function (done) {
-            groupsToCleanup.push('test.search.user@test.api');
-            groupsToCleanup.push('test.search2.user@test.api');
             UserGroups.create('test.search.user@test.api', 'testing findGroupForUser', 'test2')
                 .then(function (ug) {
                     ug.members.push('someUser');
@@ -214,6 +215,11 @@ describe('UserGroups Model', function () {
                     tu.testComplete(done, error);
                 });
         });
+        after(function (done) {
+            groupsToCleanup.push('test.search.user@test.api');
+            groupsToCleanup.push('test.search2.user@test.api');
+            done();
+        });
     });
 
     describe('UserGroups.isValid', function () {
@@ -234,7 +240,6 @@ describe('UserGroups Model', function () {
         });
         it ('should return with not an owner when the owner argument is not an owner (active or otherwise)', function (done) {
             var error = null;
-            groupsToCleanup.push('isValidTest');
             UserGroups.create('isValidTest', 'isValidTest', 'test5')
                 .then(function(ug) {
                     return UserGroups.isValid(ug._id, 'unknown');
@@ -248,12 +253,12 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('isValidTest');
                     tu.testComplete(done, error);
                 });
         });
         it ('should return valid when the group exists and the owner is an active owner', function (done) {
             var error = null;
-            groupsToCleanup.push('isValidTest2');
             UserGroups.create('isValidTest2', 'isValidTest2', 'test5')
                 .then(function(ug) {
                     return UserGroups.isValid(ug._id, 'test5');
@@ -267,12 +272,12 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('isValidTest2');
                     tu.testComplete(done, error);
                 });
         });
         it ('should return valid when the group exists and we pass root as owner', function (done) {
             var error = null;
-            groupsToCleanup.push('isValidTest3');
             UserGroups.create('isValidTest3', 'isValidTest3', 'test5')
                 .then(function(ug) {
                     return UserGroups.isValid(ug._id, 'root');
@@ -286,6 +291,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('isValidTest3');
                     tu.testComplete(done, error);
                 });
         });
@@ -293,7 +299,6 @@ describe('UserGroups Model', function () {
 
     describe('UserGroups.this.addUsers', function () {
         it('should do nothing if the user is already present as a member and you add user as a member', function (done) {
-            groupsToCleanup.push('addUsersTest1');
             var error = null;
             UserGroups.create('addUsersTest1', 'UserGroups.this.addMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
@@ -315,11 +320,11 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('addUsersTest1');
                     tu.testComplete(done, error);
                 });
         });
         it('should do nothing if the user is already present as a owner and you add user as a owner', function (done) {
-            groupsToCleanup.push('addUsersTest2');
             var error = null;
             UserGroups.create('addUsersTest2', 'UserGroups.this.addOwnerAlreadyPresent', 'test3')
                 .then(function (ug) {
@@ -341,11 +346,11 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('addUsersTest2');
                     tu.testComplete(done, error);
                 });
         });
         it('should do nothing if the user is already present as owner AND member and you add as owner AND member', function (done) {
-            groupsToCleanup.push('addUsersTest3');
             var error = null;
             UserGroups.create('addUsersTest3', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
@@ -367,11 +372,11 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('addUsersTest3');
                     tu.testComplete(done, error);
                 });
         });
         it('should add the user as a owner who was not already present and added with the owner role', function (done) {
-            groupsToCleanup.push('addUsersTest4');
             var error = null;
             UserGroups.create('addUsersTest4', 'UserGroups.this.addOwnerNotPresent', 'test3')
                 .then(function (ug) {
@@ -391,11 +396,11 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('addUsersTest4');
                     tu.testComplete(done, error);
                 });
         });
         it('should add the user as a member who was not already present and added with the member role', function (done) {
-            groupsToCleanup.push('addUsersTest5');
             var error = null;
             UserGroups.create('addUsersTest5', 'UserGroups.this.addMemberNotPresent', 'test3')
                 .then(function (ug) {
@@ -415,12 +420,11 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('addUsersTest5');
                     tu.testComplete(done, error);
                 });
         });
         it('should add the user as a member and owner who was not already present and added with the member and owner / both role', function (done) {
-            groupsToCleanup.push('addUsersTest6.0');
-            groupsToCleanup.push('addUsersTest6.1');
             var error = null;
             UserGroups.create('addUsersTest6.0', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
                 .then(function (ug) {
@@ -457,6 +461,8 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('addUsersTest6.0');
+                    groupsToCleanup.push('addUsersTest6.1');
                     tu.testComplete(done, error);
                 });
         });
@@ -464,7 +470,6 @@ describe('UserGroups Model', function () {
 
     describe('UserGroups.this.removeUsers', function () {
         it('should do nothing if the user is not already present as a member and you remove user as a member', function (done) {
-            groupsToCleanup.push('removeUsersTest1');
             var error = null;
             UserGroups.create('removeUsersTest1', 'UserGroups.this.removeMemberNotPresent', 'test4')
                 .then(function (ug) {
@@ -489,11 +494,11 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('removeUsersTest1');
                     tu.testComplete(done, error);
                 });
         });
         it('should do nothing if the user is not already present as a owner and you remove user as a owner', function (done) {
-            groupsToCleanup.push('removeUsersTest2');
             var error = null;
             UserGroups.create('removeUsersTest2', 'UserGroups.this.removeOwnerNotPresent', 'test4')
                 .then(function (ug) {
@@ -518,11 +523,11 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('removeUsersTest2');
                     tu.testComplete(done, error);
                 });
         });
         it('should do nothing if the user is not present as owner OR member and you remove as owner AND member', function (done) {
-            groupsToCleanup.push('removeUsersTest3');
             var error = null;
             UserGroups.create('removeUsersTest3', 'UserGroups.this.removeBothNotPresent', 'test4')
                 .then(function (ug) {
@@ -553,12 +558,11 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('removeUsersTest3');
                     tu.testComplete(done, error);
                 });
         });
         it('should remove the users owner role if already present the owner role', function (done) {
-            groupsToCleanup.push('removeUsersTest4.0');
-            groupsToCleanup.push('removeUsersTest4.1');
             var error = null;
             UserGroups.create('removeUsersTest4.0', 'UserGroups.this.removeOwner', 'test4')
                 .then(function (ug) {
@@ -584,12 +588,12 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('removeUsersTest4.0');
+                    groupsToCleanup.push('removeUsersTest4.1');
                     tu.testComplete(done, error);
                 });
         });
         it('should deactivate the user as a member if already present with the member role', function (done) {
-            groupsToCleanup.push('removeUsersTest5.0');
-            groupsToCleanup.push('removeUsersTest5.1');
             var error = null;
             UserGroups.create('removeUsersTest5.0', 'UserGroups.this.removeMember', 'test4')
                 .then(function (ug) {
@@ -615,6 +619,8 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('removeUsersTest5.0');
+                    groupsToCleanup.push('removeUsersTest5.1');
                     tu.testComplete(done, error);
                 });
         });
@@ -622,8 +628,6 @@ describe('UserGroups Model', function () {
 
     describe('UserGroups.this.activate/deactivate', function () {
         it('should do nothing if the user group is already inactive/active and you deactivate/activate', function (done) {
-            groupsToCleanup.push('activateGroupDoNothing');
-            groupsToCleanup.push('deactivateGroupDoNothing');
             var error = null;
             UserGroups.create('activateGroupDoNothing', 'UserGroups.this.activate', 'test5')
                 .then(function (ug) {
@@ -658,12 +662,12 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('activateGroupDoNothing');
+                    groupsToCleanup.push('deactivateGroupDoNothing');
                     tu.testComplete(done, error);
                 });
         });
         it('should mark the group as inactive / active when you deactivate / activate', function (done) {
-            groupsToCleanup.push('activateGroup');
-            groupsToCleanup.push('deactivateGroup');
             var error = null;
             UserGroups.create('deactivateGroup', 'UserGroups.this.deactivate', 'test5')
                 .then(function (ug) {
@@ -700,6 +704,8 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('activateGroup');
+                    groupsToCleanup.push('deactivateGroup');
                     tu.testComplete(done, error);
                 });
         });
@@ -707,7 +713,6 @@ describe('UserGroups Model', function () {
 
     describe('UserGroups.this.updateDesc', function () {
         it('should do nothing if there is no change in the description', function (done) {
-            groupsToCleanup.push('updateDesc1');
             var error = null;
             UserGroups.create('updateDesc1', 'UserGroups.this.updateDesc', 'test6')
                 .then(function (ug) {
@@ -725,11 +730,11 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('updateDesc1');
                     tu.testComplete(done, error);
                 });
         });
         it('should update to the new description', function (done) {
-            groupsToCleanup.push('updateDesc2');
             var error = null;
             UserGroups.create('updateDesc2', 'UserGroups.this.updateDesc', 'test6')
                 .then(function (ug) {
@@ -748,6 +753,7 @@ describe('UserGroups Model', function () {
                     error = err;
                 })
                 .done(function () {
+                    groupsToCleanup.push('updateDesc2');
                     tu.testComplete(done, error);
                 });
         });

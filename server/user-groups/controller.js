@@ -36,48 +36,37 @@ var validAndPermitted = function (request, reply) {
 };
 
 var validUsers = function (request, reply) {
-    var msg1 = 'invalidMembers = ';
-    var msg2 = 'invalidOwners = ';
-    var msg = '';
-    Users.areValid(request.payload.addedMembers)
-        .then(function (validatedMembers) {
-            if (request.payload.addedMembers) {
-                _.forEach(request.payload.addedMembers, function (a) {
-                    if (!validatedMembers[a]) {
-                        msg1 += a + ',';
-                    }
-                });
-            }
-            return Users.areValid(request.payload.addedOwners);
-        })
-        .then(function (validatedOwners) {
-            if (request.payload.addedOwners) {
-                _.forEach(request.payload.addedOwners, function (a) {
-                    if (!validatedOwners[a]) {
-                        msg2 += a + ',';
-                    }
-                });
-            }
-        })
-        .then(function () {
-            if (msg1.indexOf(',') > -1) {
-                msg += msg1;
-            }
-            if (msg2.indexOf(',') > -1) {
-                msg += msg2;
-            }
-            if (msg.indexOf('invalid') > -1) {
-                reply(Boom.badData(msg));
-            } else {
-                reply();
-            }
-        })
-        .catch(function (err) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            }
-        })
-        .done();
+    if ((request.payload.addedMembers && request.payload.addedMembers.length > 0) ||
+        (request.payload.addedOwners && request.payload.addedOwners.length > 0)) {
+        var msg = 'invalid users being added : ';
+        var toBeAdded = [];
+        toBeAdded.push(request.payload.addedMembers);
+        toBeAdded.push(request.payload.addedOwners);
+        toBeAdded = _.flatten(toBeAdded);
+        Users.areValid(toBeAdded)
+            .then(function (validated) {
+                    _.forEach(toBeAdded, function (a) {
+                        if (!validated[a]) {
+                            msg += a + ',';
+                        }
+                    });
+            })
+            .then(function () {
+                if (msg.indexOf(',') > -1) {
+                    reply(Boom.badData(msg));
+                } else {
+                    reply();
+                }
+            })
+            .catch(function (err) {
+                if (err) {
+                    reply(Boom.badImplementation(err));
+                }
+            })
+            .done();
+    } else {
+        reply();
+    }
 };
 
 var groupCheck = function (request, reply) {

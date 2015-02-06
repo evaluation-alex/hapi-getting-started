@@ -484,13 +484,14 @@ describe('Signup', function () {
                 password: 'p4ssw0rd'
             }
         };
-        emails.push(request.payload.email);
         server.inject(request, function (response) {
             try {
                 Fs.renameSync('./server/emails/welcome2.hbs.md', './server/emails/welcome.hbs.md');
                 expect(response.statusCode).to.equal(500);
+                emails.push(request.payload.email);
                 done();
             } catch (err) {
+                emails.push(request.payload.email);
                 done(err);
             }
         });
@@ -505,7 +506,6 @@ describe('Signup', function () {
                 password: 'an0th3r1'
             }
         };
-        emails.push(request.payload.email);
         server.inject(request, function (response) {
             try {
                 expect(response.statusCode).to.equal(200);
@@ -521,9 +521,11 @@ describe('Signup', function () {
                     })
                     .then(function (foundLogin) {
                         expect(foundLogin).to.exist();
+                        emails.push(request.payload.email);
                         done();
                     });
             } catch (err) {
+                emails.push(request.payload.email);
                 done(err);
             }
         });

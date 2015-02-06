@@ -50,25 +50,25 @@ describe('Audit', function () {
     describe('GET /audit', function () {
         describe('users', function () {
             beforeEach(function (done) {
-                emails.push('test.users@test.api');
                 Users.create('test.users@test.api', 'password123')
                     .then(function (newUser) {
                         return newUser.loginSuccess('test', 'test');
                     })
                     .then(function () {
-                        emails.push('test.users2@test.api');
                         return Users.create('test.users2@test.api', 'password123');
                     })
                     .then(function (newUser2) {
                         return newUser2.loginSuccess('test', 'test');
                     }).then(function (newUser2) {
                         newUser2.deactivate('test');
+                        emails.push('test.users2@test.api');
+                        emails.push('test.users@test.api');
                         done();
                     })
                     .catch(function (err) {
-                        if (err) {
-                            done(err);
-                        }
+                        emails.push('test.users2@test.api');
+                        emails.push('test.users@test.api');
+                        done(err);
                     })
                     .done();
             });

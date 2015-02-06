@@ -18,7 +18,7 @@ var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
 
-describe('Roles', function () {
+describe('Roles Model', function () {
     var rolesToClear = [];
     before(function (done) {
         tu.setupRolesAndUsers()
@@ -30,7 +30,6 @@ describe('Roles', function () {
     describe('Roles.create', function () {
         it('should create a new document', function (done) {
             var error = null;
-            rolesToClear.push('newRole');
             Roles.create('newRole', [{
                 action: 'view',
                 object: 'self'
@@ -47,6 +46,7 @@ describe('Roles', function () {
                     error = err;
                 })
                 .done(function () {
+                    rolesToClear.push('newRole');
                     tu.testComplete(done, error);
                 });
         });
@@ -74,7 +74,6 @@ describe('Roles', function () {
 
     describe('Permissions.findByName', function () {
         before(function (done) {
-            rolesToClear.push('findRole');
             Roles.create('findRole', [{
                 action: 'view',
                 object: 'test'
@@ -100,7 +99,6 @@ describe('Roles', function () {
         });
         it('should return an empty array when nothing matches', function (done) {
             var error = null;
-            rolesToClear.push('wontFind');
             Roles.findByName(['wontfind'])
                 .then(function (found) {
                     expect(found).to.exist();
@@ -114,12 +112,16 @@ describe('Roles', function () {
                     tu.testComplete(done, error);
                 });
         });
+        after(function(done) {
+            rolesToClear.push('findRole');
+            rolesToClear.push('wontFind');
+            done();
+        });
     });
 
     describe('Roles.this.hasPermissionsTo', function () {
         var role = null;
         before(function (done) {
-            rolesToClear.push('hasPermissions');
             Roles.create('hasPermissions', [{
                 action: 'view',
                 object: 'test'
@@ -181,6 +183,10 @@ describe('Roles', function () {
                         done(err);
                     }
                 });
+        });
+        after(function(done) {
+            rolesToClear.push('hasPermissions');
+            done();
         });
     });
 

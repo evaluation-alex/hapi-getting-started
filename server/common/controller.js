@@ -41,39 +41,6 @@ var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
 
 module.exports.areValid = areValid;
 
-var validGroups = function (propertyToLookup) {
-    return function (request, reply) {
-        if (request.payload[propertyToLookup] && request.payload[propertyToLookup].length > 0) {
-            var msg = 'invalid groups being added : ';
-            UserGroups.areValid(request.payload[propertyToLookup])
-                .then(function (validated) {
-                    _.forEach(request.payload[propertyToLookup], function (a) {
-                        if (!validated[a]) {
-                            msg += a + ',';
-                        }
-                    });
-                })
-                .then(function () {
-                    if (msg.indexOf(',') > -1) {
-                        reply(Boom.badData(msg));
-                    } else {
-                        reply();
-                    }
-                })
-                .catch(function (err) {
-                    if (err) {
-                        reply(Boom.badImplementation(err));
-                    }
-                })
-                .done();
-        } else {
-            reply();
-        }
-    };
-};
-
-module.exports.validUsers = validGroups;
-
 Controller.find = function (component, model, validator, queryBuilder) {
     validator.query.fields =  Joi.string();
     validator.query.sort = Joi.string();

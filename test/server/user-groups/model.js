@@ -141,7 +141,7 @@ describe('UserGroups Model', function () {
                 .done(function () {
                     tu.testComplete(done, error);
                 });
-        })
+        });
         after(function (done) {
             groupsToCleanup.push('test.search@test.api');
             done();
@@ -292,6 +292,43 @@ describe('UserGroups Model', function () {
                 })
                 .done(function () {
                     groupsToCleanup.push('isValidTest3');
+                    tu.testComplete(done, error);
+                });
+        });
+    });
+
+    describe('Users.areValid', function () {
+        it('should return empty array when nothing is sent', function (done) {
+            var error = null;
+            UserGroups.areValid('name', [])
+                .then(function (result) {
+                    expect(result).to.be.empty();
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .finally(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should return an object with as many entries as names sent, appropriately populated', function(done) {
+            var error = null;
+            UserGroups.create('test UserGroups.areValid', 'test', 'test')
+                .then(function () {
+                    return UserGroups.areValid('name', ['test UserGroups.areValid', 'bogus']);
+                })
+                .then(function (result) {
+                    expect(result).to.exist();
+                    expect(result['test UserGroups.areValid']).to.be.true();
+                    expect(result.bogus).to.be.false();
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .finally(function () {
+                    groupsToCleanup.push('test UserGroups.areValid');
                     tu.testComplete(done, error);
                 });
         });

@@ -6,7 +6,7 @@ var Users = require(relativeToServer + 'users/model');
 var Permissions = require(relativeToServer + 'permissions/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
-
+var _ = require('lodash');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -51,31 +51,223 @@ describe('Permissions', function () {
     });
 
     describe('GET /permissions', function () {
+        before(function (done) {
+            Permissions.create('test GET /permissions is active', ['user1'], ['group1'], 'action1', 'object1')
+                .then(function (p) {
+                    return Permissions.create('test GET /permissions is active = false', ['user2'], ['group2'], 'action2', 'object1');
+                })
+                .then(function (p) {
+                    p.isActive = false;
+                    p._save();
+                    done();
+                });
+        });
         it('should give permissions when isactive = true is sent', function (done) {
-            done();
+            var request = {
+                method: 'GET',
+                url: '/permissions?isActive="true"',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var p = JSON.parse(response.payload);
+                    _.forEach(p.data, function (d) {
+                        expect(d.isActive).to.be.true();
+                    });
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
         });
         it('should give inactive permissions when isactive = false is sent', function (done) {
-            done();
+            var request = {
+                method: 'GET',
+                url: '/permissions?isActive="false"',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var p = JSON.parse(response.payload);
+                    _.forEach(p.data, function (d) {
+                        expect(d.isActive).to.be.false();
+                    });
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
         });
-        it('should give the permissions where the user / group is a member when user is sent in the parameters', function (done) {
-            done();
+        it('should give the permissions where the user sent is a member of the users list', function (done) {
+            var request = {
+                method: 'GET',
+                url: '/permissions?user=user1',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var p = JSON.parse(response.payload);
+                    var patt = /user1/i;
+                    _.forEach(p.data, function (d) {
+                        var match = false;
+                        _.find(d.users, function (u) {
+                            match = match || patt.test(u);
+                        });
+                        expect(match).to.be.true();
+                    });
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+        it('should give the permissions where the group sent is a member of the groups list', function (done) {
+            var request = {
+                method: 'GET',
+                url: '/permissions?group=group2',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var p = JSON.parse(response.payload);
+                    var patt = /group2/i;
+                    _.forEach(p.data, function (d) {
+                        var match = false;
+                        _.find(d.groups, function (u) {
+                            match = match || patt.test(u);
+                        });
+                        expect(match).to.be.true();
+                    });
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
         });
         it('should give the permissions where the object is sent in the parameters', function (done) {
-            done();
+            var request = {
+                method: 'GET',
+                url: '/permissions?object=object',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var p = JSON.parse(response.payload);
+                    _.forEach(p.data, function (d) {
+                        expect(d.object).to.match(/object/i);
+                    });
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
         });
         it('should give the permissions where the action is sent in the parameters', function (done) {
-            done();
+            var request = {
+                method: 'GET',
+                url: '/permissions?action=action1',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var p = JSON.parse(response.payload);
+                    _.forEach(p.data, function (d) {
+                        expect(d.action).to.match(/action/i);
+                    });
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
         });
         it('should return both inactive and active permissions when nothing is sent', function (done) {
+            var request = {
+                method: 'GET',
+                url: '/permissions',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+        after (function (done) {
+            permissionsToClear.push('test GET /permissions is active');
+            permissionsToClear.push('test GET /permissions is active = false');
             done();
         });
     });
 
     describe('GET /permissions/{id}', function () {
+        var id = '';
+        before(function (done) {
+            Permissions.create('test GET /permissions/id', ['user1'], ['group1'], 'action1', 'object2')
+                .then(function (p) {
+                    id = p._id.toString();
+                    done();
+                });
+        });
         it('should only send back permissions with the id in params', function (done) {
-            done();
+            var request = {
+                method: 'GET',
+                url: '/permissions/' + id,
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.match(/permissions/);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
         });
         it('should send back not found when the permissions with the id in params is not found', function (done) {
+            var request = {
+                method: 'GET',
+                url: '/permissions/' + id.replace('a', '0').replace('b', '0').replace('c', '0').replace('d', '0').replace('e', '0').replace('f', '0'),
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+        after(function (done) {
+            permissionsToClear.push('test GET /permissions/id');
             done();
         });
     });
@@ -87,10 +279,19 @@ describe('Permissions', function () {
         it('should send back error if any of the users to be added are not valid', function (done) {
             done();
         });
-        it('should activate / deactivate permissions and have changes audited', function (done) {
+        it('should send back error if any of the groups to be added are not valid', function (done) {
             done();
         });
-        it('should add / remove users and have changes audited', function (done) {
+        it('should activate permissions and have changes audited', function (done) {
+            done();
+        });
+        it('should deactivate permissions and have changes audited', function (done) {
+            done();
+        });
+        it('should add users / groups and have changes audited', function (done) {
+            done();
+        });
+        it('should remove users / groups and have changes audited', function (done) {
             done();
         });
         it('should update description and have changes audited', function (done) {
@@ -102,7 +303,13 @@ describe('Permissions', function () {
         it('should send back conflict when you try to create a permission with object, action that already exists', function (done) {
             done();
         });
-        it('should send back error if any user/group sent in the request does not exist', function (done) {
+        it('should send back error if any user sent in the request does not exist', function (done) {
+            done();
+        });
+        it('should send back error if any group sent in the request does not exist', function (done) {
+            done();
+        });
+        it('should create permissions successfully', function (done) {
             done();
         });
     });

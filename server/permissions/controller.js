@@ -33,7 +33,6 @@ var permissionCheck = function (request, reply) {
 
 Controller.find = BaseController.find('permissions', Permissions, {
     query: {
-        by: Joi.string(),
         user: Joi.string(),
         group: Joi.string(),
         action: Joi.string(),
@@ -42,20 +41,17 @@ Controller.find = BaseController.find('permissions', Permissions, {
     }
 }, function (request) {
     var query = {};
-    if (request.query.by) {
-        query.by = new RegExp('^.*?' + request.query.by + '.*$', 'i');
-    }
     if (request.query.user) {
-        query.users = new RegExp('^.*?' + request.query.user + '.*$', 'i');
+        query.users = {$regex: new RegExp('^.*?' + request.query.user + '.*$', 'i')};
     }
     if (request.query.group) {
-        query.groups = new RegExp('^.*?' + request.query.group + '.*$', 'i');
+        query.groups = {$regex: new RegExp('^.*?' + request.query.group + '.*$', 'i')};
     }
     if (request.query.action) {
-        query.action = request.query.action;
+        query.action = {$regex: new RegExp ('^.*?' + request.query.action + '.*$', 'i')};
     }
     if (request.query.object) {
-        query.object = request.query.object;
+        query.object = {$regex: new RegExp ('^.*?' + request.query.object + '.*$', 'i')};
     }
     if (request.query.isActive) {
         query.isActive = request.query.isActive === '"true"';

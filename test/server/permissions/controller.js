@@ -7,6 +7,7 @@ var Permissions = require(relativeToServer + 'permissions/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
 var _ = require('lodash');
+var BaseModel = require('hapi-mongo-models').BaseModel;
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -274,7 +275,21 @@ describe('Permissions', function () {
 
     describe('PUT /permissions/{id}', function () {
         it('should send back not found error when you try to modify non existent permissions', function (done) {
-            done();
+            var request = {
+                method: 'DELETE',
+                url: '/permissions/54d4430eed61ad701cc7a721',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
         });
         it('should send back error if any of the users to be added are not valid', function (done) {
             done();
@@ -316,10 +331,53 @@ describe('Permissions', function () {
 
     describe('DELETE /permissions/{id}', function () {
         it('should send back not found error when you try to modify a non existent permissions', function (done) {
-            done();
+            var request = {
+                method: 'DELETE',
+                url: '/permissions/54d4430eed61ad701cc7a721',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
         });
         it('should deactivate permissions and have changes audited', function (done) {
-            done();
+            Permissions.create('test DELETE /permissions/id', ['user1'], ['group1'], 'action2', 'object3')
+                .then(function (p) {
+                    var id = p._id.toString();
+                    var request = {
+                        method: 'DELETE',
+                        url: '/permissions/' + id,
+                        headers: {
+                            Authorization: rootAuthHeader
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Permissions._find({_id: BaseModel.ObjectID(id)})
+                                .then(function (p) {
+                                    expect(p[0].isActive).to.be.false;
+                                    return Audit.findAudit('Permissions', BaseModel.ObjectID(id), {action: 'isActive'});
+                                })
+                                .then(function (a) {
+                                    expect(a).to.exist();
+                                    expect(a[0].action).to.match(/isActive/);
+                                    permissionsToClear.push('test DELETE /permissions/id');
+                                    done();
+                                });
+                        } catch (err) {
+                            permissionsToClear.push('test DELETE /permissions/id');
+                            done(err);
+                        }
+                    });
+                }).done();
         });
     });
 

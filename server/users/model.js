@@ -238,37 +238,5 @@ Users.findBySessionCredentials = function (email, key) {
     });
 };
 
-Users.areValid = function (emails) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        if (!emails || emails.length === 0) {
-            resolve({});
-        } else {
-            self._find({email: {$in: emails}, isActive: true})
-                .then(function (docs) {
-                    if (!docs) {
-                        resolve({});
-                    } else {
-                        var results = Object.create(null);
-                        _.forEach(docs, function (doc) {
-                            results[doc.email] = true;
-                        });
-                        _.forEach(emails, function (e) {
-                            if (!results[e]) {
-                                results[e] = false;
-                            }
-                        });
-                        resolve(results);
-                    }
-                })
-                .catch(function (err) {
-                    if (err) {
-                        reject(err);
-                    }
-                });
-        }
-    });
-};
-
 module.exports = Users;
 

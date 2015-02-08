@@ -276,7 +276,7 @@ describe('Permissions', function () {
     describe('PUT /permissions/{id}', function () {
         it('should send back not found error when you try to modify non existent permissions', function (done) {
             var request = {
-                method: 'DELETE',
+                method: 'PUT',
                 url: '/permissions/54d4430eed61ad701cc7a721',
                 headers: {
                     Authorization: rootAuthHeader

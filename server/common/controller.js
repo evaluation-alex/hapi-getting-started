@@ -4,8 +4,75 @@ var Boom = require('boom');
 var Promise = require('bluebird');
 var AuthPlugin = require('./../common/auth');
 var BaseModel = require('hapi-mongo-models').BaseModel;
+var _ = require('lodash');
 
 var Controller = {};
+
+var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
+    return function (request, reply) {
+        if (request.payload[payloadPropertyToLookup] && request.payload[payloadPropertyToLookup].length > 0) {
+            var msg = 'Bad data : ';
+            Model.areValid(docPropertyToLookup, request.payload[payloadPropertyToLookup])
+                .then(function (validated) {
+                    _.forEach(request.payload[payloadPropertyToLookup], function (a) {
+                        if (!validated[a]) {
+                            msg += a + ',';
+                        }
+                    });
+                })
+                .then(function () {
+                    if (msg.indexOf(',') > -1) {
+                        reply(Boom.badData(msg));
+                    } else {
+                        reply();
+                    }
+                })
+                .catch(function (err) {
+                    if (err) {
+                        reply(Boom.badImplementation(err));
+                    }
+                })
+                .done();
+        } else {
+            reply();
+        }
+    };
+};
+
+module.exports.areValid = areValid;
+
+var validGroups = function (propertyToLookup) {
+    return function (request, reply) {
+        if (request.payload[propertyToLookup] && request.payload[propertyToLookup].length > 0) {
+            var msg = 'invalid groups being added : ';
+            UserGroups.areValid(request.payload[propertyToLookup])
+                .then(function (validated) {
+                    _.forEach(request.payload[propertyToLookup], function (a) {
+                        if (!validated[a]) {
+                            msg += a + ',';
+                        }
+                    });
+                })
+                .then(function () {
+                    if (msg.indexOf(',') > -1) {
+                        reply(Boom.badData(msg));
+                    } else {
+                        reply();
+                    }
+                })
+                .catch(function (err) {
+                    if (err) {
+                        reply(Boom.badImplementation(err));
+                    }
+                })
+                .done();
+        } else {
+            reply();
+        }
+    };
+};
+
+module.exports.validUsers = validGroups;
 
 Controller.find = function (component, model, validator, queryBuilder) {
     validator.query.fields =  Joi.string();

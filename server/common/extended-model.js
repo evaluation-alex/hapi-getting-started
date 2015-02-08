@@ -85,8 +85,42 @@ ExtendedModel._insert = function(document, notCreated) {
     });
 };
 
-module.exports.ExtendedModel = ExtendedModel;
+ExtendedModel.areValid = function (property, toCheck) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        if (!toCheck || toCheck.length === 0) {
+            resolve({});
+        } else {
+            var conditions = {};
+            conditions[property] = {$in: toCheck};
+            conditions.isActive = true;
+            self._find(conditions)
+                .then(function (docs) {
+                    if (!docs) {
+                        resolve({});
+                    } else {
+                        var results = Object.create(null);
+                        _.forEach(docs, function (doc) {
+                            results[doc[property]] = true;
+                        });
+                        _.forEach(toCheck, function (e) {
+                            if (!results[e]) {
+                                results[e] = false;
+                            }
+                        });
+                        resolve(results);
+                    }
+                })
+                .catch(function (err) {
+                    if (err) {
+                        reject(err);
+                    }
+                });
+        }
+    });
+};
 
+module.exports.ExtendedModel = ExtendedModel;
 
 var CommonMixinAddRemove = {
     _find: function (role, toFind) {

@@ -8,6 +8,7 @@ var UserGroups = require('./model');
 var Users = require('./../users/model');
 var AuthPlugin = require('./../common/auth');
 var BaseController = require('./../common/controller').BaseController;
+var areValid = require('./../common/controller').areValid;
 
 var Controller = {};
 
@@ -33,40 +34,6 @@ var validAndPermitted = function (request, reply) {
             }
         })
         .done();
-};
-
-var validUsers = function (request, reply) {
-    if ((request.payload.addedMembers && request.payload.addedMembers.length > 0) ||
-        (request.payload.addedOwners && request.payload.addedOwners.length > 0)) {
-        var msg = 'invalid users being added : ';
-        var toBeAdded = [];
-        toBeAdded.push(request.payload.addedMembers);
-        toBeAdded.push(request.payload.addedOwners);
-        toBeAdded = _.flatten(toBeAdded);
-        Users.areValid(toBeAdded)
-            .then(function (validated) {
-                    _.forEach(toBeAdded, function (a) {
-                        if (!validated[a]) {
-                            msg += a + ',';
-                        }
-                    });
-            })
-            .then(function () {
-                if (msg.indexOf(',') > -1) {
-                    reply(Boom.badData(msg));
-                } else {
-                    reply();
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            })
-            .done();
-    } else {
-        reply();
-    }
 };
 
 var groupCheck = function (request, reply) {
@@ -121,7 +88,8 @@ Controller.update = {
     },
     pre: [
         AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
-        {assign: 'validUsers', method: validUsers},
+        {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
+        {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')},
         {assign: 'validAndPermitted', method: validAndPermitted}
     ],
     handler: function (request, reply) {
@@ -172,7 +140,8 @@ Controller.new = {
     pre: [
         AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
         {assign: 'groupCheck', method: groupCheck},
-        {assign: 'validUsers', method: validUsers}
+        {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
+        {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')},
     ],
     handler: function (request, reply) {
         var by = request.auth.credentials.user.email;

@@ -135,7 +135,7 @@ describe('Users Model', function () {
     describe('Users.areValid', function () {
         it('should return empty array when nothing is sent', function (done) {
             var error = null;
-            Users.areValid([])
+            Users.areValid('email', [])
                 .then(function (result) {
                     expect(result).to.be.empty();
                 })
@@ -149,12 +149,12 @@ describe('Users Model', function () {
         });
         it('should return an object with as many entries as emails sent, appropriately populated', function(done) {
             var error = null;
-            Users.areValid([firstEmail, secondEmail, 'bogus'])
+            Users.areValid('email', [firstEmail, secondEmail, 'bogus'])
                 .then(function (result) {
                     expect(result).to.exist();
                     expect(result[firstEmail]).to.be.true();
                     expect(result[secondEmail]).to.be.true();
-                    expect(result['bogus']).to.be.false();
+                    expect(result.bogus).to.be.false();
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();

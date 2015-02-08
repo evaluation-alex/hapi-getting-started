@@ -7,6 +7,9 @@ var Promise = require('bluebird');
 var Permissions = require('./model');
 var AuthPlugin = require('./../common/auth');
 var BaseController = require('./../common/controller').BaseController;
+var Users = require('./../users/model');
+var UserGroups = require('./../user-groups/model');
+var areValid = require('./../common/controller').areValid;
 
 var Controller = {};
 
@@ -72,7 +75,10 @@ Controller.update = {
             description: Joi.string()
         }
     },
-    pre: [AuthPlugin.preware.ensurePermissions('update', 'permissions')],
+    pre: [AuthPlugin.preware.ensurePermissions('update', 'permissions'),
+        {assign: 'validUsers', method: areValid(Users, 'email', 'addedUsers')},
+        {assign: 'validGroups', method: areValid(UserGroups, 'name', 'addedGroups')}
+    ],
     handler: function (request, reply) {
         var by = request.auth.credentials.user.email;
         Permissions._findOne({_id: BaseModel.ObjectID(request.params.id)})
@@ -125,11 +131,13 @@ Controller.new = {
     },
     pre: [
         AuthPlugin.preware.ensurePermissions('update', 'permissions'),
-        {assign: 'permissionCheck', method: permissionCheck}
+        {assign: 'permissionCheck', method: permissionCheck},
+        {assign: 'validUsers', method: areValid(Users, 'email', 'users')},
+        {assign: 'validGroups', method: areValid(UserGroups, 'name', 'groups')}
     ],
     handler: function (request, reply) {
         var by = request.auth.credentials.user.email;
-        Permissions.create(request.payload.descriptions, request.payload.users, request.payload.groups, request.payload.action, request.payload.object, by)
+        Permissions.create(request.payload.description, request.payload.users, request.payload.groups, request.payload.action, request.payload.object, by)
             .then(function (permissions) {
                 if (!permissions) {
                     reply(Boom.notFound('permissions could not be created.'));

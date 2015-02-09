@@ -13,7 +13,8 @@ var test = {
     smtpPort: 465,
     smtpUsername: 'you',
     smtpPassword: '^YOURSMTPWD$',
-    port: 3000
+    port: 3000,
+    logdir: './logs'
 };
 
 var fromStdIn = function (results, property, message, opts) {

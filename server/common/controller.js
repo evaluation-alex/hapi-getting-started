@@ -5,6 +5,7 @@ var Promise = require('bluebird');
 var AuthPlugin = require('./../common/auth');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');
+var logger = require('./../manifest').logger;
 
 var Controller = {};
 
@@ -55,6 +56,7 @@ Controller.find = function (component, model, validator, queryBuilder) {
             var sort = request.query.sort;
             var limit = request.query.limit;
             var page = request.query.page;
+            logger.info({component: component, query: query, fields: fields, sort: sort, limit: limit, page: page});
             model.pagedFind(query, fields, sort, limit, page, function (err, results) {
                 if (err) {
                     reply(Boom.badImplementation(err));
@@ -71,6 +73,7 @@ Controller.findOne = function (component, model) {
         pre: [AuthPlugin.preware.ensurePermissions('view', component)],
         handler: function (request, reply) {
             var id = BaseModel.ObjectID(request.params.id);
+            logger.info({component: component, id: request.params.id});
             model._findOne({_id: id})
                 .then(function (f) {
                     if (!f) {
@@ -81,6 +84,7 @@ Controller.findOne = function (component, model) {
                 })
                 .catch(function (err) {
                     if (err) {
+                        logger.error({component: component, id: request.params.id, error: err});
                         reply(Boom.badImplementation(err));
                     }
                 });

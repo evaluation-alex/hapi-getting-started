@@ -8,6 +8,7 @@ A user system API for Node.js. Bring your own front-end.
 [![Coverage Status](https://coveralls.io/repos/k-sheth/hapi-getting-started/badge.svg)](https://coveralls.io/r/k-sheth/hapi-getting-started)
 [![Code Climate](https://codeclimate.com/github/k-sheth/hapi-getting-started/badges/gpa.svg)](https://codeclimate.com/github/k-sheth/hapi-getting-started)
 [![Test Coverage](https://codeclimate.com/github/k-sheth/hapi-getting-started/badges/coverage.svg)](https://codeclimate.com/github/k-sheth/hapi-getting-started)
+ [![Issues](http://img.shields.io/github/issues/k-sheth/hapi-getting-started.svg)](https://github.com/k-sheth/hapi-getting-started/issues)
 
 Inspired by [frame](https://github.com/jedireza/frame)
 

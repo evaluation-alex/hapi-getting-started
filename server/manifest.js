@@ -1,6 +1,32 @@
 'use strict';
 var Config = require('./../config');
-var ExtendedModel = require('./common/extended-model');
+var Bunyan = require('bunyan');
+
+var logOptions = {
+    name: 'main',
+    streams: [{
+        type: 'rotating-file',
+        path: Config.logs.logDir + '/' + Config.projectName + '.log',
+        period: '1d',
+        count: 7,
+        name: 'file',
+        level: 'debug'
+    }, {
+        type: 'stream',
+        stream: process.stdout,
+        name: 'console',
+        level: 'error'
+    }]
+};
+
+if (process.env.NODE_ENV !== 'prod') {
+    logOptions.src = true;
+}
+
+var logger = Bunyan.createLogger(logOptions);
+
+module.exports.logger = logger;
+
 var server = {
     connections: {
         routes: {
@@ -11,24 +37,29 @@ var server = {
 
 var connections = [{
     port: Config.port,
-    labels: ['web']
+    labels: ['api']
 }];
 
 var plugins = {
-    'good': {
-        opsInterval: 1000 * 60 * 15,
-        reporters: [{
-            reporter: require('good-console'),
-            args: [Config.logs.logConfig, {format: 'YYYY.MM.DD.HH.mm.ss.SSS'}]
-        }, {
-            reporter: require('good-file'),
-            args: [{path: Config.logs.logDir, format: 'YYYY_MM_DD', prefix: Config.projectName + '_', rotate: 'daily'}, Config.logs.logConfig]
-        }],
-        logRequestHeaders: true,
-        logRequestPayload: true,
-        logResponsePayload: true
-    },
-    'hapi-auth-basic': {},
+    /*'good': {
+     opsInterval: 1000 * 60 * 15,
+     reporters: [{
+     reporter: require('good-console'),
+     args: [Config.logs.logConfig, {format: 'YYYY.MM.DD.HH.mm.ss.SSS'}]
+     }, {
+     reporter: require('good-file'),
+     args: [{
+     path: Config.logs.logDir,
+     format: 'YYYY_MM_DD',
+     prefix: Config.projectName + '_',
+     rotate: 'daily'
+     }, Config.logs.logConfig]
+     }],
+     logRequestHeaders: true,
+     logRequestPayload: true,
+     logResponsePayload: true
+     },*/
+    'hapi-bunyan': {logger: logger, mergeData: true, includeTags: true, joinTags: ','},
     'lout': {},
     'poop': {logPath: Config.logs.logDir},
     'tv': {},
@@ -44,6 +75,7 @@ var plugins = {
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },
+    'hapi-auth-basic': {},
     './server/common/auth': {}
 };
 

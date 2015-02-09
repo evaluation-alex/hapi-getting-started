@@ -3,6 +3,7 @@ var BaseModel = require('hapi-mongo-models').BaseModel;
 var ObjectAssign = require('object-assign');
 var Promise = require('bluebird');
 var _ = require('lodash');
+var logger = require('./../manifest').logger;
 
 var ExtendedModel = BaseModel.extend({
     /* jshint -W064 */
@@ -225,13 +226,19 @@ var CommonMixinSave = function (Model, Audit) {
         _save: function () {
             var self = this;
             return new Promise(function (resolve, reject) {
+                var logFn = function (start, end) {
+                    logger.info({id: self._id.toString(), start: start, end: end});
+                };
+                var start = Date.now();
                 self._saveAudit()
                     .then(function () {
                         resolve(Model._findByIdAndUpdate(self._id, self));
+                        logFn(start, Date.now());
                     })
                     .catch(function (err) {
                         if (err) {
                             reject(err);
+                            logFn(start, Date.now());
                         }
                     })
                     .done();

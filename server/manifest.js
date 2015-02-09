@@ -30,6 +30,8 @@ var plugins = {
     },
     'hapi-auth-basic': {},
     'lout': {},
+    'poop': {logPath: Config.logs.logDir},
+    'tv': {},
     'hapi-mongo-models': {
         mongodb: Config.hapiMongoModels.mongodb,
         models: {

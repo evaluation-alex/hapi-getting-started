@@ -33,7 +33,7 @@ describe('UserGroups', function () {
                 return Users.findByEmail('root');
             })
             .then(function (root) {
-                return root.loginSuccess('test', 'test');
+                return root.loginSuccess('test', 'test')._save();
             })
             .then(function (root) {
                 rootAuthHeader = tu.authorizationHeader(root);
@@ -55,19 +55,19 @@ describe('UserGroups', function () {
                     return UserGroups.create('GetUserGroupsTestMemberActive', 'GET /user-groups', 'root');
                 })
                 .then(function (g2) {
-                    return g2.addUsers(['user1', 'user2'], 'member', 'root');
+                    return g2.addUsers(['user1', 'user2'], 'member', 'root')._save();
                 })
                 .then(function (g3) {
                     return UserGroups.create('GetUserGroupsTestMemberInactive', 'GET /user-groups', 'root');
                 })
                 .then(function (g3) {
-                    return g3.addUsers(['user4'], 'member', 'root');
+                    return g3.addUsers(['user4'], 'member', 'root')._save();
                 })
                 .then(function (g4) {
                     return UserGroups.create('GetUserGroupsTestInactive', 'GET /user-groups', 'root');
                 })
                 .then(function (g4) {
-                    return g4.deactivate('root');
+                    return g4.deactivate('root')._save();
                 })
                 .then(function () {
                     done();
@@ -721,7 +721,7 @@ describe('UserGroups', function () {
     });
 
     afterEach(function (done) {
-        tu.cleanup(null, groupsToClear, null, done);
+        return tu.cleanup(null, groupsToClear, null, done);
     });
 
 });

@@ -32,7 +32,7 @@ describe('AuthAttempts', function () {
                 return Users._findOne({email: 'root'});
             })
             .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test');
+                return foundUser.loginSuccess('test', 'test')._save();
             })
             .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
@@ -153,7 +153,7 @@ describe('AuthAttempts', function () {
     });
 
     afterEach(function (done) {
-        tu.cleanup(emails, groupsToClear, permissionsToClear, done);
+        return tu.cleanup(emails, groupsToClear, permissionsToClear, done);
     });
 
 });

@@ -32,8 +32,7 @@ var validAndPermitted = function (request, reply) {
             if (err) {
                 reply(Boom.badImplementation(err));
             }
-        })
-        .done();
+        });
 };
 
 var groupCheck = function (request, reply) {
@@ -49,8 +48,7 @@ var groupCheck = function (request, reply) {
             if (err) {
                 reply(Boom.badImplementation(err));
             }
-        })
-        .done();
+        });
 };
 
 Controller.find = BaseController.find('user-groups', UserGroups, {
@@ -88,9 +86,9 @@ Controller.update = {
     },
     pre: [
         AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
+        {assign: 'validAndPermitted', method: validAndPermitted},
         {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
         {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')},
-        {assign: 'validAndPermitted', method: validAndPermitted}
     ],
     handler: function (request, reply) {
         var by = request.auth.credentials.user.email;
@@ -117,14 +115,16 @@ Controller.update = {
                 return (request.payload.description) ? userGroup.updateDesc(request.payload.description, by) : userGroup;
             })
             .then(function (userGroup) {
+                return userGroup._save();
+            })
+            .then(function (userGroup) {
                 reply(userGroup);
             })
             .catch(function (err) {
                 if (err) {
                     reply(Boom.badImplementation(err));
                 }
-            })
-            .done();
+            });
     }
 };
 
@@ -153,6 +153,9 @@ Controller.new = {
                     return (userGroup && request.payload.addedOwners) ? userGroup.addUsers(request.payload.addedOwners, 'owner', by) : userGroup;
             })
             .then(function (userGroup) {
+                return (userGroup) ? userGroup._save() : userGroup;
+            })
+            .then(function (userGroup) {
                 if (!userGroup) {
                     reply(Boom.notFound('User group could not be created.'));
                 } else {
@@ -163,8 +166,7 @@ Controller.new = {
                 if (err) {
                     reply(Boom.badImplementation(err));
                 }
-            })
-            .done();
+            });
     }
 };
 
@@ -177,14 +179,19 @@ Controller.delete = {
         UserGroups._findOne({_id: BaseModel.ObjectID(request.params.id)})
             .then(function (userGroup) {
                 var by = request.auth.credentials.user.email;
-                reply(userGroup.deactivate(by));
+                return userGroup.deactivate(by);
+            })
+            .then(function (userGroup) {
+                return userGroup._save();
+            })
+            .then(function (userGroup) {
+                reply(userGroup);
             })
             .catch(function (err) {
                 if (err) {
                     reply(Boom.badImplementation(err));
                 }
-            })
-            .done();
+            });
     }
 };
 

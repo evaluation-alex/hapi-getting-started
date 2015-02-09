@@ -60,13 +60,11 @@ function setupRootUser () {
         Users.findByEmail('root')
             .then(function (found) {
                 if (found) {
-                    found.updateRoles(['root'], 'testSetup');
-                    resolve(found);
+                    resolve(found.updateRoles(['root'], 'testSetup')._save());
                 } else {
                     Users.create('root', 'password123')
                         .then(function (rt) {
-                            rt.updateRoles(['root'], 'testSetup');
-                            resolve(rt);
+                            resolve(rt.updateRoles(['root'], 'testSetup')._save());
                         });
                 }
             });
@@ -252,7 +250,8 @@ var cleanup = function (users, userGroups, permissions, cb) {
         })
         .catch(function (err) {
             cb(err);
-        });
+        })
+        .done();
 };
 
 exports.cleanup = cleanup;

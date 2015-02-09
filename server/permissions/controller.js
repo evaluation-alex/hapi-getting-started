@@ -30,8 +30,7 @@ var permissionCheck = function (request, reply) {
             if (err) {
                 reply(Boom.badImplementation(err));
             }
-        })
-        .done();
+        });
 };
 
 Controller.find = BaseController.find('permissions', Permissions, {
@@ -104,6 +103,9 @@ Controller.update = {
                 return (permissions && request.payload.description) ? permissions.updateDesc(request.payload.description, by) : permissions;
             })
             .then(function (permissions) {
+                return (permissions) ? permissions._save() : permissions;
+            })
+            .then(function (permissions) {
                 if (!permissions) {
                     reply(Boom.notFound('Permissions not found.'));
                 } else {
@@ -114,8 +116,7 @@ Controller.update = {
                 if (err) {
                     reply(Boom.badImplementation(err));
                 }
-            })
-            .done();
+            });
     }
 };
 
@@ -149,8 +150,7 @@ Controller.new = {
                 if (err) {
                     reply(Boom.badImplementation(err));
                 }
-            })
-            .done();
+            });
     }
 };
 
@@ -161,17 +161,22 @@ Controller.delete = {
             .then(function (permissions) {
                 if (!permissions) {
                     reply(Boom.notFound('Permissions not found.'));
+                    return false;
                 } else {
                     var by = request.auth.credentials.user.email;
-                    reply(permissions.deactivate(by));
+                    return permissions.deactivate(by)._save();
+                }
+            })
+            .then(function(permissions) {
+                if (permissions) {
+                    reply(permissions);
                 }
             })
             .catch(function (err) {
                 if (err) {
                     reply(Boom.badImplementation(err));
                 }
-            })
-            .done();
+            });
     }
 };
 

@@ -23,39 +23,34 @@ var Permissions = ExtendedModel.extend({
 _.extend(Permissions.prototype, AddRemove);
 _.extend(Permissions.prototype, IsActive);
 _.extend(Permissions.prototype, Description);
-_.extend(Permissions.prototype, new Save(Permissions));
-_.extend(Permissions.prototype, new CAudit(Audit, 'Permissions', '_id'));
+_.extend(Permissions.prototype, new Save(Permissions, Audit));
+_.extend(Permissions.prototype, new CAudit('Permissions', '_id'));
 
 Permissions.prototype.isPermissionFor = function (forAction, onObject) {
     var self = this;
     var ret = (self.action === forAction || self.action === '*') &&
         (self.object === onObject || self.object === '*');
-
     return ret;
 };
 Permissions.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        var modified = false;
-        if (role.indexOf('user') !== -1) {
-            modified = toAdd && self._add(toAdd, 'users', by);
-        } else {
-            modified = toAdd && (role.indexOf('group') !== -1) && self._add(toAdd, 'groups', by);
-        }
-        resolve(modified ? self._save() : self);
-    });
+    var modified = false;
+    if (role.indexOf('user') !== -1) {
+        modified = toAdd && self._add(toAdd, 'users', by);
+    } else {
+        modified = toAdd && (role.indexOf('group') !== -1) && self._add(toAdd, 'groups', by);
+    }
+    return self;
 };
 Permissions.prototype.removeUsers = function (toRemove, role, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        var modified = false;
-        if (role.indexOf('user') !== -1) {
-            modified = toRemove && self._remove(toRemove, 'users', by);
-        } else {
-            modified = toRemove && (role.indexOf('group') !== -1) && self._remove(toRemove, 'groups', by);
-        }
-        resolve(modified ? self._save() : self);
-    });
+    var modified = false;
+    if (role.indexOf('user') !== -1) {
+        modified = toRemove && self._remove(toRemove, 'users', by);
+    } else {
+        modified = toRemove && (role.indexOf('group') !== -1) && self._remove(toRemove, 'groups', by);
+    }
+    return self;
 };
 Permissions._collection = 'permissions';
 

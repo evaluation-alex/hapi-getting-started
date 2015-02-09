@@ -37,7 +37,7 @@ describe('Permissions', function () {
                 return Users.findByEmail('root');
             })
             .then(function (root) {
-                return root.loginSuccess('test', 'test');
+                return root.loginSuccess('test', 'test')._save();
             })
             .then(function (root) {
                 rootAuthHeader = tu.authorizationHeader(root);
@@ -732,7 +732,7 @@ describe('Permissions', function () {
     });
 
     afterEach(function (done) {
-        tu.cleanup(null, groupsToClear, permissionsToClear, done);
+        return tu.cleanup(null, groupsToClear, permissionsToClear, done);
     });
 
 });

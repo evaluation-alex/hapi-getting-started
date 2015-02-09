@@ -21,13 +21,9 @@ Audit.schema = Joi.object().keys({
     action: Joi.string(),
     origValues: Joi.object(),
     newValues: Joi.object(),
-    timestamp: Joi.date(),
-    by: Joi.string()
+    by: Joi.string(),
+    timestamp: Joi.date()
 });
-
-Audit.indexes = [
-    [{objectChangedType: 1, objectChangedId: 1, action: 1}]
-];
 
 Audit.create = function (type, id, action, origValues, newValues, by) {
     var self = this;
@@ -37,8 +33,8 @@ Audit.create = function (type, id, action, origValues, newValues, by) {
         action: action,
         origValues: origValues,
         newValues: newValues,
-        timestamp: new Date(),
-        by: by
+        by: by,
+        timestamp: new Date()
     };
     return self._insert(doc, undefined);
 };

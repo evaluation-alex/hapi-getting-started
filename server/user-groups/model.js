@@ -28,24 +28,20 @@ var isRoleMember = function (role) {
 _.extend(UserGroups.prototype, AddRemove);
 _.extend(UserGroups.prototype, IsActive);
 _.extend(UserGroups.prototype, Description);
-_.extend(UserGroups.prototype, new Save(UserGroups));
-_.extend(UserGroups.prototype, new CAudit(Audit, 'UserGroups', 'name'));
+_.extend(UserGroups.prototype, new Save(UserGroups, Audit));
+_.extend(UserGroups.prototype, new CAudit('UserGroups', 'name'));
 
 UserGroups.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        var modified = toAdd && isRoleOwner(role) && self._add(toAdd, 'owners', by);
-        var modified2 = toAdd && isRoleMember(role) && self._add(toAdd, 'members', by);
-        resolve(modified || modified2 ? self._save() : self);
-    });
+    var modified = toAdd && isRoleOwner(role) && self._add(toAdd, 'owners', by);
+    var modified2 = toAdd && isRoleMember(role) && self._add(toAdd, 'members', by);
+    return self;
 };
 UserGroups.prototype.removeUsers = function (toRemove, role, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        var modified = toRemove && isRoleOwner(role) && self._remove(toRemove, 'owners', by);
-        var modified2 = toRemove && isRoleMember(role) && self._remove(toRemove, 'members', by);
-        resolve(modified || modified2 ? self._save() : self);
-    });
+    var modified = toRemove && isRoleOwner(role) && self._remove(toRemove, 'owners', by);
+    var modified2 = toRemove && isRoleMember(role) && self._remove(toRemove, 'members', by);
+    return self;
 };
 UserGroups.prototype.isMember = function (email) {
     var self = this;
@@ -102,14 +98,14 @@ UserGroups.findByName = function (name) {
     var self = this;
     return new Promise(function (resolve, reject) {
         self._findOne({name: name, isActive: true})
-            .then(function(found) {
+            .then(function (found) {
                 if (!found) {
                     resolve(false);
                 } else {
                     resolve(found);
                 }
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 if (err) {
                     reject(err);
                 }
@@ -121,14 +117,14 @@ UserGroups.findGroupsForUser = function (email) {
     var self = this;
     return new Promise(function (resolve, reject) {
         self._find({members: email})
-            .then(function(g) {
+            .then(function (g) {
                 if (!g) {
                     resolve([]);
                 } else {
                     resolve(g);
                 }
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 if (err) {
                     reject(err);
                 }

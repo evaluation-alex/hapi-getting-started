@@ -34,7 +34,7 @@ describe('Login', function () {
                 return Users.create('test.users@test.api', 'password123');
             })
             .then(function (newUser) {
-                newUser.loginSuccess('test', 'test').done();
+                newUser.loginSuccess('test', 'test')._save();
                 done();
             })
             .catch(function (err) {
@@ -148,8 +148,8 @@ describe('Login', function () {
                     Audit.findAudit('Users', 'test.users@test.api', {action: 'login success'})
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
+                            done();
                         });
-                    done();
                 } catch (err) {
                     done(err);
                 }
@@ -256,7 +256,9 @@ describe('Login', function () {
             var key = '';
             Users._findOne({email: 'test.users@test.api'})
                 .then(function (foundUser) {
-                    foundUser.resetPasswordSent('test');
+                    return foundUser.resetPasswordSent('test')._save();
+                })
+                .then(function (foundUser) {
                     key = foundUser.resetPwd.token;
                 })
                 .then(function () {
@@ -290,7 +292,7 @@ describe('Login', function () {
         });
     });
     afterEach(function (done) {
-        tu.cleanup(emails, null, null, done);
+        return tu.cleanup(emails, null, null, done);
     });
 });
 
@@ -358,9 +360,11 @@ describe('Logout', function () {
         };
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
-                foundUser.loginSuccess('test', 'test').done();
+                return foundUser.loginSuccess('test', 'test')._save();
+            })
+            .then(function (foundUser) {
                 request.headers.Authorization = tu.authorizationHeader(foundUser);
-                foundUser.logout('test', 'test').done();
+                return foundUser.logout('test', 'test')._save();
             })
             .done();
         server.inject(request, function (response) {
@@ -368,10 +372,10 @@ describe('Logout', function () {
                 expect(response.statusCode).to.equal(401);
                 Users._findOne({email: 'one@first.com'})
                     .then(function (foundUser) {
-                        foundUser.loginSuccess('test', 'test').done();
+                        foundUser.loginSuccess('test', 'test')._save();
+                        done();
                     })
                     .done();
-                done();
             } catch (err) {
                 done(err);
             }
@@ -381,7 +385,9 @@ describe('Logout', function () {
     it('removes the authenticated user session successfully', function (done) {
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
-                foundUser.loginSuccess('test', 'test');
+                return foundUser.loginSuccess('test', 'test')._save();
+            }).
+            then(function (foundUser) {
                 var request = {
                     method: 'DELETE',
                     url: '/logout',
@@ -399,7 +405,7 @@ describe('Logout', function () {
                         Users._findOne({email: 'one@first.com'})
                             .then(function (foundUser) {
                                 expect(foundUser.session).to.not.exist();
-                                foundUser.loginSuccess('test', 'test');
+                                foundUser.loginSuccess('test', 'test')._save();
                                 done();
                             });
                     } catch (err) {
@@ -409,8 +415,8 @@ describe('Logout', function () {
             });
     });
 
-        afterEach(function (done) {
-            tu.cleanup(emails, null, null, done);
-        });
+    afterEach(function (done) {
+        return tu.cleanup(emails, null, null, done);
     });
+});
 

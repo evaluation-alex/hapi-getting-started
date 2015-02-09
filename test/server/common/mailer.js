@@ -44,12 +44,12 @@ describe('Mailer', function () {
             email: 'email',
             password: 'password'
         };
-        Mailer.sendEmail(options, 'server/users/welcome.hbs.md', payload)
+        Mailer.sendEmail(options, 'server/users/templates/welcome.hbs.md', payload)
             .then(function (info) {
                 expect(info).to.exist();
             })
             .then(function() {
-                return Mailer.sendEmail(options, 'server/users/welcome.hbs.md', payload);
+                return Mailer.sendEmail(options, 'server/users/templates/welcome.hbs.md', payload);
             })
             .then(function (info) {
                 expect(info).to.exist();

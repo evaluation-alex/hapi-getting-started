@@ -279,7 +279,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.loginSuccess('test', 'test');
+                    return user.loginSuccess('test', 'test')._save();
                 }).then(function (user) {
                     expect(user.session).to.exist();
                     return Audit.findAudit('Users',  user.email, {action: 'login success'});
@@ -303,7 +303,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.logout('test', 'test');
+                    return user.logout('test', 'test')._save();
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
@@ -328,7 +328,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.loginFail('test', 'test');
+                    return user.loginFail('test', 'test')._save();
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
@@ -353,7 +353,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.resetPasswordSent('test');
+                    return user.resetPasswordSent('test')._save();
                 })
                 .then(function (user) {
                     return Audit.findAudit('Users',  user.email, {action: 'reset password sent'});
@@ -373,7 +373,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.resetPassword('new password confirm', 'test');
+                    return user.resetPassword('new password confirm', 'test')._save();
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
@@ -397,7 +397,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.updateRoles(['root'], 'test');
+                    return user.updateRoles(['root'], 'test')._save();
                 }).then(function (user) {
                     expect(user.session).to.not.exist();
                     expect(user.roles).to.include(['root']);
@@ -422,7 +422,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.deactivate('test');
+                    return user.deactivate('test')._save();
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.false();
@@ -444,7 +444,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.reactivate('test');
+                    return user.reactivate('test')._save();
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.true();
@@ -465,6 +465,6 @@ describe('Users Model', function () {
 
     after(function (done) {
         var testUsers = [firstEmail, secondEmail];
-        tu.cleanup(testUsers, null, null, done);
+        return tu.cleanup(testUsers, null, null, done);
     });
 });

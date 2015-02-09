@@ -33,7 +33,7 @@ describe('Audit', function () {
                 return Users._findOne({email: 'root'});
             })
             .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test');
+                return foundUser.loginSuccess('test', 'test')._save();
             })
             .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
@@ -52,15 +52,15 @@ describe('Audit', function () {
             beforeEach(function (done) {
                 Users.create('test.users@test.api', 'password123')
                     .then(function (newUser) {
-                        return newUser.loginSuccess('test', 'test');
+                        return newUser.loginSuccess('test', 'test')._save();
                     })
                     .then(function () {
                         return Users.create('test.users2@test.api', 'password123');
                     })
                     .then(function (newUser2) {
-                        return newUser2.loginSuccess('test', 'test');
+                        return newUser2.loginSuccess('test', 'test')._save();
                     }).then(function (newUser2) {
-                        newUser2.deactivate('test');
+                        newUser2.deactivate('test')._save();
                         emails.push('test.users2@test.api');
                         emails.push('test.users@test.api');
                         done();
@@ -123,7 +123,7 @@ describe('Audit', function () {
 
 
     afterEach(function (done) {
-        tu.cleanup(emails, groupsToClear, permissionsToClear, done);
+        return tu.cleanup(emails, groupsToClear, permissionsToClear, done);
     });
 
 });

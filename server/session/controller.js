@@ -22,8 +22,7 @@ var abuseDetected = function (request, reply) {
             if (err) {
                 reply(Boom.badImplementation(err));
             }
-        })
-        .done();
+        });
 };
 
 var prePopulateUser = function (request, reply) {
@@ -35,7 +34,7 @@ var prePopulateUser = function (request, reply) {
                 reply(Boom.notFound('user ' + email + ' not found'));
             } else {
                 if (user.fail === true) {
-                    user.user.loginFail(request.info.remoteAddress, request.info.remoteAddress);
+                    user.user.loginFail(request.info.remoteAddress, request.info.remoteAddress)._save();
                     reply(Boom.unauthorized('Invalid password'));
                 } else {
                     reply(user);
@@ -49,8 +48,7 @@ var prePopulateUser = function (request, reply) {
             if (err) {
                 reply(Boom.badImplementation(err));
             }
-        })
-        .done();
+        });
 };
 
 var Controller = {
@@ -70,8 +68,8 @@ Controller.login = {
     ],
     handler: function (request, reply) {
         var user = request.pre.user;
-        user.loginSuccess(request.info.remoteAddress, user.email)
-            .then(function(user) {
+        user.loginSuccess(request.info.remoteAddress, user.email)._save()
+            .then(function (user) {
                 var credentials = user.email + ':' + user.session.key;
                 var authHeader = 'Basic ' + new Buffer(credentials).toString('base64');
                 reply({
@@ -91,8 +89,10 @@ Controller.login = {
 Controller.logout = {
     handler: function (request, reply) {
         var user = request.auth.credentials.user;
-        user.logout(request.info.remoteAddress, user.email).done();
-        reply({message: 'Success.'});
+        user.logout(request.info.remoteAddress, user.email)._save()
+            .then(function () {
+                reply({message: 'Success.'});
+            });
     }
 };
 

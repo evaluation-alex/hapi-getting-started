@@ -64,10 +64,10 @@ describe('AuthAttempts Model', function () {
         }
         Promise.all(authSpam)
             .then(function () {
-                AuthAttempts.abuseDetected('127.0.0.1', 'test.abuse@auth.attempts')
-                    .then(function (result) {
-                        expect(result).to.equal(true);
-                    });
+                return AuthAttempts.abuseDetected('127.0.0.1', 'test.abuse@auth.attempts');
+            })
+            .then(function (result) {
+                expect(result).to.equal(true);
             })
             .catch(function (err) {
                 expect(err).to.not.exist();
@@ -102,10 +102,10 @@ describe('AuthAttempts Model', function () {
         }
         Promise.all(authSpam)
             .then(function () {
-                AuthAttempts.abuseDetected('127.0.0.2', 'test.abusexxx@auth.attempts')
-                    .then(function (result) {
-                        expect(result).to.equal(true);
-                    });
+                return AuthAttempts.abuseDetected('127.0.0.2', 'test.abusexxx@auth.attempts');
+            })
+            .then(function (result) {
+                expect(result).to.equal(true);
             })
             .catch(function (err) {
                 expect(err).to.not.exist();
@@ -117,7 +117,7 @@ describe('AuthAttempts Model', function () {
     });
 
     after(function (done) {
-        tu.cleanup(null, null, null, done);
+        return tu.cleanup(null, null, null, done);
     });
 
 });

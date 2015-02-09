@@ -31,8 +31,7 @@ var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
                     if (err) {
                         reply(Boom.badImplementation(err));
                     }
-                })
-                .done();
+                });
         } else {
             reply();
         }
@@ -84,8 +83,7 @@ Controller.findOne = function (component, model) {
                     if (err) {
                         reply(Boom.badImplementation(err));
                     }
-                })
-                .done();
+                });
         }
     };
 };

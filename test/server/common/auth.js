@@ -32,7 +32,9 @@ describe('Auth', function () {
                 return Users.create(email, 'auth123');
             })
             .then(function (user) {
-                user.loginSuccess('test', 'test').done();
+                return user.loginSuccess('test', 'test')._save();
+            })
+            .then(function (user) {
                 authheader = tu.authorizationHeader(user);
                 done();
             })
@@ -149,7 +151,7 @@ describe('Auth', function () {
 
         Users.findByEmail(email)
             .then(function (user) {
-                user.logout('test', 'test').done();
+                return user.logout('test', 'test')._save();
             })
             .then(function () {
                 var request = {
@@ -184,14 +186,18 @@ describe('Auth', function () {
             },
             handler: function (request, reply) {
                 expect(request.auth.credentials).to.exist();
-                reply('ok').statusCode(200).takeover();
+                reply('ok').statusCode(200);
             }
         });
 
         Users.findByEmail(email)
             .then(function (user) {
-                user.updateRoles([], 'test').done();
-                user.loginSuccess('test', 'test').done();
+                return user.updateRoles([], 'test')._save();
+            })
+            .then(function (user) {
+                return user.loginSuccess('test', 'test')._save();
+            })
+            .then(function (user) {
                 authheader = tu.authorizationHeader2(email, user.session.key);
                 var request = {
                     method: 'GET',
@@ -250,7 +256,7 @@ describe('Auth', function () {
     });
 
     afterEach(function (done) {
-        tu.cleanup([email], null, null, done);
+        return tu.cleanup([email], null, null, done);
     });
 });
 

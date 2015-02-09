@@ -32,7 +32,7 @@ describe('Users', function () {
                 return Users.create('test.users@test.api', 'password123');
             })
             .then(function (newUser) {
-                newUser.loginSuccess('test', 'test').done();
+                newUser.loginSuccess('test', 'test')._save();
                 done();
             })
             .catch(function (err) {
@@ -48,7 +48,7 @@ describe('Users', function () {
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
-                return foundUser.logout('test', 'test');
+                return foundUser.logout('test', 'test')._save();
             })
             .then(function () {
                 var request = {
@@ -73,8 +73,11 @@ describe('Users', function () {
         var authheader = '';
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
+                return foundUser.loginSuccess('test')._save();
+            })
+            .then(function(foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
-                return foundUser.updateRoles([], 'test');
+                return foundUser.updateRoles([], 'test')._save();
             })
             .then(function () {
                 var request = {
@@ -99,10 +102,10 @@ describe('Users', function () {
         var authheader = '';
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
-                foundUser.loginSuccess('test', 'test').done();
-                authheader = tu.authorizationHeader(foundUser);
+                return foundUser.loginSuccess('test', 'test')._save();
             })
-            .then(function () {
+            .then(function (foundUser) {
+                authheader = tu.authorizationHeader(foundUser);
                 var request = {
                     method: 'GET',
                     url: '/users',
@@ -124,18 +127,24 @@ describe('Users', function () {
 
     describe('GET /users', function () {
         var authheader = '';
-        beforeEach(function (done) {
+        before(function (done) {
             Users._findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
-                    foundUser.loginSuccess('test', 'test').done();
+                    foundUser.loginSuccess('test', 'test')._save();
                     authheader = tu.authorizationHeader(foundUser);
-                });
-            emails.push('test.users2@test.api');
-            Users.create('test.users2@test.api', 'password123')
+                }).
+                then(function () {
+                    return Users.create('test.users2@test.api', 'password123');
+                })
                 .then(function (newUser) {
-                    newUser.loginSuccess('test', 'test').done();
-                    newUser.deactivate('test').done();
+                    return newUser.loginSuccess('test', 'test')._save();
+                })
+                .then(function (newUser) {
+                    newUser.deactivate('test')._save();
                     done();
+                })
+                .catch(function (err) {
+                    done(err);
                 });
         });
         it('should give active users when isactive = true is sent', function (done) {
@@ -216,18 +225,29 @@ describe('Users', function () {
                 }
             });
         });
+        after(function (done) {
+            emails.push('test.users2@test.api');
+            done();
+        });
     });
 
     describe('GET /users/{id}', function () {
         var authheader = '';
         var id = '';
-        beforeEach(function (done) {
+        before(function (done) {
             Users._findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
-                    foundUser.loginSuccess('test', 'test').done();
+                    return foundUser.loginSuccess('test', 'test')._save();
+                })
+                .then(function (foundUser) {
                     authheader = tu.authorizationHeader(foundUser);
                     id = foundUser._id.toString();
                     done();
+                })
+                .catch(function (err) {
+                    if (err) {
+                        done(err);
+                    }
                 });
         });
         it('should only send back user with the id in params', function (done) {
@@ -274,7 +294,7 @@ describe('Users', function () {
         beforeEach(function (done) {
             Users._findOne({email: 'root'})
                 .then(function (foundUser) {
-                    return foundUser.loginSuccess('test', 'test');
+                    return foundUser.loginSuccess('test', 'test')._save();
                 })
                 .then(function (foundUser) {
                     authheader = tu.authorizationHeader(foundUser);
@@ -282,7 +302,7 @@ describe('Users', function () {
                     return Users.create('test.users2@test.api', 'password123');
                 })
                 .then(function (newUser) {
-                    newUser.loginSuccess('test', 'test').done();
+                    newUser.loginSuccess('test', 'test')._save();
                     id = newUser._id.toString();
                     done();
                 });
@@ -532,7 +552,7 @@ describe('Signup', function () {
     });
 
     afterEach(function (done) {
-        tu.cleanup(emails, null, null, done);
+        return tu.cleanup(emails, null, null, done);
     });
 
 });

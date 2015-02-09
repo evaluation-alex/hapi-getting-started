@@ -119,7 +119,7 @@ Controller.signup = {
                             address: email
                         }
                     };
-                    Mailer.sendEmail(options, __dirname + '/welcome.hbs.md', request.payload);
+                    Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload);
                 }
                 return user;
             })
@@ -177,7 +177,7 @@ Controller.loginForgot = {
                     subject: 'Reset your ' + Config.projectName + ' password',
                     to: request.payload.email
                 };
-                Mailer.sendEmail(options, __dirname + '/forgot-password.hbs.md', {key: foundUser.resetPwd.token});
+                Mailer.sendEmail(options, __dirname + '/templates/forgot-password.hbs.md', {key: foundUser.resetPwd.token});
             })
             .then(function () {
                 reply({message: 'Success.'});

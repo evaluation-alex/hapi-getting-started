@@ -391,7 +391,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest3', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
-                    return ug.addUsers(['test3'], 'both', 'test4')._save();
+                    return ug.addUsers(['test3'], 'ownermember', 'test4')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isOwner('test3')).to.be.true();
@@ -481,7 +481,7 @@ describe('UserGroups Model', function () {
                     return UserGroups.create('addUsersTest6.1', 'UserGroups.this.addBothNotPresent', 'test3');
                 })
                 .then(function (ug) {
-                    return ug.addUsers(['newBoth'], 'both', 'test3')._save();
+                    return ug.addUsers(['newBoth'], 'ownermember', 'test3')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('newBoth')).to.be.true();
@@ -580,7 +580,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('neither')).to.be.false();
                     expect(ug.isOwner('neither')).to.be.false();
-                    return ug.removeUsers(['neither'], 'both', 'test4')._save();
+                    return ug.removeUsers(['neither'], 'ownermember', 'test4')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('neither')).to.be.false();

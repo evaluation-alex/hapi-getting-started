@@ -162,13 +162,13 @@ describe('Permissions Model', function () {
         before(function (done) {
             UserGroups.create('permissionsTest1', 'testing permissions for users', 'permissionedUser')
                 .then(function (u1) {
-                    return u1.addUsers(['testUserActive'], 'both', 'test5')._save();
+                    return u1.addUsers(['testUserActive'], 'ownermember', 'test5')._save();
                 })
                 .then(function () {
                     return UserGroups.create('permissionsTest2', 'testing permissions for users', 'permissionedUser');
                 })
                 .then(function (u2) {
-                    return u2.addUsers(['testUserActive'], 'both', 'test5')._save();
+                    return u2.addUsers(['testUserActive'], 'ownermember', 'test5')._save();
                 })
                 .then(function (u2) {
                     return u2.addUsers(['testUserInactive'], 'owner', 'test5')._save();

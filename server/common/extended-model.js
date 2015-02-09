@@ -153,6 +153,18 @@ var CommonMixinAddRemove = {
             }
         });
         return modified;
+    },
+    _process: function (process, toProcess, role, roles, by) {
+        var self = this;
+        var modified = false;
+        if (toProcess && toProcess.length > 0) {
+            _.forEach(_.pairs(roles), (function (p) {
+                if (role.indexOf(p[0]) !== -1) {
+                    modified = toProcess && self[process](toProcess, p[1], by);
+                }
+            }));
+        }
+        return self;
     }
 };
 

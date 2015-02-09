@@ -37,15 +37,11 @@ _.extend(UserGroups.prototype, new CAudit('UserGroups', 'name'));
 
 UserGroups.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
-    var modified = toAdd && isRoleOwner(role) && self._add(toAdd, 'owners', by);
-    var modified2 = toAdd && isRoleMember(role) && self._add(toAdd, 'members', by);
-    return self;
+    return self._process('_add', toAdd, role, {owner: 'owners', member: 'members'}, by);
 };
 UserGroups.prototype.removeUsers = function (toRemove, role, by) {
     var self = this;
-    var modified = toRemove && isRoleOwner(role) && self._remove(toRemove, 'owners', by);
-    var modified2 = toRemove && isRoleMember(role) && self._remove(toRemove, 'members', by);
-    return self;
+    return self._process('_remove', toRemove, role, {owner: 'owners', member: 'members'}, by);
 };
 UserGroups.prototype.isMember = function (email) {
     var self = this;

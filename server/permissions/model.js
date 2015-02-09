@@ -38,23 +38,11 @@ Permissions.prototype.isPermissionFor = function (forAction, onObject) {
 };
 Permissions.prototype.addUsers = function (toAdd, role, by) {
     var self = this;
-    var modified = false;
-    if (role.indexOf('user') !== -1) {
-        modified = toAdd && self._add(toAdd, 'users', by);
-    } else {
-        modified = toAdd && (role.indexOf('group') !== -1) && self._add(toAdd, 'groups', by);
-    }
-    return self;
+    return self._process('_add', toAdd, role, {user: 'users', group: 'groups'}, by);
 };
 Permissions.prototype.removeUsers = function (toRemove, role, by) {
     var self = this;
-    var modified = false;
-    if (role.indexOf('user') !== -1) {
-        modified = toRemove && self._remove(toRemove, 'users', by);
-    } else {
-        modified = toRemove && (role.indexOf('group') !== -1) && self._remove(toRemove, 'groups', by);
-    }
-    return self;
+    return self._process('_remove', toRemove, role, {user: 'users', group: 'groups'}, by);
 };
 Permissions._collection = 'permissions';
 

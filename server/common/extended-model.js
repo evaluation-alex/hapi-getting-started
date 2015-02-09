@@ -227,7 +227,7 @@ var CommonMixinSave = function (Model, Audit) {
             var self = this;
             return new Promise(function (resolve, reject) {
                 var logFn = function (start, end) {
-                    logger.info({id: self._id.toString(), start: start, end: end});
+                    logger.info({collection: Model._collection, id: self._id.toString(), start: start, end: end, elapsed: end - start});
                 };
                 var start = Date.now();
                 self._saveAudit()

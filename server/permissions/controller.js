@@ -20,7 +20,7 @@ var permissionCheck = function (request, reply) {
     };
     Permissions._findOne(query)
         .then(function (permissions) {
-            if (!permissions) {
+            if (permissions) {
                 reply(Boom.conflict('Permissions already exist, modify the existing ones.'));
             } else {
                 reply(true);

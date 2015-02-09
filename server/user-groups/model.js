@@ -22,12 +22,6 @@ var UserGroups = ExtendedModel.extend({
     }
     /* jshint +W064 */
 });
-var isRoleOwner = function (role) {
-    return (role.indexOf('owner') !== -1 || role.indexOf('both') !== -1);
-};
-var isRoleMember = function (role) {
-    return (role.indexOf('member') !== -1 || role.indexOf('both') !== -1);
-};
 
 _.extend(UserGroups.prototype, AddRemove);
 _.extend(UserGroups.prototype, IsActive);

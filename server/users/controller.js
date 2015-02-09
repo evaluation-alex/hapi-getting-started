@@ -25,8 +25,7 @@ var emailCheck = function (request, reply) {
             if (err) {
                 reply(Boom.badImplementation(err));
             }
-        })
-        .done();
+        });
 };
 
 Controller.find = BaseController.find('users', Users, {
@@ -78,6 +77,9 @@ Controller.update = {
                 return (user && request.payload.password) ? user.resetPassword(request.payload.password, by) : user;
             })
             .then(function (user) {
+                return (user) ? user._save() : user;
+            })
+            .then(function (user) {
                 if (!user) {
                     reply(Boom.notFound('User not found.'));
                 } else {
@@ -88,8 +90,7 @@ Controller.update = {
                 if (err) {
                     reply(Boom.badImplementation(err));
                 }
-            })
-            .done();
+            });
     }
 };
 
@@ -108,7 +109,7 @@ Controller.signup = {
         var password = request.payload.password;
         Users.create(email, password)
             .then(function (user) {
-                return (user) ? user.loginSuccess(request.info.remoteAddress, user.email) : user;
+                return (user) ? user.loginSuccess(request.info.remoteAddress, user.email)._save() : user;
             })
             .then(function (user) {
                 if (user) {
@@ -138,8 +139,7 @@ Controller.signup = {
                 if (err) {
                     reply(Boom.badImplementation(err));
                 }
-            })
-            .done();
+            });
     }
 };
 
@@ -156,8 +156,7 @@ var prePopulateUser2 = function (request, reply) {
             if (err) {
                 reply(Boom.badImplementation(err));
             }
-        })
-        .done();
+        });
 };
 
 Controller.loginForgot = {
@@ -171,13 +170,13 @@ Controller.loginForgot = {
     ],
     handler: function (request, reply) {
         var foundUser = request.pre.user;
-        foundUser.resetPasswordSent(request.pre.user.email)
+        foundUser.resetPasswordSent(request.pre.user.email)._save()
             .then(function () {
                 var options = {
                     subject: 'Reset your ' + Config.projectName + ' password',
                     to: request.payload.email
                 };
-                Mailer.sendEmail(options, __dirname + '/templates/forgot-password.hbs.md', {key: foundUser.resetPwd.token});
+                return Mailer.sendEmail(options, __dirname + '/templates/forgot-password.hbs.md', {key: foundUser.resetPwd.token});
             })
             .then(function () {
                 reply({message: 'Success.'});
@@ -186,8 +185,7 @@ Controller.loginForgot = {
                 if (err) {
                     reply(Boom.badImplementation(err));
                 }
-            })
-            .done();
+            });
     }
 };
 
@@ -208,8 +206,7 @@ var prePopulateUser3 = function (request, reply) {
             if (err) {
                 reply(Boom.badImplementation(err));
             }
-        })
-        .done();
+        });
 };
 
 Controller.loginReset = {
@@ -231,8 +228,10 @@ Controller.loginReset = {
             reply(Boom.badRequest('Invalid email or key.'));
         } else {
             user._invalidateSession();
-            user.resetPassword(request.payload.password, user.email).done();
-            reply({message: 'Success.'});
+            user.resetPassword(request.payload.password, user.email)._save()
+                .then(function (user) {
+                    reply({message: 'Success.'});
+                });
         }
     }
 };

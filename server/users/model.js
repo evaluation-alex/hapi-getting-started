@@ -25,8 +25,8 @@ var Users = ExtendedModel.extend({
 });
 
 _.extend(Users.prototype, IsActive);
-_.extend(Users.prototype, new Save(Users));
-_.extend(Users.prototype, new CAudit(Audit, 'Users', 'email'));
+_.extend(Users.prototype, new Save(Users, Audit));
+_.extend(Users.prototype, new CAudit('Users', 'email'));
 
 Users.prototype.hasPermissionsTo = function (performAction, onObject) {
     var ret = false;
@@ -61,6 +61,7 @@ Users.prototype._invalidateSession = function () {
     var self = this;
     self.session = {};
     delete self.session;
+    return self;
 };
 Users.prototype._newSession = function () {
     var self = this;
@@ -68,35 +69,31 @@ Users.prototype._newSession = function () {
         key: Bcrypt.hashSync(Uuid.v4(), 10),
         timestamp: new Date()
     };
-};
-Users.prototype._auditAndSave = function (action, origValues, newValues, by) {
-    var self = this;
-    self._audit(action, origValues, newValues, by);
-    return self._save();
+    return self;
 };
 Users.prototype.loginSuccess = function (ipaddress, by) {
     var self = this;
     self._newSession();
     delete self.resetPwd;
-    return self._auditAndSave('login success', null, ipaddress, by);
+    return self._audit('login success', null, ipaddress, by);
 };
 Users.prototype.loginFail = function (ipaddress, by) {
     var self = this;
     self._invalidateSession();
-    return self._auditAndSave('login fail', null, ipaddress, by);
+    return self._audit('login fail', null, ipaddress, by);
 };
 Users.prototype.logout = function (ipaddress, by) {
     var self = this;
     self._invalidateSession();
-    return self._auditAndSave('logout', null, ipaddress, by);
+    return self._audit('logout', null, ipaddress, by);
 };
 Users.prototype.resetPasswordSent = function (by) {
     var self = this;
-        self.resetPwd = {
-            token: Uuid.v4(),
-            expires: Date.now() + 10000000
-        };
-        return self._auditAndSave('reset password sent', null, self.resetPwd, by);
+    self.resetPwd = {
+        token: Uuid.v4(),
+        expires: Date.now() + 10000000
+    };
+    return self._audit('reset password sent', null, self.resetPwd, by);
 };
 Users.prototype.resetPassword = function (newPassword, by) {
     var self = this;
@@ -104,19 +101,16 @@ Users.prototype.resetPassword = function (newPassword, by) {
     var newHashedPassword = Bcrypt.hashSync(newPassword, 10);
     self.password = newHashedPassword;
     delete self.resetPwd;
-    return self._auditAndSave('reset password', oldPassword, newHashedPassword, by);
+    return self._audit('reset password', oldPassword, newHashedPassword, by);
 };
 Users.prototype.updateRoles = function (newRoles, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        if (!_.isEqual(self.roles, newRoles)) {
-            var oldRoles = self.roles;
-            self.roles = newRoles;
-            resolve(self._auditAndSave('update roles', oldRoles, newRoles, by));
-        } else {
-            resolve(self);
-        }
-    });
+    if (!_.isEqual(self.roles, newRoles)) {
+        var oldRoles = self.roles;
+        self.roles = newRoles;
+        self._audit('update roles', oldRoles, newRoles, by);
+    }
+    return self;
 };
 
 Users._collection = 'users';

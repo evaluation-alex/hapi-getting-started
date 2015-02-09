@@ -20,6 +20,10 @@ var Users = ExtendedModel.extend({
             writable: true,
             enumerable: false
         });
+        Object.defineProperty(this, 'audit', {
+            writable: true,
+            enumerable: false
+        });
     }
     /* jshint +W064 */
 });

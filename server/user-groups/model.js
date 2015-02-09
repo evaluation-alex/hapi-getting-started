@@ -15,6 +15,10 @@ var UserGroups = ExtendedModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
+        Object.defineProperty(this, 'audit', {
+            writable: true,
+            enumerable: false
+        });
     }
     /* jshint +W064 */
 });

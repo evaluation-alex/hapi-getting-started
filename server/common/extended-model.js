@@ -194,24 +194,35 @@ module.exports.Description = CommonMixinDescription;
 
 var CommonMixinSave = function (Model, Audit) {
     return {
+        _saveAudit: function () {
+            var self = this;
+            return new Promise(function (resolve, reject) {
+                if (self.audit && self.audit.length > 0) {
+                    Promise.settle(_.map(self.audit, function (a) {
+                        return Audit._insert(a, []);
+                    }))
+                        .then(function (saves) {
+                            self.audit = [];
+                            resolve(self);
+                        });
+                } else {
+                    resolve(self);
+                }
+            });
+        },
         _save: function () {
             var self = this;
             return new Promise(function (resolve, reject) {
-                var timestamp = new Date();
-                if (self.audit && self.audit.length > 0) {
-                    Promise.all(_.map(self.audit, function (a) {
-                        a.timestamp = timestamp;
-                        return Audit._insert(a, []);
-                    }))
-                        .then(function () {
-                            self.audit = [];
-                            delete self.audit;
-                            resolve(Model._findByIdAndUpdate(self._id, self));
-                        })
-                        .done();
-                } else {
-                    resolve(Model._findByIdAndUpdate(self._id, self));
-                }
+                self._saveAudit()
+                    .then(function () {
+                        resolve(Model._findByIdAndUpdate(self._id, self));
+                    })
+                    .catch(function (err) {
+                        if (err) {
+                            reject(err);
+                        }
+                    })
+                    .done();
             });
         }
     };
@@ -226,7 +237,7 @@ var CommonMixinAudit = function (type, idToUse) {
             if (!self.audit) {
                 self.audit = [];
             }
-            self.audit.push({objectChangedType: type, objectChangedId: self[idToUse], action: action, origValues: oldValues, newValues: newValues, by: by});
+            self.audit.push({objectChangedType: type, objectChangedId: self[idToUse], action: action, origValues: oldValues, newValues: newValues, by: by, timestamp: new Date()});
             return self;
         }
     };

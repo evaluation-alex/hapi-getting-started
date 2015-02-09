@@ -207,6 +207,10 @@ module.exports.Description = CommonMixinDescription;
 
 var CommonMixinSave = function (Model, Audit) {
     return {
+        _logFn: function (start, end) {
+            var self = this;
+            logger.info({collection: Model._collection, id: self._id.toString(), start: start, end: end, elapsed: end - start});
+        },
         _saveAudit: function () {
             var self = this;
             return new Promise(function (resolve, reject) {
@@ -226,19 +230,16 @@ var CommonMixinSave = function (Model, Audit) {
         _save: function () {
             var self = this;
             return new Promise(function (resolve, reject) {
-                var logFn = function (start, end) {
-                    logger.info({collection: Model._collection, id: self._id.toString(), start: start, end: end, elapsed: end - start});
-                };
                 var start = Date.now();
                 self._saveAudit()
                     .then(function () {
                         resolve(Model._findByIdAndUpdate(self._id, self));
-                        logFn(start, Date.now());
+                        self._logFn(start, Date.now());
                     })
                     .catch(function (err) {
                         if (err) {
                             reject(err);
-                            logFn(start, Date.now());
+                            self._logFn(start, Date.now());
                         }
                     })
                     .done();

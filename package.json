@@ -48,7 +48,7 @@
         "good-console": "4.1.x",
         "good-file": "4.0.x",
         "handlebars": "2.0.x",
-        "hapi": "8.1.x",
+        "hapi": "8.2.x",
         "hapi-auth-basic": "2.0.x",
         "hapi-bunyan": "0.5.x",
         "hapi-mongo-models": "1.1.x",

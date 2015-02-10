@@ -37,24 +37,6 @@ var connections = [{
 }];
 
 var plugins = {
-    /*'good': {
-     opsInterval: 1000 * 60 * 15,
-     reporters: [{
-     reporter: require('good-console'),
-     args: [Config.logs.logConfig, {format: 'YYYY.MM.DD.HH.mm.ss.SSS'}]
-     }, {
-     reporter: require('good-file'),
-     args: [{
-     path: Config.logs.logDir,
-     format: 'YYYY_MM_DD',
-     prefix: Config.projectName + '_',
-     rotate: 'daily'
-     }, Config.logs.logConfig]
-     }],
-     logRequestHeaders: true,
-     logRequestPayload: true,
-     logResponsePayload: true
-     },*/
     'hapi-bunyan': {logger: logger, mergeData: true, includeTags: true, joinTags: ','},
     'lout': {},
     'poop': {logPath: Config.logs.logDir},

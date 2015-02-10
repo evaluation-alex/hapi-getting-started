@@ -64,12 +64,17 @@ Permissions.indexes = [
     [{'action': 1, 'object': 1}, {unique: true}]
 ];
 
+Permissions.newObject = function (doc, by) {
+    var self = this;
+    return self.create(doc.description, doc.users, doc.groups, doc.action, doc.object, by);
+};
+
 Permissions.create = function (description, users, groups, action, object, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var document = {
             description: description,
-            users: users ? users: [],
+            users: users ? users: [by],
             groups: groups ? groups : [],
             action: action,
             object: object,

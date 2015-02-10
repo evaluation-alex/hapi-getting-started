@@ -132,8 +132,12 @@ var setupServer = function () {
                         reject(err);
                     } else {
                         components.forEach(function (component) {
-                            var routes = require(component).Routes;
-                            server.route(routes);
+                            try {
+                                var routes = require(component).Routes;
+                                server.route(routes);
+                            } catch (err) {
+                                console.log(err);
+                            }
                         });
                         resolve(server);
                     }

@@ -494,29 +494,6 @@ describe('Signup', function () {
         });
     });
 
-    it.skip('fails when the signup email send fails', function (done) {
-        Fs.renameSync('./server/emails/welcome.hbs.md', './server/emails/welcome2.hbs.md');
-        var request = {
-            method: 'POST',
-            url: '/signup',
-            payload: {
-                email: 'test.signup@signup.api',
-                password: 'p4ssw0rd'
-            }
-        };
-        server.inject(request, function (response) {
-            try {
-                Fs.renameSync('./server/emails/welcome2.hbs.md', './server/emails/welcome.hbs.md');
-                expect(response.statusCode).to.equal(500);
-                emails.push(request.payload.email);
-                done();
-            } catch (err) {
-                emails.push(request.payload.email);
-                done(err);
-            }
-        });
-    });
-
     it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records', function (done) {
         var request = {
             method: 'POST',

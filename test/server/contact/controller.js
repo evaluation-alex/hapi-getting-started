@@ -36,8 +36,8 @@ describe('Contact', function () {
             .done();
     });
 
-    it.skip('returns an error when send email fails', function (done) {
-        Fs.renameSync('./server/emails/contact.hbs.md', './server/emails/contact2.hbs.md');
+    it('returns an error when send email fails', function (done) {
+        Fs.renameSync('./server/contact/contact.hbs.md', './server/contact/contact2.hbs.md');
         var request = {
             method: 'POST',
             url: '/contact',
@@ -50,7 +50,7 @@ describe('Contact', function () {
         server.inject(request, function (response) {
             try {
                 expect(response.statusCode).to.equal(500);
-                Fs.renameSync('./server/emails/contact2.hbs.md', './server/emails/contact.hbs.md');
+                Fs.renameSync('./server/contact/contact2.hbs.md', './server/contact/contact.hbs.md');
                 done();
             } catch (err) {
                 done(err);

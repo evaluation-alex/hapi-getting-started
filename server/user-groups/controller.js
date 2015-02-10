@@ -6,7 +6,6 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var UserGroups = require('./model');
 var Users = require('./../users/model');
-var AuthPlugin = require('./../common/auth');
 var BaseController = require('./../common/controller').BaseController;
 var areValid = require('./../common/controller').areValid;
 
@@ -82,51 +81,23 @@ Controller.update = BaseController.update('user-groups', UserGroups, {
         removedOwners: Joi.array().includes(Joi.string()).unique(),
         description: Joi.string()
     }
-});
-Controller.update.pre.push({assign: 'validAndPermitted', method: validAndPermitted},
+}, [{assign: 'validAndPermitted', method: validAndPermitted},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
-    {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')});
+    {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')}
+]);
 
-Controller.new = {
-    validator: {
-        payload: {
-            name: Joi.string().required(),
-            members: Joi.array().includes(Joi.string()),
-            owners: Joi.array().includes(Joi.string()),
-            description: Joi.string()
-        }
-    },
-    pre: [
-        AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
-        {assign: 'groupCheck', method: groupCheck},
-        {assign: 'validMembers', method: areValid(Users, 'email', 'members')},
-        {assign: 'validOwners', method: areValid(Users, 'email', 'owners')},
-    ],
-    handler: function (request, reply) {
-        var by = request.auth.credentials.user.email;
-        UserGroups.create(request.payload.name, request.payload.description, by)
-            .then(function (userGroup) {
-                if (userGroup) {
-                    return userGroup.add(request.payload.members, 'member', by)
-                        .add(request.payload.owners, 'owner', by)
-                        ._save();
-                }
-                return userGroup;
-            })
-            .then(function (userGroup) {
-                if (!userGroup) {
-                    reply(Boom.notFound('User group could not be created.'));
-                } else {
-                    reply(userGroup);
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            });
+Controller.new = BaseController.new('user-groups', UserGroups, {
+    payload: {
+        name: Joi.string().required(),
+        members: Joi.array().includes(Joi.string()),
+        owners: Joi.array().includes(Joi.string()),
+        description: Joi.string()
     }
-};
+}, [
+    {assign: 'groupCheck', method: groupCheck},
+    {assign: 'validMembers', method: areValid(Users, 'email', 'members')},
+    {assign: 'validOwners', method: areValid(Users, 'email', 'owners')},
+]);
 
 Controller.delete = BaseController.delete('user-groups', UserGroups);
 Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted});

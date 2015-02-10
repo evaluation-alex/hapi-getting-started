@@ -65,6 +65,22 @@ UserGroups.indexes = [
     [{'owners': 1}]
 ];
 
+UserGroups.newObject = function (doc, by) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        self.create(doc.name, doc.description, by)
+            .then(function (userGroup) {
+                if (userGroup) {
+                    resolve(userGroup.add(doc.members, 'member', by)
+                        .add(doc.owners, 'owner', by)
+                        ._save());
+                } else {
+                    resolve(userGroup);
+                }
+            });
+    });
+};
+
 UserGroups.create = function (name, description, owner) {
     var self = this;
     return new Promise(function (resolve, reject) {

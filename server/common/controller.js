@@ -92,26 +92,49 @@ Controller.findOne = function (component, Model) {
     };
 };
 
-Controller.update = function (component, Model, validator) {
+Controller.new = function (component, Model, validator, prereqs) {
     return {
         validator: validator,
-        pre: [AuthPlugin.preware.ensurePermissions('update', component)],
+        pre: _.flatten([AuthPlugin.preware.ensurePermissions('update', component), prereqs]),
+        handler: function (request, reply) {
+            var by = request.auth.credentials.user.email;
+            Model.newObject(request.payload, by)
+                .then(function (n) {
+                    if (!n) {
+                        reply(Boom.notFound(component + ' could not be created.'));
+                    } else {
+                        reply(n);
+                    }
+                })
+                .catch(function (err) {
+                    if (err) {
+                        reply(Boom.badImplementation(err));
+                    }
+                });
+        }
+    };
+};
+
+Controller.update = function (component, Model, validator, prereqs) {
+    return {
+        validator: validator,
+        pre: _.flatten([AuthPlugin.preware.ensurePermissions('update', component), prereqs]),
         handler: function (request, reply) {
             var id = BaseModel.ObjectID(request.params.id);
             logger.info({component: component, id: request.params.id});
             Model._findOne({_id: id})
-                .then(function (f) {
-                    if (!f) {
+                .then(function (u) {
+                    if (!u) {
                         reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
                         return false;
                     } else {
                         var by = request.auth.credentials.user.email;
-                        return f.update(request.payload, by)._save();
+                        return u.update(request.payload, by)._save();
                     }
                 })
-                .then(function(f) {
-                    if (f) {
-                        reply(f);
+                .then(function(u) {
+                    if (u) {
+                        reply(u);
                     }
                 })
                 .catch(function (err) {

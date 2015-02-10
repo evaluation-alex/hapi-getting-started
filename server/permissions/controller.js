@@ -5,7 +5,6 @@ var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');
 var Promise = require('bluebird');
 var Permissions = require('./model');
-var AuthPlugin = require('./../common/auth');
 var BaseController = require('./../common/controller').BaseController;
 var Users = require('./../users/model');
 var UserGroups = require('./../user-groups/model');
@@ -72,43 +71,23 @@ Controller.update = BaseController.update('permissions', Permissions, {
         removedGroups: Joi.array().includes(Joi.string()).unique(),
         description: Joi.string()
     }
-});
-Controller.update.pre.push({assign: 'validUsers', method: areValid(Users, 'email', 'addedUsers')},
-    {assign: 'validGroups', method: areValid(UserGroups, 'name', 'addedGroups')});
+}, [{assign: 'validUsers', method: areValid(Users, 'email', 'addedUsers')},
+    {assign: 'validGroups', method: areValid(UserGroups, 'name', 'addedGroups')}
+]);
 
-Controller.new = {
-    validator: {
-        payload: {
-            description: Joi.string(),
-            users: Joi.array().includes(Joi.string()).unique(),
-            groups: Joi.array().includes(Joi.string()).unique(),
-            action: Joi.string().required(),
-            object: Joi.string().required()
-        }
-    },
-    pre: [
-        AuthPlugin.preware.ensurePermissions('update', 'permissions'),
-        {assign: 'permissionCheck', method: permissionCheck},
-        {assign: 'validUsers', method: areValid(Users, 'email', 'users')},
-        {assign: 'validGroups', method: areValid(UserGroups, 'name', 'groups')}
-    ],
-    handler: function (request, reply) {
-        var by = request.auth.credentials.user.email;
-        Permissions.create(request.payload.description, request.payload.users, request.payload.groups, request.payload.action, request.payload.object, by)
-            .then(function (permissions) {
-                if (!permissions) {
-                    reply(Boom.notFound('permissions could not be created.'));
-                } else {
-                    reply(permissions);
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            });
+Controller.new = BaseController.new('permissions', Permissions, {
+    payload: {
+        description: Joi.string(),
+        users: Joi.array().includes(Joi.string()).unique(),
+        groups: Joi.array().includes(Joi.string()).unique(),
+        action: Joi.string().required(),
+        object: Joi.string().required()
     }
-};
+}, [
+    {assign: 'permissionCheck', method: permissionCheck},
+    {assign: 'validUsers', method: areValid(Users, 'email', 'users')},
+    {assign: 'validGroups', method: areValid(UserGroups, 'name', 'groups')}
+]);
 
 Controller.delete = BaseController.delete('permissions', Permissions);
 

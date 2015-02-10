@@ -61,6 +61,11 @@ Blogs.indexes = [
     [{description: 1}]
 ];
 
+Blogs.newObject = function (doc, by) {
+    var self = this;
+    return self.create(doc.title, doc.description, doc.owners, doc.contributors, doc.subscribers, doc.subscriberGroups, by);
+};
+
 Blogs.create = function (title, description, owners, contributors, subscribers, subscriberGroups, by) {
     var self = this;
     return new Promise(function (resolve, reject) {

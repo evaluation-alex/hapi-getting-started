@@ -38,17 +38,13 @@ var sendEmail = exports.sendEmail = function (options, template, context) {
                     from: Config.system.fromAddress,
                     markdown: content
                 });
-                if (Config.sendmails) {
-                    transport.sendMail(options, function (err, res) {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(true);
-                        }
-                    });
-                } else {
-                    resolve(true);
-                }
+                transport.sendMail(options, function (err, res) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(true);
+                    }
+                });
             })
             .catch(function (err) {
                 if (err) {

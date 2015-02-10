@@ -19,10 +19,6 @@ var logOptions = {
     }]
 };
 
-if (process.env.NODE_ENV !== 'prod') {
-    logOptions.src = true;
-}
-
 var logger = Bunyan.createLogger(logOptions);
 
 module.exports.logger = logger;

@@ -55,13 +55,13 @@ describe('UserGroups', function () {
                     return UserGroups.create('GetUserGroupsTestMemberActive', 'GET /user-groups', 'root');
                 })
                 .then(function (g2) {
-                    return g2.addUsers(['user1', 'user2'], 'member', 'root')._save();
+                    return g2.add(['user1', 'user2'], 'member', 'root')._save();
                 })
                 .then(function (g3) {
                     return UserGroups.create('GetUserGroupsTestMemberInactive', 'GET /user-groups', 'root');
                 })
                 .then(function (g3) {
-                    return g3.addUsers(['user4'], 'member', 'root')._save();
+                    return g3.add(['user4'], 'member', 'root')._save();
                 })
                 .then(function (g4) {
                     return UserGroups.create('GetUserGroupsTestInactive', 'GET /user-groups', 'root');
@@ -555,8 +555,8 @@ describe('UserGroups', function () {
                         },
                         payload: {
                             name: 'testDupeGroup',
-                            addedMembers: ['one@first.com'],
-                            addedOwners: ['one@first.com'],
+                            members: ['one@first.com'],
+                            owners: ['one@first.com'],
                             description: 'test POST /user-groups'
                         }
                     };
@@ -581,8 +581,8 @@ describe('UserGroups', function () {
                 },
                 payload: {
                     name: 'testGroupUserExist',
-                    addedMembers: ['unknown'],
-                    addedOwners: ['madeup'],
+                    members: ['unknown'],
+                    owners: ['madeup'],
                     description: 'test POST /user-groups'
                 }
             };
@@ -610,8 +610,8 @@ describe('UserGroups', function () {
                 },
                 payload: {
                     name: 'testUserGroupCreate',
-                    addedMembers: ['one@first.com'],
-                    addedOwners: ['one@first.com'],
+                    members: ['one@first.com'],
+                    owners: ['one@first.com'],
                     description: 'test POST /user-groups'
                 }
             };

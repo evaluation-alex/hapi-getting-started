@@ -88,16 +88,16 @@ Controller.update = {
                 return (permissions && request.payload.isActive === false) ? permissions.deactivate(by) : permissions;
             })
             .then(function (permissions) {
-                return (permissions && request.payload.addedUsers) ? permissions.addUsers(request.payload.addedUsers, 'user', by) : permissions;
+                return (permissions && request.payload.addedUsers) ? permissions.add(request.payload.addedUsers, 'user', by) : permissions;
             })
             .then(function (permissions) {
-                return (permissions && request.payload.removedUsers) ? permissions.removeUsers(request.payload.removedUsers, 'user', by) : permissions;
+                return (permissions && request.payload.removedUsers) ? permissions.remove(request.payload.removedUsers, 'user', by) : permissions;
             })
             .then(function (permissions) {
-                return (permissions && request.payload.addedGroups) ? permissions.addUsers(request.payload.addedGroups, 'group', by) : permissions;
+                return (permissions && request.payload.addedGroups) ? permissions.add(request.payload.addedGroups, 'group', by) : permissions;
             })
             .then(function (permissions) {
-                return (permissions && request.payload.removedGroups) ? permissions.removeUsers(request.payload.removedGroups, 'group', by) : permissions;
+                return (permissions && request.payload.removedGroups) ? permissions.remove(request.payload.removedGroups, 'group', by) : permissions;
             })
             .then(function (permissions) {
                 return (permissions && request.payload.description) ? permissions.updateDesc(request.payload.description, by) : permissions;

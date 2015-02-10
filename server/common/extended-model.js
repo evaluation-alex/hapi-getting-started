@@ -123,50 +123,47 @@ ExtendedModel.areValid = function (property, toCheck) {
 
 module.exports.ExtendedModel = ExtendedModel;
 
-var CommonMixinAddRemove = {
-    _find: function (role, toFind) {
-        var self = this;
-        return _.findWhere(self[role], toFind);
-    },
-    _add: function (toAdd, role, by) {
-        var self = this;
-        var modified = false;
-        _.forEach(toAdd, function (memberToAdd) {
-            var found = self._find(role, memberToAdd);
-            if (!found) {
-                modified = true;
-                self[role].push(memberToAdd);
-                self._audit('add ' + role, null, memberToAdd, by);
-            }
-        });
-        return modified;
-    },
-    _remove: function (toRemove, role, by) {
-        var self = this;
-        var modified = false;
-        _.forEach(toRemove, function (memberToRemove) {
-            var found = _.remove(self[role], function (m) {
-                return m === memberToRemove;
+var CommonMixinAddRemove = function (roles) {
+    return {
+        _find: function (role, toFind) {
+            var self = this;
+            return _.findWhere(self[role], toFind);
+        },
+        _findRoles: function (role) {
+            return _.find(_.pairs(roles), function (pair) {
+                return role.indexOf(pair[0]) !== -1;
             });
-            if (found && found.length > 0) {
-                modified = true;
-                self._audit('remove ' + role, memberToRemove, null, by);
+        },
+        add: function (toAdd, role, by) {
+            var self = this;
+            var rolePair = self._findRoles(role);
+            if (toAdd && toAdd.length > 0 && rolePair) {
+                _.forEach(toAdd, function (memberToAdd) {
+                    var found = _.findWhere(self[rolePair[1]], memberToAdd);
+                    if (!found) {
+                        self[rolePair[1]].push(memberToAdd);
+                        self._audit('add ' + role, null, memberToAdd, by);
+                    }
+                });
             }
-        });
-        return modified;
-    },
-    _process: function (call, toProcess, role, roles, by) {
-        var self = this;
-        var modified = false;
-        if (toProcess && toProcess.length > 0) {
-            _.forEach(_.pairs(roles), (function (p) {
-                if (role.indexOf(p[0]) !== -1) {
-                    modified = toProcess && self[call](toProcess, p[1], by);
-                }
-            }));
+            return self;
+        },
+        remove: function (toRemove, role, by) {
+            var self = this;
+            var rolePair = self._findRoles(role);
+            if (toRemove && toRemove.length > 0 && rolePair) {
+                _.forEach(toRemove, function (memberToRemove) {
+                    var found = _.remove(self[rolePair[1]], function (m) {
+                        return m === memberToRemove;
+                    });
+                    if (found && found.length > 0) {
+                        self._audit('remove ' + role, memberToRemove, null, by);
+                    }
+                });
+            }
+            return self;
         }
-        return self;
-    }
+    };
 };
 
 module.exports.AddRemove = CommonMixinAddRemove;
@@ -209,7 +206,13 @@ var CommonMixinSave = function (Model, Audit) {
     return {
         _logFn: function (start, end) {
             var self = this;
-            logger.info({collection: Model._collection, id: self._id.toString(), start: start, end: end, elapsed: end - start});
+            logger.info({
+                collection: Model._collection,
+                id: self._id.toString(),
+                start: start,
+                end: end,
+                elapsed: end - start
+            });
         },
         _saveAudit: function () {
             var self = this;
@@ -257,7 +260,15 @@ var CommonMixinAudit = function (type, idToUse) {
             if (!self.audit) {
                 self.audit = [];
             }
-            self.audit.push({objectChangedType: type, objectChangedId: self[idToUse], action: action, origValues: oldValues, newValues: newValues, by: by, timestamp: new Date()});
+            self.audit.push({
+                objectChangedType: type,
+                objectChangedId: self[idToUse],
+                action: action,
+                origValues: oldValues,
+                newValues: newValues,
+                by: by,
+                timestamp: new Date()
+            });
             return self;
         }
     };

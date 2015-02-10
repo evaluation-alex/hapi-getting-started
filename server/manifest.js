@@ -46,10 +46,11 @@ var plugins = {
         models: {
             AuthAttempts: './server/auth-attempts/model',
             Roles: './server/roles/model',
-            Users: './server/users/model',
             Audit: './server/audit/model',
+            Users: './server/users/model',
             UserGroups: './server/user-groups/model',
-            Permissions: './server/permissions/model'
+            Permissions: './server/permissions/model',
+            Blogs: './server/blogs/model'
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },
@@ -58,13 +59,14 @@ var plugins = {
 };
 
 var components = [
-    './server/audit',
-    './server/auth-attempts',
     './server/contact',
-    './server/permissions',
+    './server/auth-attempts',
+    './server/audit',
+    './server/users',
     './server/session',
     './server/user-groups',
-    './server/users'
+    './server/permissions',
+    './server/blogs'
 ];
 
 module.exports.components = components;

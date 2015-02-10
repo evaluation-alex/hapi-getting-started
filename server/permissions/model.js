@@ -24,7 +24,7 @@ var Permissions = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
-_.extend(Permissions.prototype, AddRemove);
+_.extend(Permissions.prototype, new AddRemove({user: 'users', group: 'groups'}));
 _.extend(Permissions.prototype, IsActive);
 _.extend(Permissions.prototype, Description);
 _.extend(Permissions.prototype, new Save(Permissions, Audit));
@@ -35,14 +35,6 @@ Permissions.prototype.isPermissionFor = function (forAction, onObject) {
     var ret = (self.action === forAction || self.action === '*') &&
         (self.object === onObject || self.object === '*');
     return ret;
-};
-Permissions.prototype.addUsers = function (toAdd, role, by) {
-    var self = this;
-    return self._process('_add', toAdd, role, {user: 'users', group: 'groups'}, by);
-};
-Permissions.prototype.removeUsers = function (toRemove, role, by) {
-    var self = this;
-    return self._process('_remove', toRemove, role, {user: 'users', group: 'groups'}, by);
 };
 Permissions._collection = 'permissions';
 

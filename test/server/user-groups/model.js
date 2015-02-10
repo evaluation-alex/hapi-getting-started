@@ -344,7 +344,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug.isMember('alreadyMember')).to.be.true();
-                    return ug.addUsers(['alreadyMember'], 'member', 'test3')._save();
+                    return ug.add(['alreadyMember'], 'member', 'test3')._save();
                 })
                 .then(function (ug) {
                     return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add member/}});
@@ -370,7 +370,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug.isOwner('alreadyOwner')).to.be.true();
-                    return ug.addUsers(['alreadyOwner'], 'owner', 'test3')._save();
+                    return ug.add(['alreadyOwner'], 'owner', 'test3')._save();
                 })
                 .then(function (ug) {
                     return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add owner/}});
@@ -391,7 +391,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest3', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
-                    return ug.addUsers(['test3'], 'ownermember', 'test4')._save();
+                    return ug.add(['test3'], 'ownermember', 'test4')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isOwner('test3')).to.be.true();
@@ -417,7 +417,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest4', 'UserGroups.this.addOwnerNotPresent', 'test3')
                 .then(function (ug) {
-                    return ug.addUsers(['newOwner'], 'owner', 'test3')._save();
+                    return ug.add(['newOwner'], 'owner', 'test3')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isOwner('newOwner')).to.be.true();
@@ -426,7 +426,7 @@ describe('UserGroups Model', function () {
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].newValues).to.equal('newOwner');
-                    expect(ugaudit[0].action).to.equal('add owners');
+                    expect(ugaudit[0].action).to.match(/add owner/);
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -441,7 +441,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest5', 'UserGroups.this.addMemberNotPresent', 'test3')
                 .then(function (ug) {
-                    return ug.addUsers(['newMember'], 'member', 'test3')._save();
+                    return ug.add(['newMember'], 'member', 'test3')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('newMember')).to.be.true();
@@ -450,7 +450,7 @@ describe('UserGroups Model', function () {
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].newValues).to.equal('newMember');
-                    expect(ugaudit[0].action).to.equal('add members');
+                    expect(ugaudit[0].action).to.match(/add member/);
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -465,7 +465,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest6.0', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
                 .then(function (ug) {
-                    return ug.addUsers(['newMemberOwner'], 'memberowner', 'test3')._save();
+                    return ug.add(['newMemberOwner'], 'owner', 'test3').add(['newMemberOwner'], 'member', 'test3')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('newMemberOwner')).to.be.true();
@@ -481,7 +481,7 @@ describe('UserGroups Model', function () {
                     return UserGroups.create('addUsersTest6.1', 'UserGroups.this.addBothNotPresent', 'test3');
                 })
                 .then(function (ug) {
-                    return ug.addUsers(['newBoth'], 'ownermember', 'test3')._save();
+                    return ug.add(['newBoth'], 'owner', 'test3').add(['newBoth'], 'member', 'test3')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('newBoth')).to.be.true();
@@ -516,7 +516,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('notMemberButOwner')).to.be.false();
                     expect(ug.isOwner('notMemberButOwner')).to.be.true();
-                    return ug.removeUsers(['notMemberButOwner'], 'member', 'test4')._save();
+                    return ug.remove(['notMemberButOwner'], 'member', 'test4')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('notMemberButOwner')).to.be.false();
@@ -545,7 +545,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('notOwnerButMember')).to.be.true();
                     expect(ug.isOwner('notOwnerButMember')).to.be.false();
-                    return ug.removeUsers(['notOwnerButMember'], 'owner', 'test4')._save();
+                    return ug.remove(['notOwnerButMember'], 'owner', 'test4')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('notOwnerButMember')).to.be.true();
@@ -570,17 +570,17 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('neither')).to.be.false();
                     expect(ug.isOwner('neither')).to.be.false();
-                    return ug.removeUsers(['neither'], 'owner', 'test4')._save();
+                    return ug.remove(['neither'], 'owner', 'test4')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('neither')).to.be.false();
                     expect(ug.isOwner('neither')).to.be.false();
-                    return ug.removeUsers(['neither'], 'member', 'test4')._save();
+                    return ug.remove(['neither'], 'member', 'test4')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('neither')).to.be.false();
                     expect(ug.isOwner('neither')).to.be.false();
-                    return ug.removeUsers(['neither'], 'ownermember', 'test4')._save();
+                    return ug.remove(['neither'], 'ownermember', 'test4')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('neither')).to.be.false();
@@ -609,7 +609,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('owner')).to.be.false();
                     expect(ug.isOwner('owner')).to.be.true();
-                    return ug.removeUsers(['owner'], 'owner', 'test4')._save();
+                    return ug.remove(['owner'], 'owner', 'test4')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('owner')).to.be.false();
@@ -640,7 +640,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug.isMember('member')).to.be.true();
                     expect(ug.isOwner('member')).to.be.false();
-                    return ug.removeUsers(['member'], 'member', 'test4')._save();
+                    return ug.remove(['member'], 'member', 'test4')._save();
                 })
                 .then(function (ug) {
                     expect(ug.isMember('member')).to.be.false();

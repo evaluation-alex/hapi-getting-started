@@ -23,20 +23,12 @@ var UserGroups = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
-_.extend(UserGroups.prototype, AddRemove);
+_.extend(UserGroups.prototype, new AddRemove({owner: 'owners', member: 'members'}));
 _.extend(UserGroups.prototype, IsActive);
 _.extend(UserGroups.prototype, Description);
 _.extend(UserGroups.prototype, new Save(UserGroups, Audit));
 _.extend(UserGroups.prototype, new CAudit('UserGroups', 'name'));
 
-UserGroups.prototype.addUsers = function (toAdd, role, by) {
-    var self = this;
-    return self._process('_add', toAdd, role, {owner: 'owners', member: 'members'}, by);
-};
-UserGroups.prototype.removeUsers = function (toRemove, role, by) {
-    var self = this;
-    return self._process('_remove', toRemove, role, {owner: 'owners', member: 'members'}, by);
-};
 UserGroups.prototype.isMember = function (email) {
     var self = this;
     return !!self._find('members', email);

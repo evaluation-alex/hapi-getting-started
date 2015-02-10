@@ -100,16 +100,16 @@ Controller.update = {
                 return (request.payload.isActive === false) ? userGroup.deactivate(by) : userGroup;
             })
             .then(function (userGroup) {
-                return (request.payload.addedMembers) ? userGroup.addUsers(request.payload.addedMembers, 'member', by) : userGroup;
+                return (request.payload.addedMembers) ? userGroup.add(request.payload.addedMembers, 'member', by) : userGroup;
             })
             .then(function (userGroup) {
-                return (request.payload.removedMembers) ? userGroup.removeUsers(request.payload.removedMembers, 'member', by) : userGroup;
+                return (request.payload.removedMembers) ? userGroup.remove(request.payload.removedMembers, 'member', by) : userGroup;
             })
             .then(function (userGroup) {
-                return (request.payload.addedOwners) ? userGroup.addUsers(request.payload.addedOwners, 'owner', by) : userGroup;
+                return (request.payload.addedOwners) ? userGroup.add(request.payload.addedOwners, 'owner', by) : userGroup;
             })
             .then(function (userGroup) {
-                return (request.payload.removedOwners) ? userGroup.removeUsers(request.payload.removedOwners, 'owner', by) : userGroup;
+                return (request.payload.removedOwners) ? userGroup.remove(request.payload.removedOwners, 'owner', by) : userGroup;
             })
             .then(function (userGroup) {
                 return (request.payload.description) ? userGroup.updateDesc(request.payload.description, by) : userGroup;
@@ -132,25 +132,25 @@ Controller.new = {
     validator: {
         payload: {
             name: Joi.string().required(),
-            addedMembers: Joi.array().includes(Joi.string()),
-            addedOwners: Joi.array().includes(Joi.string()),
+            members: Joi.array().includes(Joi.string()),
+            owners: Joi.array().includes(Joi.string()),
             description: Joi.string()
         }
     },
     pre: [
         AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
         {assign: 'groupCheck', method: groupCheck},
-        {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
-        {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')},
+        {assign: 'validMembers', method: areValid(Users, 'email', 'members')},
+        {assign: 'validOwners', method: areValid(Users, 'email', 'owners')},
     ],
     handler: function (request, reply) {
         var by = request.auth.credentials.user.email;
         UserGroups.create(request.payload.name, request.payload.description, by)
             .then(function (userGroup) {
-                return (userGroup && request.payload.addedMembers) ? userGroup.addUsers(request.payload.addedMembers, 'member', by) : userGroup;
+                return (userGroup && request.payload.members) ? userGroup.add(request.payload.members, 'member', by) : userGroup;
             })
             .then(function (userGroup) {
-                    return (userGroup && request.payload.addedOwners) ? userGroup.addUsers(request.payload.addedOwners, 'owner', by) : userGroup;
+                    return (userGroup && request.payload.owners) ? userGroup.add(request.payload.owners, 'owner', by) : userGroup;
             })
             .then(function (userGroup) {
                 return (userGroup) ? userGroup._save() : userGroup;

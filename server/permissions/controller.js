@@ -50,10 +50,10 @@ Controller.find = BaseController.find('permissions', Permissions, {
         query.groups = {$regex: new RegExp('^.*?' + request.query.group + '.*$', 'i')};
     }
     if (request.query.action) {
-        query.action = {$regex: new RegExp ('^.*?' + request.query.action + '.*$', 'i')};
+        query.action = {$regex: new RegExp('^.*?' + request.query.action + '.*$', 'i')};
     }
     if (request.query.object) {
-        query.object = {$regex: new RegExp ('^.*?' + request.query.object + '.*$', 'i')};
+        query.object = {$regex: new RegExp('^.*?' + request.query.object + '.*$', 'i')};
     }
     if (request.query.isActive) {
         query.isActive = request.query.isActive === '"true"';
@@ -63,62 +63,18 @@ Controller.find = BaseController.find('permissions', Permissions, {
 
 Controller.findOne = BaseController.findOne('permissions', Permissions);
 
-Controller.update = {
-    validator: {
-        payload: {
-            isActive: Joi.boolean(),
-            addedUsers: Joi.array().includes(Joi.string()).unique(),
-            removedUsers: Joi.array().includes(Joi.string()).unique(),
-            addedGroups: Joi.array().includes(Joi.string()).unique(),
-            removedGroups: Joi.array().includes(Joi.string()).unique(),
-            description: Joi.string()
-        }
-    },
-    pre: [AuthPlugin.preware.ensurePermissions('update', 'permissions'),
-        {assign: 'validUsers', method: areValid(Users, 'email', 'addedUsers')},
-        {assign: 'validGroups', method: areValid(UserGroups, 'name', 'addedGroups')}
-    ],
-    handler: function (request, reply) {
-        var by = request.auth.credentials.user.email;
-        Permissions._findOne({_id: BaseModel.ObjectID(request.params.id)})
-            .then(function (permissions) {
-                return (permissions && request.payload.isActive === true) ? permissions.reactivate(by) : permissions;
-            })
-            .then(function (permissions) {
-                return (permissions && request.payload.isActive === false) ? permissions.deactivate(by) : permissions;
-            })
-            .then(function (permissions) {
-                return (permissions && request.payload.addedUsers) ? permissions.add(request.payload.addedUsers, 'user', by) : permissions;
-            })
-            .then(function (permissions) {
-                return (permissions && request.payload.removedUsers) ? permissions.remove(request.payload.removedUsers, 'user', by) : permissions;
-            })
-            .then(function (permissions) {
-                return (permissions && request.payload.addedGroups) ? permissions.add(request.payload.addedGroups, 'group', by) : permissions;
-            })
-            .then(function (permissions) {
-                return (permissions && request.payload.removedGroups) ? permissions.remove(request.payload.removedGroups, 'group', by) : permissions;
-            })
-            .then(function (permissions) {
-                return (permissions && request.payload.description) ? permissions.updateDesc(request.payload.description, by) : permissions;
-            })
-            .then(function (permissions) {
-                return (permissions) ? permissions._save() : permissions;
-            })
-            .then(function (permissions) {
-                if (!permissions) {
-                    reply(Boom.notFound('Permissions not found.'));
-                } else {
-                    reply(permissions);
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            });
+Controller.update = BaseController.update('permissions', Permissions, {
+    payload: {
+        isActive: Joi.boolean(),
+        addedUsers: Joi.array().includes(Joi.string()).unique(),
+        removedUsers: Joi.array().includes(Joi.string()).unique(),
+        addedGroups: Joi.array().includes(Joi.string()).unique(),
+        removedGroups: Joi.array().includes(Joi.string()).unique(),
+        description: Joi.string()
     }
-};
+});
+Controller.update.pre.push({assign: 'validUsers', method: areValid(Users, 'email', 'addedUsers')},
+    {assign: 'validGroups', method: areValid(UserGroups, 'name', 'addedGroups')});
 
 Controller.new = {
     validator: {
@@ -126,8 +82,8 @@ Controller.new = {
             description: Joi.string(),
             users: Joi.array().includes(Joi.string()).unique(),
             groups: Joi.array().includes(Joi.string()).unique(),
-            action: Joi.string(),
-            object: Joi.string()
+            action: Joi.string().required(),
+            object: Joi.string().required()
         }
     },
     pre: [
@@ -154,30 +110,6 @@ Controller.new = {
     }
 };
 
-Controller.delete = {
-    pre: [AuthPlugin.preware.ensurePermissions('update', 'permissions')],
-    handler: function (request, reply) {
-        Permissions._findOne({_id: BaseModel.ObjectID(request.params.id)})
-            .then(function (permissions) {
-                if (!permissions) {
-                    reply(Boom.notFound('Permissions not found.'));
-                    return false;
-                } else {
-                    var by = request.auth.credentials.user.email;
-                    return permissions.deactivate(by)._save();
-                }
-            })
-            .then(function(permissions) {
-                if (permissions) {
-                    reply(permissions);
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            });
-    }
-};
+Controller.delete = BaseController.delete('permissions', Permissions);
 
 module.exports.Controller = Controller;

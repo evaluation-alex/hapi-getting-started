@@ -29,6 +29,19 @@ _.extend(Blogs.prototype, Description);
 _.extend(Blogs.prototype, new Save(Blogs, Audit));
 _.extend(Blogs.prototype, new CAudit('Blogs', 'name'));
 
+Blogs.prototype.update = function(payload, by) {
+    var self = this;
+    return self.setActive(payload.isActive)
+        .add(payload.addedOwners, 'owner', by)
+        .remove(payload.removedOwners, 'owner', by)
+        .add(payload.addedContributors, 'contributor', by)
+        .remove(payload.removedContributors, 'contributor', by)
+        .add(payload.addedSubscribers, 'subscriber', by)
+        .remove(payload.removedSubscribers, 'subscriber', by)
+        .add(payload.addedSubscriberGroups, 'group', by)
+        .remove(payload.removedSubscriberGroups, 'group', by)
+        .updateDesc(payload.description, by);
+};
 
 Blogs._collection = 'blogs';
 
@@ -48,22 +61,22 @@ Blogs.indexes = [
     [{description: 1}]
 ];
 
-Blogs.create = function (title, description, owner) {
+Blogs.create = function (title, description, owners, contributors, subscribers, subscriberGroups, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var document = {
             title: title,
             description: description,
-            contributors: [owner],
-            owners: [owner],
-            subscribers: [],
-            subscriberGroups: [],
+            owners: owners ? owners : [by],
+            contributors: contributors ? contributors : [by],
+            subscribers: subscribers ? subscribers : [by],
+            subscriberGroups: subscriberGroups ? subscriberGroups : [],
             isActive: true
         };
         self._insert(document, false)
             .then(function (blog) {
                 if (blog) {
-                    Audit.create('Blogs', title, 'create', null, blog, owner);
+                    Audit.create('Blogs', title, 'create', null, blog, by);
                 }
                 resolve(blog);
             })

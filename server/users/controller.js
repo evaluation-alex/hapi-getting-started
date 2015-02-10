@@ -7,7 +7,6 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var Users = require('./model');
 var Mailer = require('./../common/mailer');
-var AuthPlugin = require('./../common/auth');
 var BaseController = require('./../common/controller').BaseController;
 
 var Controller = {};
@@ -46,53 +45,13 @@ Controller.find = BaseController.find('users', Users, {
 
 Controller.findOne = BaseController.findOne('users', Users);
 
-Controller.update = {
-    validator: {
-        payload: {
-            isActive: Joi.boolean(),
-            roles: Joi.array().includes(Joi.string()),
-            password: Joi.string()
-        }
-    },
-    pre: [AuthPlugin.preware.ensurePermissions('update', 'users')],
-    handler: function (request, reply) {
-        var by = request.auth.credentials.user.email;
-        Users._findOne({_id: BaseModel.ObjectID(request.params.id)})
-            .then(function (user) {
-                if (user) {
-                    user._invalidateSession();
-                }
-                return user;
-            })
-            .then(function (user) {
-                return (user && request.payload.isActive === false) ? user.deactivate(by) : user;
-            })
-            .then(function (user) {
-                return (user && request.payload.isActive === true) ? user.reactivate(by) : user;
-            })
-            .then(function (user) {
-                return (user && request.payload.roles) ? user.updateRoles(request.payload.roles, by) : user;
-            })
-            .then(function (user) {
-                return (user && request.payload.password) ? user.resetPassword(request.payload.password, by) : user;
-            })
-            .then(function (user) {
-                return (user) ? user._save() : user;
-            })
-            .then(function (user) {
-                if (!user) {
-                    reply(Boom.notFound('User not found.'));
-                } else {
-                    reply(user);
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            });
+Controller.update = BaseController.update('users', Users, {
+    payload: {
+        isActive: Joi.boolean(),
+        roles: Joi.array().includes(Joi.string()),
+        password: Joi.string()
     }
-};
+});
 
 Controller.signup = {
     validator: {

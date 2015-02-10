@@ -117,7 +117,8 @@ var setupServer = function () {
                     '../../server/permissions',
                     '../../server/session',
                     '../../server/user-groups',
-                    '../../server/users'
+                    '../../server/users',
+                    '../../server/blogs'
                 ];
                 var ModelsPlugin = {
                     register: require('hapi-mongo-models'),

@@ -36,6 +36,16 @@ Permissions.prototype.isPermissionFor = function (forAction, onObject) {
         (self.object === onObject || self.object === '*');
     return ret;
 };
+Permissions.prototype.update = function (payload, by) {
+    var self = this;
+    return self.setActive(payload.isActive, by)
+        .add(payload.addedUsers, 'user', by)
+        .remove(payload.removedUsers, 'user', by)
+        .add(payload.addedGroups, 'group', by)
+        .remove(payload.removedGroups, 'group', by)
+        .updateDesc(payload.description, by);
+};
+
 Permissions._collection = 'permissions';
 
 Permissions.schema = Joi.object().keys({
@@ -43,8 +53,8 @@ Permissions.schema = Joi.object().keys({
     description: Joi.string(),
     users: Joi.array().includes(Joi.string()).unique(),
     groups: Joi.array().includes(Joi.string()).unique(),
-    action: Joi.string(),
-    object: Joi.string(),
+    action: Joi.string().required(),
+    object: Joi.string().required(),
     isActive: Joi.boolean().default(true)
 });
 
@@ -59,8 +69,8 @@ Permissions.create = function (description, users, groups, action, object, by) {
     return new Promise(function (resolve, reject) {
         var document = {
             description: description,
-            users: users,
-            groups: groups,
+            users: users ? users: [],
+            groups: groups ? groups : [],
             action: action,
             object: object,
             isActive: true

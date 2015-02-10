@@ -26,12 +26,6 @@ var RouteFactory = function () {
         }
         return self;
     };
-    self.forGET = function () {
-        return self.forMethod('GET');
-    };
-    self.forPUT = function () {
-        return self.forMethod('PUT');
-    };
     self.forPOST = function () {
         return self.forMethod('POST');
     };

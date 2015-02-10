@@ -68,13 +68,13 @@ Controller.find = function (component, model, validator, queryBuilder) {
     };
 };
 
-Controller.findOne = function (component, model) {
+Controller.findOne = function (component, Model) {
     return {
         pre: [AuthPlugin.preware.ensurePermissions('view', component)],
         handler: function (request, reply) {
             var id = BaseModel.ObjectID(request.params.id);
             logger.info({component: component, id: request.params.id});
-            model._findOne({_id: id})
+            Model._findOne({_id: id})
                 .then(function (f) {
                     if (!f) {
                         reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
@@ -85,6 +85,67 @@ Controller.findOne = function (component, model) {
                 .catch(function (err) {
                     if (err) {
                         logger.error({component: component, id: request.params.id, error: err});
+                        reply(Boom.badImplementation(err));
+                    }
+                });
+        }
+    };
+};
+
+Controller.update = function (component, Model, validator) {
+    return {
+        validator: validator,
+        pre: [AuthPlugin.preware.ensurePermissions('update', component)],
+        handler: function (request, reply) {
+            var id = BaseModel.ObjectID(request.params.id);
+            logger.info({component: component, id: request.params.id});
+            Model._findOne({_id: id})
+                .then(function (f) {
+                    if (!f) {
+                        reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
+                        return false;
+                    } else {
+                        var by = request.auth.credentials.user.email;
+                        return f.update(request.payload, by)._save();
+                    }
+                })
+                .then(function(f) {
+                    if (f) {
+                        reply(f);
+                    }
+                })
+                .catch(function (err) {
+                    if (err) {
+                        reply(Boom.badImplementation(err));
+                    }
+                });
+        }
+    };
+};
+
+Controller.delete = function (component, Model) {
+    return {
+        pre: [AuthPlugin.preware.ensurePermissions('update', component)],
+        handler: function (request, reply) {
+            var id = BaseModel.ObjectID(request.params.id);
+            logger.info({component: component, id: request.params.id});
+            Model._findOne({_id: id})
+                .then(function (f) {
+                    if (!f) {
+                        reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
+                        return false;
+                    } else {
+                        var by = request.auth.credentials.user.email;
+                        return f.deactivate(by)._save();
+                    }
+                })
+                .then(function(f) {
+                    if (f) {
+                        reply(f);
+                    }
+                })
+                .catch(function (err) {
+                    if (err) {
                         reply(Boom.badImplementation(err));
                     }
                 });

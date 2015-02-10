@@ -73,60 +73,19 @@ Controller.find = BaseController.find('user-groups', UserGroups, {
 
 Controller.findOne = BaseController.findOne('user-groups', UserGroups);
 
-Controller.update = {
-    validator: {
-        payload: {
-            isActive: Joi.boolean(),
-            addedMembers: Joi.array().includes(Joi.string()).unique(),
-            removedMembers: Joi.array().includes(Joi.string()).unique(),
-            addedOwners: Joi.array().includes(Joi.string()).unique(),
-            removedOwners: Joi.array().includes(Joi.string()).unique(),
-            description: Joi.string()
-        }
-    },
-    pre: [
-        AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
-        {assign: 'validAndPermitted', method: validAndPermitted},
-        {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
-        {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')},
-    ],
-    handler: function (request, reply) {
-        var by = request.auth.credentials.user.email;
-        UserGroups._findOne({_id: BaseModel.ObjectID(request.params.id)})
-            .then(function (userGroup) {
-                return (request.payload.isActive === true) ? userGroup.reactivate(by) : userGroup;
-            })
-            .then(function (userGroup) {
-                return (request.payload.isActive === false) ? userGroup.deactivate(by) : userGroup;
-            })
-            .then(function (userGroup) {
-                return (request.payload.addedMembers) ? userGroup.add(request.payload.addedMembers, 'member', by) : userGroup;
-            })
-            .then(function (userGroup) {
-                return (request.payload.removedMembers) ? userGroup.remove(request.payload.removedMembers, 'member', by) : userGroup;
-            })
-            .then(function (userGroup) {
-                return (request.payload.addedOwners) ? userGroup.add(request.payload.addedOwners, 'owner', by) : userGroup;
-            })
-            .then(function (userGroup) {
-                return (request.payload.removedOwners) ? userGroup.remove(request.payload.removedOwners, 'owner', by) : userGroup;
-            })
-            .then(function (userGroup) {
-                return (request.payload.description) ? userGroup.updateDesc(request.payload.description, by) : userGroup;
-            })
-            .then(function (userGroup) {
-                return userGroup._save();
-            })
-            .then(function (userGroup) {
-                reply(userGroup);
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            });
+Controller.update = BaseController.update('user-groups', UserGroups, {
+    payload: {
+        isActive: Joi.boolean(),
+        addedMembers: Joi.array().includes(Joi.string()).unique(),
+        removedMembers: Joi.array().includes(Joi.string()).unique(),
+        addedOwners: Joi.array().includes(Joi.string()).unique(),
+        removedOwners: Joi.array().includes(Joi.string()).unique(),
+        description: Joi.string()
     }
-};
+});
+Controller.update.pre.push({assign: 'validAndPermitted', method: validAndPermitted},
+    {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
+    {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')});
 
 Controller.new = {
     validator: {
@@ -147,13 +106,12 @@ Controller.new = {
         var by = request.auth.credentials.user.email;
         UserGroups.create(request.payload.name, request.payload.description, by)
             .then(function (userGroup) {
-                return (userGroup && request.payload.members) ? userGroup.add(request.payload.members, 'member', by) : userGroup;
-            })
-            .then(function (userGroup) {
-                    return (userGroup && request.payload.owners) ? userGroup.add(request.payload.owners, 'owner', by) : userGroup;
-            })
-            .then(function (userGroup) {
-                return (userGroup) ? userGroup._save() : userGroup;
+                if (userGroup) {
+                    return userGroup.add(request.payload.members, 'member', by)
+                        .add(request.payload.owners, 'owner', by)
+                        ._save();
+                }
+                return userGroup;
             })
             .then(function (userGroup) {
                 if (!userGroup) {
@@ -170,29 +128,7 @@ Controller.new = {
     }
 };
 
-Controller.delete = {
-    pre: [
-        AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
-        {assign: 'validAndPermitted', method: validAndPermitted}
-    ],
-    handler: function (request, reply) {
-        UserGroups._findOne({_id: BaseModel.ObjectID(request.params.id)})
-            .then(function (userGroup) {
-                var by = request.auth.credentials.user.email;
-                return userGroup.deactivate(by);
-            })
-            .then(function (userGroup) {
-                return userGroup._save();
-            })
-            .then(function (userGroup) {
-                reply(userGroup);
-            })
-            .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
-            });
-    }
-};
+Controller.delete = BaseController.delete('user-groups', UserGroups);
+Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted});
 
 module.exports.Controller = Controller;

@@ -169,6 +169,13 @@ var CommonMixinAddRemove = function (roles) {
 module.exports.AddRemove = CommonMixinAddRemove;
 
 var CommonMixinIsActive = {
+    setActive: function (isActive, by) {
+        var self = this;
+        if (!(isActive === null || isActive === undefined)) {
+            return isActive ? self.reactivate(by) : self.deactivate(by);
+        }
+        return self;
+    },
     deactivate: function (by) {
         var self = this;
         if (self.isActive) {
@@ -192,7 +199,7 @@ module.exports.IsActive = CommonMixinIsActive;
 var CommonMixinDescription = {
     updateDesc: function (newDesc, by) {
         var self = this;
-        if (self.description !== newDesc) {
+        if (newDesc && self.description !== newDesc) {
             self._audit('change desc', self.description, newDesc, by);
             self.description = newDesc;
         }
@@ -213,6 +220,7 @@ var CommonMixinSave = function (Model, Audit) {
                 end: end,
                 elapsed: end - start
             });
+            return self;
         },
         _saveAudit: function () {
             var self = this;

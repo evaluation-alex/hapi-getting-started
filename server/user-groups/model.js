@@ -38,6 +38,16 @@ UserGroups.prototype.isOwner = function (email) {
     return !!self._find('owners', email);
 };
 
+UserGroups.prototype.update = function (payload, by) {
+    var self = this;
+    return self.setActive(payload.isActive, by)
+        .add(payload.addedMembers, 'member', by)
+        .remove(payload.removedMembers, 'member', by)
+        .add(payload.addedOwners, 'owner', by)
+        .remove(payload.removedOwners, 'owner', by)
+        .updateDesc(payload.description, by);
+};
+
 UserGroups._collection = 'userGroups';
 
 UserGroups.schema = Joi.object().keys({

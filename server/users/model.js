@@ -101,20 +101,30 @@ Users.prototype.resetPasswordSent = function (by) {
 };
 Users.prototype.resetPassword = function (newPassword, by) {
     var self = this;
-    var oldPassword = self.password;
-    var newHashedPassword = Bcrypt.hashSync(newPassword, 10);
-    self.password = newHashedPassword;
-    delete self.resetPwd;
-    return self._audit('reset password', oldPassword, newHashedPassword, by);
+    if (newPassword) {
+        var oldPassword = self.password;
+        var newHashedPassword = Bcrypt.hashSync(newPassword, 10);
+        self.password = newHashedPassword;
+        delete self.resetPwd;
+        self._audit('reset password', oldPassword, newHashedPassword, by);
+    }
+    return self;
 };
 Users.prototype.updateRoles = function (newRoles, by) {
     var self = this;
-    if (!_.isEqual(self.roles, newRoles)) {
+    if (newRoles && !_.isEqual(self.roles, newRoles)) {
         var oldRoles = self.roles;
         self.roles = newRoles;
         self._audit('update roles', oldRoles, newRoles, by);
     }
     return self;
+};
+Users.prototype.update = function (payload, by) {
+    var self = this;
+    return self._invalidateSession()
+        .setActive(payload.isActive, by)
+        .updateRoles(payload.roles, by)
+        .resetPassword(payload.password, by);
 };
 
 Users._collection = 'users';

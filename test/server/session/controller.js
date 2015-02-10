@@ -229,7 +229,7 @@ describe('Login', function () {
         it('returns a bad request if the key does not match', function (done) {
             Users._findOne({email: 'test.users@test.api'})
                 .then(function (foundUser) {
-                    foundUser.resetPasswordSent('test');
+                    return foundUser.resetPasswordSent('test')._save();
                 })
                 .then(function () {
                     var request = {

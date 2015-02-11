@@ -83,19 +83,20 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
             project: results.projectName,
             port: results.port,
             mongodburl: results.mongodbUrl,
-            mailuser: results.smtpUsername,
-            mailpassword: results.smtpPassword,
-            mailhost: results.smtpHost,
-            mailport: results.smtpPort,
-            logdir: results.logdir,
-            logconfig: {
-                log: '*',
-                response: '*',
-                request: '*',
-                'error': '*',
-                'ops': '*'
+            mail: {
+                user: results.smtpUsername,
+                password: results.smtpPassword,
+                host: results.smtpHost,
+                port: results.smtpPort
             },
-            sendemails: false
+            logdir: results.logdir,
+            sendemails: false,
+            https: {
+                tls: {
+                    key: '',
+                    cert: ''
+                }
+            }
         };
         Fs.writeFileSync('.opts', JSON.stringify(opts, null, 4));
         return results;

@@ -36,6 +36,10 @@ var connections = [{
     labels: ['api']
 }];
 
+if (Config.tls) {
+    connections[0].tls = Config.tls;
+}
+
 var plugins = {
     'hapi-bunyan': {logger: logger, mergeData: true, includeTags: true, joinTags: ','},
     'lout': {},
@@ -55,6 +59,7 @@ var plugins = {
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },
+    'hapi-require-https': {},
     'hapi-auth-basic': {},
     './server/common/auth': {},
     './server/common/metrics': {}

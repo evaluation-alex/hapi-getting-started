@@ -1,6 +1,5 @@
 'use strict';
 var Joi = require('joi');
-var Boom = require('boom');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');
 var Promise = require('bluebird');
@@ -11,26 +10,6 @@ var UserGroups = require('./../user-groups/model');
 var areValid = require('./../common/controller').areValid;
 
 var Controller = {};
-
-var permissionCheck = function (request, reply) {
-    var query = {
-        action: request.payload.action,
-        object: request.payload.object
-    };
-    Permissions._findOne(query)
-        .then(function (permissions) {
-            if (permissions) {
-                reply(Boom.conflict('Permissions already exist, modify the existing ones.'));
-            } else {
-                reply(true);
-            }
-        })
-        .catch(function (err) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            }
-        });
-};
 
 Controller.find = BaseController.find('permissions', Permissions, {
     query: {
@@ -84,10 +63,14 @@ Controller.new = BaseController.new('permissions', Permissions, {
         object: Joi.string().required()
     }
 }, [
-    {assign: 'permissionCheck', method: permissionCheck},
     {assign: 'validUsers', method: areValid(Users, 'email', 'users')},
     {assign: 'validGroups', method: areValid(UserGroups, 'name', 'groups')}
-]);
+], function (request) {
+    return {
+        action: request.payload.action,
+        object: request.payload.object
+    };
+});
 
 Controller.delete = BaseController.delete('permissions', Permissions);
 

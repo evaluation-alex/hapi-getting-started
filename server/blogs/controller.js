@@ -1,6 +1,5 @@
 'use strict';
 var Joi = require('joi');
-var Boom = require('boom');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');
 var Promise = require('bluebird');
@@ -11,25 +10,6 @@ var UserGroups = require('./../user-groups/model');
 var areValid = require('./../common/controller').areValid;
 
 var Controller = {};
-
-var blogCheck = function (request, reply) {
-    var query = {
-        title: request.payload.title
-    };
-    Blogs._findOne(query)
-        .then(function (blog) {
-            if (blog) {
-                reply(Boom.conflict('Blog already exists, modify the existing one.'));
-            } else {
-                reply(true);
-            }
-        })
-        .catch(function (err) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            }
-        });
-};
 
 Controller.find = BaseController.find('blogs', Blogs, {
     query: {
@@ -95,12 +75,15 @@ Controller.new = BaseController.new('blogs', Blogs, {
         subscriberGroups: Joi.array().includes(Joi.string()).unique()
     }
 }, [
-    {assign: 'blogCheck', method: blogCheck},
     {assign: 'validOwners', method: areValid(Users, 'email', 'owners')},
     {assign: 'validContributors', method: areValid(Users, 'email', 'contributors')},
     {assign: 'validSubscribers', method: areValid(Users, 'email', 'subscribers')},
     {assign: 'validSubscriberGroups', method: areValid(UserGroups, 'name', 'subscriberGroups')}
-]);
+], function (request) {
+    return {
+        title: request.payload.title
+    };
+});
 
 Controller.delete = BaseController.delete('blogs', Blogs);
 

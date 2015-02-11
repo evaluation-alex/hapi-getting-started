@@ -617,7 +617,7 @@ describe('UserGroups', function () {
             };
             server.inject(request, function (response) {
                 try {
-                    expect(response.statusCode).to.equal(200);
+                    expect(response.statusCode).to.equal(201);
                     UserGroups.findByName('testUserGroupCreate')
                         .then(function (ug) {
                             expect(ug).to.exist();

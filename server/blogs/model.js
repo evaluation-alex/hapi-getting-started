@@ -53,7 +53,11 @@ Blogs.schema = Joi.object().keys({
     contributors: Joi.array().includes(Joi.string()).unique(),
     subscribers: Joi.array().includes(Joi.string()).unique(),
     subscriberGroups: Joi.array().includes(Joi.string()).unique(),
-    isActive: Joi.boolean().default(true)
+    isActive: Joi.boolean().default(true),
+    createdBy: Joi.string(),
+    createdOn: Joi.date(),
+    updatedBy: Joi.string(),
+    updatedOn: Joi.date()
 });
 
 Blogs.indexes = [
@@ -76,7 +80,11 @@ Blogs.create = function (title, description, owners, contributors, subscribers, 
             contributors: contributors ? contributors : [by],
             subscribers: subscribers ? subscribers : [by],
             subscriberGroups: subscriberGroups ? subscriberGroups : [],
-            isActive: true
+            isActive: true,
+            createdBy: by,
+            createdOn: new Date(),
+            updatedBy: by,
+            updatedOn: new Date()
         };
         self._insert(document, false)
             .then(function (blog) {

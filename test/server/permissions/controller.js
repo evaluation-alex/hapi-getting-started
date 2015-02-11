@@ -654,7 +654,7 @@ describe('Permissions', function () {
                     };
                     server.inject(request, function (response) {
                         try {
-                            expect(response.statusCode).to.equal(200);
+                            expect(response.statusCode).to.equal(201);
                             Permissions._find({description: 'test POST /permissions success'})
                                 .then(function (found) {
                                     expect(found).to.exist();

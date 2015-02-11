@@ -5,9 +5,27 @@ var Promise = require('bluebird');
 var AuthPlugin = require('./../common/auth');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');
-var logger = require('./../manifest').logger;
 
 var Controller = {};
+
+var isUnique = function (Model, queryBuilder) {
+    return function (request, reply) {
+        var query = queryBuilder(request);
+        Model._findOne(query)
+            .then(function (f) {
+                if (f) {
+                    reply(Boom.conflict('Object already exists'));
+                } else {
+                    reply(true);
+                }
+            })
+            .catch(function (err) {
+                if (err) {
+                    reply(Boom.badImplementation(err));
+                }
+            });
+    };
+};
 
 var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
     return function (request, reply) {
@@ -42,7 +60,7 @@ var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
 module.exports.areValid = areValid;
 
 Controller.find = function (component, model, validator, queryBuilder) {
-    validator.query.fields =  Joi.string();
+    validator.query.fields = Joi.string();
     validator.query.sort = Joi.string();
     validator.query.limit = Joi.number().default(20);
     validator.query.page = Joi.number().default(1);
@@ -56,7 +74,6 @@ Controller.find = function (component, model, validator, queryBuilder) {
             var sort = request.query.sort;
             var limit = request.query.limit;
             var page = request.query.page;
-            logger.info({component: component, query: query, fields: fields, sort: sort, limit: limit, page: page});
             model.pagedFind(query, fields, sort, limit, page, function (err, results) {
                 if (err) {
                     reply(Boom.badImplementation(err));
@@ -73,7 +90,6 @@ Controller.findOne = function (component, Model) {
         pre: [AuthPlugin.preware.ensurePermissions('view', component)],
         handler: function (request, reply) {
             var id = BaseModel.ObjectID(request.params.id);
-            logger.info({component: component, id: request.params.id});
             Model._findOne({_id: id})
                 .then(function (f) {
                     if (!f) {
@@ -84,7 +100,6 @@ Controller.findOne = function (component, Model) {
                 })
                 .catch(function (err) {
                     if (err) {
-                        logger.error({component: component, id: request.params.id, error: err});
                         reply(Boom.badImplementation(err));
                     }
                 });
@@ -92,10 +107,12 @@ Controller.findOne = function (component, Model) {
     };
 };
 
-Controller.new = function (component, Model, validator, prereqs) {
+Controller.new = function (component, Model, validator, prereqs, uniqueCheck) {
     return {
         validator: validator,
-        pre: _.flatten([AuthPlugin.preware.ensurePermissions('update', component), prereqs]),
+        pre: _.flatten([AuthPlugin.preware.ensurePermissions('update', component),
+            {assign: 'isUnique', method: isUnique(Model, uniqueCheck)},
+            prereqs]),
         handler: function (request, reply) {
             var by = request.auth.credentials.user.email;
             Model.newObject(request.payload, by)
@@ -103,7 +120,7 @@ Controller.new = function (component, Model, validator, prereqs) {
                     if (!n) {
                         reply(Boom.notFound(component + ' could not be created.'));
                     } else {
-                        reply(n);
+                        reply(n).code(201);
                     }
                 })
                 .catch(function (err) {
@@ -121,7 +138,6 @@ Controller.update = function (component, Model, validator, prereqs) {
         pre: _.flatten([AuthPlugin.preware.ensurePermissions('update', component), prereqs]),
         handler: function (request, reply) {
             var id = BaseModel.ObjectID(request.params.id);
-            logger.info({component: component, id: request.params.id});
             Model._findOne({_id: id})
                 .then(function (u) {
                     if (!u) {
@@ -132,7 +148,7 @@ Controller.update = function (component, Model, validator, prereqs) {
                         return u.update(request.payload, by)._save();
                     }
                 })
-                .then(function(u) {
+                .then(function (u) {
                     if (u) {
                         reply(u);
                     }
@@ -151,18 +167,21 @@ Controller.delete = function (component, Model) {
         pre: [AuthPlugin.preware.ensurePermissions('update', component)],
         handler: function (request, reply) {
             var id = BaseModel.ObjectID(request.params.id);
-            logger.info({component: component, id: request.params.id});
             Model._findOne({_id: id})
                 .then(function (f) {
                     if (!f) {
                         reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
                         return false;
                     } else {
-                        var by = request.auth.credentials.user.email;
-                        return f.deactivate(by)._save();
+                        if (f.deactivate) {
+                            var by = request.auth.credentials.user.email;
+                            return f.deactivate(by)._save();
+                        } else {
+                            return Model._findByIdAndRemove(id);
+                        }
                     }
                 })
-                .then(function(f) {
+                .then(function (f) {
                     if (f) {
                         reply(f);
                     }

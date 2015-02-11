@@ -121,7 +121,7 @@ describe('AuthAttempts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            expect(response.payload).to.contain('Success');
+                            expect(response.payload).to.match(/id/);
                             done();
                         } catch (err) {
                             done(err);

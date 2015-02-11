@@ -55,7 +55,11 @@ Permissions.schema = Joi.object().keys({
     groups: Joi.array().includes(Joi.string()).unique(),
     action: Joi.string().required(),
     object: Joi.string().required(),
-    isActive: Joi.boolean().default(true)
+    isActive: Joi.boolean().default(true),
+    createdBy: Joi.string(),
+    createdOn: Joi.date(),
+    updatedBy: Joi.string(),
+    updatedOn: Joi.date()
 });
 
 Permissions.indexes = [
@@ -78,7 +82,11 @@ Permissions.create = function (description, users, groups, action, object, by) {
             groups: groups ? groups : [],
             action: action,
             object: object,
-            isActive: true
+            isActive: true,
+            createdBy: by,
+            createdOn: new Date(),
+            updatedBy: by,
+            updatedOn: new Date()
         };
         self._insert(document, {})
             .then(function (doc) {

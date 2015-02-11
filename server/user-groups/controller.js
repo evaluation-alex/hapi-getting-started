@@ -34,22 +34,6 @@ var validAndPermitted = function (request, reply) {
         });
 };
 
-var groupCheck = function (request, reply) {
-    UserGroups.findByName(request.payload.name)
-        .then(function (userGroup) {
-            if (userGroup) {
-                reply(Boom.conflict('Group with this name is already in use.'));
-            } else {
-                reply(true);
-            }
-        })
-        .catch(function (err) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            }
-        });
-};
-
 Controller.find = BaseController.find('user-groups', UserGroups, {
     query: {
         email: Joi.string(),
@@ -94,10 +78,13 @@ Controller.new = BaseController.new('user-groups', UserGroups, {
         description: Joi.string()
     }
 }, [
-    {assign: 'groupCheck', method: groupCheck},
     {assign: 'validMembers', method: areValid(Users, 'email', 'members')},
     {assign: 'validOwners', method: areValid(Users, 'email', 'owners')},
-]);
+], function (request) {
+    return {
+        name: request.payload.name
+    };
+});
 
 Controller.delete = BaseController.delete('user-groups', UserGroups);
 Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted});

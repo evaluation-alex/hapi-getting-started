@@ -56,7 +56,11 @@ UserGroups.schema = Joi.object().keys({
     description: Joi.string(),
     members: Joi.array().includes(Joi.string()).unique(),
     owners: Joi.array().includes(Joi.string()).unique(),
-    isActive: Joi.boolean().default(true)
+    isActive: Joi.boolean().default(true),
+    createdBy: Joi.string(),
+    createdOn: Joi.date(),
+    updatedBy: Joi.string(),
+    updatedOn: Joi.date()
 });
 
 UserGroups.indexes = [
@@ -89,7 +93,11 @@ UserGroups.create = function (name, description, owner) {
             description: description,
             members: [owner],
             owners: [owner],
-            isActive: true
+            isActive: true,
+            createdBy: owner,
+            createdOn: new Date(),
+            updatedBy: owner,
+            updatedOn: new Date()
         };
         self._insert(document, false)
             .then(function (userGroup) {

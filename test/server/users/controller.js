@@ -505,7 +505,7 @@ describe('Signup', function () {
         };
         server.inject(request, function (response) {
             try {
-                expect(response.statusCode).to.equal(200);
+                expect(response.statusCode).to.equal(201);
                 Users._findOne({email: 'test.signup2@signup.api'})
                     .then(function (foundUser) {
                         expect(foundUser).to.exist();

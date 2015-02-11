@@ -50,12 +50,14 @@ var plugins = {
             Users: './server/users/model',
             UserGroups: './server/user-groups/model',
             Permissions: './server/permissions/model',
-            Blogs: './server/blogs/model'
+            Blogs: './server/blogs/model',
+            Metrics: './server/metrics/model'
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },
     'hapi-auth-basic': {},
-    './server/common/auth': {}
+    './server/common/auth': {},
+    './server/common/metrics': {}
 };
 
 var components = [

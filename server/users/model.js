@@ -142,7 +142,11 @@ Users.schema = Joi.object().keys({
     session: Joi.object().keys({
         key: Joi.object(),
         timestamp: Joi.date()
-    })
+    }),
+    createdBy: Joi.string(),
+    createdOn: Joi.date(),
+    updatedBy: Joi.string(),
+    updatedOn: Joi.date()
 });
 
 Users.indexes = [
@@ -158,7 +162,11 @@ Users.create = function (email, password) {
             password: hash,
             roles: ['readonly'],
             isActive: true,
-            session: {}
+            session: {},
+            createdBy: email,
+            createdOn: new Date(),
+            updatedBy: email,
+            updatedOn: new Date()
         };
         self._insert(document, false)
             .then(function (user) {

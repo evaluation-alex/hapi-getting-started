@@ -86,6 +86,24 @@ ExtendedModel._insert = function (document, notCreated) {
     });
 };
 
+ExtendedModel._findByIdAndRemove = function (id) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        var collection = BaseModel.db.collection(self._collection);
+        collection.findAndRemove({ _id: id }, function (err, doc) {
+            if (err) {
+                reject(err);
+            } else {
+                if (!doc) {
+                    reject(new Error ('document not found'));
+                } else {
+                    resolve(doc);
+                }
+            }
+        });
+    });
+};
+
 ExtendedModel.areValid = function (property, toCheck) {
     var self = this;
     return new Promise(function (resolve, reject) {
@@ -277,6 +295,8 @@ var CommonMixinAudit = function (type, idToUse) {
                 by: by,
                 timestamp: new Date()
             });
+            self.updatedBy = by;
+            self.updatedOn = new Date();
             return self;
         }
     };

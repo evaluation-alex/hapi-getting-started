@@ -91,7 +91,7 @@ Controller.signup = {
                         user: user,
                         session: user.session,
                         authHeader: 'Basic ' + new Buffer(user.email + ':' + user.session.key).toString('base64')
-                    });
+                    }).code(201);
                 }
             })
             .catch(function (err) {

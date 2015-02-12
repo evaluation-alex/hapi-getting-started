@@ -3,7 +3,7 @@ var Boom = require('boom');
 var Users = require('./../users/model');
 var logger = require('./../manifest').logger;
 
-exports.register = function (server, options, next) {
+module.exports.register = function (server, options, next) {
     server.connections.forEach(function (connection) {
         connection.auth.strategy('simple', 'basic', {
             validateFunc: function (email, sessionkey, callback) {
@@ -36,9 +36,9 @@ exports.register = function (server, options, next) {
     next();
 };
 
-exports.preware = {};
+module.exports.preware = {};
 
-exports.preware.ensurePermissions = function (forAction, onObject) {
+module.exports.preware.ensurePermissions = function (forAction, onObject) {
     return {
         assign: 'ensurePermissions',
         method: function (request, reply) {

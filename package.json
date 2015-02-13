@@ -1,76 +1,76 @@
 {
-  "name": "hapi-getting-started",
-  "version": "0.0.2",
-  "description": "User management, authentication and authorization api for Node.js using hapi",
-  "main": "index.js",
-  "scripts": {
-    "setup": "node ./setup.js",
-    "start": "node ./index.js",
-    "test": "node ./node_modules/lab/bin/lab --coverage --verbose --reporter console --timeout 200000",
-    "test-with-report": "node ./node_modules/lab/bin/lab --coverage  --timeout 200000 --reporter html --output ./test/artifacts/coverage.html",
-    "test-coverage": "node ./node_modules/lab/bin/lab --coverage --reporter lcov --output ./test/artifacts/lcov.info  --timeout 200000",
-    "coveralls": "cat ./test/artifacts/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
-    "climate": "cat ./test/artifacts/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
-    "jshint": "node ./node_modules/jshint/bin/jshint --config .jshintrc --verbose --reporter unix *.js ./server/**/*.js ./test/**/*.js"
-  },
-  "keywords": [
-    "hapijs",
-    "getting started",
-    "user authentication",
-    "user authorization",
-    "permissions",
-    "user groups"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:k-sheth/hapi-getting-started.git"
-  },
-  "author": {
-    "name": "Kumarpal Sheth",
-    "email": "k.sheth@gmail.com"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/k-sheth/hapi-getting-started/issues"
-  },
-  "homepage": "https://github.com/k-sheth/hapi-getting-started",
-  "engines": {
-    "node": ">= 0.12.x"
-  },
-  "dependencies": {
-    "bcrypt": "0.8.x",
-    "bluebird": "2.9.x",
-    "boom": "2.6.x",
-    "bunyan": "1.3.x",
-    "deep-freeze-strict": "1.1.x",
-    "dev-null": "0.1.x",
-    "glue": "2.0.x",
-    "handlebars": "3.0.x",
-    "hapi": "8.2.x",
-    "hapi-auth-basic": "2.0.x",
-    "hapi-bunyan": "0.5.x",
-    "hapi-mongo-models": "1.1.x",
-    "hapi-require-https": "^2.0.0",
-    "hoek": "2.11.x",
-    "joi": "5.1.x",
-    "lodash": "3.1.x",
-    "lout": "6.1.x",
-    "moment": "2.9.x",
-    "mongodb": "1.4.x",
-    "node-uuid": "1.4.x",
-    "nodemailer": "1.3.x",
-    "nodemailer-markdown": "1.0.x",
-    "object-assign": "2.0.x",
-    "poop": "1.2.x",
-    "tv": "4.0.x",
-    "useragent": "^2.1.5"
-  },
-  "devDependencies": {
-    "code": "1.3.x",
-    "codeclimate-test-reporter": "0.0.x",
-    "coveralls": "2.11.x",
-    "jshint": "^2.6.x",
-    "lab": "5.2.x",
-    "promptly": "0.2.x"
-  }
+    "name": "hapi-getting-started",
+    "version": "0.0.3",
+    "description": "User management, authentication and authorization api for Node.js using hapi",
+    "main": "index.js",
+    "scripts": {
+        "setup": "node ./setup.js",
+        "start": "node ./index.js",
+        "test": "node ./node_modules/lab/bin/lab --coverage --verbose --reporter console --timeout 200000",
+        "test-with-report": "node ./node_modules/lab/bin/lab --coverage  --timeout 200000 --reporter html --output ./test/artifacts/coverage.html",
+        "test-coverage": "node ./node_modules/lab/bin/lab --coverage --reporter lcov --output ./test/artifacts/lcov.info  --timeout 200000",
+        "coveralls": "cat ./test/artifacts/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
+        "climate": "cat ./test/artifacts/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
+        "jshint": "node ./node_modules/jshint/bin/jshint --config .jshintrc --verbose --reporter unix *.js ./server/**/*.js ./test/**/*.js"
+    },
+    "keywords": [
+        "hapijs",
+        "getting started",
+        "user authentication",
+        "user authorization",
+        "permissions",
+        "user groups"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:k-sheth/hapi-getting-started.git"
+    },
+    "author": {
+        "name": "Kumarpal Sheth",
+        "email": "k.sheth@gmail.com"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/k-sheth/hapi-getting-started/issues"
+    },
+    "homepage": "https://github.com/k-sheth/hapi-getting-started",
+    "engines": {
+        "node": ">= 0.12.x"
+    },
+    "dependencies": {
+        "bcrypt": "0.8.x",
+        "bluebird": "2.9.x",
+        "boom": "2.6.x",
+        "bunyan": "1.3.x",
+        "deep-freeze-strict": "1.1.x",
+        "dev-null": "0.1.x",
+        "glue": "2.0.x",
+        "handlebars": "3.0.x",
+        "hapi": "8.2.x",
+        "hapi-auth-basic": "2.0.x",
+        "hapi-bunyan": "0.5.x",
+        "hapi-mongo-models": "1.1.x",
+        "hapi-require-https": "2.0.x",
+        "hoek": "2.11.x",
+        "joi": "5.1.x",
+        "lodash": "3.2.x",
+        "lout": "6.1.x",
+        "moment": "2.9.x",
+        "mongodb": "1.4.x",
+        "node-uuid": "1.4.x",
+        "nodemailer": "1.3.x",
+        "nodemailer-markdown": "1.0.x",
+        "object-assign": "2.0.x",
+        "poop": "1.2.x",
+        "tv": "4.0.x",
+        "useragent": "2.1.x"
+    },
+    "devDependencies": {
+        "code": "1.3.x",
+        "codeclimate-test-reporter": "0.0.x",
+        "coveralls": "2.11.x",
+        "jshint": "^2.6.x",
+        "lab": "5.2.x",
+        "promptly": "0.2.x"
+    }
 }

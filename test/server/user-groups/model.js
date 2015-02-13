@@ -797,7 +797,7 @@ describe('UserGroups Model', function () {
     });
 
     after(function (done) {
-        return tu.cleanup(null, groupsToCleanup, null, done);
+        return tu.cleanup({userGroups: groupsToCleanup}, done);
     });
 
 });

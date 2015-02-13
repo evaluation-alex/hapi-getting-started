@@ -22,21 +22,12 @@ Controller.find = BaseController.find('blogs', Blogs, {
     }
 }, function (request) {
     var query = {};
-    if (request.query.title) {
-        query.title = {$regex: new RegExp('^.*?' + request.query.title + '.*$', 'i')};
-    }
-    if (request.query.owner) {
-        query.owners = {$regex: new RegExp('^.*?' + request.query.owners + '.*$', 'i')};
-    }
-    if (request.query.contributor) {
-        query.contributors = {$regex: new RegExp('^.*?' + request.query.contributor + '.*$', 'i')};
-    }
-    if (request.query.subscriber) {
-        query.subscribers = {$regex: new RegExp('^.*?' + request.query.subscriber + '.*$', 'i')};
-    }
-    if (request.query.subGroup) {
-        query.subscriberGroups = {$regex: new RegExp('^.*?' + request.query.subGroup + '.*$', 'i')};
-    }
+    var fields = [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'], ['subGroup', 'subscriberGroups']];
+    _.forEach(fields, function (pair) {
+        if (request.query[pair[0]]) {
+            query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
+        }
+    });
     if (request.query.isActive) {
         query.isActive = request.query.isActive === '"true"';
     }

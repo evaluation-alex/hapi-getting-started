@@ -256,7 +256,7 @@ describe('Auth', function () {
     });
 
     afterEach(function (done) {
-        return tu.cleanup([email], null, null, done);
+        return tu.cleanup({users: [email]}, done);
     });
 });
 

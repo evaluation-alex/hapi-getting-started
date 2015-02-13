@@ -543,7 +543,7 @@ describe('UserGroups', function () {
         });
     });
 
-    describe('POST /user-groups/{id}', function () {
+    describe('POST /user-groups', function () {
         it('should send back conflict when you try to create a group with name that already exists', function (done) {
             UserGroups.create('testDupeGroup', 'test POST /user-groups', 'root')
                 .then(function (ug) {
@@ -721,7 +721,7 @@ describe('UserGroups', function () {
     });
 
     afterEach(function (done) {
-        return tu.cleanup(null, groupsToClear, null, done);
+        return tu.cleanup({userGroups: groupsToClear}, done);
     });
 
 });

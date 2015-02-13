@@ -292,7 +292,7 @@ describe('Login', function () {
         });
     });
     afterEach(function (done) {
-        return tu.cleanup(emails, null, null, done);
+        return tu.cleanup({ users: emails}, done);
     });
 });
 
@@ -416,7 +416,7 @@ describe('Logout', function () {
     });
 
     afterEach(function (done) {
-        return tu.cleanup(emails, null, null, done);
+        return tu.cleanup({users: emails}, done);
     });
 });
 

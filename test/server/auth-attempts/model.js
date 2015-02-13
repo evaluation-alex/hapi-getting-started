@@ -117,7 +117,7 @@ describe('AuthAttempts Model', function () {
     });
 
     after(function (done) {
-        return tu.cleanup(null, null, null, done);
+        return tu.cleanup({}, done);
     });
 
 });

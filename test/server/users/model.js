@@ -465,6 +465,6 @@ describe('Users Model', function () {
 
     after(function (done) {
         var testUsers = [firstEmail, secondEmail];
-        return tu.cleanup(testUsers, null, null, done);
+        return tu.cleanup({users: testUsers}, done);
     });
 });

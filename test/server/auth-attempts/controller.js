@@ -153,7 +153,7 @@ describe('AuthAttempts', function () {
     });
 
     afterEach(function (done) {
-        return tu.cleanup(emails, groupsToClear, permissionsToClear, done);
+        return tu.cleanup({users: emails, userGroups: groupsToClear, permissions: permissionsToClear}, done);
     });
 
 });

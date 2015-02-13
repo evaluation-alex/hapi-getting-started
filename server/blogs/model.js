@@ -27,7 +27,7 @@ _.extend(Blogs.prototype, new AddRemove({owner: 'owners', contributor: 'contribu
 _.extend(Blogs.prototype, IsActive);
 _.extend(Blogs.prototype, Description);
 _.extend(Blogs.prototype, new Save(Blogs, Audit));
-_.extend(Blogs.prototype, new CAudit('Blogs', 'name'));
+_.extend(Blogs.prototype, new CAudit('Blogs', 'title'));
 
 Blogs.prototype.update = function(payload, by) {
     var self = this;
@@ -38,8 +38,8 @@ Blogs.prototype.update = function(payload, by) {
         .remove(payload.removedContributors, 'contributor', by)
         .add(payload.addedSubscribers, 'subscriber', by)
         .remove(payload.removedSubscribers, 'subscriber', by)
-        .add(payload.addedSubscriberGroups, 'group', by)
-        .remove(payload.removedSubscriberGroups, 'group', by)
+        .add(payload.addedSubscriberGroups, 'groups', by)
+        .remove(payload.removedSubscriberGroups, 'groups', by)
         .updateDesc(payload.description, by);
 };
 

@@ -54,15 +54,14 @@ var plugins = {
             Users: './server/users/model',
             UserGroups: './server/user-groups/model',
             Permissions: './server/permissions/model',
-            Blogs: './server/blogs/model',
-            Metrics: './server/metrics/model'
+            Blogs: './server/blogs/model'
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },
     'hapi-require-https': {},
     'hapi-auth-basic': {},
     './server/common/auth': {},
-    './server/common/metrics': {}
+    './server/common/metrics': {mongodburl: Config.hapiMongoModels.mongodb.url}
 };
 
 var components = [

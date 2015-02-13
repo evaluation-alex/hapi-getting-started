@@ -451,7 +451,7 @@ describe('Users', function () {
     });
 
     afterEach(function (done) {
-        tu.cleanup(emails, null, null, done);
+        return tu.cleanup({users: emails}, done);
     });
 
 });
@@ -529,7 +529,7 @@ describe('Signup', function () {
     });
 
     afterEach(function (done) {
-        return tu.cleanup(emails, null, null, done);
+        return tu.cleanup({users: emails}, done);
     });
 
 });

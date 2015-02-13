@@ -1,15 +1,13 @@
 'use strict';
-var deepFreeze = require('deep-freeze-strict');
 var Fs = require('fs');
 var devnull = require('dev-null');
 
-var args = {};
-var config = {};
 if (!Fs.existsSync('.opts')) {
     console.log('.opts file missing. will exit');
     process.exit(1);
 }
-args = JSON.parse(Fs.readFileSync('.opts'));
+
+var args = JSON.parse(Fs.readFileSync('.opts'));
 var nodemailer = {};
 if (!args.sendemails) {
     nodemailer = {
@@ -34,7 +32,8 @@ if (!args.sendemails) {
         }
     };
 }
-config = {
+
+var config = {
     projectName: args.project,
     port: args.port,
     authAttempts: {
@@ -68,7 +67,5 @@ if (args.https.tls.key.length > 0 && args.https.tls.cert.length > 0 && Fs.exists
         cert: Fs.readFileSync(args.https.tls.cert)
     };
 }
-//config = deepFreeze(config);
-
 
 module.exports = config;

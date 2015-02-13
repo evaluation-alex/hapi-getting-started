@@ -13,15 +13,18 @@ var Users = require(relativeToServer + 'users/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Permissions = require(relativeToServer + 'permissions/model');
+var Blogs = require(relativeToServer + 'blogs/model');
 var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
 var Roles = require(relativeToServer + 'roles/model');
 
+var mongodb;
 var setupConnect = function () {
     return new Promise(function (resolve, reject) {
         BaseModel.connect(Config.hapiMongoModels.mongodb, function (err, db) {
             if (err || !db) {
                 reject(err);
             } else {
+                mongodb = db;
                 resolve(true);
             }
         });
@@ -203,6 +206,34 @@ function cleanupPermissions (permissionsToCleanup) {
     });
 }
 
+function cleanupBlogs (blogsToCleanup) {
+    return new Promise(function (resolve, reject) {
+        if (blogsToCleanup && blogsToCleanup.length > 0) {
+            Blogs.remove({title: {$in: blogsToCleanup}}, function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(true);
+                }
+            });
+        } else {
+            resolve(true);
+        }
+    });
+}
+
+function cleanupMetrics() {
+    return new Promise(function (resolve, reject) {
+        mongodb.collection('metrics').remove({}, function (err, no) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(no);
+            }
+        });
+    });
+}
+
 function cleanupAudit () {
     return new Promise(function (resolve, reject) {
         Audit.remove({}, function (err) {
@@ -248,9 +279,9 @@ function cleanupConnect (cb) {
 
 exports.cleanupConnect = cleanupConnect;
 
-var cleanup = function (users, userGroups, permissions, cb) {
-    Promise.join(cleanupUsers(users), cleanupUserGroups(userGroups), cleanupPermissions(permissions), cleanupAudit(), cleanupAuthAttempts(),
-        function (u, ug, p, a, aa) {
+var cleanup = function (toClear, cb) {
+    Promise.join(cleanupUsers(toClear.users), cleanupUserGroups(toClear.userGroups), cleanupPermissions(toClear.permissions), cleanupBlogs(toClear.blogs), cleanupAudit(), cleanupAuthAttempts(), cleanupMetrics(),
+        function (u, ug, p, b, a, aa, m) {
             //cleanupConnect(cb);
             cb();
         })

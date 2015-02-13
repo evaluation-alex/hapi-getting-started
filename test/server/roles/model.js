@@ -193,7 +193,7 @@ describe('Roles Model', function () {
     after(function (done) {
         tu.cleanupRoles(rolesToClear)
             .then(function () {
-                tu.cleanup(null, null, null, done);
+                tu.cleanup({}, done);
             })
             .done();
     });

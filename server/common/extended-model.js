@@ -1,16 +1,10 @@
 'use strict';
 var BaseModel = require('hapi-mongo-models').BaseModel;
-var ObjectAssign = require('object-assign');
 var Promise = require('bluebird');
 var _ = require('lodash');
 var logger = require('./../manifest').logger;
 
 var ExtendedModel = BaseModel.extend({
-    /* jshint -W064 */
-    constructor: function (attrs) {
-        ObjectAssign(this, attrs);
-    }
-    /* jshint +W064 */
 });
 
 ExtendedModel._find = function (conditions) {

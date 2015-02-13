@@ -685,6 +685,6 @@ describe('Permissions Model', function () {
     });
 
     after(function (done) {
-        return tu.cleanup(null, groupsToClear, permissionsToClear, done);
+        return tu.cleanup({userGroups: groupsToClear, permissions: permissionsToClear}, done);
     });
 });

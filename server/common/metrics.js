@@ -21,14 +21,12 @@ var connect = function (mongouri) {
     });
 };
 
-var daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
 var enrichWithStat = function (s) {
     s.count = 0;
     s.avg = 0;
     s.min = 0;
     s.max = 0;
-    s.statusCode = {};
+    s.statusCode = {'0#': 1};
     return s;
 };
 
@@ -56,6 +54,7 @@ var newDoc = function (params, id) {
     if (params.user) {
         ret.user = params.user;
         ret.type = 'userStats';
+        ret.ua = 'tbd';
         return enrichWithStat(ret);
     }
     if (params.year) {
@@ -68,6 +67,7 @@ var newDoc = function (params, id) {
                 ret.type = 'hourlyStats';
                 return ret;
             }
+            var daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
             ret.days = newStatArr(daysInMonth[params.month], 'd', true);
             ret.type = 'dailyStats';
             return ret;
@@ -79,67 +79,41 @@ var newDoc = function (params, id) {
     return enrichWithStat(ret);
 };
 
-var find = function (host, path, method, year, month, day, user) {
-    return new Promise(function (resolve/*, reject*/) {
-        var queries = [{
-            id: [host, path, method, year].join(','),
-            args: {host: host, path: path, method: method, year: year}
-        },
-            {
-                id: [host, path, method, year, month].join(','),
-                args: {host: host, path: path, method: method, year: year, month: month}
-            },
-            {
-                id: [host, path, method, year, month, day].join(','),
-                args: {host: host, path: path, method: method, year: year, month: month, day: day}
-            },
-            {id: [host, path, method, user].join(','), args: {host: host, path: path, method: method, user: user}}
-        ];
-        var metrics = mongodb.collection('metrics');
-        var result = _.map(queries, function (query) {
-            return new Promise(function (resolve2, reject2) {
-                metrics.findOne({_id: query.id}, function (err, doc) {
-                    if (err) {
-                        reject2(err);
-                    } else {
-                        if (!doc) {
-                            metrics.insert(newDoc(query.args, query.id), function (err, docs) {
-                                if (err) {
-                                    reject2(err);
-                                } else {
-                                    resolve2(docs[0]);
-                                }
-                            });
-                        } else {
-                            resolve2(doc);
-                        }
-                    }
-                });
+var newDoc2 = function (params, id) {
+    var ret = {
+        _id: id,
+        host: params.host,
+        path: params.path,
+        method: params.method
+    };
+    if (params.user) {
+        ret.user = params.user;
+        ret.type = 'userStats';
+        ret.ua = 'tbd';
+        return enrichWithStat(ret);
+    } else {
+        ret.year = params.year;
+        ret.type = 'combinedStats';
+        ret = enrichWithStat(ret);
+        ret.months = newStatArr(12, 'm', true);
+        var daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        _.forEach(ret.months, function (month) {
+            month.days = newStatArr(daysInMonth[month.m-1], 'd', true);
+            _.forEach(month.days, function (day) {
+                day.hours = newStatArr(24, 'h', false);
             });
         });
-        Promise.settle(result)
-            .then(function (r) {
-                resolve(r);
-            });
-    });
+        return ret;
+    }
 };
 
-var update = function (metric, host, path, method, user, ua, year, month, day, hour, statusCode, elapsed) {
-    return new Promise(function (resolve, reject) {
-        var stat = null;
-        if (metric._id === [host, path, method, user].join(',')) {
-            stat = metric;
-            stat['user-agent'] = ua.toString();
+var updt2 = function (stats, ua, statusCode, elapsed) {
+    _.forEach(stats, function (stat) {
+        if (!_.isUndefined(stat.ua)) {
+            stat.ua = ua.toString();
             stat.os = ua.os.toString();
             stat.device = ua.device.toString();
-        } else if (metric._id === [host, path, method, year].join(',')) {
-            stat = metric.months[month - 1];
-        } else if (metric._id === [host, path, method, year, month].join(',')) {
-            stat = metric.days[day - 1];
-        } else if (metric._id === [host, path, method, year, month, day].join(',')) {
-            stat = metric.hours[hour];
         }
-
         if (_.isUndefined(stat.statusCode[statusCode])) {
             stat.statusCode[statusCode] = 1;
         } else {
@@ -149,16 +123,123 @@ var update = function (metric, host, path, method, user, ua, year, month, day, h
         stat.max = stat.max > elapsed ? stat.max : elapsed;
         stat.avg = ((stat.avg * stat.count) + elapsed) / (stat.count + 1);
         stat.count += 1;
-        var metrics = mongodb.collection('metrics');
-        metrics.save(metric, function (err, doc) {
+    });
+};
+
+/* jshint unused: false*/
+var findAndUpdate2 = function (host, path, method, user, ua, year, month, day, hour, statusCode, elapsed) {
+    var queries = [
+        {
+            id: [host, path, method, year].join(','),
+            args: {host: host, path: path, method: method, year: year},
+            toUpdate: function (metric, user, year, month, day, hour) {
+                return [
+                    metric,
+                    metric.months[month - 1],
+                    metric.months[month - 1].days[day - 1],
+                    metric.months[month - 1].days[day - 1].hours[hour]
+                ];
+            }
+        },
+        {
+            id: [host, path, method, user].join(','),
+            args: {host: host, path: path, method: method, user: user},
+            toUpdate: function (metric, user, year, month, day, hour) {
+                return [metric];
+            }
+        }
+    ];
+    var metrics = mongodb.collection('metrics');
+    _.forEach(queries, function (query) {
+        metrics.findOne({_id: query.id}, function (err, doc) {
             if (err) {
-                reject(err);
+                //do nothing
             } else {
-                resolve(doc);
+                var metric = doc || newDoc2(query.args, query.id);
+                updt2(query.toUpdate(metric, user, year, month, day, hour), ua, statusCode, elapsed);
+                metrics.findAndModify({_id: metric._id}, [['_id', 'asc']], metric, {upsert: true}, function (err, doc) {
+                    if (err) {
+                        //do nothing;
+                    } else {
+                        //do nothing;
+                    }
+                });
             }
         });
     });
 };
+/* jshint unused: true*/
+
+var updt = function (stat, ua, statusCode, elapsed) {
+    if (!_.isUndefined(stat.ua)) {
+        stat.ua = ua.toString();
+        stat.os = ua.os.toString();
+        stat.device = ua.device.toString();
+    }
+    if (_.isUndefined(stat.statusCode[statusCode])) {
+        stat.statusCode[statusCode] = 1;
+    } else {
+        stat.statusCode[statusCode] += 1;
+    }
+    stat.min = stat.min === 0 ? elapsed : stat.min < elapsed ? stat.min : elapsed;
+    stat.max = stat.max > elapsed ? stat.max : elapsed;
+    stat.avg = ((stat.avg * stat.count) + elapsed) / (stat.count + 1);
+    stat.count += 1;
+    return stat;
+};
+
+/* jshint unused: false*/
+var findAndUpdate = function (host, path, method, user, ua, year, month, day, hour, statusCode, elapsed) {
+    var queries = [
+        {
+            id: [host, path, method, year].join(','),
+            args: {host: host, path: path, method: method, year: year},
+            toUpdate: function (metric, user, year, month, day, hour) {
+                return metric.months[month - 1];
+            }
+        },
+        {
+            id: [host, path, method, year, month].join(','),
+            args: {host: host, path: path, method: method, year: year, month: month},
+            toUpdate: function (metric, user, year, month, day, hour) {
+                return metric.days[day - 1];
+            }
+        },
+        {
+            id: [host, path, method, year, month, day].join(','),
+            args: {host: host, path: path, method: method, year: year, month: month, day: day},
+            toUpdate: function (metric, user, year, month, day, hour) {
+                return metric.hours[hour];
+            }
+        },
+        {
+            id: [host, path, method, user].join(','),
+            args: {host: host, path: path, method: method, user: user},
+            toUpdate: function (metric, user, year, month, day, hour) {
+                return metric;
+            }
+        }
+    ];
+    var metrics = mongodb.collection('metrics');
+    _.forEach(queries, function (query) {
+            metrics.findOne({_id: query.id}, function (err, doc) {
+                if (err) {
+                    //do nothing
+                } else {
+                    var metric = doc || newDoc(query.args, query.id);
+                    updt(query.toUpdate(metric, user, year, month, day, hour), ua, statusCode, elapsed);
+                    metrics.findAndModify({_id: metric._id}, [['_id', 'asc']], metric, {upsert: true}, function (err, doc) {
+                        if (err) {
+                            //do nothing;
+                        } else {
+                            //do nothing;
+                        }
+                    });
+                }
+            });
+    });
+};
+/* jshint unused: true*/
 
 var normalizePath = function (request) {
     var path = request._route.path;
@@ -188,19 +269,9 @@ module.exports.register = function (server, options, next) {
         var method = request.method;
         var ua = UserAgent.lookup(request.headers['user-agent']);
         var statusCode = (request.response.isBoom) ? request.response.output.statusCode : request.response.statusCode;
-        var user = request.auth && request.auth.credentials && request.auth.credentials.user ? request.auth.credentials.user.email : '';
+        var user = request.auth && request.auth.credentials && request.auth.credentials.user ? request.auth.credentials.user.email : 'notloggedin';
         var elapsed = moment(request.info.responded === 0 ? now : request.info.responded).diff(moment(request.info.received));
-        find(host, path, method, year, month, day, user)
-            .then(function (metrics) {
-                _.forEach(metrics, function (metric) {
-                    if (metric.isFulfilled()) {
-                        update(metric.value(), host, path, method, user, ua, year, month, day, hour, statusCode, elapsed).done();
-                    }
-                });
-            })
-            .catch(function (err) {
-                server.log(['error', 'metric'], err, now);
-            });
+        findAndUpdate2(host, path, method, user, ua, year, month, day, hour, statusCode + '#', elapsed);
         return reply.continue();
     });
     next();

@@ -1,5 +1,4 @@
 'use strict';
-var Joi = require('joi');
 var Hoek = require('hoek');
 var Promise = require('bluebird');
 var _ = require('lodash');
@@ -81,7 +80,7 @@ var newDoc = function (params, id) {
 };
 
 var find = function (host, path, method, year, month, day, user) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve/*, reject*/) {
         var queries = [{
             id: [host, path, method, year].join(','),
             args: {host: host, path: path, method: method, year: year}

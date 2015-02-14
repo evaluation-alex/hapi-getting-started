@@ -42,7 +42,7 @@ var sendEmail = exports.sendEmail = function (options, template, context) {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve(true);
+                        resolve(res);
                     }
                 });
             })

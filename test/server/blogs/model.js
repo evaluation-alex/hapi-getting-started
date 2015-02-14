@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
 var Blogs = require(relativeToServer + 'blogs/model');
 var Audit = require(relativeToServer + 'audit/model');
@@ -16,8 +15,6 @@ var describe = lab.describe;
 var it = lab.it;
 var before = lab.before;
 var after = lab.after;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('Blogs Model', function () {
@@ -313,7 +310,7 @@ describe('Blogs Model', function () {
                 activated = p11;
                 deactivated = p12;
                 deactivated.deactivate('test')._save();
-                Audit.remove({objectChangedId: deactivated.title}, function (err, res) {
+                Audit.remove({objectChangedId: deactivated.title}, function (err) {
                     if (err) {
                     }
                 });

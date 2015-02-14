@@ -10,8 +10,6 @@ var tu = require('./../testutils');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var before = lab.before;
-var after = lab.after;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
@@ -49,7 +47,7 @@ describe('AuthAttempts', function () {
     describe('GET /auth-attempts', function () {
         it('should give auth-attempts of only the ip and email sent in the parameters', function (done) {
             AuthAttempts.create('127.0.0.2', 'test.abuse.find@auth.attempts')
-                .then(function (aa) {
+                .then(function () {
                     var request = {
                         method: 'GET',
                         url: '/auth-attempts?ip=127.0.0.2&email=test.abuse.find',
@@ -73,7 +71,7 @@ describe('AuthAttempts', function () {
         it('should give all auth-attempts if nothing is passed', function (done) {
             var authSpam = [];
             var authRequest = function () {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve/*, reject*/) {
                     var randomUsername = 'test.abuse' + i + '@auth.attempts';
                     resolve(AuthAttempts.create('127.0.0.2', randomUsername));
                 });

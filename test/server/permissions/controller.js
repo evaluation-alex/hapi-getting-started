@@ -1,13 +1,11 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
 var Users = require(relativeToServer + 'users/model');
 var Permissions = require(relativeToServer + 'permissions/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
 var _ = require('lodash');
-var Promise = require('bluebird');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
@@ -55,7 +53,7 @@ describe('Permissions', function () {
     describe('GET /permissions', function () {
         before(function (done) {
             Permissions.create('test GET /permissions is active', ['user1'], ['group1'], 'action1', 'object1', 'test')
-                .then(function (p) {
+                .then(function () {
                     return Permissions.create('test GET /permissions is active = false', ['user2'], ['group2'], 'action2', 'object1', 'test');
                 })
                 .then(function (p) {
@@ -431,7 +429,7 @@ describe('Permissions', function () {
         });
         it('should add users / groups and have changes audited', function (done) {
             UserGroups.create('testPermissionsAddGroup', 'test PUT /permissions', 'test')
-                .then(function (u) {
+                .then(function () {
                     return Permissions.create('test PUT /permissions add users and groups', [], [], 'action6', 'object6', 'test');
                 })
                 .then(function (p) {
@@ -558,7 +556,7 @@ describe('Permissions', function () {
     describe('POST /permissions', function () {
         it('should send back conflict when you try to create a permission with object, action that already exists', function (done) {
             Permissions.create('test POST /permissions dupe', [], [], 'action9', 'object9', 'test')
-                .then(function (p) {
+                .then(function () {
                     var request = {
                         method: 'POST',
                         url: '/permissions',
@@ -642,7 +640,7 @@ describe('Permissions', function () {
         });
         it('should create permissions successfully', function (done) {
             UserGroups.create('testPerms', 'success', 'test')
-                .then(function (u) {
+                .then(function () {
                     var request = {
                         method: 'POST',
                         url: '/permissions',

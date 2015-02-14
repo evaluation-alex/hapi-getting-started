@@ -1,13 +1,11 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
 var Users = require(relativeToServer + 'users/model');
 var Blogs = require(relativeToServer + 'blogs/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
 var _ = require('lodash');
-var Promise = require('bluebird');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
@@ -55,7 +53,7 @@ describe('Blogs', function () {
     describe('GET /blogs', function () {
         before(function (done) {
             Blogs.create('test GET /blogs is active', 'test GET /blogs', ['owner1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], 'test')
-                .then(function (p) {
+                .then(function () {
                     return Blogs.create('test GET /blogs is active = false', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], 'test');
                 })
                 .then(function (p) {
@@ -358,7 +356,7 @@ describe('Blogs', function () {
         });
         it('should add subscriber / subscriber groups and have changes audited', function (done) {
             UserGroups.create('testBlogsAddGroup', 'test PUT /blogs', 'test')
-                .then(function (u) {
+                .then(function () {
                     return Blogs.create('test PUT /blogs add subscribers and subscriber groups', 'test PUT /blogs add subscribers and subscriber groups', [], [], [], [], 'test');
                 })
                 .then(function (p) {
@@ -485,7 +483,7 @@ describe('Blogs', function () {
     describe('POST /blogs', function () {
         it('should send back conflict when you try to create a blog with a title that already exists', function (done) {
             Blogs.create('test POST /blogs dupe', 'test POST /permissions dupe', [], [], [], [], 'test')
-                .then(function (p) {
+                .then(function () {
                     var request = {
                         method: 'POST',
                         url: '/blogs',
@@ -572,7 +570,7 @@ describe('Blogs', function () {
         });
         it('should create permissions successfully', function (done) {
             UserGroups.create('test post /blogs', 'success', 'test')
-                .then(function (u) {
+                .then(function () {
                     var request = {
                         method: 'POST',
                         url: '/blogs',

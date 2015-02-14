@@ -1,12 +1,9 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
 var Roles = require(relativeToServer + 'roles/model');
-var _ = require('lodash');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
-var Promise = require('bluebird');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -14,8 +11,6 @@ var describe = lab.describe;
 var it = lab.it;
 var before = lab.before;
 var after = lab.after;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('Roles Model', function () {

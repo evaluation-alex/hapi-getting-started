@@ -1,22 +1,15 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
-var Config = require(relativeTo + 'config');
 var Hapi = require('hapi');
 var MetricsPlugin = require(relativeToServer + 'common/metrics');
 
 //var expect = require('chai').expect;
-var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var before = lab.before;
-var after = lab.after;
 var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
-var expect = Code.expect;
 
 describe('Metrics', function () {
     var server = null;
@@ -42,17 +35,17 @@ describe('Metrics', function () {
         }, done);
     });
     it('should report stats with no path in stat name', function (done) {
-        server.inject('/', function (res) {
+        server.inject('/', function () {
             done();
         });
     });
     it('should report stats with path in stat name', function (done) {
-        server.inject('/test/123', function (res) {
+        server.inject('/test/123', function () {
             done();
         });
     });
     it('should report stats with generic not found path', function (done) {
-        server.inject('/fnord', function (res) {
+        server.inject('/fnord', function () {
             done();
         });
     });
@@ -63,12 +56,12 @@ describe('Metrics', function () {
                 Origin: 'http://test.domain.com'
             },
             url: '/'
-        }, function (res) {
+        }, function () {
             done();
         });
     });
     it('should not change the status code of a response', function (done) {
-        server.inject('/err', function (res) {
+        server.inject('/err', function () {
             done();
         });
     });

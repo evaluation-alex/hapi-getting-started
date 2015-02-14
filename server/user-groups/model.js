@@ -71,7 +71,7 @@ UserGroups.indexes = [
 
 UserGroups.newObject = function (doc, by) {
     var self = this;
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve/*, reject*/) {
         self.create(doc.name, doc.description, by)
             .then(function (userGroup) {
                 if (userGroup) {

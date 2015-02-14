@@ -1,11 +1,8 @@
 'use strict';
 var Joi = require('joi');
-var Config = require('./../../config');
 var Boom = require('boom');
-var Promise = require('bluebird');
 var Users = require('./../users/model');
 var AuthAttempts = require('./../auth-attempts/model');
-var Mailer = require('./../common/mailer');
 
 var abuseDetected = function (request, reply) {
     var ip = request.info.remoteAddress;

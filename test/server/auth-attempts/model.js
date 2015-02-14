@@ -14,8 +14,6 @@ var describe = lab.describe;
 var it = lab.it;
 var before = lab.before;
 var after = lab.after;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('AuthAttempts Model', function () {
@@ -47,7 +45,7 @@ describe('AuthAttempts Model', function () {
         var authAttemptsConfig = Config.authAttempts;
         var authSpam = [];
         var authRequest = function () {
-            return new Promise(function (resolve, reject) {
+            return new Promise(function (resolve/*, reject*/) {
                 AuthAttempts.create('127.0.0.1', 'test.abuse@auth.attempts')
                     .then(function (result) {
                         expect(result).to.be.an.instanceof(AuthAttempts);
@@ -83,7 +81,7 @@ describe('AuthAttempts Model', function () {
         var authAttemptsConfig = Config.authAttempts;
         var authSpam = [];
         var authRequest = function () {
-            return new Promise(function (resolve, reject) {
+            return new Promise(function (resolve/*, reject*/) {
                 var randomUsername = 'test.abuse' + i + '@auth.attempts';
                 AuthAttempts.create('127.0.0.2', randomUsername)
                     .then(function (result) {

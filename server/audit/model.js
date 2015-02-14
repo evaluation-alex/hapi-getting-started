@@ -2,8 +2,6 @@
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
-var Promise = require('bluebird');
-var _ = require('lodash');
 
 var Audit = ExtendedModel.extend({
     /* jshint -W064 */

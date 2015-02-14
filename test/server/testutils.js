@@ -5,7 +5,6 @@ var Hapi = require('hapi');
 var HapiAuthBasic = require('hapi-auth-basic');
 var AuthPlugin = require(relativeToServer + 'common/auth');
 var MetricsPlugin = require(relativeToServer + 'common/metrics');
-var _ = require('lodash');
 var Promise = require('bluebird');
 var Config = require(relativeTo + 'config');
 var BaseModel = require('hapi-mongo-models').BaseModel;
@@ -34,7 +33,7 @@ var setupConnect = function () {
 exports.setupConnect = setupConnect;
 
 function setupRootRole () {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve/*, reject*/) {
         Roles.findByName(['root'])
             .then(function (found) {
                 if (found && found.length > 0) {
@@ -47,7 +46,7 @@ function setupRootRole () {
 }
 
 function setupReadonlyRole () {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve/*, reject*/) {
         Roles.findByName(['readonly'])
             .then(function (found) {
                 if (found && found.length > 0) {
@@ -60,7 +59,7 @@ function setupReadonlyRole () {
 }
 
 function setupRootUser () {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve/*, reject*/) {
         Users.findByEmail('root')
             .then(function (found) {
                 if (found) {
@@ -76,7 +75,7 @@ function setupRootUser () {
 }
 
 function setupFirstUser () {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve/*, reject*/) {
         Users.findByEmail('one@first.com')
             .then(function (found) {
                 if (found) {
@@ -281,7 +280,7 @@ exports.cleanupConnect = cleanupConnect;
 
 var cleanup = function (toClear, cb) {
     Promise.join(cleanupUsers(toClear.users), cleanupUserGroups(toClear.userGroups), cleanupPermissions(toClear.permissions), cleanupBlogs(toClear.blogs), cleanupAudit(), cleanupAuthAttempts(), cleanupMetrics(),
-        function (u, ug, p, b, a, aa, m) {
+        function () {
             //cleanupConnect(cb);
             cb();
         })

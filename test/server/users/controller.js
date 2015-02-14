@@ -1,10 +1,8 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
 var Users = require(relativeToServer + 'users/model');
 var Audit = require(relativeToServer + 'audit/model');
-var Fs = require('fs');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library

@@ -44,7 +44,7 @@ ExtendedModel._findByIdAndUpdate = function (id, obj) {
             if (err) {
                 reject(err);
             } else {
-                resolve(obj);
+                resolve(doc);
             }
         });
     });
@@ -236,12 +236,12 @@ var CommonMixinSave = function (Model, Audit) {
         },
         _saveAudit: function () {
             var self = this;
-            return new Promise(function (resolve, reject) {
+            return new Promise(function (resolve/*, reject*/) {
                 if (self.audit && self.audit.length > 0) {
                     Promise.settle(_.map(self.audit, function (a) {
                         return Audit._insert(a, []);
                     }))
-                        .then(function (saves) {
+                        .then(function () {
                             self.audit = [];
                             resolve(self);
                         });

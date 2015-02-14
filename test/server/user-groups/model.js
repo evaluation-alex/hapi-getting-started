@@ -1,14 +1,11 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Audit = require(relativeToServer + 'audit/model');
-var _ = require('lodash');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
-var Promise = require('bluebird');
 var Code = require('code');   // assertion library
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -16,8 +13,6 @@ var describe = lab.describe;
 var it = lab.it;
 var before = lab.before;
 var after = lab.after;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('UserGroups Model', function () {
@@ -59,7 +54,7 @@ describe('UserGroups Model', function () {
         it('should not allow two groups with the name', function (done) {
             var error = null;
             UserGroups.create('test.dupe@test.api', 'testing dupes', 'test')
-                .then(function (userGroup) {
+                .then(function () {
                     return UserGroups.create('test.dupe@test.api', 'testing dupes', 'test')
                         .then(function (dupeGroup) {
                             expect(dupeGroup).to.not.exist();

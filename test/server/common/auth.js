@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
 var Users = require(relativeToServer + 'users/model');
 var AuthPlugin = require(relativeToServer + 'common/auth');
@@ -11,8 +10,6 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var before = lab.before;
-var after = lab.after;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
@@ -67,7 +64,7 @@ describe('Auth', function () {
                 Authorization: authheader
             }
         };
-        server.inject(request, function (response) {
+        server.inject(request, function () {
             try {
                 done();
             } catch (err) {
@@ -97,7 +94,7 @@ describe('Auth', function () {
             }
         };
 
-        server.inject(request, function (response) {
+        server.inject(request, function () {
             try {
                 done();
             } catch (err) {
@@ -127,7 +124,7 @@ describe('Auth', function () {
             }
         };
 
-        server.inject(request, function (response) {
+        server.inject(request, function () {
             try {
                 done();
             } catch (err) {
@@ -161,7 +158,7 @@ describe('Auth', function () {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, function (response) {
+                server.inject(request, function () {
                     try {
                         done();
                     } catch (err) {

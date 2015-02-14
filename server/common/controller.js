@@ -1,7 +1,6 @@
 'use strict';
 var Joi = require('joi');
 var Boom = require('boom');
-var Promise = require('bluebird');
 var AuthPlugin = require('./../common/auth');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');

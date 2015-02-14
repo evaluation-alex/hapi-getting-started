@@ -1,9 +1,6 @@
 'use strict';
 var relativeToServer = './../../../server/';
 var Users = require(relativeToServer + 'users/model');
-var Permissions = require(relativeToServer + 'permissions/model');
-var UserGroups = require(relativeToServer + 'user-groups/model');
-var Promise = require('bluebird');
 //var expect = require('chai').expect;
 var Code = require('code');   // assertion library
 var Lab = require('lab');
@@ -11,8 +8,6 @@ var tu = require('./../testutils');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var before = lab.before;
-var after = lab.after;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
@@ -23,6 +18,7 @@ describe('Audit', function () {
     var emails = [];
     var permissionsToClear = [];
     var groupsToClear = [];
+    var blogsToClear = [];
     beforeEach(function (done) {
         tu.setupServer()
             .then(function (s) {
@@ -119,11 +115,14 @@ describe('Audit', function () {
         describe('user-groups', function () {
 
         });
+        describe('blogs', function () {
+
+        });
     });
 
 
     afterEach(function (done) {
-        return tu.cleanup({users: emails, userGroups: groupsToClear, permissions: permissionsToClear}, done);
+        return tu.cleanup({users: emails, userGroups: groupsToClear, permissions: permissionsToClear, blogs: blogsToClear}, done);
     });
 
 });

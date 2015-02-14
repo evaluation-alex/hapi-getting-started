@@ -1,8 +1,5 @@
 'use strict';
 var Joi = require('joi');
-var BaseModel = require('hapi-mongo-models').BaseModel;
-var _ = require('lodash');
-var Promise = require('bluebird');
 var Permissions = require('./model');
 var BaseController = require('./../common/controller').BaseController;
 var Users = require('./../users/model');

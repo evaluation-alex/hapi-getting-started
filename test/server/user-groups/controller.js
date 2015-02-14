@@ -1,11 +1,9 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
 var Users = require(relativeToServer + 'users/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
-var Promise = require('bluebird');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -51,19 +49,19 @@ describe('UserGroups', function () {
     describe('GET /user-groups', function () {
         before(function (done) {
             UserGroups.create('GetUserGroupsTestName', 'GET /user-groups', 'root')
-                .then(function (g1) {
+                .then(function () {
                     return UserGroups.create('GetUserGroupsTestMemberActive', 'GET /user-groups', 'root');
                 })
                 .then(function (g2) {
                     return g2.add(['user1', 'user2'], 'member', 'root')._save();
                 })
-                .then(function (g3) {
+                .then(function () {
                     return UserGroups.create('GetUserGroupsTestMemberInactive', 'GET /user-groups', 'root');
                 })
                 .then(function (g3) {
                     return g3.add(['user4'], 'member', 'root')._save();
                 })
-                .then(function (g4) {
+                .then(function () {
                     return UserGroups.create('GetUserGroupsTestInactive', 'GET /user-groups', 'root');
                 })
                 .then(function (g4) {
@@ -546,7 +544,7 @@ describe('UserGroups', function () {
     describe('POST /user-groups', function () {
         it('should send back conflict when you try to create a group with name that already exists', function (done) {
             UserGroups.create('testDupeGroup', 'test POST /user-groups', 'root')
-                .then(function (ug) {
+                .then(function () {
                     var request = {
                         method: 'POST',
                         url: '/user-groups',

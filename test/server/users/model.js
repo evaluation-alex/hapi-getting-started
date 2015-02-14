@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
 var Users = require(relativeToServer+'users/model');
 var Audit = require(relativeToServer+'audit/model');
@@ -14,8 +13,6 @@ var describe = lab.describe;
 var it = lab.it;
 var before = lab.before;
 var after = lab.after;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('Users Model', function () {

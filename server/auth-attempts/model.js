@@ -41,7 +41,7 @@ AuthAttempts.create = function (ip, email) {
 
 AuthAttempts.abuseDetected = function (ip, email) {
     var self = this;
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve/*, reject*/) {
         Promise.join(self._count({ip: ip}), self._count({ip: ip, email: email}),
             function (abusiveIpCount, abusiveIpUserCount) {
                 var ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;

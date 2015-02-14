@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
 
 var Permissions = require(relativeToServer + 'permissions/model');
 var Audit = require(relativeToServer + 'audit/model');
@@ -16,8 +15,6 @@ var describe = lab.describe;
 var it = lab.it;
 var before = lab.before;
 var after = lab.after;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
 var expect = Code.expect;
 
 describe('Permissions Model', function () {
@@ -87,7 +84,7 @@ describe('Permissions Model', function () {
             var p2 = Permissions.create('search2', ['testUser2'], [], 'action2', 'object2', 'test5');
             var p3 = Permissions.create('search3', ['testUser2'], [], 'action3', 'object3', 'test5');
             Promise.join(p1, p2, p3)
-                .then(function (p11, p12, p13) {
+                .then(function () {
                     done();
                 });
         });
@@ -557,7 +554,7 @@ describe('Permissions Model', function () {
                 activated = p11;
                 deactivated = p12;
                 deactivated.deactivate('test')._save();
-                Audit.remove({objectChangedId: deactivated._id}, function (err, res) {
+                Audit.remove({objectChangedId: deactivated._id}, function (err) {
                     if (err) {
                     }
                 });

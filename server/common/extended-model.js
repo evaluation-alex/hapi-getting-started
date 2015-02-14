@@ -7,59 +7,41 @@ var logger = require('./../manifest').logger;
 var ExtendedModel = BaseModel.extend({
 });
 
+var defaultcb = function (resolve, reject) {
+    return function (err, doc) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(doc);
+        }
+    };
+};
+
 ExtendedModel._find = function (conditions) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.find(conditions, function (err, res) {
-            if (err) {
-                reject(err);
-            } else {
-                if (!res) {
-                    reject(new Error('docs not found for conditions - ' + JSON.stringify(conditions)));
-                } else {
-                    resolve(res);
-                }
-            }
-        });
+        self.find(conditions, defaultcb(resolve, reject));
     });
 };
 
 ExtendedModel._findOne = function (conditions) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.findOne(conditions, function (err, doc) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(doc);
-            }
-        });
+        self.findOne(conditions, defaultcb(resolve, reject));
     });
 };
 
 ExtendedModel._findByIdAndUpdate = function (id, obj) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.findByIdAndUpdate(id, obj, function (err, doc) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(doc);
-            }
-        });
+        self.findByIdAndUpdate(id, obj, defaultcb(resolve, reject));
     });
 };
 
 ExtendedModel._count = function (query) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.count(query, function (err, count) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(count);
-            }
-        });
+        self.count(query, defaultcb(resolve, reject));
     });
 };
 

@@ -221,7 +221,7 @@ function cleanupBlogs (blogsToCleanup) {
     });
 }
 
-function cleanupMetrics() {/*
+function cleanupMetrics() {
     return new Promise(function (resolve, reject) {
         mongodb.collection('metrics').remove({}, function (err, no) {
             if (err) {
@@ -230,7 +230,7 @@ function cleanupMetrics() {/*
                 resolve(no);
             }
         });
-    });*/
+    });
 }
 
 function cleanupAudit () {

@@ -56,41 +56,6 @@ var newDoc = function (params, id) {
         ret.type = 'userStats';
         ret.ua = 'tbd';
         return enrichWithStat(ret);
-    }
-    if (params.year) {
-        ret.year = params.year;
-        if (params.month) {
-            ret.month = params.month;
-            if (params.day) {
-                ret.day = params.day;
-                ret.hours = newStatArr(24, 'h', false);
-                ret.type = 'hourlyStats';
-                return ret;
-            }
-            var daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            ret.days = newStatArr(daysInMonth[params.month], 'd', true);
-            ret.type = 'dailyStats';
-            return ret;
-        }
-        ret.months = newStatArr(12, 'm', true);
-        ret.type = 'monthlyStats';
-        return ret;
-    }
-    return enrichWithStat(ret);
-};
-
-var newDoc2 = function (params, id) {
-    var ret = {
-        _id: id,
-        host: params.host,
-        path: params.path,
-        method: params.method
-    };
-    if (params.user) {
-        ret.user = params.user;
-        ret.type = 'userStats';
-        ret.ua = 'tbd';
-        return enrichWithStat(ret);
     } else {
         ret.year = params.year;
         ret.type = 'combinedStats';
@@ -107,7 +72,7 @@ var newDoc2 = function (params, id) {
     }
 };
 
-var updt2 = function (stats, ua, statusCode, elapsed) {
+var update = function (stats, ua, statusCode, elapsed) {
     _.forEach(stats, function (stat) {
         if (!_.isUndefined(stat.ua)) {
             stat.ua = ua.toString();
@@ -127,7 +92,7 @@ var updt2 = function (stats, ua, statusCode, elapsed) {
 };
 
 /* jshint unused: false*/
-var findAndUpdate2 = function (host, path, method, user, ua, year, month, day, hour, statusCode, elapsed) {
+var findAndUpdate = function (host, path, method, user, ua, year, month, day, hour, statusCode, elapsed) {
     var queries = [
         {
             id: [host, path, method, year].join(','),
@@ -155,8 +120,8 @@ var findAndUpdate2 = function (host, path, method, user, ua, year, month, day, h
             if (err) {
                 //do nothing
             } else {
-                var metric = doc || newDoc2(query.args, query.id);
-                updt2(query.toUpdate(metric, user, year, month, day, hour), ua, statusCode, elapsed);
+                var metric = doc || newDoc(query.args, query.id);
+                update(query.toUpdate(metric, user, year, month, day, hour), ua, statusCode, elapsed);
                 metrics.findAndModify({_id: metric._id}, [['_id', 'asc']], metric, {upsert: true}, function (err, doc) {
                     if (err) {
                         //do nothing;
@@ -166,77 +131,6 @@ var findAndUpdate2 = function (host, path, method, user, ua, year, month, day, h
                 });
             }
         });
-    });
-};
-/* jshint unused: true*/
-
-var updt = function (stat, ua, statusCode, elapsed) {
-    if (!_.isUndefined(stat.ua)) {
-        stat.ua = ua.toString();
-        stat.os = ua.os.toString();
-        stat.device = ua.device.toString();
-    }
-    if (_.isUndefined(stat.statusCode[statusCode])) {
-        stat.statusCode[statusCode] = 1;
-    } else {
-        stat.statusCode[statusCode] += 1;
-    }
-    stat.min = stat.min === 0 ? elapsed : stat.min < elapsed ? stat.min : elapsed;
-    stat.max = stat.max > elapsed ? stat.max : elapsed;
-    stat.avg = ((stat.avg * stat.count) + elapsed) / (stat.count + 1);
-    stat.count += 1;
-    return stat;
-};
-
-/* jshint unused: false*/
-var findAndUpdate = function (host, path, method, user, ua, year, month, day, hour, statusCode, elapsed) {
-    var queries = [
-        {
-            id: [host, path, method, year].join(','),
-            args: {host: host, path: path, method: method, year: year},
-            toUpdate: function (metric, user, year, month, day, hour) {
-                return metric.months[month - 1];
-            }
-        },
-        {
-            id: [host, path, method, year, month].join(','),
-            args: {host: host, path: path, method: method, year: year, month: month},
-            toUpdate: function (metric, user, year, month, day, hour) {
-                return metric.days[day - 1];
-            }
-        },
-        {
-            id: [host, path, method, year, month, day].join(','),
-            args: {host: host, path: path, method: method, year: year, month: month, day: day},
-            toUpdate: function (metric, user, year, month, day, hour) {
-                return metric.hours[hour];
-            }
-        },
-        {
-            id: [host, path, method, user].join(','),
-            args: {host: host, path: path, method: method, user: user},
-            toUpdate: function (metric, user, year, month, day, hour) {
-                return metric;
-            }
-        }
-    ];
-    var metrics = mongodb.collection('metrics');
-    _.forEach(queries, function (query) {
-            metrics.findOne({_id: query.id}, function (err, doc) {
-                if (err) {
-                    //do nothing
-                } else {
-                    var metric = doc || newDoc(query.args, query.id);
-                    updt(query.toUpdate(metric, user, year, month, day, hour), ua, statusCode, elapsed);
-                    metrics.findAndModify({_id: metric._id}, [['_id', 'asc']], metric, {upsert: true}, function (err, doc) {
-                        if (err) {
-                            //do nothing;
-                        } else {
-                            //do nothing;
-                        }
-                    });
-                }
-            });
     });
 };
 /* jshint unused: true*/
@@ -271,7 +165,7 @@ module.exports.register = function (server, options, next) {
         var statusCode = (request.response.isBoom) ? request.response.output.statusCode : request.response.statusCode;
         var user = request.auth && request.auth.credentials && request.auth.credentials.user ? request.auth.credentials.user.email : 'notloggedin';
         var elapsed = moment(request.info.responded === 0 ? now : request.info.responded).diff(moment(request.info.received));
-        findAndUpdate2(host, path, method, user, ua, year, month, day, hour, statusCode + '#', elapsed);
+        findAndUpdate(host, path, method, user, ua, year, month, day, hour, statusCode + '#', elapsed);
         return reply.continue();
     });
     next();

@@ -54,7 +54,7 @@
         "hoek": "2.11.x",
         "joi": "5.1.x",
         "lodash": "3.2.x",
-        "lout": "6.1.x",
+        "lout": "6.2.x",
         "moment": "2.9.x",
         "mongodb": "1.4.x",
         "node-uuid": "1.4.x",

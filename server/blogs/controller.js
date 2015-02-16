@@ -26,9 +26,6 @@ Controller.find = BaseController.find('blogs', Blogs, {
             query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
         }
     });
-    if (request.query.isActive) {
-        query.isActive = request.query.isActive === '"true"';
-    }
     return query;
 });
 
@@ -70,7 +67,8 @@ Controller.new = BaseController.new('blogs', Blogs, {
     {assign: 'validSubscriberGroups', method: areValid(UserGroups, 'name', 'subscriberGroups')}
 ], function (request) {
     return {
-        title: request.payload.title
+        title: request.payload.title,
+        organisation: request.auth.credentials.user.organisation
     };
 });
 

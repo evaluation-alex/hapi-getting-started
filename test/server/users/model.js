@@ -28,7 +28,7 @@ describe('Users Model', function () {
     describe('Users.create', function () {
         it('should create a new instance when create succeeds', function (done) {
             var error = null;
-            Users.create(firstEmail, 'test123')
+            Users.create(firstEmail, 'test123', 'silver lining')
                 .then(function (result) {
                     expect(result).to.be.an.instanceof(Users);
                     expect(result.roles).to.be.an.instanceof(Array);
@@ -44,7 +44,7 @@ describe('Users Model', function () {
         });
 
         it('should throw an error when create fails if you try to create with the same email', function (done) {
-            Users.create(firstEmail, 'test123')
+            Users.create(firstEmail, 'test123', 'silver lining')
                 .then(function (result) {
                     expect(result).to.not.exist();
                 })
@@ -60,7 +60,7 @@ describe('Users Model', function () {
     describe('Users.findByCredentials, Users.findByEmail', function () {
         it('should returns a result when finding by login and by credentials correctly', function (done) {
             var error = null;
-            Users.create(secondEmail, 'test1234')
+            Users.create(secondEmail, 'test1234', 'silver lining')
                 .then(function (user) {
                     return Users.findByEmail(user.email);
                 })
@@ -146,7 +146,7 @@ describe('Users Model', function () {
         });
         it('should return an object with as many entries as emails sent, appropriately populated', function(done) {
             var error = null;
-            Users.areValid('email', [firstEmail, secondEmail, 'bogus'])
+            Users.areValid('email', [firstEmail, secondEmail, 'bogus'], 'silver lining')
                 .then(function (result) {
                     expect(result).to.exist();
                     expect(result[firstEmail]).to.be.true();

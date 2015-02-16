@@ -25,7 +25,7 @@ describe('Roles Model', function () {
     describe('Roles.create', function () {
         it('should create a new document', function (done) {
             var error = null;
-            Roles.create('newRole', [{
+            Roles.create('newRole', 'silver lining', [{
                 action: 'view',
                 object: 'self'
             }, {
@@ -47,7 +47,7 @@ describe('Roles Model', function () {
         });
         it('should not allow two objects with the same name', function (done) {
             var error = null;
-            Roles.create('newRole', [{
+            Roles.create('newRole', 'silver lining', [{
                 action: 'view',
                 object: 'self'
             }, {
@@ -69,7 +69,7 @@ describe('Roles Model', function () {
 
     describe('Permissions.findByName', function () {
         before(function (done) {
-            Roles.create('findRole', [{
+            Roles.create('findRole', 'silver lining', [{
                 action: 'view',
                 object: 'test'
             }])
@@ -79,7 +79,7 @@ describe('Roles Model', function () {
         });
         it('should return a roles array with roles that matches the names', function (done) {
             var error = null;
-            Roles.findByName(['findRole', 'root'])
+            Roles.findByName(['findRole', 'root'], 'silver lining')
                 .then(function (found) {
                     expect(found).to.exist();
                     expect(found.length).to.equal(2);
@@ -94,7 +94,7 @@ describe('Roles Model', function () {
         });
         it('should return an empty array when nothing matches', function (done) {
             var error = null;
-            Roles.findByName(['wontfind'])
+            Roles.findByName(['wontfind'], 'silver lining')
                 .then(function (found) {
                     expect(found).to.exist();
                     expect(found.length).to.equal(0);
@@ -117,7 +117,7 @@ describe('Roles Model', function () {
     describe('Roles.this.hasPermissionsTo', function () {
         var role = null;
         before(function (done) {
-            Roles.create('hasPermissions', [{
+            Roles.create('hasPermissions', 'silver lining', [{
                 action: 'view',
                 object: 'test'
             }, {
@@ -166,7 +166,7 @@ describe('Roles Model', function () {
             }
         });
         it ('should return true if you have permissions permissions on *', function (done) {
-            Roles.findByName(['root'])
+            Roles.findByName(['root'], 'silver lining')
                 .then(function (root) {
                     expect(root[0].hasPermissionsTo('view', 'test3')).to.be.true();
                     expect(root[0].hasPermissionsTo('update', 'test3')).to.be.true();

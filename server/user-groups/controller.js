@@ -1,4 +1,5 @@
 'use strict';
+var _ = require('lodash');
 var Joi = require('joi');
 var Boom = require('boom');
 var BaseModel = require('hapi-mongo-models').BaseModel;
@@ -26,9 +27,7 @@ var validAndPermitted = function (request, reply) {
             cases[m.message]();
         })
         .catch(function (err) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            }
+            reply(Boom.badImplementation(err));
         });
 };
 
@@ -40,15 +39,12 @@ Controller.find = BaseController.find('user-groups', UserGroups, {
     }
 }, function (request) {
     var query = {};
-    if (request.query.email) {
-        query.members = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
-    }
-    if (request.query.groupName) {
-        query.name = {$regex: new RegExp('^.*?' + request.query.groupName + '.*$', 'i')};
-    }
-    if (request.query.isActive) {
-        query.isActive = request.query.isActive === '"true"';
-    }
+    var fields = [['email', 'members'], ['groupName', 'name']];
+    _.forEach(fields, function (pair) {
+        if (request.query[pair[0]]) {
+            query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
+        }
+    });
     return query;
 });
 
@@ -77,10 +73,11 @@ Controller.new = BaseController.new('user-groups', UserGroups, {
     }
 }, [
     {assign: 'validMembers', method: areValid(Users, 'email', 'members')},
-    {assign: 'validOwners', method: areValid(Users, 'email', 'owners')},
+    {assign: 'validOwners', method: areValid(Users, 'email', 'owners')}
 ], function (request) {
     return {
-        name: request.payload.name
+        name: request.payload.name,
+        organisation: request.auth.credentials.user.organisation
     };
 });
 

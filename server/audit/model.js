@@ -19,11 +19,12 @@ Audit.schema = Joi.object().keys({
     action: Joi.string(),
     origValues: Joi.object(),
     newValues: Joi.object(),
+    organisation: Joi.string(),
     by: Joi.string(),
     timestamp: Joi.date()
 });
 
-Audit.create = function (type, id, action, origValues, newValues, by) {
+Audit.create = function (type, id, action, origValues, newValues, by, organisation) {
     var self = this;
     var doc = {
         objectChangedType: type,
@@ -31,6 +32,7 @@ Audit.create = function (type, id, action, origValues, newValues, by) {
         action: action,
         origValues: origValues,
         newValues: newValues,
+        organisation: organisation,
         by: by,
         timestamp: new Date()
     };

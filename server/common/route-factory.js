@@ -26,12 +26,6 @@ var RouteFactory = function () {
         }
         return self;
     };
-    self.forPOST = function () {
-        return self.forMethod('POST');
-    };
-    self.forDELETE = function () {
-        return self.forMethod('DELETE');
-    };
     self.onPath = function (path) {
         self.route.path = path;
         return self;

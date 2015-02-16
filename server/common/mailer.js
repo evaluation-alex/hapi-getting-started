@@ -47,9 +47,7 @@ var sendEmail = exports.sendEmail = function (options, template, context) {
                 });
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             })
             .done();
     });

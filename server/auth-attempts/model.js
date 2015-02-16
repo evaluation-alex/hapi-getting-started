@@ -20,6 +20,7 @@ AuthAttempts._collection = 'authAttempts';
 AuthAttempts.schema = Joi.object().keys({
     _id: Joi.object(),
     email: Joi.string().required(),
+    organisation: Joi.string().default('*'),
     ip: Joi.string().required(),
     time: Joi.date().required()
 });
@@ -34,6 +35,7 @@ AuthAttempts.create = function (ip, email) {
     var document = {
         ip: ip,
         email: email,
+        organisation: '*',
         time: new Date()
     };
     return self._insert(document, {});

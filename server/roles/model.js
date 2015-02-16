@@ -28,6 +28,7 @@ Roles._collection = 'roles';
 Roles.schema = Joi.object().keys({
     _id: Joi.object(),
     name: Joi.string().required(),
+    organisation: Joi.string().required(),
     permissions: Joi.array().includes(Joi.object().keys({
         action: Joi.string().valid('view', 'update'),
         object: Joi.string().required()
@@ -35,22 +36,23 @@ Roles.schema = Joi.object().keys({
 });
 
 Roles.indexes = [
-    [{name: 1}, {unique: true}],
+    [{name: 1, organisation: 1}, {unique: true}],
 ];
 
-Roles.create = function (name, permissions) {
+Roles.create = function (name, organisation, permissions) {
     var self = this;
     var document = {
         name: name,
+        organisation: organisation,
         permissions: permissions
     };
     return self._insert(document, new Error('No role created - ' + name));
 };
 
-Roles.findByName = function (names) {
+Roles.findByName = function (names, organisation) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self._find({name: {$in: names}})
+        self._find({name: {$in: names}, organisation: organisation})
             .then(function (roles) {
                 if (!roles) {
                     reject(new Error('no roles found'));
@@ -59,9 +61,7 @@ Roles.findByName = function (names) {
                 }
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             });
     });
 };

@@ -26,7 +26,7 @@ describe('Auth', function () {
                 return tu.setupRolesAndUsers();
             })
             .then(function () {
-                return Users.create(email, 'auth123');
+                return Users.create(email, 'auth123', 'silver lining');
             })
             .then(function (user) {
                 return user.loginSuccess('test', 'test')._save();

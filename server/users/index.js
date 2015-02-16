@@ -7,17 +7,17 @@ module.exports.Routes = [
     RouteFactory.defaultFindOneRoute('users', Controller.findOne),
     RouteFactory.defaultUpdateRoute('users', Controller.update),
     RouteFactory.newRoute()
-        .forPOST()
+        .forMethod('POST')
         .onPath('/signup')
         .withController(Controller.signup)
         .doneConfiguring(),
     RouteFactory.newRoute()
-        .forPOST()
+        .forMethod('POST')
         .onPath('/login/forgot')
         .withController(Controller.loginForgot)
         .doneConfiguring(),
     RouteFactory.newRoute()
-        .forPOST()
+        .forMethod('POST')
         .onPath('/login/reset')
         .withController(Controller.loginReset)
         .doneConfiguring()

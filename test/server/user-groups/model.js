@@ -27,7 +27,7 @@ describe('UserGroups Model', function () {
     describe('UserGroups.create', function () {
         it('should create a new document when it succeeds, the creator should be owner and member and have appropriate audit entries', function (done) {
             var error = null;
-            UserGroups.create('test.group@test.api', 'creating groups', 'test')
+            UserGroups.create('test.group@test.api', 'silver lining', 'creating groups', 'test')
                 .then(function (userGroup) {
                     expect(userGroup).to.exist();
                     expect(userGroup).to.be.an.instanceof(UserGroups);
@@ -53,9 +53,9 @@ describe('UserGroups Model', function () {
         });
         it('should not allow two groups with the name', function (done) {
             var error = null;
-            UserGroups.create('test.dupe@test.api', 'testing dupes', 'test')
+            UserGroups.create('test.dupe@test.api', 'silver lining', 'testing dupes', 'test')
                 .then(function () {
-                    return UserGroups.create('test.dupe@test.api', 'testing dupes', 'test')
+                    return UserGroups.create('test.dupe@test.api', 'silver lining', 'testing dupes', 'test')
                         .then(function (dupeGroup) {
                             expect(dupeGroup).to.not.exist();
                         })
@@ -77,14 +77,14 @@ describe('UserGroups Model', function () {
 
     describe('UserGroups.findByName', function () {
         before(function (done) {
-            UserGroups.create('test.search@test.api', 'testing search', 'test')
+            UserGroups.create('test.search@test.api', 'silver lining', 'testing search', 'test')
                 .done(function () {
                     done();
                 });
         });
         it('should return a user group that matches the name', function (done) {
             var error = null;
-            UserGroups.findByName('test.search@test.api')
+            UserGroups.findByName('test.search@test.api', 'silver lining')
                 .then(function (ug) {
                     expect(ug).to.exist();
                     expect(ug.name).to.equal('test.search@test.api');
@@ -99,7 +99,7 @@ describe('UserGroups Model', function () {
         });
         it('should return false when nothing matches', function (done) {
             var error = null;
-            UserGroups.findByName('test.find@test.api')
+            UserGroups.findByName('test.find@test.api', 'silver lining')
                 .then(function (ug) {
                     expect(ug).to.be.false();
                 })
@@ -113,12 +113,12 @@ describe('UserGroups Model', function () {
         });
         it('should only return a user group that is currently active', function (done) {
             var error = null;
-            UserGroups.findByName('test.search@test.api')
+            UserGroups.findByName('test.search@test.api', 'silver lining')
                 .then(function (ug) {
                     return ug.deactivate()._save();
                 })
                 .then(function () {
-                    return UserGroups.findByName('test.search@test.api');
+                    return UserGroups.findByName('test.search@test.api', 'silver lining');
                 })
                 .then(function (ug2) {
                     expect(ug2).to.be.false();
@@ -145,14 +145,14 @@ describe('UserGroups Model', function () {
 
     describe('UserGroups.findGroupsForUser', function () {
         before(function (done) {
-            UserGroups.create('test.search.user@test.api', 'testing findGroupForUser', 'test2')
+            UserGroups.create('test.search.user@test.api', 'silver lining', 'testing findGroupForUser', 'test2')
                 .then(function (ug) {
                     ug.members.push('someUser');
                     ug.members.push('anotherUser');
                     UserGroups._findByIdAndUpdate(ug._id, ug);
                 })
                 .then(function () {
-                    return UserGroups.create('test.search2.user@test.api', 'testing2 findGroupForUser', 'test2');
+                    return UserGroups.create('test.search2.user@test.api', 'silver lining', 'testing2 findGroupForUser', 'test2');
                 })
                 .then(function (ug2) {
                     ug2.members.push('someUser');
@@ -171,22 +171,20 @@ describe('UserGroups Model', function () {
         });
         it('should return user groups array with groups that have the user as a member', function (done) {
             var error = null;
-            UserGroups.findGroupsForUser('test2')
+            UserGroups.findGroupsForUser('test2', 'silver lining')
                 .then(function (ug) {
                     expect(ug.length).to.equal(2);
-                    expect(ug[0]._isMemberOf('owners', 'test2')).to.be.true();
                     expect(ug[0]._isMemberOf('members', 'test2')).to.be.true();
-                    expect(ug[1]._isMemberOf('owners', 'test2')).to.be.true();
                     expect(ug[1]._isMemberOf('members', 'test2')).to.be.true();
                 })
                 .then(function () {
-                    return UserGroups.findGroupsForUser('someUser');
+                    return UserGroups.findGroupsForUser('someUser', 'silver lining');
                 })
                 .then(function (ug2) {
                     expect(ug2).to.exist();
                     expect(ug2.length).to.equal(2);
                     expect(ug2[0]._isMemberOf('members', 'someUser')).to.be.true();
-                    expect(ug2[1]._isMemberOf('owners', 'someUser')).to.be.true();
+                    expect(ug2[1]._isMemberOf('members', 'someUser')).to.be.true();
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -198,7 +196,7 @@ describe('UserGroups Model', function () {
         });
         it('should return an empty array when user is not part of any group', function (done) {
             var error = null;
-            UserGroups.findGroupsForUser('bogus')
+            UserGroups.findGroupsForUser('bogus', 'silver lining')
                 .then(function (ug) {
                     expect(ug.length).to.equal(0);
                 })
@@ -235,7 +233,7 @@ describe('UserGroups Model', function () {
         });
         it ('should return with not an owner when the owner argument is not an owner (active or otherwise)', function (done) {
             var error = null;
-            UserGroups.create('isValidTest', 'isValidTest', 'test5')
+            UserGroups.create('isValidTest', 'silver lining', 'isValidTest', 'test5')
                 .then(function(ug) {
                     return UserGroups.isValid(ug._id, 'unknown');
                 })
@@ -254,7 +252,7 @@ describe('UserGroups Model', function () {
         });
         it ('should return valid when the group exists and the owner is an active owner', function (done) {
             var error = null;
-            UserGroups.create('isValidTest2', 'isValidTest2', 'test5')
+            UserGroups.create('isValidTest2', 'silver lining', 'isValidTest2', 'test5')
                 .then(function(ug) {
                     return UserGroups.isValid(ug._id, 'test5');
                 })
@@ -273,7 +271,7 @@ describe('UserGroups Model', function () {
         });
         it ('should return valid when the group exists and we pass root as owner', function (done) {
             var error = null;
-            UserGroups.create('isValidTest3', 'isValidTest3', 'test5')
+            UserGroups.create('isValidTest3', 'silver lining', 'isValidTest3', 'test5')
                 .then(function(ug) {
                     return UserGroups.isValid(ug._id, 'root');
                 })
@@ -309,9 +307,9 @@ describe('UserGroups Model', function () {
         });
         it('should return an object with as many entries as names sent, appropriately populated', function(done) {
             var error = null;
-            UserGroups.create('test UserGroups.areValid', 'test', 'test')
+            UserGroups.create('test UserGroups.areValid', 'silver lining', 'test', 'test')
                 .then(function () {
-                    return UserGroups.areValid('name', ['test UserGroups.areValid', 'bogus']);
+                    return UserGroups.areValid('name', ['test UserGroups.areValid', 'bogus'], 'silver lining');
                 })
                 .then(function (result) {
                     expect(result).to.exist();
@@ -332,7 +330,7 @@ describe('UserGroups Model', function () {
     describe('UserGroups.this.addUsers', function () {
         it('should do nothing if the user is already present as a member and you add user as a member', function (done) {
             var error = null;
-            UserGroups.create('addUsersTest1', 'UserGroups.this.addMemberAlreadyPresent', 'test3')
+            UserGroups.create('addUsersTest1', 'silver lining', 'UserGroups.this.addMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
                     ug.members.push('alreadyMember');
                     return UserGroups._findByIdAndUpdate(ug._id, ug);
@@ -358,7 +356,7 @@ describe('UserGroups Model', function () {
         });
         it('should do nothing if the user is already present as a owner and you add user as a owner', function (done) {
             var error = null;
-            UserGroups.create('addUsersTest2', 'UserGroups.this.addOwnerAlreadyPresent', 'test3')
+            UserGroups.create('addUsersTest2', 'silver lining', 'UserGroups.this.addOwnerAlreadyPresent', 'test3')
                 .then(function (ug) {
                     ug.owners.push('alreadyOwner');
                     return UserGroups._findByIdAndUpdate(ug._id, ug);
@@ -384,7 +382,7 @@ describe('UserGroups Model', function () {
         });
         it('should do nothing if the user is already present as owner AND member and you add as owner AND member', function (done) {
             var error = null;
-            UserGroups.create('addUsersTest3', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
+            UserGroups.create('addUsersTest3', 'silver lining', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
                     return ug.add(['test3'], 'ownermember', 'test4')._save();
                 })
@@ -410,7 +408,7 @@ describe('UserGroups Model', function () {
         });
         it('should add the user as a owner who was not already present and added with the owner role', function (done) {
             var error = null;
-            UserGroups.create('addUsersTest4', 'UserGroups.this.addOwnerNotPresent', 'test3')
+            UserGroups.create('addUsersTest4', 'silver lining', 'UserGroups.this.addOwnerNotPresent', 'test3')
                 .then(function (ug) {
                     return ug.add(['newOwner'], 'owner', 'test3')._save();
                 })
@@ -434,7 +432,7 @@ describe('UserGroups Model', function () {
         });
         it('should add the user as a member who was not already present and added with the member role', function (done) {
             var error = null;
-            UserGroups.create('addUsersTest5', 'UserGroups.this.addMemberNotPresent', 'test3')
+            UserGroups.create('addUsersTest5', 'silver lining', 'UserGroups.this.addMemberNotPresent', 'test3')
                 .then(function (ug) {
                     return ug.add(['newMember'], 'member', 'test3')._save();
                 })
@@ -458,7 +456,7 @@ describe('UserGroups Model', function () {
         });
         it('should add the user as a member and owner who was not already present and added with the member and owner / both role', function (done) {
             var error = null;
-            UserGroups.create('addUsersTest6.0', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
+            UserGroups.create('addUsersTest6.0', 'silver lining', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
                 .then(function (ug) {
                     return ug.add(['newMemberOwner'], 'owner', 'test3').add(['newMemberOwner'], 'member', 'test3')._save();
                 })
@@ -473,7 +471,7 @@ describe('UserGroups Model', function () {
                     expect(ugaudit[1].newValues).to.equal('newMemberOwner');
                 })
                 .then(function () {
-                    return UserGroups.create('addUsersTest6.1', 'UserGroups.this.addBothNotPresent', 'test3');
+                    return UserGroups.create('addUsersTest6.1', 'silver lining', 'UserGroups.this.addBothNotPresent', 'test3');
                 })
                 .then(function (ug) {
                     return ug.add(['newBoth'], 'owner', 'test3').add(['newBoth'], 'member', 'test3')._save();
@@ -503,7 +501,7 @@ describe('UserGroups Model', function () {
     describe('UserGroups.this.removeUsers', function () {
         it('should do nothing if the user is not already present as a member and you remove user as a member', function (done) {
             var error = null;
-            UserGroups.create('removeUsersTest1', 'UserGroups.this.removeMemberNotPresent', 'test4')
+            UserGroups.create('removeUsersTest1', 'silver lining', 'UserGroups.this.removeMemberNotPresent', 'test4')
                 .then(function (ug) {
                     ug.owners.push('notMemberButOwner');
                     return UserGroups._findByIdAndUpdate(ug._id, ug);
@@ -532,7 +530,7 @@ describe('UserGroups Model', function () {
         });
         it('should do nothing if the user is not already present as a owner and you remove user as a owner', function (done) {
             var error = null;
-            UserGroups.create('removeUsersTest2', 'UserGroups.this.removeOwnerNotPresent', 'test4')
+            UserGroups.create('removeUsersTest2', 'silver lining', 'UserGroups.this.removeOwnerNotPresent', 'test4')
                 .then(function (ug) {
                     ug.members.push('notOwnerButMember');
                     return UserGroups._findByIdAndUpdate(ug._id, ug);
@@ -596,7 +594,7 @@ describe('UserGroups Model', function () {
         });
         it('should remove the users owner role if already present the owner role', function (done) {
             var error = null;
-            UserGroups.create('removeUsersTest4.0', 'UserGroups.this.removeOwner', 'test4')
+            UserGroups.create('removeUsersTest4.0', 'silver lining', 'UserGroups.this.removeOwner', 'test4')
                 .then(function (ug) {
                     ug.owners.push('owner');
                     return UserGroups._findByIdAndUpdate(ug._id, ug);
@@ -627,7 +625,7 @@ describe('UserGroups Model', function () {
         });
         it('should deactivate the user as a member if already present with the member role', function (done) {
             var error = null;
-            UserGroups.create('removeUsersTest5.0', 'UserGroups.this.removeMember', 'test4')
+            UserGroups.create('removeUsersTest5.0', 'silver lining', 'UserGroups.this.removeMember', 'test4')
                 .then(function (ug) {
                     ug.members.push('member');
                     return UserGroups._findByIdAndUpdate(ug._id, ug);
@@ -661,7 +659,7 @@ describe('UserGroups Model', function () {
     describe('UserGroups.this.activate/deactivate', function () {
         it('should do nothing if the user group is already inactive/active and you deactivate/activate', function (done) {
             var error = null;
-            UserGroups.create('activateGroupDoNothing', 'UserGroups.this.activate', 'test5')
+            UserGroups.create('activateGroupDoNothing', 'silver lining', 'UserGroups.this.activate', 'test5')
                 .then(function (ug) {
                     return ug.reactivate('test5')._save();
                 })
@@ -673,7 +671,7 @@ describe('UserGroups Model', function () {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .then(function () {
-                    return UserGroups.create('deactivateGroupDoNothing', 'UserGroups.this.deactivate', 'test5');
+                    return UserGroups.create('deactivateGroupDoNothing', 'silver lining', 'UserGroups.this.deactivate', 'test5');
                 })
                 .then(function (ug) {
                     ug.isActive = false;
@@ -701,7 +699,7 @@ describe('UserGroups Model', function () {
         });
         it('should mark the group as inactive / active when you deactivate / activate', function (done) {
             var error = null;
-            UserGroups.create('deactivateGroup', 'UserGroups.this.deactivate', 'test5')
+            UserGroups.create('deactivateGroup', 'silver lining', 'UserGroups.this.deactivate', 'test5')
                 .then(function (ug) {
                     return ug.deactivate('test5')._save();
                 })
@@ -714,7 +712,7 @@ describe('UserGroups Model', function () {
                     expect(ugaudit[0].action).to.equal('isActive');
                 })
                 .then(function () {
-                    return UserGroups.create('activateGroup', 'UserGroups.this.reactivate', 'test5');
+                    return UserGroups.create('activateGroup', 'silver lining', 'UserGroups.this.reactivate', 'test5');
                 })
                 .then(function (ug) {
                     ug.isActive = false;
@@ -746,7 +744,7 @@ describe('UserGroups Model', function () {
     describe('UserGroups.this.updateDesc', function () {
         it('should do nothing if there is no change in the description', function (done) {
             var error = null;
-            UserGroups.create('updateDesc1', 'UserGroups.this.updateDesc', 'test6')
+            UserGroups.create('updateDesc1', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
                 .then(function (ug) {
                     return ug.updateDesc(ug.description, 'test6')._save();
                 })
@@ -768,7 +766,7 @@ describe('UserGroups Model', function () {
         });
         it('should update to the new description', function (done) {
             var error = null;
-            UserGroups.create('updateDesc2', 'UserGroups.this.updateDesc', 'test6')
+            UserGroups.create('updateDesc2', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
                 .then(function (ug) {
                     return ug.updateDesc(ug.description + 'new', 'test6')._save();
                 })

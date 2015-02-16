@@ -47,15 +47,13 @@ Users.prototype.hydrateRoles = function () {
         if (self._roles || !self.roles) {
             resolve(self);
         } else {
-            Roles.findByName(self.roles)
+            Roles.findByName(self.roles, self.organisation)
                 .then(function (roles) {
                     self._roles = roles;
                     resolve(self);
                 })
                 .catch(function (err) {
-                    if (err) {
-                        reject(err);
-                    }
+                    reject(err);
                 })
                 .done();
         }
@@ -133,16 +131,17 @@ Users.schema = Joi.object().keys({
     _id: Joi.object(),
     email: Joi.string().email().required(),
     password: Joi.string(),
+    organisation: Joi.string().required(),
     roles: Joi.array().includes(Joi.string()),
     resetPwd: Joi.object().keys({
         token: Joi.string().required(),
         expires: Joi.date().required()
     }),
-    isActive: Joi.boolean().default(true),
     session: Joi.object().keys({
         key: Joi.object(),
         timestamp: Joi.date()
     }),
+    isActive: Joi.boolean().default(true),
     createdBy: Joi.string(),
     createdOn: Joi.date(),
     updatedBy: Joi.string(),
@@ -150,19 +149,21 @@ Users.schema = Joi.object().keys({
 });
 
 Users.indexes = [
-    [{email: 1}, {unique: true}]
+    [{email: 1}, {unique: true}],
+    [{email: 1, organisation: 1}, {unique: true}]
 ];
 
-Users.create = function (email, password) {
+Users.create = function (email, password, organisation) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var hash = Bcrypt.hashSync(password, 10);
         var document = {
             email: email,
             password: hash,
+            organisation: organisation,
             roles: ['readonly'],
-            isActive: true,
             session: {},
+            isActive: true,
             createdBy: email,
             createdOn: new Date(),
             updatedBy: email,
@@ -171,14 +172,12 @@ Users.create = function (email, password) {
         self._insert(document, false)
             .then(function (user) {
                 if (user) {
-                    Audit.create('Users', email, 'signup', null, user, email);
+                    Audit.create('Users', email, 'signup', null, user, email, organisation);
                 }
                 resolve(user);
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             });
     });
 };
@@ -195,9 +194,7 @@ Users.findByEmail = function (email) {
                 }
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             });
     });
 };
@@ -219,9 +216,7 @@ Users.findByCredentials = function (email, password) {
                 }
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             });
     });
 };
@@ -247,9 +242,7 @@ Users.findBySessionCredentials = function (email, key) {
                 }
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             });
     });
 };

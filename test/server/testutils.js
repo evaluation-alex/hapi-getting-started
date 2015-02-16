@@ -34,12 +34,12 @@ exports.setupConnect = setupConnect;
 
 function setupRootRole () {
     return new Promise(function (resolve/*, reject*/) {
-        Roles.findByName(['root'])
+        Roles.findByName(['root'], 'silver lining')
             .then(function (found) {
                 if (found && found.length > 0) {
                     resolve(found[0]);
                 } else {
-                    resolve(Roles.create('root', [{action: 'update', object: '*'}, {action: 'view', object: '*'}]));
+                    resolve(Roles.create('root', 'silver lining', [{action: 'update', object: '*'}, {action: 'view', object: '*'}]));
                 }
             });
     });
@@ -47,12 +47,12 @@ function setupRootRole () {
 
 function setupReadonlyRole () {
     return new Promise(function (resolve/*, reject*/) {
-        Roles.findByName(['readonly'])
+        Roles.findByName(['readonly'], 'silver lining')
             .then(function (found) {
                 if (found && found.length > 0) {
                     resolve(found[0]);
                 } else {
-                    resolve(Roles.create('readonly', [{action: 'view', object: '*'}]));
+                    resolve(Roles.create('readonly', 'silver lining', [{action: 'view', object: '*'}]));
                 }
             });
     });
@@ -65,7 +65,7 @@ function setupRootUser () {
                 if (found) {
                     resolve(found.updateRoles(['root'], 'testSetup')._save());
                 } else {
-                    Users.create('root', 'password123')
+                    Users.create('root', 'password123', 'silver lining')
                         .then(function (rt) {
                             resolve(rt.updateRoles(['root'], 'testSetup')._save());
                         });
@@ -81,7 +81,7 @@ function setupFirstUser () {
                 if (found) {
                     resolve(found);
                 } else {
-                    resolve(Users.create('one@first.com', 'password'));
+                    resolve(Users.create('one@first.com', 'password', 'silver lining'));
                 }
             });
     });

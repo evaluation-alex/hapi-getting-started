@@ -18,6 +18,7 @@ Controller.find = BaseController.find('auth-attempts', AuthAttempts, {
     if (request.query.email) {
         query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
     }
+    query.organisation = '*';
     return query;
 });
 

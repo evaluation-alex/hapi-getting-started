@@ -4,7 +4,7 @@ var Controller = require('./controller').Controller;
 
 module.exports.Routes = [
     RouteFactory.newRoute()
-        .forPOST()
+        .forMethod('POST')
         .onPath('/contact')
         .withController(Controller.contact)
         .doneConfiguring()

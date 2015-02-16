@@ -52,9 +52,9 @@ describe('Permissions', function () {
 
     describe('GET /permissions', function () {
         before(function (done) {
-            Permissions.create('test GET /permissions is active', ['user1'], ['group1'], 'action1', 'object1', 'test')
+            Permissions.create('test GET /permissions is active', 'silver lining', ['user1'], ['group1'], 'action1', 'object1', 'test')
                 .then(function () {
-                    return Permissions.create('test GET /permissions is active = false', ['user2'], ['group2'], 'action2', 'object1', 'test');
+                    return Permissions.create('test GET /permissions is active = false', 'silver lining', ['user2'], ['group2'], 'action2', 'object1', 'test');
                 })
                 .then(function (p) {
                     p.isActive = false;
@@ -230,7 +230,7 @@ describe('Permissions', function () {
     describe('GET /permissions/{id}', function () {
         var id = '';
         before(function (done) {
-            Permissions.create('test GET /permissions/id', ['user1'], ['group1'], 'action1', 'object2', 'test')
+            Permissions.create('test GET /permissions/id', 'silver lining', ['user1'], ['group1'], 'action1', 'object2', 'test')
                 .then(function (p) {
                     id = p._id.toString();
                     done();
@@ -296,7 +296,7 @@ describe('Permissions', function () {
             });
         });
         it('should send back error if any of the users to be added are not valid', function (done) {
-            Permissions.create('test PUT /permissions invalidusers', [], [], 'action3', 'object3', 'test')
+            Permissions.create('test PUT /permissions invalidusers', 'silver lining', [], [], 'action3', 'object3', 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {
@@ -324,7 +324,7 @@ describe('Permissions', function () {
                 .done();
         });
         it('should send back error if any of the groups to be added are not valid', function (done) {
-            Permissions.create('test PUT /permissions invalidgroups', [], [], 'action4', 'object4', 'test')
+            Permissions.create('test PUT /permissions invalidgroups', 'silver lining', [], [], 'action4', 'object4', 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {
@@ -352,7 +352,7 @@ describe('Permissions', function () {
                 .done();
         });
         it('should activate permissions and have changes audited', function (done) {
-            Permissions.create('test PUT /permissions isActive=true', [], [], 'action5', 'object5', 'test')
+            Permissions.create('test PUT /permissions isActive=true', 'silver lining', [], [], 'action5', 'object5', 'test')
                 .then(function (p) {
                     p.isActive = false;
                     p._save();
@@ -391,7 +391,7 @@ describe('Permissions', function () {
                 .done();
         });
         it('should deactivate permissions and have changes audited', function (done) {
-            Permissions.create('test PUT /permissions isActive=false', [], [], 'action6', 'object6', 'test')
+            Permissions.create('test PUT /permissions isActive=false', 'silver lining', [], [], 'action6', 'object6', 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {
@@ -428,9 +428,9 @@ describe('Permissions', function () {
                 .done();
         });
         it('should add users / groups and have changes audited', function (done) {
-            UserGroups.create('testPermissionsAddGroup', 'test PUT /permissions', 'test')
+            UserGroups.create('testPermissionsAddGroup', 'silver lining', 'test PUT /permissions', 'test')
                 .then(function () {
-                    return Permissions.create('test PUT /permissions add users and groups', [], [], 'action6', 'object6', 'test');
+                    return Permissions.create('test PUT /permissions add users and groups', 'silver lining', [], [], 'action6', 'object6', 'test');
                 })
                 .then(function (p) {
                     var id = p._id.toString();
@@ -473,7 +473,7 @@ describe('Permissions', function () {
                 .done();
         });
         it('should remove users / groups and have changes audited', function (done) {
-            Permissions.create('test PUT /permissions remove users and groups', ['toRemove'], ['toRemove'], 'action7', 'object7', 'test')
+            Permissions.create('test PUT /permissions remove users and groups', 'silver lining', ['toRemove'], ['toRemove'], 'action7', 'object7', 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {
@@ -513,7 +513,7 @@ describe('Permissions', function () {
                 .done();
         });
         it('should update description and have changes audited', function (done) {
-            Permissions.create('test PUT /permissions update desc', [], [], 'action8', 'object8', 'test')
+            Permissions.create('test PUT /permissions update desc', 'silver lining', [], [], 'action8', 'object8', 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {
@@ -555,7 +555,7 @@ describe('Permissions', function () {
 
     describe('POST /permissions', function () {
         it('should send back conflict when you try to create a permission with object, action that already exists', function (done) {
-            Permissions.create('test POST /permissions dupe', [], [], 'action9', 'object9', 'test')
+            Permissions.create('test POST /permissions dupe', 'silver lining', [], [], 'action9', 'object9', 'test')
                 .then(function () {
                     var request = {
                         method: 'POST',
@@ -639,7 +639,7 @@ describe('Permissions', function () {
             });
         });
         it('should create permissions successfully', function (done) {
-            UserGroups.create('testPerms', 'success', 'test')
+            UserGroups.create('testPerms', 'silver lining', 'success', 'test')
                 .then(function () {
                     var request = {
                         method: 'POST',
@@ -701,7 +701,7 @@ describe('Permissions', function () {
             });
         });
         it('should deactivate permissions and have changes audited', function (done) {
-            Permissions.create('test DELETE /permissions/id', ['user1'], ['group1'], 'action2', 'object3', 'test')
+            Permissions.create('test DELETE /permissions/id', 'silver lining', ['user1'], ['group1'], 'action2', 'object3', 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {

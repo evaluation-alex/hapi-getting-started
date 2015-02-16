@@ -27,7 +27,7 @@ describe('Users', function () {
             })
             .then(function () {
                 emails.push('test.users@test.api');
-                return Users.create('test.users@test.api', 'password123');
+                return Users.create('test.users@test.api', 'password123', 'silver lining');
             })
             .then(function (newUser) {
                 newUser.loginSuccess('test', 'test')._save();
@@ -132,7 +132,7 @@ describe('Users', function () {
                     authheader = tu.authorizationHeader(foundUser);
                 }).
                 then(function () {
-                    return Users.create('test.users2@test.api', 'password123');
+                    return Users.create('test.users2@test.api', 'password123', 'silver lining');
                 })
                 .then(function (newUser) {
                     return newUser.loginSuccess('test', 'test')._save();
@@ -297,7 +297,7 @@ describe('Users', function () {
                 .then(function (foundUser) {
                     authheader = tu.authorizationHeader(foundUser);
                     emails.push('test.users2@test.api');
-                    return Users.create('test.users2@test.api', 'password123');
+                    return Users.create('test.users2@test.api', 'password123', 'silver lining');
                 })
                 .then(function (newUser) {
                     newUser.loginSuccess('test', 'test')._save();
@@ -479,6 +479,7 @@ describe('Signup', function () {
             url: '/signup',
             payload: {
                 email: 'one@first.com',
+                organisation: 'silver lining',
                 password: 'try becoming the first'
             }
         };
@@ -498,6 +499,7 @@ describe('Signup', function () {
             url: '/signup',
             payload: {
                 email: 'test.signup2@signup.api',
+                organisation: 'silver lining',
                 password: 'an0th3r1'
             }
         };

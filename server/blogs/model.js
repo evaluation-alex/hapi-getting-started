@@ -48,6 +48,7 @@ Blogs._collection = 'blogs';
 Blogs.schema = Joi.object().keys({
     _id: Joi.object(),
     title: Joi.string().required(),
+    organisation: Joi.string(),
     description: Joi.string(),
     owners: Joi.array().includes(Joi.string()).unique(),
     contributors: Joi.array().includes(Joi.string()).unique(),
@@ -61,20 +62,21 @@ Blogs.schema = Joi.object().keys({
 });
 
 Blogs.indexes = [
-    [{title: 1}, {unique: true}],
+    [{title: 1, organisation: 1}, {unique: true}],
     [{description: 1}]
 ];
 
 Blogs.newObject = function (doc, by) {
     var self = this;
-    return self.create(doc.title, doc.description, doc.owners, doc.contributors, doc.subscribers, doc.subscriberGroups, by);
+    return self.create(doc.payload.title, doc.auth.credentials.user.organisation, doc.payload.description, doc.payload.owners, doc.payload.contributors, doc.payload.subscribers, doc.payload.subscriberGroups, by);
 };
 
-Blogs.create = function (title, description, owners, contributors, subscribers, subscriberGroups, by) {
+Blogs.create = function (title, organisation, description, owners, contributors, subscribers, subscriberGroups, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var document = {
             title: title,
+            organisation: organisation,
             description: description,
             owners: owners ? owners : [by],
             contributors: contributors ? contributors : [by],
@@ -89,22 +91,20 @@ Blogs.create = function (title, description, owners, contributors, subscribers, 
         self._insert(document, false)
             .then(function (blog) {
                 if (blog) {
-                    Audit.create('Blogs', title, 'create', null, blog, by);
+                    Audit.create('Blogs', title, 'create', null, blog, by, organisation);
                 }
                 resolve(blog);
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             });
     });
 };
 
-Blogs.findByTitle = function (title) {
+Blogs.findByTitle = function (title, organisation) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self._findOne({title: title, isActive: true})
+        self._findOne({title: title, organisation: organisation, isActive: true})
             .then(function (found) {
                 if (!found) {
                     resolve(false);
@@ -113,9 +113,7 @@ Blogs.findByTitle = function (title) {
                 }
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             });
     });
 };

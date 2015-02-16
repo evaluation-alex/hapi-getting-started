@@ -4,12 +4,12 @@ var Controller = require('./controller').Controller;
 
 module.exports.Routes = [
     RouteFactory.newRoute()
-        .forPOST()
+        .forMethod('POST')
         .onPath('/login')
         .withController(Controller.login)
         .doneConfiguring(),
     RouteFactory.newRoute()
-        .forDELETE()
+        .forMethod('DELETE')
         .onPath('/logout')
         .usingAuthStrategy('simple')
         .withController(Controller.logout)

@@ -19,9 +19,7 @@ var isUnique = function (Model, queryBuilder) {
                 }
             })
             .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
+                reply(Boom.badImplementation(err));
             });
     };
 };
@@ -30,7 +28,7 @@ var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
     return function (request, reply) {
         if (request.payload[payloadPropertyToLookup] && request.payload[payloadPropertyToLookup].length > 0) {
             var msg = 'Bad data : ';
-            Model.areValid(docPropertyToLookup, request.payload[payloadPropertyToLookup])
+            Model.areValid(docPropertyToLookup, request.payload[payloadPropertyToLookup], request.auth.credentials.user.organisation)
                 .then(function (validated) {
                     _.forEach(request.payload[payloadPropertyToLookup], function (a) {
                         if (!validated[a]) {
@@ -46,9 +44,7 @@ var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
                     }
                 })
                 .catch(function (err) {
-                    if (err) {
-                        reply(Boom.badImplementation(err));
-                    }
+                    reply(Boom.badImplementation(err));
                 });
         } else {
             reply();
@@ -69,6 +65,10 @@ Controller.find = function (component, model, validator, queryBuilder) {
         pre: [AuthPlugin.preware.ensurePermissions('view', component)],
         handler: function (request, reply) {
             var query = queryBuilder(request);
+            query.organisation = query.organisation || {$regex: new RegExp('^.*?' + request.auth.credentials.user.organisation + '.*$', 'i')};
+            if (request.query.isActive) {
+                query.isActive = request.query.isActive === '"true"';
+            }
             var fields = request.query.fields;
             var sort = request.query.sort;
             var limit = request.query.limit;
@@ -98,9 +98,7 @@ Controller.findOne = function (component, Model) {
                     }
                 })
                 .catch(function (err) {
-                    if (err) {
-                        reply(Boom.badImplementation(err));
-                    }
+                    reply(Boom.badImplementation(err));
                 });
         }
     };
@@ -114,7 +112,7 @@ Controller.new = function (component, Model, validator, prereqs, uniqueCheck) {
             prereqs]),
         handler: function (request, reply) {
             var by = request.auth.credentials.user.email;
-            Model.newObject(request.payload, by)
+            Model.newObject(request, by)
                 .then(function (n) {
                     if (!n) {
                         reply(Boom.notFound(component + ' could not be created.'));
@@ -123,9 +121,7 @@ Controller.new = function (component, Model, validator, prereqs, uniqueCheck) {
                     }
                 })
                 .catch(function (err) {
-                    if (err) {
-                        reply(Boom.badImplementation(err));
-                    }
+                    reply(Boom.badImplementation(err));
                 });
         }
     };
@@ -153,9 +149,7 @@ Controller.update = function (component, Model, validator, prereqs) {
                     }
                 })
                 .catch(function (err) {
-                    if (err) {
-                        reply(Boom.badImplementation(err));
-                    }
+                    reply(Boom.badImplementation(err));
                 });
         }
     };
@@ -186,9 +180,7 @@ Controller.delete = function (component, Model) {
                     }
                 })
                 .catch(function (err) {
-                    if (err) {
-                        reply(Boom.badImplementation(err));
-                    }
+                    reply(Boom.badImplementation(err));
                 });
         }
     };

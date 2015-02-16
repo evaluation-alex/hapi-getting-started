@@ -50,6 +50,7 @@ Permissions._collection = 'permissions';
 
 Permissions.schema = Joi.object().keys({
     _id: Joi.object(),
+    organisation: Joi.string(),
     description: Joi.string(),
     users: Joi.array().includes(Joi.string()).unique(),
     groups: Joi.array().includes(Joi.string()).unique(),
@@ -65,18 +66,19 @@ Permissions.schema = Joi.object().keys({
 Permissions.indexes = [
     [{'users': 1}],
     [{'groups': 1}],
-    [{'action': 1, 'object': 1}, {unique: true}]
+    [{organisation: 1, 'action': 1, 'object': 1}, {unique: true}]
 ];
 
 Permissions.newObject = function (doc, by) {
     var self = this;
-    return self.create(doc.description, doc.users, doc.groups, doc.action, doc.object, by);
+    return self.create(doc.payload.description, doc.auth.credentials.user.organisation, doc.payload.users, doc.payload.groups, doc.payload.action, doc.payload.object, by);
 };
 
-Permissions.create = function (description, users, groups, action, object, by) {
+Permissions.create = function (description, organisation, users, groups, action, object, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var document = {
+            organisation: organisation,
             description: description,
             users: users ? users: [by],
             groups: groups ? groups : [],
@@ -91,14 +93,12 @@ Permissions.create = function (description, users, groups, action, object, by) {
         self._insert(document, {})
             .then(function (doc) {
                 if (!_.isEmpty(doc)) {
-                    Audit.create('Permissions', doc._id, 'create', null, doc, by);
+                    Audit.create('Permissions', doc._id, 'create', null, doc, by, organisation);
                 }
                 resolve(doc);
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             })
             .done();
     });
@@ -109,32 +109,30 @@ Permissions.findByDescription = function (description) {
     return self._find({description: {$regex: new RegExp(description)}, isActive: true});
 };
 
-Permissions.findAllPermissionsForUser = function (email) {
+Permissions.findAllPermissionsForUser = function (email, organisation) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        UserGroups.findGroupsForUser(email)
+        UserGroups.findGroupsForUser(email, organisation)
             .then(function (userGroups) {
                 var ug = userGroups.map(function (userGroup) {
                     return userGroup.name;
                 });
-                resolve(self._find({$or: [{'users': email}, {'groups': {$in: ug}}]}));
+                resolve(self._find({organisation: organisation, $or: [{'users': email}, {'groups': {$in: ug}}]}));
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             })
             .done();
     });
 };
 
-Permissions.isPermitted = function (user, action, object) {
+Permissions.isPermitted = function (user, organisation, action, object) {
     var self = this;
     return new Promise(function (resolve, reject) {
         if (user === 'root') { //root is god
             resolve(true);
         } else {
-            self.findAllPermissionsForUser(user)
+            self.findAllPermissionsForUser(user, organisation)
                 .then(function (permissions) {
                     var ret = false;
                     var len = permissions.length;
@@ -144,9 +142,7 @@ Permissions.isPermitted = function (user, action, object) {
                     resolve(ret);
                 })
                 .catch(function (err) {
-                    if (err) {
-                        reject(err);
-                    }
+                    reject(err);
                 })
                 .done();
         }

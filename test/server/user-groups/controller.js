@@ -48,21 +48,21 @@ describe('UserGroups', function () {
 
     describe('GET /user-groups', function () {
         before(function (done) {
-            UserGroups.create('GetUserGroupsTestName', 'GET /user-groups', 'root')
+            UserGroups.create('GetUserGroupsTestName', 'silver lining', 'GET /user-groups', 'root')
                 .then(function () {
-                    return UserGroups.create('GetUserGroupsTestMemberActive', 'GET /user-groups', 'root');
+                    return UserGroups.create('GetUserGroupsTestMemberActive', 'silver lining', 'GET /user-groups', 'root');
                 })
                 .then(function (g2) {
                     return g2.add(['user1', 'user2'], 'member', 'root')._save();
                 })
                 .then(function () {
-                    return UserGroups.create('GetUserGroupsTestMemberInactive', 'GET /user-groups', 'root');
+                    return UserGroups.create('GetUserGroupsTestMemberInactive', 'silver lining', 'GET /user-groups', 'root');
                 })
                 .then(function (g3) {
                     return g3.add(['user4'], 'member', 'root')._save();
                 })
                 .then(function () {
-                    return UserGroups.create('GetUserGroupsTestInactive', 'GET /user-groups', 'root');
+                    return UserGroups.create('GetUserGroupsTestInactive', 'silver lining', 'GET /user-groups', 'root');
                 })
                 .then(function (g4) {
                     return g4.deactivate('root')._save();
@@ -189,7 +189,7 @@ describe('UserGroups', function () {
     describe('GET /user-groups/{id}', function () {
         var id = '';
         before(function (done) {
-            UserGroups.create('testGetByID', 'GET /user-groups/id', 'root')
+            UserGroups.create('testGetByID', 'silver lining', 'GET /user-groups/id', 'root')
                 .then(function (ug) {
                     id = ug._id.toString();
                     done();
@@ -259,7 +259,7 @@ describe('UserGroups', function () {
         });
         it('should send back error if any of the users or owners to be added are not valid', function (done) {
             var id = '';
-            UserGroups.create('testGroupUserExistPUT', 'test PUT /user-groups', 'test')
+            UserGroups.create('testGroupUserExistPUT', 'silver lining', 'test PUT /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
                     var request = {
@@ -289,7 +289,7 @@ describe('UserGroups', function () {
             var request = {};
             var authHeader = '';
             var id = '';
-            UserGroups.create('testPutGroupNotOwner', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupNotOwner', 'silver lining', 'test PUT /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
                     return Users.findByEmail('one@first.com');
@@ -327,7 +327,7 @@ describe('UserGroups', function () {
         it('should deactivate group and have changes audited', function (done) {
             var request = {};
             var id = '';
-            UserGroups.create('testPutGroupDeActivate', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupDeActivate', 'silver lining', 'test PUT /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
                     request = {
@@ -365,7 +365,7 @@ describe('UserGroups', function () {
         it('should activate group and have changes audited', function (done) {
             var request = {};
             var id = '';
-            UserGroups.create('testPutGroupActivate', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupActivate', 'silver lining', 'test PUT /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
                     ug.isActive = false;
@@ -407,7 +407,7 @@ describe('UserGroups', function () {
         it('should add users / owners and have changes audited', function (done) {
             var request = {};
             var id = '';
-            UserGroups.create('testPutGroupAddUserOwner', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupAddUserOwner', 'silver lining', 'test PUT /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
                     request = {
@@ -452,7 +452,7 @@ describe('UserGroups', function () {
         it('should remove members / owners and have changes audited', function (done) {
             var request = {};
             var id = '';
-            UserGroups.create('testPutGroupRemoveUserOwner', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupRemoveUserOwner', 'silver lining', 'test PUT /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
                     ug.members.push('root');
@@ -504,7 +504,7 @@ describe('UserGroups', function () {
         it('should update description and have changes audited', function (done) {
             var request = {};
             var id = '';
-            UserGroups.create('testPutGroupChangeDesc', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupChangeDesc', 'silver lining', 'test PUT /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
                     request = {
@@ -543,7 +543,7 @@ describe('UserGroups', function () {
 
     describe('POST /user-groups', function () {
         it('should send back conflict when you try to create a group with name that already exists', function (done) {
-            UserGroups.create('testDupeGroup', 'test POST /user-groups', 'root')
+            UserGroups.create('testDupeGroup', 'silver lining', 'test POST /user-groups', 'root')
                 .then(function () {
                     var request = {
                         method: 'POST',
@@ -587,7 +587,7 @@ describe('UserGroups', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(422);
-                    UserGroups.findByName('testGroupUserExist')
+                    UserGroups.findByName('testGroupUserExist', 'silver lining')
                         .then(function (ug) {
                             expect(ug).to.be.false();
                             groupsToClear.push('testGroupUserExist');
@@ -616,7 +616,7 @@ describe('UserGroups', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(201);
-                    UserGroups.findByName('testUserGroupCreate')
+                    UserGroups.findByName('testUserGroupCreate', 'silver lining')
                         .then(function (ug) {
                             expect(ug).to.exist();
                             expect(ug._isMemberOf('owners', 'one@first.com')).to.be.true();
@@ -657,7 +657,7 @@ describe('UserGroups', function () {
             var request = {};
             var authHeader = '';
             var id = '';
-            UserGroups.create('testDelGroupNotOwner', 'test POST /user-groups', 'test')
+            UserGroups.create('testDelGroupNotOwner', 'silver lining', 'test POST /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
                     return Users.findByEmail('one@first.com');
@@ -690,7 +690,7 @@ describe('UserGroups', function () {
                 });
         });
         it('should deactivate group and have changes audited', function (done) {
-            UserGroups.create('testDelGroup', 'test POST /user-groups', 'root')
+            UserGroups.create('testDelGroup', 'silver lining', 'test POST /user-groups', 'root')
                 .then(function (ug) {
                     var id = ug._id.toString();
                     var request = {
@@ -703,7 +703,7 @@ describe('UserGroups', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            UserGroups.findByName('testDelGroup')
+                            UserGroups.findByName('testDelGroup', 'silver lining')
                                 .then(function (found) {
                                     expect(found).to.be.false();
                                     groupsToClear.push('testDelGroup');

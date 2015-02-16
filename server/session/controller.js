@@ -16,9 +16,7 @@ var abuseDetected = function (request, reply) {
             }
         })
         .catch(function (err) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            }
+            reply(Boom.badImplementation(err));
         });
 };
 
@@ -42,9 +40,7 @@ var prePopulateUser = function (request, reply) {
             }
         })
         .catch(function (err) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            }
+            reply(Boom.badImplementation(err));
         });
 };
 
@@ -76,9 +72,7 @@ Controller.login = {
                 });
             })
             .catch(function(err) {
-                if(err) {
-                    reply(Boom.badImplementation(err));
-                }
+                reply(Boom.badImplementation(err));
             });
     }
 };

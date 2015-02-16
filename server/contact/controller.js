@@ -29,9 +29,7 @@ Controller.contact = {
                 reply({message: 'Success.'});
             })
             .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
+                reply(Boom.badImplementation(err));
             })
             .done();
     }

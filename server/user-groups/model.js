@@ -44,6 +44,7 @@ UserGroups._collection = 'userGroups';
 UserGroups.schema = Joi.object().keys({
     _id: Joi.object(),
     name: Joi.string().required(),
+    organisation: Joi.string().required(),
     description: Joi.string(),
     members: Joi.array().includes(Joi.string()).unique(),
     owners: Joi.array().includes(Joi.string()).unique(),
@@ -55,7 +56,7 @@ UserGroups.schema = Joi.object().keys({
 });
 
 UserGroups.indexes = [
-    [{name: 1}, {unique: true}],
+    [{name: 1, organisation: 1}, {unique: true}],
     [{'members': 1}],
     [{'owners': 1}]
 ];
@@ -63,11 +64,11 @@ UserGroups.indexes = [
 UserGroups.newObject = function (doc, by) {
     var self = this;
     return new Promise(function (resolve/*, reject*/) {
-        self.create(doc.name, doc.description, by)
+        self.create(doc.payload.name, doc.auth.credentials.user.organisation, doc.payload.description, by)
             .then(function (userGroup) {
                 if (userGroup) {
-                    resolve(userGroup.add(doc.members, 'member', by)
-                        .add(doc.owners, 'owner', by)
+                    resolve(userGroup.add(doc.payload.members, 'member', by)
+                        .add(doc.payload.owners, 'owner', by)
                         ._save());
                 } else {
                     resolve(userGroup);
@@ -76,11 +77,12 @@ UserGroups.newObject = function (doc, by) {
     });
 };
 
-UserGroups.create = function (name, description, owner) {
+UserGroups.create = function (name, organisation, description, owner) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var document = {
             name: name,
+            organisation: organisation,
             description: description,
             members: [owner],
             owners: [owner],
@@ -93,22 +95,20 @@ UserGroups.create = function (name, description, owner) {
         self._insert(document, false)
             .then(function (userGroup) {
                 if (userGroup) {
-                    Audit.create('UserGroups', name, 'create', null, userGroup, owner);
+                    Audit.create('UserGroups', name, 'create', null, userGroup, owner, organisation);
                 }
                 resolve(userGroup);
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             });
     });
 };
 
-UserGroups.findByName = function (name) {
+UserGroups.findByName = function (name, organisation) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self._findOne({name: name, isActive: true})
+        self._findOne({name: name, organisation: organisation, isActive: true})
             .then(function (found) {
                 if (!found) {
                     resolve(false);
@@ -117,17 +117,15 @@ UserGroups.findByName = function (name) {
                 }
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             });
     });
 };
 
-UserGroups.findGroupsForUser = function (email) {
+UserGroups.findGroupsForUser = function (email, organisation) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self._find({members: email})
+        self._find({members: email, organisation: organisation})
             .then(function (g) {
                 if (!g) {
                     resolve([]);
@@ -136,9 +134,7 @@ UserGroups.findGroupsForUser = function (email) {
                 }
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             });
     });
 };
@@ -159,9 +155,7 @@ UserGroups.isValid = function (id, owner) {
                 }
             })
             .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
+                reject(err);
             })
             .done();
     });

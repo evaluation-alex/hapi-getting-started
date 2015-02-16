@@ -1,4 +1,5 @@
 'use strict';
+var _ = require('lodash');
 var Joi = require('joi');
 var Permissions = require('./model');
 var BaseController = require('./../common/controller').BaseController;
@@ -18,21 +19,12 @@ Controller.find = BaseController.find('permissions', Permissions, {
     }
 }, function (request) {
     var query = {};
-    if (request.query.user) {
-        query.users = {$regex: new RegExp('^.*?' + request.query.user + '.*$', 'i')};
-    }
-    if (request.query.group) {
-        query.groups = {$regex: new RegExp('^.*?' + request.query.group + '.*$', 'i')};
-    }
-    if (request.query.action) {
-        query.action = {$regex: new RegExp('^.*?' + request.query.action + '.*$', 'i')};
-    }
-    if (request.query.object) {
-        query.object = {$regex: new RegExp('^.*?' + request.query.object + '.*$', 'i')};
-    }
-    if (request.query.isActive) {
-        query.isActive = request.query.isActive === '"true"';
-    }
+    var fields = [['user', 'users'], ['group', 'groups'], ['action', 'action'], ['object', 'object']];
+    _.forEach(fields, function (pair) {
+        if (request.query[pair[0]]) {
+            query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
+        }
+    });
     return query;
 });
 

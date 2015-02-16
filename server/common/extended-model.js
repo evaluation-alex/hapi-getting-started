@@ -80,7 +80,7 @@ ExtendedModel._findByIdAndRemove = function (id) {
     });
 };
 
-ExtendedModel.areValid = function (property, toCheck) {
+ExtendedModel.areValid = function (property, toCheck, organisation) {
     var self = this;
     return new Promise(function (resolve, reject) {
         if (!toCheck || toCheck.length === 0) {
@@ -89,6 +89,7 @@ ExtendedModel.areValid = function (property, toCheck) {
             var conditions = {};
             conditions[property] = {$in: toCheck};
             conditions.isActive = true;
+            conditions.organisation = organisation;
             self._find(conditions)
                 .then(function (docs) {
                     if (!docs) {
@@ -107,9 +108,7 @@ ExtendedModel.areValid = function (property, toCheck) {
                     }
                 })
                 .catch(function (err) {
-                    if (err) {
-                        reject(err);
-                    }
+                    reject(err);
                 });
         }
     });
@@ -246,10 +245,8 @@ var CommonMixinSave = function (Model, Audit) {
                         self._logFn(start, Date.now());
                     })
                     .catch(function (err) {
-                        if (err) {
-                            reject(err);
-                            self._logFn(start, Date.now());
-                        }
+                        reject(err);
+                        self._logFn(start, Date.now());
                     })
                     .done();
             });
@@ -272,6 +269,7 @@ var CommonMixinAudit = function (type, idToUse) {
                 action: action,
                 origValues: oldValues,
                 newValues: newValues,
+                organisation: self.organisation,
                 by: by,
                 timestamp: new Date()
             });

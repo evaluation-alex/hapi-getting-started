@@ -9,7 +9,7 @@ var BaseController = require('./../common/controller').BaseController;
 var Controller = {};
 
 var emailCheck = function (request, reply) {
-    Users._findOne({email: request.payload.email})
+    Users._findOne({email: request.payload.email, organisation: request.payload.organisation})
         .then(function (user) {
             if (user) {
                 reply(Boom.conflict('Email already in use.'));
@@ -18,9 +18,7 @@ var emailCheck = function (request, reply) {
             }
         })
         .catch(function (err) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            }
+            reply(Boom.badImplementation(err));
         });
 };
 
@@ -33,9 +31,6 @@ Controller.find = BaseController.find('users', Users, {
     var query = {};
     if (request.query.email) {
         query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
-    }
-    if (request.query.isActive) {
-        query.isActive = request.query.isActive === '"true"';
     }
     return query;
 });
@@ -54,6 +49,7 @@ Controller.signup = {
     validator: {
         payload: {
             email: Joi.string().email().required(),
+            organisation: Joi.string().required(),
             password: Joi.string().required()
         }
     },
@@ -63,7 +59,8 @@ Controller.signup = {
     handler: function (request, reply) {
         var email = request.payload.email;
         var password = request.payload.password;
-        Users.create(email, password)
+        var organisation = request.payload.organisation;
+        Users.create(email, password, organisation)
             .then(function (user) {
                 return (user) ? user.loginSuccess(request.info.remoteAddress, user.email)._save() : user;
             })
@@ -92,9 +89,7 @@ Controller.signup = {
                 }
             })
             .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
+                reply(Boom.badImplementation(err));
             });
     }
 };
@@ -109,9 +104,7 @@ var prePopulateUser2 = function (request, reply) {
             }
         })
         .catch(function (err) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            }
+            reply(Boom.badImplementation(err));
         });
 };
 
@@ -138,9 +131,7 @@ Controller.loginForgot = {
                 reply({message: 'Success.'});
             })
             .catch(function (err) {
-                if (err) {
-                    reply(Boom.badImplementation(err));
-                }
+                reply(Boom.badImplementation(err));
             });
     }
 };
@@ -159,9 +150,7 @@ var prePopulateUser3 = function (request, reply) {
             }
         })
         .catch(function (err) {
-            if (err) {
-                reply(Boom.badImplementation(err));
-            }
+            reply(Boom.badImplementation(err));
         });
 };
 

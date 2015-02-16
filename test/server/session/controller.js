@@ -29,7 +29,7 @@ describe('Login', function () {
             })
             .then(function () {
                 emails.push('test.users@test.api');
-                return Users.create('test.users@test.api', 'password123');
+                return Users.create('test.users@test.api', 'password123', 'silver lining');
             })
             .then(function (newUser) {
                 newUser.loginSuccess('test', 'test')._save();

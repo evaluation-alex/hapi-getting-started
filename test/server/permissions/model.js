@@ -31,7 +31,7 @@ describe('Permissions Model', function () {
     describe('Permissions.create', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
             var error = null;
-            Permissions.create('newPermission', ['testUser1'], [], 'someAction', 'someObject', 'test')
+            Permissions.create('newPermission', 'silver lining', ['testUser1'], [], 'someAction', 'someObject', 'test')
                 .then(function (p) {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Permissions);
@@ -53,13 +53,13 @@ describe('Permissions Model', function () {
         });
         it('should not allow two objects with the same action, object set on it', function (done) {
             var error = null;
-            Permissions.create('dupePermission', ['testUser2'], [], 'dupeAction', 'dupeObject', 'test')
+            Permissions.create('dupePermission', 'silver lining', ['testUser2'], [], 'dupeAction', 'dupeObject', 'test')
                 .then(function (p) {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Permissions);
                 })
                 .then(function () {
-                    Permissions.create('dupePermission', ['testUser2'], [], 'dupeAction', 'dupeObject', 'test')
+                    Permissions.create('dupePermission', 'silver lining', ['testUser2'], [], 'dupeAction', 'dupeObject', 'test')
                         .then(function (p) {
                             expect(p).to.not.exist();
                         })
@@ -80,9 +80,9 @@ describe('Permissions Model', function () {
 
     describe('Permissions.findByDescription', function () {
         before(function (done) {
-            var p1 = Permissions.create('search1', ['testUser2'], [], 'action1', 'object1', 'test5');
-            var p2 = Permissions.create('search2', ['testUser2'], [], 'action2', 'object2', 'test5');
-            var p3 = Permissions.create('search3', ['testUser2'], [], 'action3', 'object3', 'test5');
+            var p1 = Permissions.create('search1', 'silver lining',  ['testUser2'], [], 'action1', 'object1', 'test5');
+            var p2 = Permissions.create('search2', 'silver lining', ['testUser2'], [], 'action2', 'object2', 'test5');
+            var p3 = Permissions.create('search3', 'silver lining', ['testUser2'], [], 'action3', 'object3', 'test5');
             Promise.join(p1, p2, p3)
                 .then(function () {
                     done();
@@ -157,12 +157,12 @@ describe('Permissions Model', function () {
 
     describe('Permissions.findAllPermissionsForUser', function () {
         before(function (done) {
-            UserGroups.create('permissionsTest1', 'testing permissions for users', 'permissionedUser')
+            UserGroups.create('permissionsTest1', 'silver lining', 'testing permissions for users', 'permissionedUser')
                 .then(function (u1) {
                     return u1.add(['testUserActive'], 'ownermember', 'test5')._save();
                 })
                 .then(function () {
-                    return UserGroups.create('permissionsTest2', 'testing permissions for users', 'permissionedUser');
+                    return UserGroups.create('permissionsTest2', 'silver lining', 'testing permissions for users', 'permissionedUser');
                 })
                 .then(function (u2) {
                     return u2.add(['testUserActive'], 'ownermember', 'test5')._save();
@@ -171,10 +171,10 @@ describe('Permissions Model', function () {
                     return u2.add(['testUserInactive'], 'owner', 'test5')._save();
                 })
                 .then(function () {
-                    return Permissions.create('findForUser1', ['directlyPermissioned', 'testUserInactive'], ['permissionsTest1', 'permissionsTest2'], 'action4', 'object1', 'test5');
+                    return Permissions.create('findForUser1', 'silver lining', ['directlyPermissioned', 'testUserInactive'], ['permissionsTest1', 'permissionsTest2'], 'action4', 'object1', 'test5');
                 })
                 .then(function () {
-                    return Permissions.create('findForUser2', [], ['permissionsTest1', 'permissionsTest2'], 'action4', 'object2', 'test5');
+                    return Permissions.create('findForUser2', 'silver lining', [], ['permissionsTest1', 'permissionsTest2'], 'action4', 'object2', 'test5');
                 })
                 .then(function () {
                     done();
@@ -182,7 +182,7 @@ describe('Permissions Model', function () {
         });
         it('should return permissions array with permissions with user groups the user is part of', function (done) {
             var error = null;
-            Permissions.findAllPermissionsForUser('permissionedUser')
+            Permissions.findAllPermissionsForUser('permissionedUser', 'silver lining')
                 .then(function (found) {
                     expect(found).to.exist();
                     expect(found.length).to.equal(2);
@@ -199,7 +199,7 @@ describe('Permissions Model', function () {
         });
         it('should return permissions array with permissions that directly have the user', function (done) {
             var error = null;
-            Permissions.findAllPermissionsForUser('directlyPermissioned')
+            Permissions.findAllPermissionsForUser('directlyPermissioned', 'silver lining')
                 .then(function (found) {
                     expect(found).to.exist();
                     expect(found.length).to.equal(1);
@@ -215,7 +215,7 @@ describe('Permissions Model', function () {
         });
         it('should return permissions only where the user is active in the group permissioned', function (done) {
             var error = null;
-            Permissions.findAllPermissionsForUser('testUserInactive')
+            Permissions.findAllPermissionsForUser('testUserInactive', 'silver lining')
                 .then(function (found) {
                     expect(found).to.exist();
                     expect(found.length).to.equal(1);
@@ -231,7 +231,7 @@ describe('Permissions Model', function () {
         });
         it('should return an empty array when user has no permissions', function (done) {
             var error = null;
-            Permissions.findAllPermissionsForUser('bogus')
+            Permissions.findAllPermissionsForUser('bogus', 'silver lining')
                 .then(function (found) {
                     expect(found).to.exist();
                     expect(found.length).to.equal(0);
@@ -255,12 +255,12 @@ describe('Permissions Model', function () {
 
     describe('Permissions.isPermitted', function () {
         before(function (done) {
-            UserGroups.create('permittedTestGroup', 'testing permissions.isPermitted', 'permittedUser')
+            UserGroups.create('permittedTestGroup', 'silver lining', 'testing permissions.isPermitted', 'permittedUser')
                 .then(function () {
-                    return Permissions.create('isPermittedTest', ['directlyPermitted'], ['permittedTestGroup'], 'action6', 'object6', 'test5');
+                    return Permissions.create('isPermittedTest', 'silver lining', ['directlyPermitted'], ['permittedTestGroup'], 'action6', 'object6', 'test5');
                 })
                 .then(function() {
-                    return Permissions.create('isPermittedTest2', ['luckyfellow'], [], '*', '*', 'test5');
+                    return Permissions.create('isPermittedTest2', 'silver lining', ['luckyfellow'], [], '*', '*', 'test5');
                 })
                 .then(function() {
                     done();
@@ -273,14 +273,14 @@ describe('Permissions Model', function () {
         });
         it('should return true when the action is * or is object is * irrespective of action / object passed', function (done) {
             var error = null;
-            Permissions.isPermitted('luckyfellow', 'action6', 'object6')
+            Permissions.isPermitted('luckyfellow', 'silver lining', 'action6', 'object6')
                 .then(function (perms) {
                     expect(perms).to.be.true();
-                    return Permissions.isPermitted('luckyfellow', '*', 'object6');
+                    return Permissions.isPermitted('luckyfellow', 'silver lining', '*', 'object6');
                 })
                 .then(function (perms) {
                     expect(perms).to.be.true();
-                    return Permissions.isPermitted('luckyfellow', 'anything', '*');
+                    return Permissions.isPermitted('luckyfellow', 'silver lining', 'anything', '*');
                 })
                 .then(function (perms) {
                     expect(perms).to.be.true();
@@ -295,7 +295,7 @@ describe('Permissions Model', function () {
         });
         it('should return true when the user is root irrespective of object / action', function (done) {
             var error = null;
-            Permissions.isPermitted('root', 'action6', 'object6')
+            Permissions.isPermitted('root', 'silver lining', 'action6', 'object6')
                 .then(function (perms) {
                     expect(perms).to.be.true();
                 })
@@ -309,7 +309,7 @@ describe('Permissions Model', function () {
         });
         it('should return true when user has permissions directly granted', function (done) {
             var error = null;
-            Permissions.isPermitted('directlyPermitted', 'action6', 'object6')
+            Permissions.isPermitted('directlyPermitted', 'silver lining', 'action6', 'object6')
                 .then(function (perms) {
                     expect(perms).to.be.true();
                 })
@@ -323,7 +323,7 @@ describe('Permissions Model', function () {
         });
         it('should return true when user has permissions because of a user group membership', function (done) {
             var error = null;
-            Permissions.isPermitted('permittedUser', 'action6', 'object6')
+            Permissions.isPermitted('permittedUser', 'silver lining', 'action6', 'object6')
                 .then(function (perms) {
                     expect(perms).to.be.true();
                 })
@@ -337,7 +337,7 @@ describe('Permissions Model', function () {
         });
         it('should return false when user has no permissions', function (done) {
             var error = null;
-            Permissions.isPermitted('unknown', 'action6', 'object6')
+            Permissions.isPermitted('unknown', 'silver lining', 'action6', 'object6')
                 .then(function (perms) {
                     expect(perms).to.be.false();
                 })
@@ -359,15 +359,15 @@ describe('Permissions Model', function () {
 
     describe('Permissions.this.addUsers', function () {
         before(function (done) {
-            UserGroups.create('testPermissionsAddUsers', 'testing permissions.addUsers', 'test5')
+            UserGroups.create('testPermissionsAddUsers', 'silver lining', 'testing permissions.addUsers', 'test5')
                 .then(function() {
-                    return Permissions.create('addUsers1', ['directlyPermitted'], ['testPermissionsAddUsers'], 'action7', 'object7', 'test5');
+                    return Permissions.create('addUsers1', 'silver lining', ['directlyPermitted'], ['testPermissionsAddUsers'], 'action7', 'object7', 'test5');
                 })
                 .then(function() {
-                    return Permissions.create('addUsers2', ['directlyPermitted'], ['testPermissionsAddUsers'], 'action8', 'object8', 'test5');
+                    return Permissions.create('addUsers2', 'silver lining', ['directlyPermitted'], ['testPermissionsAddUsers'], 'action8', 'object8', 'test5');
                 })
                 .then(function () {
-                    return Permissions.create('addUsers3', ['directlyPermitted'], ['testPermissionsAddUsers'], 'action9', 'object9', 'test5');
+                    return Permissions.create('addUsers3', 'silver lining', ['directlyPermitted'], ['testPermissionsAddUsers'], 'action9', 'object9', 'test5');
                 })
                 .then(function() {
                     done();
@@ -459,7 +459,7 @@ describe('Permissions Model', function () {
 
     describe('Permissions.this.removeUsers', function () {
         before(function (done) {
-            Permissions.create('removeUsers1', ['directlyPermittedActive'], ['testPermissionsRemoveUsers'], 'action10', 'object10', 'test5')
+            Permissions.create('removeUsers1', 'silver lining', ['directlyPermittedActive'], ['testPermissionsRemoveUsers'], 'action10', 'object10', 'test5')
                 .then(function () {
                     done();
                 })
@@ -548,8 +548,8 @@ describe('Permissions Model', function () {
     describe('Permissions.this.activate/deactivate', function () {
         var activated = null, deactivated = null;
         before(function (done) {
-            var p1 = Permissions.create('activated', ['testUser1'], [], 'someOtherAction', 'someOtherObject', 'test');
-            var p2 = Permissions.create('deactivated', ['testUser1'], [], 'someNewAction', 'someNewObject', 'test');
+            var p1 = Permissions.create('activated', 'silver lining', ['testUser1'], [], 'someOtherAction', 'someOtherObject', 'test');
+            var p2 = Permissions.create('deactivated', 'silver lining', ['testUser1'], [], 'someNewAction', 'someNewObject', 'test');
             Promise.join(p1, p2, function (p11, p12) {
                 activated = p11;
                 deactivated = p12;
@@ -631,7 +631,7 @@ describe('Permissions Model', function () {
     describe('Permissions.this.updateDesc', function () {
         var testPerm = null;
         before(function (done) {
-            Permissions.create('updateDesc1', ['testUser1'], [], 'descAction', 'descObject', 'test')
+            Permissions.create('updateDesc1', 'silver lining', ['testUser1'], [], 'descAction', 'descObject', 'test')
                 .then(function (p) {
                     testPerm = p;
                     done();

@@ -31,7 +31,7 @@ describe('Blogs Model', function () {
     describe('Blogs.create', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
             var error = null;
-            Blogs.create('newBlog', 'Blog.create testing', [], [], [], [], 'test')
+            Blogs.create('newBlog', 'silver lining', 'Blog.create testing', [], [], [], [], 'test')
                 .then(function (p) {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Blogs);
@@ -53,13 +53,13 @@ describe('Blogs Model', function () {
         });
         it('should not allow two objects with the same title', function (done) {
             var error = null;
-            Blogs.create('dupeBlog', 'Blog.create dupe test', [], [], [], [], 'test')
+            Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], 'test')
                 .then(function (p) {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Blogs);
                 })
                 .then(function () {
-                    Blogs.create('dupeBlog', 'Blog.create dupe test', [], [], [], [], 'test')
+                    Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], 'test')
                         .then(function (p) {
                             expect(p).to.not.exist();
                         })
@@ -80,14 +80,14 @@ describe('Blogs Model', function () {
 
     describe('Blogs.findByTitle', function () {
         before(function (done) {
-            Blogs.create('search1', 'Blogs.findByTitle test1', [], [], [], [], 'test')
+            Blogs.create('search1', 'silver lining', 'Blogs.findByTitle test1', [], [], [], [], 'test')
                 .then(function () {
                     done();
                 });
         });
         it('should return a blog that matches the title', function (done) {
             var error = null;
-            Blogs.findByTitle('search1')
+            Blogs.findByTitle('search1', 'silver lining')
                 .then(function (found) {
                     expect(found).to.exist();
                     expect(found.title).to.match(/search/);
@@ -102,7 +102,7 @@ describe('Blogs Model', function () {
         });
         it('should return false when nothing matches', function (done) {
             var error = null;
-            Blogs.findByTitle('wontfind')
+            Blogs.findByTitle('wontfind', 'silver lining')
                 .then(function (found) {
                     expect(found).to.be.false();
                 })
@@ -123,15 +123,15 @@ describe('Blogs Model', function () {
 
     describe('Blogs.this.addUsers', function () {
         before(function (done) {
-            UserGroups.create('testBlogAddUsers', 'testing blog.addUsers', 'test')
+            UserGroups.create('testBlogAddUsers', 'silver lining', 'testing blog.addUsers', 'test')
                 .then(function() {
-                    return Blogs.create('addUsers1', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], 'test');
+                    return Blogs.create('addUsers1', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], 'test');
                 })
                 .then(function() {
-                    return Blogs.create('addUsers2', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'],'test');
+                    return Blogs.create('addUsers2', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'],'test');
                 })
                 .then(function () {
-                    return Blogs.create('addUsers3', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], 'test');
+                    return Blogs.create('addUsers3', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], 'test');
                 })
                 .then(function() {
                     done();
@@ -144,7 +144,7 @@ describe('Blogs Model', function () {
         });
         it('should add a new entry to users when user/group is newly added', function (done) {
             var error = null;
-            Blogs.findByTitle('addUsers1')
+            Blogs.findByTitle('addUsers1', 'silver lining')
                 .then(function (found) {
                     return found.add(['newUserGroup'], 'groups', 'test')._save();
                 })
@@ -155,7 +155,7 @@ describe('Blogs Model', function () {
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].action).to.match(/^add group/);
-                    return Blogs.findByTitle('addUsers1');
+                    return Blogs.findByTitle('addUsers1', 'silver lining');
                 })
                 .then(function (found) {
                     return found.add(['newSubscriber'], 'subscriber', 'test')._save();
@@ -178,7 +178,7 @@ describe('Blogs Model', function () {
         });
         it('should do nothing if the user/group is already active in the group', function (done) {
             var error = null;
-            Blogs.findByTitle('addUsers2')
+            Blogs.findByTitle('addUsers2', 'silver lining')
                 .then(function (found) {
                     return found.add(['testBlogAddUsers'], 'groups', 'test')._save();
                 })
@@ -188,7 +188,7 @@ describe('Blogs Model', function () {
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
-                    return Blogs.findByTitle('addUsers2');
+                    return Blogs.findByTitle('addUsers2', 'silver lining');
                 })
                 .then(function (found) {
                     return found.add(['directlyadded'], 'owners', 'test')._save();
@@ -219,7 +219,7 @@ describe('Blogs Model', function () {
 
     describe('Blogs.this.removeUsers', function () {
         before(function (done) {
-            Blogs.create('removeUsers1', 'blog.removeUsers', ['directlyadded'], [], [], ['testBlogsRemoveUsers'], 'test')
+            Blogs.create('removeUsers1', 'silver lining', 'blog.removeUsers', ['directlyadded'], [], [], ['testBlogsRemoveUsers'], 'test')
                 .then(function () {
                     done();
                 })
@@ -231,7 +231,7 @@ describe('Blogs Model', function () {
         });
         it('should do nothing if the user/group is not present in the group', function (done) {
             var error = null;
-            Blogs.findByTitle('removeUsers1')
+            Blogs.findByTitle('removeUsers1', 'silver lining')
                 .then(function (found) {
                     return found.remove(['unknownGroup'], 'groups', 'test')._save();
                 })
@@ -241,7 +241,7 @@ describe('Blogs Model', function () {
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
-                    return Blogs.findByTitle('removeUsers1');
+                    return Blogs.findByTitle('removeUsers1', 'silver lining');
                 })
                 .then(function (found) {
                     return found.remove(['unknownUser'], 'subscriber', 'test')._save();
@@ -263,7 +263,7 @@ describe('Blogs Model', function () {
         });
         it('should remove user/group if present', function (done) {
             var error = null;
-            Blogs.findByTitle('removeUsers1')
+            Blogs.findByTitle('removeUsers1', 'silver lining')
                 .then(function (found) {
                     return found.remove(['testBlogsRemoveUsers'], 'groups', 'test')._save();
                 })
@@ -274,7 +274,7 @@ describe('Blogs Model', function () {
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].action).to.match(/^remove group/);
-                    return Blogs.findByTitle('removeUsers1');
+                    return Blogs.findByTitle('removeUsers1', 'silver lining');
                 })
                 .then(function (found) {
                     return found.remove(['directlyadded'], 'owner', 'test')._save();
@@ -304,8 +304,8 @@ describe('Blogs Model', function () {
     describe('Blogs.this.activate/deactivate', function () {
         var activated = null, deactivated = null;
         before(function (done) {
-            var p1 = Blogs.create('activated', 'blog.activate, deactivate', [], [], [], [], 'test');
-            var p2 = Blogs.create('deactivated', 'blog.deactive, activate', [], [], [], [], 'test');
+            var p1 = Blogs.create('activated', 'silver lining', 'blog.activate, deactivate', [], [], [], [], 'test');
+            var p2 = Blogs.create('deactivated', 'silver lining', 'blog.deactive, activate', [], [], [], [], 'test');
             Promise.join(p1, p2, function (p11, p12) {
                 activated = p11;
                 deactivated = p12;
@@ -387,7 +387,7 @@ describe('Blogs Model', function () {
     describe('Blogs.this.updateDesc', function () {
         var testblog = null;
         before(function (done) {
-            Blogs.create('updateDesc1', 'blog.updateDesc', [], [], [], [], 'test')
+            Blogs.create('updateDesc1', 'silver lining', 'blog.updateDesc', [], [], [], [], 'test')
                 .then(function (p) {
                     testblog = p;
                     done();

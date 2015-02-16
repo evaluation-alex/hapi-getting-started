@@ -119,6 +119,10 @@ module.exports.ExtendedModel = ExtendedModel;
 
 var CommonMixinAddRemove = function (roles) {
     return {
+        _isMemberOf: function (role, email) {
+            var self = this;
+            return !!_.findWhere(self[role], email);
+        },
         _find: function (role, toFind) {
             var self = this;
             return _.findWhere(self[role], toFind);

@@ -59,7 +59,8 @@ var config = {
             name: args.project,
             address: args.mail.user
         }
-    }
+    },
+    logMetrics: args.logmetrics
 };
 if (args.https.tls.key.length > 0 && args.https.tls.cert.length > 0 && Fs.existsSync(args.https.tls.key) && Fs.existsSync(args.https.tls.cert)) {
     config.tls = {

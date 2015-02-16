@@ -29,15 +29,6 @@ _.extend(UserGroups.prototype, Description);
 _.extend(UserGroups.prototype, new Save(UserGroups, Audit));
 _.extend(UserGroups.prototype, new CAudit('UserGroups', 'name'));
 
-UserGroups.prototype.isMember = function (email) {
-    var self = this;
-    return !!self._find('members', email);
-};
-UserGroups.prototype.isOwner = function (email) {
-    var self = this;
-    return !!self._find('owners', email);
-};
-
 UserGroups.prototype.update = function (payload, by) {
     var self = this;
     return self.setActive(payload.isActive, by)
@@ -160,15 +151,17 @@ UserGroups.isValid = function (id, owner) {
                 if (!g) {
                     resolve({message: 'not found'});
                 } else {
-                    if (g.isOwner(owner) || (owner === 'root')) {
+                    if (g._isMemberOf('owners', owner) || (owner === 'root')) {
                         resolve({message: 'valid'});
                     } else {
                         resolve({message: 'not an owner'});
                     }
                 }
             })
-            .catch(function (e) {
-                reject(e);
+            .catch(function (err) {
+                if (err) {
+                    reject(err);
+                }
             })
             .done();
     });

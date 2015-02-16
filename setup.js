@@ -14,7 +14,8 @@ var test = {
     smtpUsername: 'you',
     smtpPassword: '^YOURSMTPWD$',
     port: 3000,
-    logdir: './logs'
+    logdir: './logs',
+    logMetrics: false
 };
 
 var fromStdIn = function (results, property, message, opts) {
@@ -77,6 +78,9 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
         return fromStdIn(results, 'logdir', 'log directory: ', {default: './logs'});
     })
     .then(function (results) {
+        return fromStdIn(results, 'logMetrics', 'capture metrics: ', {default: true});
+    })
+    .then(function (results) {
         console.log('setting up with - ' + JSON.stringify(results));
         var opts = {
             env: 'dev',
@@ -96,7 +100,8 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
                     key: '',
                     cert: ''
                 }
-            }
+            },
+            logmetrics: results.logMetrics
         };
         Fs.writeFileSync('.opts', JSON.stringify(opts, null, 4));
         return results;

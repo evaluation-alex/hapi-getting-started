@@ -7,6 +7,8 @@ var moment = require('moment');
 var MongoClient = require('mongodb').MongoClient;
 var UserAgent = require('useragent');
 var mongodb;
+var logmetrics = Config.logMetrics;
+
 var connect = function (mongouri) {
     return new Promise(function (resolve, reject) {
         MongoClient.connect(mongouri, {}, function (err, db) {
@@ -117,7 +119,7 @@ var findAndUpdateMetric = function (host, path, method, user, ua, year, month, d
             } else {
                 var metric = doc || newMetricDoc(query.args, query.id);
                 updateMetricDoc(query.toUpdate(metric, user, year, month, day, hour), ua, statusCode, elapsed);
-                metrics.findAndModify({_id: metric._id},
+                !logmetrics || metrics.findAndModify({_id: metric._id},
                     [['_id', 'asc']],
                     metric,
                     {upsert: true, new: true},

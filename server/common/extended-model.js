@@ -9,11 +9,7 @@ var ExtendedModel = BaseModel.extend({
 
 var defaultcb = function (resolve, reject) {
     return function (err, doc) {
-        if (err) {
-            reject(err);
-        } else {
-            resolve(doc);
-        }
+        err ? reject(err) : resolve(doc);
     };
 };
 

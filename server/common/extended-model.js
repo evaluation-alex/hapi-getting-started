@@ -118,10 +118,6 @@ var CommonMixinAddRemove = function (roles) {
             var self = this;
             return !!_.findWhere(self[role], email);
         },
-        _find: function (role, toFind) {
-            var self = this;
-            return _.findWhere(self[role], toFind);
-        },
         _findRoles: function (role) {
             return _.find(_.pairs(roles), function (pair) {
                 return role.indexOf(pair[0]) !== -1;

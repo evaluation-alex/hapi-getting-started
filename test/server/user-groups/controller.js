@@ -28,7 +28,7 @@ describe('UserGroups', function () {
                 return tu.setupRolesAndUsers();
             })
             .then(function () {
-                return Users.findByEmail('root');
+                return Users._findOne({email: 'root'});
             })
             .then(function (root) {
                 return root.loginSuccess('test', 'test').save();
@@ -292,7 +292,7 @@ describe('UserGroups', function () {
             UserGroups.create('testPutGroupNotOwner', 'silver lining', 'test PUT /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return Users.findByEmail('one@first.com');
+                    return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (u) {
                     return u.setRoles(['root'], 'test');
@@ -986,9 +986,9 @@ describe('UserGroups', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(422);
-                    UserGroups.findByName('testGroupUserExist', 'silver lining')
+                    UserGroups._findOne({name: 'testGroupUserExist', organisation: 'silver lining'})
                         .then(function (ug) {
-                            expect(ug).to.be.false();
+                            expect(ug).to.be.null();
                             groupsToClear.push('testGroupUserExist');
                             done();
                         });
@@ -1015,7 +1015,7 @@ describe('UserGroups', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(201);
-                    UserGroups.findByName('testUserGroupCreate', 'silver lining')
+                    UserGroups._findOne({name: 'testUserGroupCreate', organisation: 'silver lining'})
                         .then(function (ug) {
                             expect(ug).to.exist();
                             expect(ug._isMemberOf('owners', 'one@first.com')).to.be.true();
@@ -1059,7 +1059,7 @@ describe('UserGroups', function () {
             UserGroups.create('testDelGroupNotOwner', 'silver lining', 'test POST /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return Users.findByEmail('one@first.com');
+                    return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (u) {
                     return u.setRoles(['root'], 'test');
@@ -1102,9 +1102,9 @@ describe('UserGroups', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            UserGroups.findByName('testDelGroup', 'silver lining')
+                            UserGroups._findOne({name: 'testDelGroup', organisation: 'silver lining'})
                                 .then(function (found) {
-                                    expect(found).to.be.false();
+                                    expect(found.isActive).to.be.false();
                                     groupsToClear.push('testDelGroup');
                                     done();
                                 });

@@ -146,7 +146,7 @@ describe('Auth', function () {
             }
         });
 
-        Users.findByEmail(email)
+        Users._findOne({email: email})
             .then(function (user) {
                 return user.logout('test', 'test').save();
             })
@@ -187,7 +187,7 @@ describe('Auth', function () {
             }
         });
 
-        Users.findByEmail(email)
+        Users._findOne({email: email})
             .then(function (user) {
                 return user.setRoles([], 'test').save();
             })

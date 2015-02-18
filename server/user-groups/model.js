@@ -111,23 +111,6 @@ UserGroups.create = function (name, organisation, description, owner) {
     });
 };
 
-UserGroups.findByName = function (name, organisation) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        self._findOne({name: name, organisation: organisation, isActive: true})
-            .then(function (found) {
-                if (!found) {
-                    resolve(false);
-                } else {
-                    resolve(found);
-                }
-            })
-            .catch(function (err) {
-                reject(err);
-            });
-    });
-};
-
 UserGroups.findGroupsForUser = function (email, organisation) {
     var self = this;
     return new Promise(function (resolve, reject) {

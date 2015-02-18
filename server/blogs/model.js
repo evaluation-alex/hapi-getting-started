@@ -101,22 +101,5 @@ Blogs.create = function (title, organisation, description, owners, contributors,
     });
 };
 
-Blogs.findByTitle = function (title, organisation) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        self._findOne({title: title, organisation: organisation, isActive: true})
-            .then(function (found) {
-                if (!found) {
-                    resolve(false);
-                } else {
-                    resolve(found);
-                }
-            })
-            .catch(function (err) {
-                reject(err);
-            });
-    });
-};
-
 module.exports = Blogs;
 

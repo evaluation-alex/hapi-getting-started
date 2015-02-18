@@ -67,7 +67,7 @@ describe('Roles Model', function () {
         });
     });
 
-    describe('Permissions.findByName', function () {
+    describe('Roles.findByName', function () {
         before(function (done) {
             Roles.create('findRole', 'silver lining', [{
                 action: 'view',

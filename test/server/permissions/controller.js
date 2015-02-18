@@ -32,7 +32,7 @@ describe('Permissions', function () {
                 return tu.setupRolesAndUsers();
             })
             .then(function () {
-                return Users.findByEmail('root');
+                return Users._findOne({email: 'root'});
             })
             .then(function (root) {
                 return root.loginSuccess('test', 'test').save();

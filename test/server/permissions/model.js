@@ -78,83 +78,6 @@ describe('Permissions Model', function () {
         });
     });
 
-    describe('Permissions.findByDescription', function () {
-        before(function (done) {
-            var p1 = Permissions.create('search1', 'silver lining',  ['testUser2'], [], 'action1', 'object1', 'test5');
-            var p2 = Permissions.create('search2', 'silver lining', ['testUser2'], [], 'action2', 'object2', 'test5');
-            var p3 = Permissions.create('search3', 'silver lining', ['testUser2'], [], 'action3', 'object3', 'test5');
-            Promise.join(p1, p2, p3)
-                .then(function () {
-                    done();
-                });
-        });
-        it('should return a permissions array with permissions that matches the description', function (done) {
-            var error = null;
-            Permissions.findByDescription('search')
-                .then(function (found) {
-                    expect(found).to.exist();
-                    expect(found.length).to.equal(3);
-                    expect(found[0].description).to.match(/search/);
-                    expect(found[1].description).to.match(/search/);
-                    expect(found[2].description).to.match(/search/);
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should return an empty array when nothing matches', function (done) {
-            var error = null;
-            Permissions.findByDescription('wontfind')
-                .then(function (found) {
-                    expect(found).to.exist();
-                    expect(found.length).to.equal(0);
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should only return permissions that are currently active', function (done) {
-            var error = null;
-            Permissions.findByDescription('search1')
-                .then(function (found) {
-                    expect(found).to.exist();
-                    expect(found.length).to.equal(1);
-                    found[0].isActive = false;
-                    return found[0].save();
-                })
-                .then(function () {
-                    return Permissions.findByDescription('search');
-                })
-                .then(function (found) {
-                    expect(found).to.exist();
-                    expect(found.length).to.equal(2);
-                    expect(found[0].description).to.match(/search/);
-                    expect(found[1].description).to.match(/search/);
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        after(function(done) {
-            permissionsToClear.push('search1');
-            permissionsToClear.push('search2');
-            permissionsToClear.push('search3');
-            done();
-        });
-    });
-
     describe('Permissions.findAllPermissionsForUser', function () {
         before(function (done) {
             UserGroups.create('permissionsTest1', 'silver lining', 'testing permissions for users', 'permissionedUser')
@@ -380,7 +303,7 @@ describe('Permissions Model', function () {
         });
         it('should add a new entry to users when user/group is newly added', function (done) {
             var error = null;
-            Permissions.findByDescription('addUsers1')
+            Permissions._find({description: 'addUsers1'})
                 .then(function (found) {
                     expect(found.length).to.equal(1);
                     return found[0].add(['newUserGroup'], 'group', 'test5').save();
@@ -392,7 +315,7 @@ describe('Permissions Model', function () {
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].action).to.match(/^add group/);
-                    return Permissions.findByDescription('addUsers1');
+                    return Permissions._find({description: 'addUsers1'});
                 })
                 .then(function (found) {
                     expect(found.length).to.equal(1);
@@ -416,7 +339,7 @@ describe('Permissions Model', function () {
         });
         it('should do nothing if the user/group is already active in the group', function (done) {
             var error = null;
-            Permissions.findByDescription('addUsers2')
+            Permissions._find({description: 'addUsers2'})
                 .then(function (found) {
                     expect(found.length).to.equal(1);
                     return found[0].add(['testPermissionsAddUsers'], 'group', 'test5').save();
@@ -427,7 +350,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
-                    return Permissions.findByDescription('addUsers2');
+                    return Permissions._find({description: 'addUsers2'});
                 })
                 .then(function (found) {
                     expect(found.length).to.equal(1);
@@ -471,7 +394,7 @@ describe('Permissions Model', function () {
         });
         it('should do nothing if the user/group is not present in the group', function (done) {
             var error = null;
-            Permissions.findByDescription('removeUsers1')
+            Permissions._find({description: 'removeUsers1'})
                 .then(function (found) {
                     expect(found.length).to.equal(1);
                     return found[0].remove(['unknownGroup'], 'group', 'test5').save();
@@ -482,7 +405,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
-                    return Permissions.findByDescription('removeUsers1');
+                    return Permissions._find({description: 'removeUsers1'});
                 })
                 .then(function (found) {
                     expect(found.length).to.equal(1);
@@ -505,7 +428,7 @@ describe('Permissions Model', function () {
         });
         it('should remove user/group if present', function (done) {
             var error = null;
-            Permissions.findByDescription('removeUsers1')
+            Permissions._find({description: 'removeUsers1'})
                 .then(function (found) {
                     expect(found.length).to.equal(1);
                     return found[0].remove(['testPermissionsRemoveUsers'], 'group', 'test5').save();
@@ -517,7 +440,7 @@ describe('Permissions Model', function () {
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].action).to.match(/^remove group/);
-                    return Permissions.findByDescription('removeUsers1');
+                    return Permissions._find({description: 'removeUsers1'});
                 })
                 .then(function (found) {
                     expect(found.length).to.equal(1);

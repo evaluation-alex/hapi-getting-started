@@ -175,23 +175,6 @@ Users.create = function (email, password, organisation) {
     });
 };
 
-Users.findByEmail = function (email) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        self._findOne({email: email})
-            .then(function (obj) {
-                if (!obj) {
-                    resolve(false);
-                } else {
-                    resolve(obj);
-                }
-            })
-            .catch(function (err) {
-                reject(err);
-            });
-    });
-};
-
 Users.findByCredentials = function (email, password) {
     var self = this;
     return new Promise(function (resolve, reject) {

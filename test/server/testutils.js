@@ -60,7 +60,7 @@ function setupReadonlyRole () {
 
 function setupRootUser () {
     return new Promise(function (resolve/*, reject*/) {
-        Users.findByEmail('root')
+        Users._findOne({email:'root'})
             .then(function (found) {
                 if (found) {
                     resolve(found.setRoles(['root'], 'testSetup').save());
@@ -76,7 +76,7 @@ function setupRootUser () {
 
 function setupFirstUser () {
     return new Promise(function (resolve/*, reject*/) {
-        Users.findByEmail('one@first.com')
+        Users._findOne({email: 'one@first.com'})
             .then(function (found) {
                 if (found) {
                     resolve(found);

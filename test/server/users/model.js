@@ -57,12 +57,12 @@ describe('Users Model', function () {
         });
     });
 
-    describe('Users.findByCredentials, Users.findByEmail', function () {
+    describe('Users.findByCredentials', function () {
         it('should returns a result when finding by login and by credentials correctly', function (done) {
             var error = null;
             Users.create(secondEmail, 'test1234', 'silver lining')
                 .then(function (user) {
-                    return Users.findByEmail(user.email);
+                    return Users._findOne({email: user.email});
                 })
                 .then(function (foundUser) {
                     expect(foundUser).to.be.an.instanceof(Users);
@@ -113,20 +113,6 @@ describe('Users Model', function () {
                 });
         });
 
-        it('should returns a null when finding by email that does not exist', function (done) {
-            var error = null;
-            Users.findByEmail({email: 'test.not.found@users.module'})
-                .then(function (foundUser) {
-                    expect(foundUser).to.be.false();
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .finally(function () {
-                    tu.testComplete(done, error);
-                });
-        });
     });
 
     describe('Users.areValid', function () {
@@ -166,7 +152,7 @@ describe('Users Model', function () {
     describe('Users.this._hydrateRoles', function () {
         it('should populate _roles', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     return user.hydrateRoles();
                 })
@@ -185,7 +171,7 @@ describe('Users Model', function () {
         });
         it('should have _roles to be an empty object / not exist when there are no roles', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     user.roles = [];
                     return user.hydrateRoles();
@@ -204,7 +190,7 @@ describe('Users Model', function () {
         });
         it('should do nothing if already populated or no roles defined', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     delete user.roles;
                     return user;
@@ -234,7 +220,7 @@ describe('Users Model', function () {
     describe('Users.this.hasPermissionsTo', function () {
         it('should return true for view users and false for modifying them by default users', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     return user.hydrateRoles();
                 })
@@ -253,7 +239,7 @@ describe('Users Model', function () {
 
         it('should return true for all operations for root', function (done) {
             var error = null;
-            Users.findByEmail('root')
+            Users._findOne({email: 'root'})
                 .then(function (user) {
                     return user.hydrateRoles();
                 })
@@ -274,7 +260,7 @@ describe('Users Model', function () {
     describe('Users.this.loginSuccess', function () {
         it('should create a new session object on the user and should create an audit entry', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
                 }).then(function (user) {
@@ -298,7 +284,7 @@ describe('Users Model', function () {
     describe('Users.this.logout', function () {
         it('should remove the session object on the user and should create an audit entry', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email:firstEmail})
                 .then(function (user) {
                     return user.logout('test', 'test').save();
                 })
@@ -323,7 +309,7 @@ describe('Users Model', function () {
     describe('Users.this.loginFail', function () {
         it('should remove the session object on the user and should create an audit entry', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email:firstEmail})
                 .then(function (user) {
                     return user.loginFail('test', 'test').save();
                 })
@@ -348,7 +334,7 @@ describe('Users Model', function () {
     describe('Users.this.resetPassword, Users.this.resetPasswordSent', function () {
         it('resetPasswordsSent should create audit entries', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email:firstEmail})
                 .then(function (user) {
                     return user.resetPasswordSent('test').save();
                 })
@@ -368,7 +354,7 @@ describe('Users Model', function () {
         });
         it('resetPassword should create audit entries and invalidate sessions', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email:firstEmail})
                 .then(function (user) {
                     return user.resetPassword('new password confirm', 'test').save();
                 })
@@ -392,7 +378,7 @@ describe('Users Model', function () {
     describe('Users.this.setRoles', function () {
         it('update Roles should create audit entries and invalidate sessions', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email:firstEmail})
                 .then(function (user) {
                     return user.setRoles(['root'], 'test').save();
                 }).then(function (user) {
@@ -417,7 +403,7 @@ describe('Users Model', function () {
     describe('Users.this.reactivate, Users.this.deactivate', function () {
         it('deactivate should create audit entries and invalidate sessions and mark user as inactive', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email:firstEmail})
                 .then(function (user) {
                     return user.deactivate('test').save();
                 })
@@ -439,7 +425,7 @@ describe('Users Model', function () {
         });
         it('reactivate should create audit entries and the user should be active again', function (done) {
             var error = null;
-            Users.findByEmail(firstEmail)
+            Users._findOne({email:firstEmail})
                 .then(function (user) {
                     return user.reactivate('test').save();
                 })

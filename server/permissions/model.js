@@ -104,11 +104,6 @@ Permissions.create = function (description, organisation, users, groups, action,
     });
 };
 
-Permissions.findByDescription = function (description) {
-    var self = this;
-    return self._find({description: {$regex: new RegExp(description)}, isActive: true});
-};
-
 Permissions.findAllPermissionsForUser = function (email, organisation) {
     var self = this;
     return new Promise(function (resolve, reject) {

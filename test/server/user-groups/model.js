@@ -115,7 +115,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.findByName('test.search@test.api', 'silver lining')
                 .then(function (ug) {
-                    return ug.deactivate()._save();
+                    return ug.deactivate().save();
                 })
                 .then(function () {
                     return UserGroups.findByName('test.search@test.api', 'silver lining');
@@ -337,7 +337,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'alreadyMember')).to.be.true();
-                    return ug.add(['alreadyMember'], 'member', 'test3')._save();
+                    return ug.add(['alreadyMember'], 'member', 'test3').save();
                 })
                 .then(function (ug) {
                     return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add member/}});
@@ -363,7 +363,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('owners', 'alreadyOwner')).to.be.true();
-                    return ug.add(['alreadyOwner'], 'owner', 'test3')._save();
+                    return ug.add(['alreadyOwner'], 'owner', 'test3').save();
                 })
                 .then(function (ug) {
                     return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^add owner/}});
@@ -384,7 +384,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest3', 'silver lining', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
-                    return ug.add(['test3'], 'ownermember', 'test4')._save();
+                    return ug.add(['test3'], 'ownermember', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('owners', 'test3')).to.be.true();
@@ -410,7 +410,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest4', 'silver lining', 'UserGroups.this.addOwnerNotPresent', 'test3')
                 .then(function (ug) {
-                    return ug.add(['newOwner'], 'owner', 'test3')._save();
+                    return ug.add(['newOwner'], 'owner', 'test3').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('owners', 'newOwner')).to.be.true();
@@ -434,7 +434,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest5', 'silver lining', 'UserGroups.this.addMemberNotPresent', 'test3')
                 .then(function (ug) {
-                    return ug.add(['newMember'], 'member', 'test3')._save();
+                    return ug.add(['newMember'], 'member', 'test3').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'newMember')).to.be.true();
@@ -458,7 +458,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest6.0', 'silver lining', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
                 .then(function (ug) {
-                    return ug.add(['newMemberOwner'], 'owner', 'test3').add(['newMemberOwner'], 'member', 'test3')._save();
+                    return ug.add(['newMemberOwner'], 'owner', 'test3').add(['newMemberOwner'], 'member', 'test3').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'newMemberOwner')).to.be.true();
@@ -474,7 +474,7 @@ describe('UserGroups Model', function () {
                     return UserGroups.create('addUsersTest6.1', 'silver lining', 'UserGroups.this.addBothNotPresent', 'test3');
                 })
                 .then(function (ug) {
-                    return ug.add(['newBoth'], 'owner', 'test3').add(['newBoth'], 'member', 'test3')._save();
+                    return ug.add(['newBoth'], 'owner', 'test3').add(['newBoth'], 'member', 'test3').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'newBoth')).to.be.true();
@@ -509,7 +509,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'notMemberButOwner')).to.be.false();
                     expect(ug._isMemberOf('owners', 'notMemberButOwner')).to.be.true();
-                    return ug.remove(['notMemberButOwner'], 'member', 'test4')._save();
+                    return ug.remove(['notMemberButOwner'], 'member', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'notMemberButOwner')).to.be.false();
@@ -538,7 +538,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'notOwnerButMember')).to.be.true();
                     expect(ug._isMemberOf('owners', 'notOwnerButMember')).to.be.false();
-                    return ug.remove(['notOwnerButMember'], 'owner', 'test4')._save();
+                    return ug.remove(['notOwnerButMember'], 'owner', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'notOwnerButMember')).to.be.true();
@@ -563,17 +563,17 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'neither')).to.be.false();
                     expect(ug._isMemberOf('owners', 'neither')).to.be.false();
-                    return ug.remove(['neither'], 'owner', 'test4')._save();
+                    return ug.remove(['neither'], 'owner', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'neither')).to.be.false();
                     expect(ug._isMemberOf('owners', 'neither')).to.be.false();
-                    return ug.remove(['neither'], 'member', 'test4')._save();
+                    return ug.remove(['neither'], 'member', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'neither')).to.be.false();
                     expect(ug._isMemberOf('owners', 'neither')).to.be.false();
-                    return ug.remove(['neither'], 'ownermember', 'test4')._save();
+                    return ug.remove(['neither'], 'ownermember', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'neither')).to.be.false();
@@ -602,7 +602,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'owner')).to.be.false();
                     expect(ug._isMemberOf('owners', 'owner')).to.be.true();
-                    return ug.remove(['owner'], 'owner', 'test4')._save();
+                    return ug.remove(['owner'], 'owner', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'owner')).to.be.false();
@@ -633,7 +633,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'member')).to.be.true();
                     expect(ug._isMemberOf('owners', 'member')).to.be.false();
-                    return ug.remove(['member'], 'member', 'test4')._save();
+                    return ug.remove(['member'], 'member', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'member')).to.be.false();
@@ -661,7 +661,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('activateGroupDoNothing', 'silver lining', 'UserGroups.this.activate', 'test5')
                 .then(function (ug) {
-                    return ug.reactivate('test5')._save();
+                    return ug.reactivate('test5').save();
                 })
                 .then(function (ug) {
                     expect(ug.isActive).to.be.true();
@@ -678,7 +678,7 @@ describe('UserGroups Model', function () {
                     return UserGroups._findByIdAndUpdate(ug._id, ug);
                 })
                 .then(function (ug) {
-                    return ug.deactivate('test5')._save();
+                    return ug.deactivate('test5').save();
                 })
                 .then(function (ug) {
                     expect(ug.isActive).to.be.false();
@@ -701,7 +701,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('deactivateGroup', 'silver lining', 'UserGroups.this.deactivate', 'test5')
                 .then(function (ug) {
-                    return ug.deactivate('test5')._save();
+                    return ug.deactivate('test5').save();
                 })
                 .then(function (ug) {
                     expect(ug.isActive).to.be.false();
@@ -719,7 +719,7 @@ describe('UserGroups Model', function () {
                     return UserGroups._findByIdAndUpdate(ug._id, ug);
                 })
                 .then(function (ug) {
-                    return ug.reactivate('test5')._save();
+                    return ug.reactivate('test5').save();
                 })
                 .then(function (ug) {
                     expect(ug.isActive).to.be.true();
@@ -741,16 +741,16 @@ describe('UserGroups Model', function () {
         });
     });
 
-    describe('UserGroups.this.updateDesc', function () {
+    describe('UserGroups.this.setDescription', function () {
         it('should do nothing if there is no change in the description', function (done) {
             var error = null;
             UserGroups.create('updateDesc1', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
                 .then(function (ug) {
-                    return ug.updateDesc(ug.description, 'test6')._save();
+                    return ug.setDescription(ug.description, 'test6').save();
                 })
                 .then(function (ug) {
                     expect(ug.description).to.equal('UserGroups.this.updateDesc');
-                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^change desc/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^description/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(0);
@@ -768,15 +768,15 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('updateDesc2', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
                 .then(function (ug) {
-                    return ug.updateDesc(ug.description + 'new', 'test6')._save();
+                    return ug.setDescription(ug.description + 'new', 'test6').save();
                 })
                 .then(function (ug) {
                     expect(ug.description).to.equal('UserGroups.this.updateDescnew');
-                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^change desc/}});
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^description/}});
                 })
                 .then(function (ugaudit) {
                     expect(ugaudit.length).to.equal(1);
-                    expect(ugaudit[0].action).to.equal('change desc');
+                    expect(ugaudit[0].action).to.equal('description');
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -784,6 +784,54 @@ describe('UserGroups Model', function () {
                 })
                 .done(function () {
                     groupsToCleanup.push('updateDesc2');
+                    tu.testComplete(done, error);
+                });
+        });
+    });
+
+    describe('UserGroups.this.setAccess', function () {
+        it('should do nothing if there is no change in the access', function (done) {
+            var error = null;
+            UserGroups.create('updateAccess1', 'silver lining', 'UserGroups.this.setAccess', 'test6')
+                .then(function (ug) {
+                    return ug.setAccess('restricted', 'test6').save();
+                })
+                .then(function (ug) {
+                    expect(ug.access).to.equal('restricted');
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^access/}});
+                })
+                .then(function (ugaudit) {
+                    expect(ugaudit.length).to.equal(0);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    groupsToCleanup.push('updateAccess1');
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should update to the new access control', function (done) {
+            var error = null;
+            UserGroups.create('updateAccess2', 'silver lining', 'UserGroups.this.setAccess', 'test6')
+                .then(function (ug) {
+                    return ug.setAccess('public', 'test6').save();
+                })
+                .then(function (ug) {
+                    expect(ug.access).to.equal('public');
+                    return Audit.findAudit('UserGroups', ug.name, {action: {$regex: /^access/}});
+                })
+                .then(function (ugaudit) {
+                    expect(ugaudit.length).to.equal(1);
+                    expect(ugaudit[0].action).to.equal('access');
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    groupsToCleanup.push('updateAccess2');
                     tu.testComplete(done, error);
                 });
         });

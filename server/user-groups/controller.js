@@ -3,6 +3,7 @@ var _ = require('lodash');
 var Joi = require('joi');
 var Boom = require('boom');
 var BaseModel = require('hapi-mongo-models').BaseModel;
+var AuthPlugin = require('./../common/auth');
 var UserGroups = require('./model');
 var Users = require('./../users/model');
 var BaseController = require('./../common/controller').BaseController;
@@ -57,7 +58,8 @@ Controller.update = BaseController.update('user-groups', UserGroups, {
         removedMembers: Joi.array().includes(Joi.string()).unique(),
         addedOwners: Joi.array().includes(Joi.string()).unique(),
         removedOwners: Joi.array().includes(Joi.string()).unique(),
-        description: Joi.string()
+        description: Joi.string(),
+        access: Joi.string().valid(['restricted', 'public'])
     }
 }, [{assign: 'validAndPermitted', method: validAndPermitted},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
@@ -69,7 +71,8 @@ Controller.new = BaseController.new('user-groups', UserGroups, {
         name: Joi.string().required(),
         members: Joi.array().includes(Joi.string()),
         owners: Joi.array().includes(Joi.string()),
-        description: Joi.string()
+        description: Joi.string(),
+        access: Joi.string().valid(['restricted', 'public'])
     }
 }, [
     {assign: 'validMembers', method: areValid(Users, 'email', 'members')},
@@ -83,5 +86,61 @@ Controller.new = BaseController.new('user-groups', UserGroups, {
 
 Controller.delete = BaseController.delete('user-groups', UserGroups);
 Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted});
+
+Controller.join = BaseController.updateSpecial('user-groups', UserGroups, {
+    payload: {
+        addedMembers: Joi.array().includes(Joi.string()).unique()
+    }
+}, [ AuthPlugin.preware.ensurePermissions('view', 'user-groups'),
+    {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
+], function (ug, request, reply) {
+    var by = request.auth.credentials.user.email;
+    ug.add(request.payload.addedMembers, ug.access === 'public' ? 'members' : 'needsApproval', by).save()
+        .then(function(ug) {
+            reply(ug);
+        })
+        .catch(function (err) {
+            reply(Boom.badImplementation(err));
+        });
+});
+
+Controller.approve = BaseController.update('user-groups', UserGroups, {
+    payload: {
+        addedMembers: Joi.array().includes(Joi.string()).unique()
+    }
+}, [
+    AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
+    {assign: 'validAndPermitted', method: validAndPermitted},
+    {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
+], function (ug, request, reply) {
+    var by = request.auth.credentials.user.email;
+    ug.add(request.payload.addedMembers, 'members', by)
+        .remove(request.payload.addedMembers, 'needsApproval', by).save()
+        .then(function (ug) {
+            reply(ug);
+        })
+        .catch(function (err) {
+            reply(Boom.badImplementation(err));
+        });
+});
+
+Controller.reject = BaseController.update('user-groups', UserGroups, {
+    payload: {
+        addedMembers: Joi.array().includes(Joi.string()).unique()
+    }
+}, [
+    AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
+    {assign: 'validAndPermitted', method: validAndPermitted},
+    {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
+], function (ug, request, reply) {
+    var by = request.auth.credentials.user.email;
+    ug.remove(request.payload.addedMembers, 'needsApproval', by).save()
+        .then(function (ug) {
+            reply(ug);
+        })
+        .catch(function (err) {
+            reply(Boom.badImplementation(err));
+        });
+});
 
 module.exports.Controller = Controller;

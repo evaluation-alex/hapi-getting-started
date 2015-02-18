@@ -5,6 +5,7 @@ var Bcrypt = require('bcrypt');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
 var IsActive = require('./../common/extended-model').IsActive;
+var Properties = require('./../common/extended-model').Properties;
 var Save = require('./../common/extended-model').Save;
 var CAudit = require('./../common/extended-model').Audit;
 var Roles = require('./../roles/model');
@@ -31,6 +32,7 @@ var Users = ExtendedModel.extend({
 _.extend(Users.prototype, IsActive);
 _.extend(Users.prototype, new Save(Users, Audit));
 _.extend(Users.prototype, new CAudit('Users', 'email'));
+_.extend(Users.prototype, new Properties(['isActive', 'roles']));
 
 Users.prototype.hasPermissionsTo = function (performAction, onObject) {
     var ret = false;
@@ -108,20 +110,11 @@ Users.prototype.resetPassword = function (newPassword, by) {
     }
     return self;
 };
-Users.prototype.updateRoles = function (newRoles, by) {
-    var self = this;
-    if (newRoles && !_.isEqual(self.roles, newRoles)) {
-        var oldRoles = self.roles;
-        self.roles = newRoles;
-        self._audit('update roles', oldRoles, newRoles, by);
-    }
-    return self;
-};
 Users.prototype.update = function (payload, by) {
     var self = this;
     return self._invalidateSession()
-        .setActive(payload.isActive, by)
-        .updateRoles(payload.roles, by)
+        .setIsActive(payload.isActive, by)
+        .setRoles(payload.roles, by)
         .resetPassword(payload.password, by);
 };
 

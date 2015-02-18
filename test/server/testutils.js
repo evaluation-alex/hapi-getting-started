@@ -63,11 +63,11 @@ function setupRootUser () {
         Users.findByEmail('root')
             .then(function (found) {
                 if (found) {
-                    resolve(found.updateRoles(['root'], 'testSetup')._save());
+                    resolve(found.setRoles(['root'], 'testSetup').save());
                 } else {
                     Users.create('root', 'password123', 'silver lining')
                         .then(function (rt) {
-                            resolve(rt.updateRoles(['root'], 'testSetup')._save());
+                            resolve(rt.setRoles(['root'], 'testSetup').save());
                         });
                 }
             });

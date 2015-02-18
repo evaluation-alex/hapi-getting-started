@@ -62,7 +62,7 @@ Controller.signup = {
         var organisation = request.payload.organisation;
         Users.create(email, password, organisation)
             .then(function (user) {
-                return (user) ? user.loginSuccess(request.info.remoteAddress, user.email)._save() : user;
+                return (user) ? user.loginSuccess(request.info.remoteAddress, user.email).save() : user;
             })
             .then(function (user) {
                 if (user) {
@@ -119,7 +119,7 @@ Controller.loginForgot = {
     ],
     handler: function (request, reply) {
         var foundUser = request.pre.user;
-        foundUser.resetPasswordSent(request.pre.user.email)._save()
+        foundUser.resetPasswordSent(request.pre.user.email).save()
             .then(function () {
                 var options = {
                     subject: 'Reset your ' + Config.projectName + ' password',
@@ -173,7 +173,7 @@ Controller.loginReset = {
             reply(Boom.badRequest('Invalid email or key.'));
         } else {
             user._invalidateSession();
-            user.resetPassword(request.payload.password, user.email)._save()
+            user.resetPassword(request.payload.password, user.email).save()
                 .then(function () {
                     reply({message: 'Success.'});
                 });

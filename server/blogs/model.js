@@ -4,7 +4,7 @@ var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
 var AddRemove = require('./../common/extended-model').AddRemove;
 var IsActive = require('./../common/extended-model').IsActive;
-var Description = require('./../common/extended-model').Description;
+var Properties = require('./../common/extended-model').Properties;
 var Save = require('./../common/extended-model').Save;
 var CAudit = require('./../common/extended-model').Audit;
 var Promise = require('bluebird');
@@ -25,13 +25,13 @@ var Blogs = ExtendedModel.extend({
 
 _.extend(Blogs.prototype, new AddRemove({owner: 'owners', contributor: 'contributors', subscriber: 'subscribers', groups: 'subscriberGroups'}));
 _.extend(Blogs.prototype, IsActive);
-_.extend(Blogs.prototype, Description);
+_.extend(Blogs.prototype, new Properties(['description', 'isActive']));
 _.extend(Blogs.prototype, new Save(Blogs, Audit));
 _.extend(Blogs.prototype, new CAudit('Blogs', 'title'));
 
 Blogs.prototype.update = function(payload, by) {
     var self = this;
-    return self.setActive(payload.isActive)
+    return self.setIsActive(payload.isActive, by)
         .add(payload.addedOwners, 'owner', by)
         .remove(payload.removedOwners, 'owner', by)
         .add(payload.addedContributors, 'contributor', by)
@@ -40,7 +40,7 @@ Blogs.prototype.update = function(payload, by) {
         .remove(payload.removedSubscribers, 'subscriber', by)
         .add(payload.addedSubscriberGroups, 'groups', by)
         .remove(payload.removedSubscriberGroups, 'groups', by)
-        .updateDesc(payload.description, by);
+        .setDescription(payload.description, by);
 };
 
 Blogs._collection = 'blogs';

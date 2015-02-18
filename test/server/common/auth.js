@@ -29,7 +29,7 @@ describe('Auth', function () {
                 return Users.create(email, 'auth123', 'silver lining');
             })
             .then(function (user) {
-                return user.loginSuccess('test', 'test')._save();
+                return user.loginSuccess('test', 'test').save();
             })
             .then(function (user) {
                 authheader = tu.authorizationHeader(user);
@@ -148,7 +148,7 @@ describe('Auth', function () {
 
         Users.findByEmail(email)
             .then(function (user) {
-                return user.logout('test', 'test')._save();
+                return user.logout('test', 'test').save();
             })
             .then(function () {
                 var request = {
@@ -189,10 +189,10 @@ describe('Auth', function () {
 
         Users.findByEmail(email)
             .then(function (user) {
-                return user.updateRoles([], 'test')._save();
+                return user.setRoles([], 'test').save();
             })
             .then(function (user) {
-                return user.loginSuccess('test', 'test')._save();
+                return user.loginSuccess('test', 'test').save();
             })
             .then(function (user) {
                 authheader = tu.authorizationHeader2(email, user.session.key);

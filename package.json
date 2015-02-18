@@ -62,7 +62,7 @@
         "nodemailer-markdown": "1.0.x",
         "object-assign": "2.0.x",
         "poop": "1.2.x",
-        "tv": "4.0.x",
+        "tv": "4.1.x",
         "useragent": "2.1.x"
     },
     "devDependencies": {

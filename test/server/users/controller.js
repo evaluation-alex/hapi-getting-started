@@ -30,7 +30,7 @@ describe('Users', function () {
                 return Users.create('test.users@test.api', 'password123', 'silver lining');
             })
             .then(function (newUser) {
-                newUser.loginSuccess('test', 'test')._save();
+                newUser.loginSuccess('test', 'test').save();
                 done();
             })
             .catch(function (err) {
@@ -46,7 +46,7 @@ describe('Users', function () {
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
-                return foundUser.logout('test', 'test')._save();
+                return foundUser.logout('test', 'test').save();
             })
             .then(function () {
                 var request = {
@@ -71,11 +71,11 @@ describe('Users', function () {
         var authheader = '';
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
-                return foundUser.loginSuccess('test')._save();
+                return foundUser.loginSuccess('test').save();
             })
             .then(function(foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
-                return foundUser.updateRoles([], 'test')._save();
+                return foundUser.setRoles([], 'test').save();
             })
             .then(function () {
                 var request = {
@@ -100,7 +100,7 @@ describe('Users', function () {
         var authheader = '';
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test')._save();
+                return foundUser.loginSuccess('test', 'test').save();
             })
             .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
@@ -128,17 +128,17 @@ describe('Users', function () {
         before(function (done) {
             Users._findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
-                    foundUser.loginSuccess('test', 'test')._save();
+                    foundUser.loginSuccess('test', 'test').save();
                     authheader = tu.authorizationHeader(foundUser);
                 }).
                 then(function () {
                     return Users.create('test.users2@test.api', 'password123', 'silver lining');
                 })
                 .then(function (newUser) {
-                    return newUser.loginSuccess('test', 'test')._save();
+                    return newUser.loginSuccess('test', 'test').save();
                 })
                 .then(function (newUser) {
-                    newUser.deactivate('test')._save();
+                    newUser.deactivate('test').save();
                     done();
                 })
                 .catch(function (err) {
@@ -235,7 +235,7 @@ describe('Users', function () {
         before(function (done) {
             Users._findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
-                    return foundUser.loginSuccess('test', 'test')._save();
+                    return foundUser.loginSuccess('test', 'test').save();
                 })
                 .then(function (foundUser) {
                     authheader = tu.authorizationHeader(foundUser);
@@ -292,7 +292,7 @@ describe('Users', function () {
         beforeEach(function (done) {
             Users._findOne({email: 'root'})
                 .then(function (foundUser) {
-                    return foundUser.loginSuccess('test', 'test')._save();
+                    return foundUser.loginSuccess('test', 'test').save();
                 })
                 .then(function (foundUser) {
                     authheader = tu.authorizationHeader(foundUser);
@@ -300,7 +300,7 @@ describe('Users', function () {
                     return Users.create('test.users2@test.api', 'password123', 'silver lining');
                 })
                 .then(function (newUser) {
-                    newUser.loginSuccess('test', 'test')._save();
+                    newUser.loginSuccess('test', 'test').save();
                     id = newUser._id.toString();
                     done();
                 });

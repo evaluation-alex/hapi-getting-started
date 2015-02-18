@@ -29,7 +29,7 @@ describe('Audit', function () {
                 return Users._findOne({email: 'root'});
             })
             .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test')._save();
+                return foundUser.loginSuccess('test', 'test').save();
             })
             .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
@@ -48,15 +48,15 @@ describe('Audit', function () {
             beforeEach(function (done) {
                 Users.create('test.users@test.api', 'password123', 'silver lining')
                     .then(function (newUser) {
-                        return newUser.loginSuccess('test', 'test')._save();
+                        return newUser.loginSuccess('test', 'test').save();
                     })
                     .then(function () {
                         return Users.create('test.users2@test.api', 'password123', 'silver lining');
                     })
                     .then(function (newUser2) {
-                        return newUser2.loginSuccess('test', 'test')._save();
+                        return newUser2.loginSuccess('test', 'test').save();
                     }).then(function (newUser2) {
-                        newUser2.deactivate('test')._save();
+                        newUser2.deactivate('test').save();
                         emails.push('test.users2@test.api');
                         emails.push('test.users@test.api');
                         done();

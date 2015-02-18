@@ -32,7 +32,7 @@ describe('Login', function () {
                 return Users.create('test.users@test.api', 'password123', 'silver lining');
             })
             .then(function (newUser) {
-                newUser.loginSuccess('test', 'test')._save();
+                newUser.loginSuccess('test', 'test').save();
                 done();
             })
             .catch(function (err) {
@@ -227,7 +227,7 @@ describe('Login', function () {
         it('returns a bad request if the key does not match', function (done) {
             Users._findOne({email: 'test.users@test.api'})
                 .then(function (foundUser) {
-                    return foundUser.resetPasswordSent('test')._save();
+                    return foundUser.resetPasswordSent('test').save();
                 })
                 .then(function () {
                     var request = {
@@ -254,7 +254,7 @@ describe('Login', function () {
             var key = '';
             Users._findOne({email: 'test.users@test.api'})
                 .then(function (foundUser) {
-                    return foundUser.resetPasswordSent('test')._save();
+                    return foundUser.resetPasswordSent('test').save();
                 })
                 .then(function (foundUser) {
                     key = foundUser.resetPwd.token;
@@ -358,11 +358,11 @@ describe('Logout', function () {
         };
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test')._save();
+                return foundUser.loginSuccess('test', 'test').save();
             })
             .then(function (foundUser) {
                 request.headers.Authorization = tu.authorizationHeader(foundUser);
-                return foundUser.logout('test', 'test')._save();
+                return foundUser.logout('test', 'test').save();
             })
             .done();
         server.inject(request, function (response) {
@@ -370,7 +370,7 @@ describe('Logout', function () {
                 expect(response.statusCode).to.equal(401);
                 Users._findOne({email: 'one@first.com'})
                     .then(function (foundUser) {
-                        foundUser.loginSuccess('test', 'test')._save();
+                        foundUser.loginSuccess('test', 'test').save();
                         done();
                     })
                     .done();
@@ -383,7 +383,7 @@ describe('Logout', function () {
     it('removes the authenticated user session successfully', function (done) {
         Users._findOne({email: 'one@first.com'})
             .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test')._save();
+                return foundUser.loginSuccess('test', 'test').save();
             }).
             then(function (foundUser) {
                 var request = {
@@ -403,7 +403,7 @@ describe('Logout', function () {
                         Users._findOne({email: 'one@first.com'})
                             .then(function (foundUser) {
                                 expect(foundUser.session).to.not.exist();
-                                foundUser.loginSuccess('test', 'test')._save();
+                                foundUser.loginSuccess('test', 'test').save();
                                 done();
                             });
                     } catch (err) {

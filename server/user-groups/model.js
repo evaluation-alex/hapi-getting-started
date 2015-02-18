@@ -4,7 +4,7 @@ var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
 var AddRemove = require('./../common/extended-model').AddRemove;
 var IsActive = require('./../common/extended-model').IsActive;
-var Description = require('./../common/extended-model').Description;
+var Properties = require('./../common/extended-model').Properties;
 var Save = require('./../common/extended-model').Save;
 var CAudit = require('./../common/extended-model').Audit;
 var Promise = require('bluebird');
@@ -23,20 +23,21 @@ var UserGroups = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
-_.extend(UserGroups.prototype, new AddRemove({owner: 'owners', member: 'members'}));
+_.extend(UserGroups.prototype, new AddRemove({owner: 'owners', member: 'members', needsApproval: 'needsApproval'}));
 _.extend(UserGroups.prototype, IsActive);
-_.extend(UserGroups.prototype, Description);
+_.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActive']));
 _.extend(UserGroups.prototype, new Save(UserGroups, Audit));
 _.extend(UserGroups.prototype, new CAudit('UserGroups', 'name'));
 
 UserGroups.prototype.update = function (payload, by) {
     var self = this;
-    return self.setActive(payload.isActive, by)
+    return self.setIsActive(payload.isActive, by)
         .add(payload.addedMembers, 'member', by)
         .remove(payload.removedMembers, 'member', by)
         .add(payload.addedOwners, 'owner', by)
         .remove(payload.removedOwners, 'owner', by)
-        .updateDesc(payload.description, by);
+        .setDescription(payload.description, by)
+        .setAccess(payload.access, by);
 };
 
 UserGroups._collection = 'userGroups';
@@ -48,6 +49,8 @@ UserGroups.schema = Joi.object().keys({
     description: Joi.string(),
     members: Joi.array().includes(Joi.string()).unique(),
     owners: Joi.array().includes(Joi.string()).unique(),
+    needsApproval: Joi.array().includes(Joi.string()).unique(),
+    access: Joi.string().valid(['restricted', 'public']).default('restricted'),
     isActive: Joi.boolean().default(true),
     createdBy: Joi.string(),
     createdOn: Joi.date(),
@@ -69,7 +72,8 @@ UserGroups.newObject = function (doc, by) {
                 if (userGroup) {
                     resolve(userGroup.add(doc.payload.members, 'member', by)
                         .add(doc.payload.owners, 'owner', by)
-                        ._save());
+                        .setAccess(doc.payload.access, by)
+                        .save());
                 } else {
                     resolve(userGroup);
                 }
@@ -86,6 +90,8 @@ UserGroups.create = function (name, organisation, description, owner) {
             description: description,
             members: [owner],
             owners: [owner],
+            needsApproval: [],
+            access: 'restricted',
             isActive: true,
             createdBy: owner,
             createdOn: new Date(),

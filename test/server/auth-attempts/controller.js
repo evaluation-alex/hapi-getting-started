@@ -30,7 +30,7 @@ describe('AuthAttempts', function () {
                 return Users._findOne({email: 'root'});
             })
             .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test')._save();
+                return foundUser.loginSuccess('test', 'test').save();
             })
             .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);

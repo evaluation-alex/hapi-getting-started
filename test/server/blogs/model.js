@@ -146,7 +146,7 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs.findByTitle('addUsers1', 'silver lining')
                 .then(function (found) {
-                    return found.add(['newUserGroup'], 'groups', 'test')._save();
+                    return found.add(['newUserGroup'], 'groups', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscriberGroups, 'newUserGroup')).to.exist();
@@ -158,7 +158,7 @@ describe('Blogs Model', function () {
                     return Blogs.findByTitle('addUsers1', 'silver lining');
                 })
                 .then(function (found) {
-                    return found.add(['newSubscriber'], 'subscriber', 'test')._save();
+                    return found.add(['newSubscriber'], 'subscriber', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscribers, 'newSubscriber')).to.exist();
@@ -180,7 +180,7 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs.findByTitle('addUsers2', 'silver lining')
                 .then(function (found) {
-                    return found.add(['testBlogAddUsers'], 'groups', 'test')._save();
+                    return found.add(['testBlogAddUsers'], 'groups', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscriberGroups, 'testBlogAddUsers')).to.exist();
@@ -191,7 +191,7 @@ describe('Blogs Model', function () {
                     return Blogs.findByTitle('addUsers2', 'silver lining');
                 })
                 .then(function (found) {
-                    return found.add(['directlyadded'], 'owners', 'test')._save();
+                    return found.add(['directlyadded'], 'owners', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.owners, 'directlyadded')).to.exist();
@@ -233,7 +233,7 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs.findByTitle('removeUsers1', 'silver lining')
                 .then(function (found) {
-                    return found.remove(['unknownGroup'], 'groups', 'test')._save();
+                    return found.remove(['unknownGroup'], 'groups', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscriberGroups, 'unknownGroup')).to.not.exist();
@@ -244,7 +244,7 @@ describe('Blogs Model', function () {
                     return Blogs.findByTitle('removeUsers1', 'silver lining');
                 })
                 .then(function (found) {
-                    return found.remove(['unknownUser'], 'subscriber', 'test')._save();
+                    return found.remove(['unknownUser'], 'subscriber', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscribers, 'unknownUser')).to.not.exist();
@@ -265,7 +265,7 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs.findByTitle('removeUsers1', 'silver lining')
                 .then(function (found) {
-                    return found.remove(['testBlogsRemoveUsers'], 'groups', 'test')._save();
+                    return found.remove(['testBlogsRemoveUsers'], 'groups', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscriberGroups, 'testBlogsRemoveUsers')).to.not.exist();
@@ -277,7 +277,7 @@ describe('Blogs Model', function () {
                     return Blogs.findByTitle('removeUsers1', 'silver lining');
                 })
                 .then(function (found) {
-                    return found.remove(['directlyadded'], 'owner', 'test')._save();
+                    return found.remove(['directlyadded'], 'owner', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.owners, 'directlyadded')).to.not.exist();
@@ -309,7 +309,7 @@ describe('Blogs Model', function () {
             Promise.join(p1, p2, function (p11, p12) {
                 activated = p11;
                 deactivated = p12;
-                deactivated.deactivate('test')._save();
+                deactivated.deactivate('test').save();
                 Audit.remove({objectChangedId: deactivated.title}, function (err) {
                     if (err) {
                     }
@@ -321,7 +321,7 @@ describe('Blogs Model', function () {
         });
         it('should do nothing if the blog is already inactive/active and you deactivate/activate', function (done) {
             var error = null;
-            activated.reactivate('test')._save()
+            activated.reactivate('test').save()
                 .then(function (a) {
                     expect(a.isActive).to.be.true();
                     return Audit.findAudit('Blogs',  a.title, {action: {$regex: /^isActive/}});
@@ -330,7 +330,7 @@ describe('Blogs Model', function () {
                     expect(paudit.length).to.equal(0);
                 })
                 .then(function () {
-                    return deactivated.deactivate('test')._save();
+                    return deactivated.deactivate('test').save();
                 })
                 .then(function (d) {
                     expect(d.isActive).to.be.false();
@@ -349,7 +349,7 @@ describe('Blogs Model', function () {
         });
         it('should mark the group as inactive / active when you deactivate / activate', function (done) {
             var error = null;
-            activated.deactivate('test')._save()
+            activated.deactivate('test').save()
                 .then(function (a) {
                     expect(a.isActive).to.be.false();
                     return Audit.findAudit('Blogs',  a.title, {action: {$regex: /^isActive/}});
@@ -359,7 +359,7 @@ describe('Blogs Model', function () {
                     expect(paudit[0].action).to.equal('isActive');
                 })
                 .then(function () {
-                    return deactivated.reactivate('test')._save();
+                    return deactivated.reactivate('test').save();
                 })
                 .then(function (d) {
                     expect(d.isActive).to.be.true();
@@ -384,7 +384,7 @@ describe('Blogs Model', function () {
         });
     });
 
-    describe('Blogs.this.updateDesc', function () {
+    describe('Blogs.this.setDescription', function () {
         var testblog = null;
         before(function (done) {
             Blogs.create('updateDesc1', 'silver lining', 'blog.updateDesc', [], [], [], [], 'test')
@@ -395,10 +395,10 @@ describe('Blogs Model', function () {
         });
         it('should do nothing if there is no change in the description', function (done) {
             var error = null;
-            testblog.updateDesc(testblog.description, 'test')._save()
+            testblog.setDescription(testblog.description, 'test').save()
                 .then(function (p) {
                     expect(p.description).to.equal('blog.updateDesc');
-                    return Audit.findAudit('Blogs',  p.title, {action: {$regex: /^change desc/}});
+                    return Audit.findAudit('Blogs',  p.title, {action: {$regex: /^description/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -413,10 +413,10 @@ describe('Blogs Model', function () {
         });
         it('should update to the new description', function (done) {
             var error = null;
-            testblog.updateDesc('newDescription', 'test')._save()
+            testblog.setDescription('newDescription', 'test').save()
                 .then(function (p) {
                     expect(p.description).to.equal('newDescription');
-                    return Audit.findAudit('Blogs',  p.title, {action: {$regex: /^change desc/}});
+                    return Audit.findAudit('Blogs',  p.title, {action: {$regex: /^description/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);

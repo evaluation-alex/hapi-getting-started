@@ -31,7 +31,7 @@ describe('UserGroups', function () {
                 return Users.findByEmail('root');
             })
             .then(function (root) {
-                return root.loginSuccess('test', 'test')._save();
+                return root.loginSuccess('test', 'test').save();
             })
             .then(function (root) {
                 rootAuthHeader = tu.authorizationHeader(root);
@@ -53,19 +53,19 @@ describe('UserGroups', function () {
                     return UserGroups.create('GetUserGroupsTestMemberActive', 'silver lining', 'GET /user-groups', 'root');
                 })
                 .then(function (g2) {
-                    return g2.add(['user1', 'user2'], 'member', 'root')._save();
+                    return g2.add(['user1', 'user2'], 'member', 'root').save();
                 })
                 .then(function () {
                     return UserGroups.create('GetUserGroupsTestMemberInactive', 'silver lining', 'GET /user-groups', 'root');
                 })
                 .then(function (g3) {
-                    return g3.add(['user4'], 'member', 'root')._save();
+                    return g3.add(['user4'], 'member', 'root').save();
                 })
                 .then(function () {
                     return UserGroups.create('GetUserGroupsTestInactive', 'silver lining', 'GET /user-groups', 'root');
                 })
                 .then(function (g4) {
-                    return g4.deactivate('root')._save();
+                    return g4.deactivate('root').save();
                 })
                 .then(function () {
                     done();
@@ -295,7 +295,7 @@ describe('UserGroups', function () {
                     return Users.findByEmail('one@first.com');
                 })
                 .then(function (u) {
-                    return u.updateRoles(['root'], 'test');
+                    return u.setRoles(['root'], 'test');
                 })
                 .then(function (u) {
                     return u.loginSuccess('test', 'test');
@@ -369,7 +369,7 @@ describe('UserGroups', function () {
                 .then(function (ug) {
                     id = ug._id.toString();
                     ug.isActive = false;
-                    return ug._save();
+                    return ug.save();
                 })
                 .then(function () {
                     request = {
@@ -457,7 +457,7 @@ describe('UserGroups', function () {
                     id = ug._id.toString();
                     ug.members.push('root');
                     ug.owners.push('one@first.com');
-                    return ug._save();
+                    return ug.save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'root')).to.be.true();
@@ -524,16 +524,235 @@ describe('UserGroups', function () {
                                 .then(function (ug) {
                                     expect(ug).to.exist();
                                     expect(ug[0].description).to.equal('new description');
-                                    return Audit.findAudit('UserGroups', 'testPutGroupChangeDesc', {action: {$regex: /change desc/}});
+                                    return Audit.findAudit('UserGroups', 'testPutGroupChangeDesc', {action: {$regex: /description/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/change desc/);
+                                    expect(foundAudit[0].action).to.match(/description/);
                                     groupsToClear.push('testPutGroupChangeDesc');
                                     done();
                                 });
                         } catch (err) {
                             groupsToClear.push('testPutGroupChangeDesc');
+                            done(err);
+                        }
+                    });
+                });
+        });
+    });
+
+    describe('PUT /user-groups/{id}/join', function () {
+        it('should send back not found error when you try to join a non existent group', function (done) {
+            var request = {
+                method: 'PUT',
+                url: '/user-groups/54c894fe1d1d4ab4032ed94e/join',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    groupsToClear.push('testUserGroupPutJoinNotFound');
+                    done();
+                } catch (err) {
+                    groupsToClear.push('testUserGroupPutJoinNotFound');
+                    done(err);
+                }
+            });
+        });
+        it('should send back error if any of the users trying to join are not valid', function (done) {
+            var id = '';
+            UserGroups.create('testGroupUserExistPUTJoin', 'silver lining', 'test PUT /user-groups/join', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    var request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/join',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedMembers: ['unknown']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(422);
+                            groupsToClear.push('testGroupUserExistPUTJoin');
+                            done();
+                        } catch (err) {
+                            groupsToClear.push('testGroupUserExistPUTJoin');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should add users who have joined to the needsApproval list', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutJoinGroupAddUser', 'silver lining', 'test PUT /user-groups/join', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/join',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedMembers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            UserGroups._find({name: 'testPutJoinGroupAddUser'})
+                                .then(function (ug) {
+                                    expect(ug).to.exist();
+                                    expect(ug[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    return Audit.findAudit('UserGroups', 'testPutJoinGroupAddUser', {action: {$regex: /add needsApproval/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/add needsApproval/);
+                                    groupsToClear.push('testPutJoinGroupAddUser');
+                                    done();
+                                });
+                        } catch (err) {
+                            groupsToClear.push('testPutJoinGroupAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should add to members if the group access is public and have changes audited', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutJoinPublicGroupAddUser', 'silver lining', 'test PUT /user-groups/join', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    ug.setAccess('public');
+                    return ug.save();
+                })
+                .then(function () {
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/join',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedMembers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            UserGroups._find({name: 'testPutJoinPublicGroupAddUser'})
+                                .then(function (ug) {
+                                    expect(ug).to.exist();
+                                    expect(ug[0]._isMemberOf('members', 'one@first.com')).to.be.true();
+                                    return Audit.findAudit('UserGroups', 'testPutJoinPublicGroupAddUser', {action: {$regex: /add member/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/add member/);
+                                    groupsToClear.push('testPutJoinPublicGroupAddUser');
+                                    done();
+                                });
+                        } catch (err) {
+                            groupsToClear.push('testPutJoinPublicGroupAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+    });
+
+    describe('PUT /user-groups/{id}/approve', function () {
+        it('should send back not found error when you try to approve a non existent group', function (done) {
+            var request = {
+                method: 'PUT',
+                url: '/user-groups/54c894fe1d1d4ab4032ed94e/approve',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    groupsToClear.push('testUserGroupPutApproveNotFound');
+                    done();
+                } catch (err) {
+                    groupsToClear.push('testUserGroupPutApproveNotFound');
+                    done(err);
+                }
+            });
+        });
+        it('should send back error if any of the users being approved to join are not valid', function (done) {
+            var id = '';
+            UserGroups.create('testGroupUserExistPUTApprove', 'silver lining', 'test PUT /user-groups/approve', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    var request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/approve',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedMembers: ['unknown']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(422);
+                            groupsToClear.push('testGroupUserExistPUTApprove');
+                            done();
+                        } catch (err) {
+                            groupsToClear.push('testGroupUserExistPUTApprove');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should add users who have been approved to the members list', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutApproveGroupAddUser', 'silver lining', 'test PUT /user-groups/approve', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    return ug.add(['one@first.com'], 'needApprovals', 'test').save();
+                })
+                .then(function() {
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/approve',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedMembers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            UserGroups._find({name: 'testPutApproveGroupAddUser'})
+                                .then(function (ug) {
+                                    expect(ug).to.exist();
+                                    expect(ug[0]._isMemberOf('members', 'one@first.com')).to.be.true();
+                                    return Audit.findAudit('UserGroups', 'testPutApproveGroupAddUser', {action: {$regex: /add member/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/add member/);
+                                    groupsToClear.push('testPutApproveGroupAddUser');
+                                    done();
+                                });
+                        } catch (err) {
+                            groupsToClear.push('testPutApproveGroupAddUser');
                             done(err);
                         }
                     });
@@ -663,7 +882,7 @@ describe('UserGroups', function () {
                     return Users.findByEmail('one@first.com');
                 })
                 .then(function (u) {
-                    return u.updateRoles(['root'], 'test');
+                    return u.setRoles(['root'], 'test');
                 })
                 .then(function (u) {
                     return u.loginSuccess('test', 'test');

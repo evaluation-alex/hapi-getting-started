@@ -35,7 +35,7 @@ describe('Permissions', function () {
                 return Users.findByEmail('root');
             })
             .then(function (root) {
-                return root.loginSuccess('test', 'test')._save();
+                return root.loginSuccess('test', 'test').save();
             })
             .then(function (root) {
                 rootAuthHeader = tu.authorizationHeader(root);
@@ -58,7 +58,7 @@ describe('Permissions', function () {
                 })
                 .then(function (p) {
                     p.isActive = false;
-                    p._save();
+                    p.save();
                     done();
                 }).
             catch(function(err) {
@@ -355,7 +355,7 @@ describe('Permissions', function () {
             Permissions.create('test PUT /permissions isActive=true', 'silver lining', [], [], 'action5', 'object5', 'test')
                 .then(function (p) {
                     p.isActive = false;
-                    p._save();
+                    p.save();
                     var id = p._id.toString();
                     var request = {
                         method: 'PUT',
@@ -532,12 +532,12 @@ describe('Permissions', function () {
                             Permissions._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].description).to.equal('updated');
-                                    return Audit.findAudit('Permissions', BaseModel.ObjectID(id), {action: {$regex: /change desc/}});
+                                    return Audit.findAudit('Permissions', BaseModel.ObjectID(id), {action: {$regex: /description/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/change desc/);
+                                    expect(foundAudit[0].action).to.match(/description/);
                                     permissionsToClear.push('test PUT /permissions update desc');
                                     permissionsToClear.push('updated');
                                     done();

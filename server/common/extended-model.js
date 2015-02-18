@@ -162,45 +162,34 @@ var CommonMixinAddRemove = function (roles) {
 module.exports.AddRemove = CommonMixinAddRemove;
 
 var CommonMixinIsActive = {
-    setActive: function (isActive, by) {
-        var self = this;
-        if (!(isActive === null || isActive === undefined)) {
-            return isActive ? self.reactivate(by) : self.deactivate(by);
-        }
-        return self;
-    },
     deactivate: function (by) {
         var self = this;
-        if (self.isActive) {
-            self._audit('isActive', true, false, by);
-            self.isActive = false;
-        }
-        return self;
+        return self.setIsActive(false, by);
     },
     reactivate: function (by) {
         var self = this;
-        if (!self.isActive) {
-            self._audit('isActive', false, true, by);
-            self.isActive = true;
-        }
-        return self;
+        return self.setIsActive(true, by);
     }
 };
 
 module.exports.IsActive = CommonMixinIsActive;
 
-var CommonMixinDescription = {
-    updateDesc: function (newDesc, by) {
-        var self = this;
-        if (newDesc && self.description !== newDesc) {
-            self._audit('change desc', self.description, newDesc, by);
-            self.description = newDesc;
-        }
-        return self;
-    }
+var CommonMixinProperties = function (properties) {
+    var ret = {};
+    _.forEach(properties, function (property) {
+        ret['set' + _.capitalize(property)] = function (newValue, by) {
+            var self = this;
+            if (!_.isUndefined(newValue) && !_.isEqual(self[property], newValue)) {
+                self._audit(property, self[property], newValue, by);
+                self[property] = newValue;
+            }
+            return self;
+        };
+    });
+    return ret;
 };
 
-module.exports.Description = CommonMixinDescription;
+module.exports.Properties = CommonMixinProperties;
 
 var CommonMixinSave = function (Model, Audit) {
     return {
@@ -231,7 +220,7 @@ var CommonMixinSave = function (Model, Audit) {
                 }
             });
         },
-        _save: function () {
+        save: function () {
             var self = this;
             return new Promise(function (resolve, reject) {
                 var start = Date.now();

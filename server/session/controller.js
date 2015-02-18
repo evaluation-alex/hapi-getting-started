@@ -29,7 +29,7 @@ var prePopulateUser = function (request, reply) {
                 reply(Boom.notFound('user ' + email + ' not found'));
             } else {
                 if (user.fail === true) {
-                    user.user.loginFail(request.info.remoteAddress, request.info.remoteAddress)._save();
+                    user.user.loginFail(request.info.remoteAddress, request.info.remoteAddress).save();
                     reply(Boom.unauthorized('Invalid password'));
                 } else {
                     reply(user);
@@ -61,7 +61,7 @@ Controller.login = {
     ],
     handler: function (request, reply) {
         var user = request.pre.user;
-        user.loginSuccess(request.info.remoteAddress, user.email)._save()
+        user.loginSuccess(request.info.remoteAddress, user.email).save()
             .then(function (user) {
                 var credentials = user.email + ':' + user.session.key;
                 var authHeader = 'Basic ' + new Buffer(credentials).toString('base64');
@@ -80,7 +80,7 @@ Controller.login = {
 Controller.logout = {
     handler: function (request, reply) {
         var user = request.auth.credentials.user;
-        user.logout(request.info.remoteAddress, user.email)._save()
+        user.logout(request.info.remoteAddress, user.email).save()
             .then(function () {
                 reply({message: 'Success.'});
             });

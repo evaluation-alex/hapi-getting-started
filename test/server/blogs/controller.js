@@ -35,7 +35,7 @@ describe('Blogs', function () {
                 return Users.findByEmail('root');
             })
             .then(function (root) {
-                return root.loginSuccess('test', 'test')._save();
+                return root.loginSuccess('test', 'test').save();
             })
             .then(function (root) {
                 rootAuthHeader = tu.authorizationHeader(root);
@@ -58,7 +58,7 @@ describe('Blogs', function () {
                 })
                 .then(function (p) {
                     p.isActive = false;
-                    p._save();
+                    p.save();
                     done();
                 });
         });
@@ -282,7 +282,7 @@ describe('Blogs', function () {
             Blogs.create('test PUT /blogs isActive=true', 'silver lining', 'test PUT /blogs isActive=true', [], [], [], [], 'test')
                 .then(function (p) {
                     p.isActive = false;
-                    p._save();
+                    p.save();
                     var id = p._id.toString();
                     var request = {
                         method: 'PUT',
@@ -459,12 +459,12 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].description).to.equal('updated');
-                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /change desc/}});
+                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /description/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/change desc/);
+                                    expect(foundAudit[0].action).to.match(/description/);
                                     blogsToClear.push('test PUT /blogs update desc');
                                     blogsToClear.push('updated');
                                     done();

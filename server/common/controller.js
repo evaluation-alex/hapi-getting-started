@@ -140,12 +140,34 @@ Controller.update = function (component, Model, validator, prereqs) {
                         return false;
                     } else {
                         var by = request.auth.credentials.user.email;
-                        return u.update(request.payload, by)._save();
+                        return u.update(request.payload, by).save();
                     }
                 })
                 .then(function (u) {
                     if (u) {
                         reply(u);
+                    }
+                })
+                .catch(function (err) {
+                    reply(Boom.badImplementation(err));
+                });
+        }
+    };
+};
+
+Controller.updateSpecial = function (component, Model, validator, prereqs, updateCb) {
+    return {
+        validator: validator,
+        pre: _.flatten([prereqs]),
+        handler: function (request, reply) {
+            var id = BaseModel.ObjectID(request.params.id);
+            Model._findOne({_id: id})
+                .then(function (u) {
+                    if (!u) {
+                        reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
+                        return false;
+                    } else {
+                        updateCb(u, request, reply);
                     }
                 })
                 .catch(function (err) {
@@ -168,7 +190,7 @@ Controller.delete = function (component, Model) {
                     } else {
                         if (f.deactivate) {
                             var by = request.auth.credentials.user.email;
-                            return f.deactivate(by)._save();
+                            return f.deactivate(by).save();
                         } else {
                             return Model._findByIdAndRemove(id);
                         }

@@ -276,7 +276,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.loginSuccess('test', 'test')._save();
+                    return user.loginSuccess('test', 'test').save();
                 }).then(function (user) {
                     expect(user.session).to.exist();
                     return Audit.findAudit('Users',  user.email, {action: 'login success'});
@@ -300,7 +300,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.logout('test', 'test')._save();
+                    return user.logout('test', 'test').save();
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
@@ -325,7 +325,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.loginFail('test', 'test')._save();
+                    return user.loginFail('test', 'test').save();
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
@@ -350,7 +350,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.resetPasswordSent('test')._save();
+                    return user.resetPasswordSent('test').save();
                 })
                 .then(function (user) {
                     return Audit.findAudit('Users',  user.email, {action: 'reset password sent'});
@@ -370,7 +370,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.resetPassword('new password confirm', 'test')._save();
+                    return user.resetPassword('new password confirm', 'test').save();
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
@@ -389,16 +389,16 @@ describe('Users Model', function () {
         });
     });
 
-    describe('Users.this.updateRoles', function () {
+    describe('Users.this.setRoles', function () {
         it('update Roles should create audit entries and invalidate sessions', function (done) {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.updateRoles(['root'], 'test')._save();
+                    return user.setRoles(['root'], 'test').save();
                 }).then(function (user) {
                     expect(user.session).to.not.exist();
                     expect(user.roles).to.include(['root']);
-                    return Audit.findAudit('Users',  user.email, {action: 'update roles'});
+                    return Audit.findAudit('Users',  user.email, {action: 'roles'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -419,7 +419,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.deactivate('test')._save();
+                    return user.deactivate('test').save();
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.false();
@@ -441,7 +441,7 @@ describe('Users Model', function () {
             var error = null;
             Users.findByEmail(firstEmail)
                 .then(function (user) {
-                    return user.reactivate('test')._save();
+                    return user.reactivate('test').save();
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.true();

@@ -128,7 +128,7 @@ describe('Permissions Model', function () {
                     expect(found).to.exist();
                     expect(found.length).to.equal(1);
                     found[0].isActive = false;
-                    return found[0]._save();
+                    return found[0].save();
                 })
                 .then(function () {
                     return Permissions.findByDescription('search');
@@ -159,16 +159,16 @@ describe('Permissions Model', function () {
         before(function (done) {
             UserGroups.create('permissionsTest1', 'silver lining', 'testing permissions for users', 'permissionedUser')
                 .then(function (u1) {
-                    return u1.add(['testUserActive'], 'ownermember', 'test5')._save();
+                    return u1.add(['testUserActive'], 'ownermember', 'test5').save();
                 })
                 .then(function () {
                     return UserGroups.create('permissionsTest2', 'silver lining', 'testing permissions for users', 'permissionedUser');
                 })
                 .then(function (u2) {
-                    return u2.add(['testUserActive'], 'ownermember', 'test5')._save();
+                    return u2.add(['testUserActive'], 'ownermember', 'test5').save();
                 })
                 .then(function (u2) {
-                    return u2.add(['testUserInactive'], 'owner', 'test5')._save();
+                    return u2.add(['testUserInactive'], 'owner', 'test5').save();
                 })
                 .then(function () {
                     return Permissions.create('findForUser1', 'silver lining', ['directlyPermissioned', 'testUserInactive'], ['permissionsTest1', 'permissionsTest2'], 'action4', 'object1', 'test5');
@@ -383,7 +383,7 @@ describe('Permissions Model', function () {
             Permissions.findByDescription('addUsers1')
                 .then(function (found) {
                     expect(found.length).to.equal(1);
-                    return found[0].add(['newUserGroup'], 'group', 'test5')._save();
+                    return found[0].add(['newUserGroup'], 'group', 'test5').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.groups, 'newUserGroup')).to.exist();
@@ -396,7 +396,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (found) {
                     expect(found.length).to.equal(1);
-                    return found[0].add(['newUser'], 'user', 'test5')._save();
+                    return found[0].add(['newUser'], 'user', 'test5').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.users, 'newUser')).to.exist();
@@ -419,7 +419,7 @@ describe('Permissions Model', function () {
             Permissions.findByDescription('addUsers2')
                 .then(function (found) {
                     expect(found.length).to.equal(1);
-                    return found[0].add(['testPermissionsAddUsers'], 'group', 'test5')._save();
+                    return found[0].add(['testPermissionsAddUsers'], 'group', 'test5').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.groups, 'testPermissionsAddUsers')).to.exist();
@@ -431,7 +431,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (found) {
                     expect(found.length).to.equal(1);
-                    return found[0].add(['directlyPermitted'], 'user', 'test5')._save();
+                    return found[0].add(['directlyPermitted'], 'user', 'test5').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.users, 'directlyPermitted')).to.exist();
@@ -474,7 +474,7 @@ describe('Permissions Model', function () {
             Permissions.findByDescription('removeUsers1')
                 .then(function (found) {
                     expect(found.length).to.equal(1);
-                    return found[0].remove(['unknownGroup'], 'group', 'test5')._save();
+                    return found[0].remove(['unknownGroup'], 'group', 'test5').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.groups, 'unknownGroup')).to.not.exist();
@@ -486,7 +486,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (found) {
                     expect(found.length).to.equal(1);
-                    return found[0].remove(['unknownUser'], 'user', 'test5')._save();
+                    return found[0].remove(['unknownUser'], 'user', 'test5').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.users, 'unknownUser')).to.not.exist();
@@ -508,7 +508,7 @@ describe('Permissions Model', function () {
             Permissions.findByDescription('removeUsers1')
                 .then(function (found) {
                     expect(found.length).to.equal(1);
-                    return found[0].remove(['testPermissionsRemoveUsers'], 'group', 'test5')._save();
+                    return found[0].remove(['testPermissionsRemoveUsers'], 'group', 'test5').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.groups, 'testPermissionsRemoveUsers')).to.not.exist();
@@ -521,7 +521,7 @@ describe('Permissions Model', function () {
                 })
                 .then(function (found) {
                     expect(found.length).to.equal(1);
-                    return found[0].remove(['directlyPermittedActive'], 'user', 'test5')._save();
+                    return found[0].remove(['directlyPermittedActive'], 'user', 'test5').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.users, 'directlyPermittedActive')).to.not.exist();
@@ -553,7 +553,7 @@ describe('Permissions Model', function () {
             Promise.join(p1, p2, function (p11, p12) {
                 activated = p11;
                 deactivated = p12;
-                deactivated.deactivate('test')._save();
+                deactivated.deactivate('test').save();
                 Audit.remove({objectChangedId: deactivated._id}, function (err) {
                     if (err) {
                     }
@@ -565,7 +565,7 @@ describe('Permissions Model', function () {
         });
         it('should do nothing if the permission is already inactive/active and you deactivate/activate', function (done) {
             var error = null;
-            activated.reactivate('test')._save()
+            activated.reactivate('test').save()
                 .then(function (a) {
                     expect(a.isActive).to.be.true();
                     return Audit.findAudit('Permissions',  a._id, {action: {$regex: /^isActive/}});
@@ -574,7 +574,7 @@ describe('Permissions Model', function () {
                     expect(paudit.length).to.equal(0);
                 })
                 .then(function () {
-                    return deactivated.deactivate('test')._save();
+                    return deactivated.deactivate('test').save();
                 })
                 .then(function (d) {
                     expect(d.isActive).to.be.false();
@@ -593,7 +593,7 @@ describe('Permissions Model', function () {
         });
         it('should mark the group as inactive / active when you deactivate / activate', function (done) {
             var error = null;
-            activated.deactivate('test')._save()
+            activated.deactivate('test').save()
                 .then(function (a) {
                     expect(a.isActive).to.be.false();
                     return Audit.findAudit('Permissions',  a._id, {action: {$regex: /^isActive/}});
@@ -603,7 +603,7 @@ describe('Permissions Model', function () {
                     expect(paudit[0].action).to.equal('isActive');
                 })
                 .then(function () {
-                    return deactivated.reactivate('test')._save();
+                    return deactivated.reactivate('test').save();
                 })
                 .then(function (d) {
                     expect(d.isActive).to.be.true();
@@ -628,7 +628,7 @@ describe('Permissions Model', function () {
         });
     });
 
-    describe('Permissions.this.updateDesc', function () {
+    describe('Permissions.this.setDescription', function () {
         var testPerm = null;
         before(function (done) {
             Permissions.create('updateDesc1', 'silver lining', ['testUser1'], [], 'descAction', 'descObject', 'test')
@@ -639,10 +639,10 @@ describe('Permissions Model', function () {
         });
         it('should do nothing if there is no change in the description', function (done) {
             var error = null;
-            testPerm.updateDesc(testPerm.description, 'test6')._save()
+            testPerm.setDescription(testPerm.description, 'test6').save()
                 .then(function (p) {
                     expect(p.description).to.equal('updateDesc1');
-                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^change desc/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^description/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -657,10 +657,10 @@ describe('Permissions Model', function () {
         });
         it('should update to the new description', function (done) {
             var error = null;
-            testPerm.updateDesc('newDescription', 'test6')._save()
+            testPerm.setDescription('newDescription', 'test6').save()
                 .then(function (p) {
                     expect(p.description).to.equal('newDescription');
-                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^change desc/}});
+                    return Audit.findAudit('Permissions',  p._id, {action: {$regex: /^description/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);

@@ -124,7 +124,7 @@ Controller.approve = BaseController.update('user-groups', UserGroups, {
         });
 });
 
-Controller.reject = BaseController.update('user-groups', UserGroups, {
+Controller.reject = BaseController.updateSpecial('user-groups', UserGroups, {
     payload: {
         addedMembers: Joi.array().includes(Joi.string()).unique()
     }

@@ -807,6 +807,139 @@ describe('UserGroups', function () {
         });
     });
 
+    describe('PUT /user-groups/{id}/reject', function () {
+        it('should send back not found error when you try to reject a non existent group', function (done) {
+            var request = {
+                method: 'PUT',
+                url: '/user-groups/54c894fe1d1d4ab4032ed94e/reject',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    groupsToClear.push('testUserGroupPutRejectNotFound');
+                    done();
+                } catch (err) {
+                    groupsToClear.push('testUserGroupPutRejectNotFound');
+                    done(err);
+                }
+            });
+        });
+        it('should send back error if any of the users being rejected to join are not valid', function (done) {
+            var id = '';
+            UserGroups.create('testGroupUserExistPUTReject', 'silver lining', 'test PUT /user-groups/reject', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    var request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/reject',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedMembers: ['unknown']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(422);
+                            groupsToClear.push('testGroupUserExistPUTReject');
+                            done();
+                        } catch (err) {
+                            groupsToClear.push('testGroupUserExistPUTReject');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should remove users who have been rejected from the needsApproval list', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutRejectGroupAddUser', 'silver lining', 'test PUT /user-groups/reject', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    return ug.add(['one@first.com'], 'needsApproval', 'test').save();
+                })
+                .then(function() {
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/reject',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedMembers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            UserGroups._find({name: 'testPutRejectGroupAddUser'})
+                                .then(function (ug) {
+                                    expect(ug).to.exist();
+                                    expect(ug[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.false();
+                                    return Audit.findAudit('UserGroups', 'testPutRejectGroupAddUser', {action: {$regex: /remove needsApproval/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/remove needsApproval/);
+                                    groupsToClear.push('testPutRejectGroupAddUser');
+                                    done();
+                                });
+                        } catch (err) {
+                            groupsToClear.push('testPutRejectGroupAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should send error if the user rejecting is not an owner of the list', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutRejectGroupNotOwner', 'silver lining', 'test PUT /user-groups/reject', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    return ug.add(['one@first.com'], 'needsApproval', 'test').save();
+                })
+                .then(function() {
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (u) {
+                    return u.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/reject',
+                        headers: {
+                            Authorization: authHeader
+                        },
+                        payload: {
+                            addedMembers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(403);
+                            UserGroups._find({name: 'testPutRejectGroupNotOwner'})
+                                .then(function (ug) {
+                                    expect(ug).to.exist();
+                                    expect(ug[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    groupsToClear.push('testPutRejectGroupNotOwner');
+                                    done();
+                                });
+                        } catch (err) {
+                            groupsToClear.push('testPutRejectGroupNotOwner');
+                            done(err);
+                        }
+                    });
+                });
+        });
+    });
+
     describe('POST /user-groups', function () {
         it('should send back conflict when you try to create a group with name that already exists', function (done) {
             UserGroups.create('testDupeGroup', 'silver lining', 'test POST /user-groups', 'root')

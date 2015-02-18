@@ -758,6 +758,53 @@ describe('UserGroups', function () {
                     });
                 });
         });
+        it('should send error if the user approving is not an owner of the list', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutApproveGroupNotOwner', 'silver lining', 'test PUT /user-groups/approve', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    return ug.add(['one@first.com'], 'needApprovals', 'test').save();
+                })
+                .then(function() {
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (u) {
+                    return u.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/approve',
+                        headers: {
+                            Authorization: authHeader
+                        },
+                        payload: {
+                            addedMembers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(403);
+                            UserGroups._find({name: 'testPutApproveGroupNotOwner'})
+                                .then(function (ug) {
+                                    expect(ug).to.exist();
+                                    expect(ug[0]._isMemberOf('members', 'one@first.com')).to.be.false();
+                                    return Audit.findAudit('UserGroups', 'testPutApproveGroupNotOwner', {action: {$regex: /add member/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(0);
+                                    groupsToClear.push('testPutApproveGroupNotOwner');
+                                    done();
+                                });
+                        } catch (err) {
+                            groupsToClear.push('testPutApproveGroupNotOwner');
+                            done(err);
+                        }
+                    });
+                });
+        });
     });
 
     describe('POST /user-groups', function () {

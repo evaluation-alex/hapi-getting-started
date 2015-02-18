@@ -93,15 +93,10 @@ Controller.join = BaseController.updateSpecial('user-groups', UserGroups, {
     }
 }, [ AuthPlugin.preware.ensurePermissions('view', 'user-groups'),
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
-], function (ug, request, reply) {
+], function (ug, request) {
     var by = request.auth.credentials.user.email;
-    ug.add(request.payload.addedMembers, ug.access === 'public' ? 'members' : 'needsApproval', by).save()
-        .then(function(ug) {
-            reply(ug);
-        })
-        .catch(function (err) {
-            reply(Boom.badImplementation(err));
-        });
+    return ug.add(request.payload.addedMembers, ug.access === 'public' ? 'members' : 'needsApproval', by)
+        .save();
 });
 
 Controller.approve = BaseController.updateSpecial('user-groups', UserGroups, {
@@ -112,16 +107,11 @@ Controller.approve = BaseController.updateSpecial('user-groups', UserGroups, {
     AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
     {assign: 'validAndPermitted', method: validAndPermitted},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
-], function (ug, request, reply) {
+], function (ug, request) {
     var by = request.auth.credentials.user.email;
-    ug.add(request.payload.addedMembers, 'members', by)
-        .remove(request.payload.addedMembers, 'needsApproval', by).save()
-        .then(function (ug) {
-            reply(ug);
-        })
-        .catch(function (err) {
-            reply(Boom.badImplementation(err));
-        });
+    return ug.add(request.payload.addedMembers, 'members', by)
+        .remove(request.payload.addedMembers, 'needsApproval', by)
+        .save();
 });
 
 Controller.reject = BaseController.updateSpecial('user-groups', UserGroups, {
@@ -132,15 +122,10 @@ Controller.reject = BaseController.updateSpecial('user-groups', UserGroups, {
     AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
     {assign: 'validAndPermitted', method: validAndPermitted},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
-], function (ug, request, reply) {
+], function (ug, request) {
     var by = request.auth.credentials.user.email;
-    ug.remove(request.payload.addedMembers, 'needsApproval', by).save()
-        .then(function (ug) {
-            reply(ug);
-        })
-        .catch(function (err) {
-            reply(Boom.badImplementation(err));
-        });
+    return ug.remove(request.payload.addedMembers, 'needsApproval', by)
+        .save();
 });
 
 module.exports.Controller = Controller;

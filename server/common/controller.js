@@ -167,7 +167,12 @@ Controller.updateSpecial = function (component, Model, validator, prereqs, updat
                         reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
                         return false;
                     } else {
-                        updateCb(u, request, reply);
+                        return updateCb(u, request);
+                    }
+                })
+                .then(function (u) {
+                    if (u) {
+                        reply(u);
                     }
                 })
                 .catch(function (err) {

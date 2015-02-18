@@ -770,7 +770,7 @@ describe('UserGroups', function () {
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (u) {
-                    return u.loginSuccess('test', 'test').save();
+                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
                 })
                 .then(function (u) {
                     var authHeader = tu.authorizationHeader(u);
@@ -786,7 +786,8 @@ describe('UserGroups', function () {
                     };
                     server.inject(request, function (response) {
                         try {
-                            expect(response.statusCode).to.equal(403);
+                            u.setRoles(['readonly'], 'test').save();
+                            expect(response.statusCode).to.equal(401);
                             UserGroups._find({name: 'testPutApproveGroupNotOwner'})
                                 .then(function (ug) {
                                     expect(ug).to.exist();
@@ -907,7 +908,7 @@ describe('UserGroups', function () {
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (u) {
-                    return u.loginSuccess('test', 'test').save();
+                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
                 })
                 .then(function (u) {
                     var authHeader = tu.authorizationHeader(u);
@@ -923,7 +924,8 @@ describe('UserGroups', function () {
                     };
                     server.inject(request, function (response) {
                         try {
-                            expect(response.statusCode).to.equal(403);
+                            u.setRoles(['readonly'], 'test').save();
+                            expect(response.statusCode).to.equal(401);
                             UserGroups._find({name: 'testPutRejectGroupNotOwner'})
                                 .then(function (ug) {
                                     expect(ug).to.exist();

@@ -87,11 +87,12 @@ Controller.new = BaseController.new('user-groups', UserGroups, {
 Controller.delete = BaseController.delete('user-groups', UserGroups);
 Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted});
 
-Controller.join = BaseController.updateSpecial('user-groups', UserGroups, {
+Controller.join = BaseController.update('user-groups', UserGroups, {
     payload: {
         addedMembers: Joi.array().includes(Joi.string()).unique()
     }
-}, [ AuthPlugin.preware.ensurePermissions('view', 'user-groups'),
+}, [
+    AuthPlugin.preware.ensurePermissions('view', 'user-groups'),
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
 ], function (ug, request) {
     var by = request.auth.credentials.user.email;
@@ -99,12 +100,11 @@ Controller.join = BaseController.updateSpecial('user-groups', UserGroups, {
         .save();
 });
 
-Controller.approve = BaseController.updateSpecial('user-groups', UserGroups, {
+Controller.approve = BaseController.update('user-groups', UserGroups, {
     payload: {
         addedMembers: Joi.array().includes(Joi.string()).unique()
     }
 }, [
-    AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
     {assign: 'validAndPermitted', method: validAndPermitted},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
 ], function (ug, request) {
@@ -114,12 +114,11 @@ Controller.approve = BaseController.updateSpecial('user-groups', UserGroups, {
         .save();
 });
 
-Controller.reject = BaseController.updateSpecial('user-groups', UserGroups, {
+Controller.reject = BaseController.update('user-groups', UserGroups, {
     payload: {
         addedMembers: Joi.array().includes(Joi.string()).unique()
     }
 }, [
-    AuthPlugin.preware.ensurePermissions('update', 'user-groups'),
     {assign: 'validAndPermitted', method: validAndPermitted},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
 ], function (ug, request) {

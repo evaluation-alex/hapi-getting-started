@@ -127,10 +127,14 @@ Controller.new = function (component, Model, validator, prereqs, uniqueCheck) {
     };
 };
 
-Controller.update = function (component, Model, validator, prereqs) {
+Controller.update = function (component, Model, validator, prereqs, updateCb) {
+    var perms = _.find(prereqs, function (prereq) {
+        return prereq.assign === 'ensurePermissions';
+    });
+    var pre = _.flatten([perms ? AuthPlugin.preware.ensurePermissions('update', component) : [], prereqs]);
     return {
         validator: validator,
-        pre: _.flatten([AuthPlugin.preware.ensurePermissions('update', component), prereqs]),
+        pre: pre,
         handler: function (request, reply) {
             var id = BaseModel.ObjectID(request.params.id);
             Model._findOne({_id: id})
@@ -140,34 +144,7 @@ Controller.update = function (component, Model, validator, prereqs) {
                         return false;
                     } else {
                         var by = request.auth.credentials.user.email;
-                        return u.update(request.payload, by).save();
-                    }
-                })
-                .then(function (u) {
-                    if (u) {
-                        reply(u);
-                    }
-                })
-                .catch(function (err) {
-                    reply(Boom.badImplementation(err));
-                });
-        }
-    };
-};
-
-Controller.updateSpecial = function (component, Model, validator, prereqs, updateCb) {
-    return {
-        validator: validator,
-        pre: _.flatten([prereqs]),
-        handler: function (request, reply) {
-            var id = BaseModel.ObjectID(request.params.id);
-            Model._findOne({_id: id})
-                .then(function (u) {
-                    if (!u) {
-                        reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
-                        return false;
-                    } else {
-                        return updateCb(u, request);
+                        return updateCb ? updateCb(u, request) : u.update(request.payload, by).save();
                     }
                 })
                 .then(function (u) {

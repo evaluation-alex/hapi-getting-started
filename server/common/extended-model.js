@@ -110,6 +110,34 @@ ExtendedModel.areValid = function (property, toCheck, organisation) {
     });
 };
 
+ExtendedModel.isValid = function (id, roles, member) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        self._findOne({_id: id})
+            .then(function (g) {
+                if (!g) {
+                    resolve({message: 'not found'});
+                } else {
+                    var isValid = false;
+                    isValid = member === 'root';
+                    _.forEach(roles, function (role) {
+                        isValid = isValid || g._isMemberOf(role, member);
+                    });
+                    if (isValid) {
+                        resolve({message: 'valid'});
+                    } else {
+                        resolve({message: 'not a member of ' + JSON.stringify(roles) + ' list'});
+                    }
+                }
+            })
+            .catch(function (err) {
+                reject(err);
+            })
+            .done();
+    });
+};
+
+
 module.exports.ExtendedModel = ExtendedModel;
 
 var CommonMixinAddRemove = function (roles) {

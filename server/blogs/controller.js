@@ -6,6 +6,7 @@ var BaseController = require('./../common/controller').BaseController;
 var Users = require('./../users/model');
 var UserGroups = require('./../user-groups/model');
 var areValid = require('./../common/controller').areValid;
+var validAndPermitted = require('./../common/controller').validAndPermitted;
 
 var Controller = {};
 
@@ -51,7 +52,8 @@ Controller.update = BaseController.update('blogs', Blogs, {
     {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')},
     {assign: 'validContributors', method: areValid(Users, 'email', 'addedContributors')},
     {assign: 'validSubscribers', method: areValid(Users, 'email', 'addedSubscribers')},
-    {assign: 'validSubscriberGroups', method: areValid(UserGroups, 'name', 'addedSubscriberGroups')}
+    {assign: 'validSubscriberGroups', method: areValid(UserGroups, 'name', 'addedSubscriberGroups')},
+    {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])}
 ]);
 
 Controller.new = BaseController.new('blogs', Blogs, {
@@ -79,5 +81,6 @@ Controller.new = BaseController.new('blogs', Blogs, {
 });
 
 Controller.delete = BaseController.delete('blogs', Blogs);
+Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])});
 
 module.exports.Controller = Controller;

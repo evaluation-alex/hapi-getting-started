@@ -53,7 +53,7 @@
         "hapi-require-https": "2.0.x",
         "hoek": "2.11.x",
         "joi": "5.1.x",
-        "lodash": "3.2.x",
+        "lodash": "3.3.x",
         "lout": "6.2.x",
         "mkdirp": "0.5.x",
         "moment": "2.9.x",

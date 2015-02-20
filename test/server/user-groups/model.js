@@ -150,7 +150,7 @@ describe('UserGroups Model', function () {
     describe('UserGroups.isValid', function () {
         it ('should return with a not found message when group does not exist', function (done) {
             var error = null;
-            UserGroups.isValid(BaseModel.ObjectID(null), 'unknown')
+            UserGroups.isValid(BaseModel.ObjectID(null), ['owners'], 'unknown')
                 .then(function (m) {
                     expect(m).to.exist();
                     expect(m.message).to.equal('not found');
@@ -167,11 +167,11 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('isValidTest', 'silver lining', 'isValidTest', 'test5')
                 .then(function(ug) {
-                    return UserGroups.isValid(ug._id, 'unknown');
+                    return UserGroups.isValid(ug._id, ['owners'], 'unknown');
                 })
                 .then(function (m) {
                     expect(m).to.exist();
-                    expect(m.message).to.equal('not an owner');
+                    expect(m.message).to.match(/not a member/);
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -186,7 +186,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('isValidTest2', 'silver lining', 'isValidTest2', 'test5')
                 .then(function(ug) {
-                    return UserGroups.isValid(ug._id, 'test5');
+                    return UserGroups.isValid(ug._id, ['owners'], 'test5');
                 })
                 .then(function (m) {
                     expect(m).to.exist();
@@ -205,7 +205,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('isValidTest3', 'silver lining', 'isValidTest3', 'test5')
                 .then(function(ug) {
-                    return UserGroups.isValid(ug._id, 'root');
+                    return UserGroups.isValid(ug._id, ['owners'], 'root');
                 })
                 .then(function (m) {
                     expect(m).to.exist();

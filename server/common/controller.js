@@ -56,6 +56,32 @@ var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
 
 module.exports.areValid = areValid;
 
+var validAndPermitted = function (Model, idProperty, groups){
+    return function (request, reply) {
+        Model.isValid(BaseModel.ObjectID(request.params[idProperty]), groups, request.auth.credentials.user.email)
+            .then(function (m) {
+                var cases = {
+                    'valid': function () {
+                        reply();
+                    },
+                    'not found': function () {
+                        reply(Boom.notFound(JSON.stringify(m)));
+                    }
+                };
+                cases['not a member of ' + JSON.stringify(groups) + ' list'] = function () {
+                    reply(Boom.unauthorized(JSON.stringify(m)));
+                };
+                cases[m.message]();
+            })
+            .catch(function (err) {
+                reply(Boom.badImplementation(err));
+            });
+    };
+};
+
+module.exports.validAndPermitted = validAndPermitted;
+
+
 Controller.find = function (component, model, validator, queryBuilder) {
     validator.query.fields = Joi.string();
     validator.query.sort = Joi.string();

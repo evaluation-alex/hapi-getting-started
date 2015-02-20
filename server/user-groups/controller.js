@@ -1,36 +1,14 @@
 'use strict';
 var _ = require('lodash');
 var Joi = require('joi');
-var Boom = require('boom');
-var BaseModel = require('hapi-mongo-models').BaseModel;
 var AuthPlugin = require('./../common/auth');
 var UserGroups = require('./model');
 var Users = require('./../users/model');
 var BaseController = require('./../common/controller').BaseController;
 var areValid = require('./../common/controller').areValid;
+var validAndPermitted = require('./../common/controller').validAndPermitted;
 
 var Controller = {};
-
-var validAndPermitted = function (request, reply) {
-    UserGroups.isValid(BaseModel.ObjectID(request.params.id), request.auth.credentials.user.email)
-        .then(function (m) {
-            var cases = {
-                'valid': function () {
-                    reply();
-                },
-                'not found': function () {
-                    reply(Boom.notFound(JSON.stringify(m)));
-                },
-                'not an owner': function () {
-                    reply(Boom.unauthorized(JSON.stringify(m)));
-                }
-            };
-            cases[m.message]();
-        })
-        .catch(function (err) {
-            reply(Boom.badImplementation(err));
-        });
-};
 
 Controller.find = BaseController.find('user-groups', UserGroups, {
     query: {
@@ -61,7 +39,7 @@ Controller.update = BaseController.update('user-groups', UserGroups, {
         description: Joi.string(),
         access: Joi.string().valid(['restricted', 'public'])
     }
-}, [{assign: 'validAndPermitted', method: validAndPermitted},
+}, [{assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
     {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')}
 ]);
@@ -85,7 +63,7 @@ Controller.new = BaseController.new('user-groups', UserGroups, {
 });
 
 Controller.delete = BaseController.delete('user-groups', UserGroups);
-Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted});
+Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])});
 
 Controller.join = BaseController.update('user-groups', UserGroups, {
     payload: {
@@ -105,7 +83,7 @@ Controller.approve = BaseController.update('user-groups', UserGroups, {
         addedMembers: Joi.array().includes(Joi.string()).unique()
     }
 }, [
-    {assign: 'validAndPermitted', method: validAndPermitted},
+    {assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
 ], function (ug, request) {
     var by = request.auth.credentials.user.email;
@@ -119,7 +97,7 @@ Controller.reject = BaseController.update('user-groups', UserGroups, {
         addedMembers: Joi.array().includes(Joi.string()).unique()
     }
 }, [
-    {assign: 'validAndPermitted', method: validAndPermitted},
+    {assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
 ], function (ug, request) {
     var by = request.auth.credentials.user.email;

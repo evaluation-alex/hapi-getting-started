@@ -128,27 +128,5 @@ UserGroups.findGroupsForUser = function (email, organisation) {
     });
 };
 
-UserGroups.isValid = function (id, owner) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        self._findOne({_id: id})
-            .then(function (g) {
-                if (!g) {
-                    resolve({message: 'not found'});
-                } else {
-                    if (g._isMemberOf('owners', owner) || (owner === 'root')) {
-                        resolve({message: 'valid'});
-                    } else {
-                        resolve({message: 'not an owner'});
-                    }
-                }
-            })
-            .catch(function (err) {
-                reject(err);
-            })
-            .done();
-    });
-};
-
 module.exports = UserGroups;
 

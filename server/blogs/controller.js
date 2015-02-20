@@ -42,7 +42,10 @@ Controller.update = BaseController.update('blogs', Blogs, {
         removedSubscribers: Joi.array().includes(Joi.string()).unique(),
         addedSubscriberGroups: Joi.array().includes(Joi.string()).unique(),
         removedSubscriberGroups: Joi.array().includes(Joi.string()).unique(),
-        description: Joi.string()
+        description: Joi.string(),
+        needsReview: Joi.boolean(),
+        access: Joi.string().valid(['public', 'restricted']),
+        allowComments: Joi.boolean()
     }
 }, [
     {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')},
@@ -58,7 +61,10 @@ Controller.new = BaseController.new('blogs', Blogs, {
         owners: Joi.array().includes(Joi.string()).unique(),
         contributors: Joi.array().includes(Joi.string()).unique(),
         subscribers: Joi.array().includes(Joi.string()).unique(),
-        subscriberGroups: Joi.array().includes(Joi.string()).unique()
+        subscriberGroups: Joi.array().includes(Joi.string()).unique(),
+        needsReview: Joi.boolean().default(false),
+        access: Joi.string().valid(['public', 'restricted']).default('public'),
+        allowComments: Joi.boolean().default(true)
     }
 }, [
     {assign: 'validOwners', method: areValid(Users, 'email', 'owners')},

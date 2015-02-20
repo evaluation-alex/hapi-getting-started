@@ -52,9 +52,9 @@ describe('Blogs', function () {
 
     describe('GET /blogs', function () {
         before(function (done) {
-            Blogs.create('test GET /blogs is active', 'silver lining', 'test GET /blogs', ['owner1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], 'test')
+            Blogs.create('test GET /blogs is active', 'silver lining', 'test GET /blogs', ['owner1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(function () {
-                    return Blogs.create('test GET /blogs is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], 'test');
+                    return Blogs.create('test GET /blogs is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
                 })
                 .then(function (p) {
                     p.isActive = false;
@@ -157,7 +157,7 @@ describe('Blogs', function () {
     describe('GET /blogs/{id}', function () {
         var id = '';
         before(function (done) {
-            Blogs.create('test GET /blogs/id', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], 'test')
+            Blogs.create('test GET /blogs/id', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(function (p) {
                     id = p._id.toString();
                     done();
@@ -223,7 +223,7 @@ describe('Blogs', function () {
             });
         });
         it('should send back error if any of the users to be added are not valid', function (done) {
-            Blogs.create('test PUT /blogs invalidusers', 'silver lining', 'test PUT /blogs invalidusers', [], [], [], [], 'test')
+            Blogs.create('test PUT /blogs invalidusers', 'silver lining', 'test PUT /blogs invalidusers', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {
@@ -251,7 +251,7 @@ describe('Blogs', function () {
                 .done();
         });
         it('should send back error if any of the groups to be added are not valid', function (done) {
-            Blogs.create('test PUT /blogs invalidgroups', 'silver lining', 'test PUT /blogs invalidgroups', [], [], [], [], 'test')
+            Blogs.create('test PUT /blogs invalidgroups', 'silver lining', 'test PUT /blogs invalidgroups', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {
@@ -279,7 +279,7 @@ describe('Blogs', function () {
                 .done();
         });
         it('should activate blogs and have changes audited', function (done) {
-            Blogs.create('test PUT /blogs isActive=true', 'silver lining', 'test PUT /blogs isActive=true', [], [], [], [], 'test')
+            Blogs.create('test PUT /blogs isActive=true', 'silver lining', 'test PUT /blogs isActive=true', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     p.isActive = false;
                     p.save();
@@ -318,7 +318,7 @@ describe('Blogs', function () {
                 .done();
         });
         it('should deactivate blogs and have changes audited', function (done) {
-            Blogs.create('test PUT /blogs isActive=false', 'silver lining', 'test PUT /blogs isActive=false', [], [], [], [], 'test')
+            Blogs.create('test PUT /blogs isActive=false', 'silver lining', 'test PUT /blogs isActive=false', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {
@@ -357,7 +357,7 @@ describe('Blogs', function () {
         it('should add subscriber / subscriber groups and have changes audited', function (done) {
             UserGroups.create('testBlogsAddGroup', 'silver lining', 'test PUT /blogs', 'test')
                 .then(function () {
-                    return Blogs.create('test PUT /blogs add subscribers and subscriber groups', 'silver lining', 'test PUT /blogs add subscribers and subscriber groups', [], [], [], [], 'test');
+                    return Blogs.create('test PUT /blogs add subscribers and subscriber groups', 'silver lining', 'test PUT /blogs add subscribers and subscriber groups', [], [], [], [], false, 'public', true, 'test');
                 })
                 .then(function (p) {
                     var id = p._id.toString();
@@ -400,7 +400,7 @@ describe('Blogs', function () {
                 .done();
         });
         it('should remove subscribers / subscriber groups and have changes audited', function (done) {
-            Blogs.create('test PUT /blogs remove subscribers and sub groups', 'silver lining', 'test PUT /blogs remove subscribers and sub groups', [], [], ['toRemove'], ['toRemove'], 'test')
+            Blogs.create('test PUT /blogs remove subscribers and sub groups', 'silver lining', 'test PUT /blogs remove subscribers and sub groups', [], [], ['toRemove'], ['toRemove'], false, 'public', true, 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {
@@ -440,7 +440,7 @@ describe('Blogs', function () {
                 .done();
         });
         it('should update description and have changes audited', function (done) {
-            Blogs.create('test PUT /blogs update desc', 'silver lining', 'test PUT /blogs update desc', [], [], [], [], 'test')
+            Blogs.create('test PUT /blogs update desc', 'silver lining', 'test PUT /blogs update desc', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {
@@ -478,11 +478,122 @@ describe('Blogs', function () {
                 })
                 .done();
         });
+        it('should update access and have changes audited', function (done) {
+            Blogs.create('test PUT /blogs access', 'silver lining', 'test PUT /blogs access', [], [], [], [], false, 'public', true, 'test')
+                .then(function (p) {
+                    var id = p._id.toString();
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id,
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            access: 'restricted'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                                .then(function (found) {
+                                    expect(found[0].access).to.equal('restricted');
+                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /access/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit).to.exist();
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/access/);
+                                    blogsToClear.push('test PUT /blogs access');
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('test PUT /blogs update access');
+                            done(err);
+                        }
+                    });
+                })
+                .done();
+        });
+        it('should update needsReview and have changes audited', function (done) {
+            Blogs.create('test PUT /blogs needsReview', 'silver lining', 'test PUT /blogs needsReview', [], [], [], [], false, 'public', true, 'test')
+                .then(function (p) {
+                    var id = p._id.toString();
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id,
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            needsReview: true
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                                .then(function (found) {
+                                    expect(found[0].needsReview).to.equal(true);
+                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /needsReview/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit).to.exist();
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/needsReview/);
+                                    blogsToClear.push('test PUT /blogs needsReview');
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('test PUT /blogs needsReview');
+                            done(err);
+                        }
+                    });
+                })
+                .done();
+        });
+        it('should update needsReview and have changes audited', function (done) {
+            Blogs.create('test PUT /blogs allowComments', 'silver lining', 'test PUT /blogs allowComments', [], [], [], [], false, 'public', true, 'test')
+                .then(function (p) {
+                    var id = p._id.toString();
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id,
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            allowComments: false
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                                .then(function (found) {
+                                    expect(found[0].allowComments).to.equal(false);
+                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /allowComments/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit).to.exist();
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/allowComments/);
+                                    blogsToClear.push('test PUT /blogs allowComments');
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('test PUT /blogs allowComments');
+                            done(err);
+                        }
+                    });
+                })
+                .done();
+        });
     });
 
     describe('POST /blogs', function () {
         it('should send back conflict when you try to create a blog with a title that already exists', function (done) {
-            Blogs.create('test POST /blogs dupe', 'silver lining', 'test POST /permissions dupe', [], [], [], [], 'test')
+            Blogs.create('test POST /blogs dupe', 'silver lining', 'test POST /blogs dupe', [], [], [], [], false, 'public', true, 'test')
                 .then(function () {
                     var request = {
                         method: 'POST',
@@ -568,7 +679,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should create permissions successfully', function (done) {
+        it('should create blog successfully', function (done) {
             UserGroups.create('test post /blogs', 'silver lining', 'success', 'test')
                 .then(function () {
                     var request = {
@@ -615,7 +726,7 @@ describe('Blogs', function () {
     });
 
     describe('DELETE /blogs/{id}', function () {
-        it('should send back not found error when you try to modify a non existent permissions', function (done) {
+        it('should send back not found error when you try to modify a non existent blog', function (done) {
             var request = {
                 method: 'DELETE',
                 url: '/blogs/54d4430eed61ad701cc7a721',
@@ -633,7 +744,7 @@ describe('Blogs', function () {
             });
         });
         it('should deactivate blog and have changes audited', function (done) {
-            Blogs.create('test DELETE /blogs/id', 'silver lining', 'test DELETE /blogs/id', [], [], [], [], 'test')
+            Blogs.create('test DELETE /blogs/id', 'silver lining', 'test DELETE /blogs/id', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     var id = p._id.toString();
                     var request = {

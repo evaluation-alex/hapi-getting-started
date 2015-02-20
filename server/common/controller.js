@@ -9,18 +9,20 @@ var Controller = {};
 
 var isUnique = function (Model, queryBuilder) {
     return function (request, reply) {
-        var query = queryBuilder(request);
-        Model._findOne(query)
-            .then(function (f) {
-                if (f) {
-                    reply(Boom.conflict('Object already exists'));
-                } else {
-                    reply(true);
-                }
-            })
-            .catch(function (err) {
-                reply(Boom.badImplementation(err));
-            });
+        if (queryBuilder) {
+            var query = queryBuilder(request);
+            Model._findOne(query)
+                .then(function (f) {
+                    if (f) {
+                        reply(Boom.conflict('Object already exists'));
+                    } else {
+                        reply(true);
+                    }
+                })
+                .catch(function (err) {
+                    reply(Boom.badImplementation(err));
+                });
+        }
     };
 };
 
@@ -104,7 +106,7 @@ Controller.findOne = function (component, Model) {
     };
 };
 
-Controller.new = function (component, Model, validator, prereqs, uniqueCheck) {
+Controller.new = function (component, Model, validator, prereqs, uniqueCheck, newCb) {
     return {
         validator: validator,
         pre: _.flatten([AuthPlugin.preware.ensurePermissions('update', component),
@@ -112,7 +114,7 @@ Controller.new = function (component, Model, validator, prereqs, uniqueCheck) {
             prereqs]),
         handler: function (request, reply) {
             var by = request.auth.credentials.user.email;
-            Model.newObject(request, by)
+            newCb ? newCb(request, by) : Model.newObject(request, by)
                 .then(function (n) {
                     if (!n) {
                         reply(Boom.notFound(component + ' could not be created.'));

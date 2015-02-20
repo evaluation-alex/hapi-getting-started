@@ -31,7 +31,7 @@ describe('Blogs Model', function () {
     describe('Blogs.create', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
             var error = null;
-            Blogs.create('newBlog', 'silver lining', 'Blog.create testing', [], [], [], [], 'test')
+            Blogs.create('newBlog', 'silver lining', 'Blog.create testing', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Blogs);
@@ -53,13 +53,13 @@ describe('Blogs Model', function () {
         });
         it('should not allow two objects with the same title', function (done) {
             var error = null;
-            Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], 'test')
+            Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Blogs);
                 })
                 .then(function () {
-                    Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], 'test')
+                    Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
                         .then(function (p) {
                             expect(p).to.not.exist();
                         })
@@ -82,13 +82,13 @@ describe('Blogs Model', function () {
         before(function (done) {
             UserGroups.create('testBlogAddUsers', 'silver lining', 'testing blog.addUsers', 'test')
                 .then(function() {
-                    return Blogs.create('addUsers1', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], 'test');
+                    return Blogs.create('addUsers1', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
                 })
                 .then(function() {
-                    return Blogs.create('addUsers2', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'],'test');
+                    return Blogs.create('addUsers2', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
                 })
                 .then(function () {
-                    return Blogs.create('addUsers3', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], 'test');
+                    return Blogs.create('addUsers3', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
                 })
                 .then(function() {
                     done();
@@ -176,7 +176,7 @@ describe('Blogs Model', function () {
 
     describe('Blogs.this.removeUsers', function () {
         before(function (done) {
-            Blogs.create('removeUsers1', 'silver lining', 'blog.removeUsers', ['directlyadded'], [], [], ['testBlogsRemoveUsers'], 'test')
+            Blogs.create('removeUsers1', 'silver lining', 'blog.removeUsers', ['directlyadded'], [], [], ['testBlogsRemoveUsers'], false, 'public', true, 'test')
                 .then(function () {
                     done();
                 })
@@ -261,8 +261,8 @@ describe('Blogs Model', function () {
     describe('Blogs.this.activate/deactivate', function () {
         var activated = null, deactivated = null;
         before(function (done) {
-            var p1 = Blogs.create('activated', 'silver lining', 'blog.activate, deactivate', [], [], [], [], 'test');
-            var p2 = Blogs.create('deactivated', 'silver lining', 'blog.deactive, activate', [], [], [], [], 'test');
+            var p1 = Blogs.create('activated', 'silver lining', 'blog.activate, deactivate', [], [], [], [], false, 'public', true, 'test');
+            var p2 = Blogs.create('deactivated', 'silver lining', 'blog.deactive, activate', [], [], [], [], false, 'public', true, 'test');
             Promise.join(p1, p2, function (p11, p12) {
                 activated = p11;
                 deactivated = p12;
@@ -344,7 +344,7 @@ describe('Blogs Model', function () {
     describe('Blogs.this.setDescription', function () {
         var testblog = null;
         before(function (done) {
-            Blogs.create('updateDesc1', 'silver lining', 'blog.updateDesc', [], [], [], [], 'test')
+            Blogs.create('updateDesc1', 'silver lining', 'blog.updateDesc', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     testblog = p;
                     done();
@@ -390,6 +390,162 @@ describe('Blogs Model', function () {
         after(function (done) {
             blogsToClear.push('updateDesc1');
             blogsToClear.push('newDescription');
+            done();
+        });
+    });
+
+    describe('Blogs.this.setAccess', function () {
+        var testblog = null;
+        before(function (done) {
+            Blogs.create('setAccess', 'silver lining', 'blog.setAccess', [], [], [], [], false, 'public', true, 'test')
+                .then(function (p) {
+                    testblog = p;
+                    done();
+                });
+        });
+        it('should do nothing if there is no change in the access', function (done) {
+            var error = null;
+            testblog.setAccess(testblog.access, 'test').save()
+                .then(function (p) {
+                    expect(p.access).to.equal('public');
+                    return Audit.findAudit('Blogs',  p.title, {action: {$regex: /^access/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(0);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should update to the new access', function (done) {
+            var error = null;
+            testblog.setAccess('restricted', 'test').save()
+                .then(function (p) {
+                    expect(p.access).to.equal('restricted');
+                    return Audit.findAudit('Blogs',  p.title, {action: {$regex: /^access/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(1);
+                    expect(paudit[0].newValues).to.equal('restricted');
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        after(function (done) {
+            blogsToClear.push('setAccess');
+            done();
+        });
+    });
+
+    describe('Blogs.this.needsReview', function () {
+        var testblog = null;
+        before(function (done) {
+            Blogs.create('needsReview', 'silver lining', 'blog.setNeedsReview', [], [], [], [], false, 'public', true, 'test')
+                .then(function (p) {
+                    testblog = p;
+                    done();
+                });
+        });
+        it('should do nothing if there is no change in the needsReview', function (done) {
+            var error = null;
+            testblog.setNeedsReview(testblog.needsReview, 'test').save()
+                .then(function (p) {
+                    expect(p.access).to.equal('public');
+                    return Audit.findAudit('Blogs',  p.title, {action: {$regex: /^needsReview/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(0);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should update to the new needsReview', function (done) {
+            var error = null;
+            testblog.setNeedsReview(true, 'test').save()
+                .then(function (p) {
+                    expect(p.needsReview).to.equal(true);
+                    return Audit.findAudit('Blogs',  p.title, {action: {$regex: /^needsReview/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(1);
+                    expect(paudit[0].newValues).to.equal(true);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        after(function (done) {
+            blogsToClear.push('needsReview');
+            done();
+        });
+    });
+
+    describe('Blogs.this.allowComments', function () {
+        var testblog = null;
+        before(function (done) {
+            Blogs.create('allowComments', 'silver lining', 'blog.allowComments', [], [], [], [], false, 'public', true, 'test')
+                .then(function (p) {
+                    testblog = p;
+                    done();
+                });
+        });
+        it('should do nothing if there is no change in the needsReview', function (done) {
+            var error = null;
+            testblog.setAllowComments(testblog.allowComments, 'test').save()
+                .then(function (p) {
+                    expect(p.allowComments).to.equal(true);
+                    return Audit.findAudit('Blogs',  p.title, {action: {$regex: /^allowComments/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(0);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should update to the new needsReview', function (done) {
+            var error = null;
+            testblog.setAllowComments(false, 'test').save()
+                .then(function (p) {
+                    expect(p.allowComments).to.equal(false);
+                    return Audit.findAudit('Blogs',  p.title, {action: {$regex: /^allowComments/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(1);
+                    expect(paudit[0].newValues).to.equal(false);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        after(function (done) {
+            blogsToClear.push('allowComments');
             done();
         });
     });

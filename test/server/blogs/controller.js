@@ -278,6 +278,42 @@ describe('Blogs', function () {
                 })
                 .done();
         });
+        it('should send back forbidden error when you try to modify a blog you are not an owner of', function (done) {
+            var request = {};
+            var authHeader = '';
+            var id = '';
+            Blogs.create('testPutBlogNotOwner', 'silver lining', 'test PUT /blogs not owner', [], [], [], [], false, 'public', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (u) {
+                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    authHeader = tu.authorizationHeader(u);
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id,
+                        headers: {
+                            Authorization: authHeader
+                        },
+                        payload: {
+                            description: '    test PUT /blogs'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            blogsToClear.push('testPutBlogNotOwner');
+                            done();
+                        } catch (err) {
+                            blogsToClear.push('testPutBlogNotOwner');
+                            done(err);
+                        }
+                    });
+                });
+        });
         it('should activate blogs and have changes audited', function (done) {
             Blogs.create('test PUT /blogs isActive=true', 'silver lining', 'test PUT /blogs isActive=true', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
@@ -591,6 +627,407 @@ describe('Blogs', function () {
         });
     });
 
+    describe('PUT /blogs/{id}/subscribe', function () {
+        it('should send back not found error when you try to join a non existent blog', function (done) {
+            var request = {
+                method: 'PUT',
+                url: '/blogs/54c894fe1d1d4ab4032ed94e/subscribe',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    blogsToClear.push('testBlogsPutSubscribeNotFound');
+                    done();
+                } catch (err) {
+                    blogsToClear.push('testBlogsPutSubscribeNotFound');
+                    done(err);
+                }
+            });
+        });
+        it('should send back error if any of the users trying to join are not valid', function (done) {
+            var id = '';
+            Blogs.create('testBlogUserExistPUTSubscribe', 'silver lining', 'test PUT /blogs/subscribe', [], [], [], [], false, 'public', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/subscribe',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedSubscribers: ['unknown']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(422);
+                            blogsToClear.push('testBlogUserExistPUTSubscribe');
+                            done();
+                        } catch (err) {
+                            blogsToClear.push('testBlogUserExistPUTSubscribe');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should add users who have joined to the needsApproval list', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('testPutSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', [], [], [], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/subscribe',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedSubscribers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({title: 'testPutSubscribeGroupAddUser'})
+                                .then(function (b) {
+                                    expect(b).to.exist();
+                                    expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    return Audit.findAudit('Blogs', 'testPutSubscribeGroupAddUser', {action: {$regex: /add needsApproval/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/add needsApproval/);
+                                    blogsToClear.push('testPutSubscribeGroupAddUser');
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('testPutSubscribeGroupAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should add to members if the group access is public and have changes audited', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('testPutSubscribePublicGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', [], [], [], [], false, 'public', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    b.setAccess('public');
+                    return b.save();
+                })
+                .then(function () {
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/subscribe',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedSubscribers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({title: 'testPutSubscribePublicGroupAddUser'})
+                                .then(function (b) {
+                                    expect(b).to.exist();
+                                    expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
+                                    return Audit.findAudit('Blogs', 'testPutSubscribePublicGroupAddUser', {action: {$regex: /add subscriber/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/add subscriber/);
+                                    blogsToClear.push('testPutSubscribePublicGroupAddUser');
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('testPutSubscribePublicGroupAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+    });
+
+    describe('PUT /blogs/{id}/approve', function () {
+        it('should send back not found error when you try to approve a non existent blog', function (done) {
+            var request = {
+                method: 'PUT',
+                url: '/blogs/54c894fe1d1d4ab4032ed94e/approve',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    blogsToClear.push('testBlogsPutApproveNotFound');
+                    done();
+                } catch (err) {
+                    blogsToClear.push('testBlogsPutApproveNotFound');
+                    done(err);
+                }
+            });
+        });
+        it('should send back error if any of the users being approved to subscribe are not valid', function (done) {
+            var id = '';
+            Blogs.create('testBlogUserExistPUTApprove', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/approve',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedSubscribers: ['unknown']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(422);
+                            blogsToClear.push('testBlogUserExistPUTApprove');
+                            done();
+                        } catch (err) {
+                            blogsToClear.push('testBlogUserExistPUTApprove');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should add users who have been approved to the subscribers list', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('testBlogPutApproveAddUser', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    return b.add(['one@first.com'], 'needApprovals', 'test').save();
+                })
+                .then(function() {
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/approve',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedSubscribers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({title: 'testBlogPutApproveAddUser'})
+                                .then(function (b) {
+                                    expect(b).to.exist();
+                                    expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
+                                    return Audit.findAudit('Blogs', 'testBlogPutApproveAddUser', {action: {$regex: /add subscriber/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/add subscriber/);
+                                    blogsToClear.push('testBlogPutApproveAddUser');
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('testBlogPutApproveAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should send error if the user approving is not an owner of the blog', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('testPutApproveBlogNotOwner', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    return b.add(['one@first.com'], 'needApprovals', 'test').save();
+                })
+                .then(function() {
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (u) {
+                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/approve',
+                        headers: {
+                            Authorization: authHeader
+                        },
+                        payload: {
+                            addedSubscribers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            u.setRoles(['readonly'], 'test').save();
+                            expect(response.statusCode).to.equal(401);
+                            Blogs._find({title: 'testPutApproveBlogNotOwner'})
+                                .then(function (b) {
+                                    expect(b).to.exist();
+                                    expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.false();
+                                    return Audit.findAudit('Blogs', 'testPutApproveBlogNotOwner', {action: {$regex: /add subscriber/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(0);
+                                    blogsToClear.push('testPutApproveBlogNotOwner');
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('testPutApproveBlogNotOwner');
+                            done(err);
+                        }
+                    });
+                });
+        });
+    });
+
+    describe('PUT /blogs/{id}/reject', function () {
+        it('should send back not found error when you try to reject a non existent blog', function (done) {
+            var request = {
+                method: 'PUT',
+                url: '/blogs/54c894fe1d1d4ab4032ed94e/reject',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    blogsToClear.push('testBlogPutRejectNotFound');
+                    done();
+                } catch (err) {
+                    blogsToClear.push('testBlogPutRejectNotFound');
+                    done(err);
+                }
+            });
+        });
+        it('should send back error if any of the users being rejected to join are not valid', function (done) {
+            var id = '';
+            Blogs.create('testBlogUserExistPUTReject', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/reject',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedSubscribers: ['unknown']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(422);
+                            blogsToClear.push('testBlogUserExistPUTReject');
+                            done();
+                        } catch (err) {
+                            blogsToClear.push('testBlogUserExistPUTReject');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should remove users who have been rejected from the needsApproval list', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('testPutRejectBlogAddUser', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    return b.add(['one@first.com'], 'needsApproval', 'test').save();
+                })
+                .then(function() {
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/reject',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedSubscribers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({title: 'testPutRejectBlogAddUser'})
+                                .then(function (b) {
+                                    expect(b).to.exist();
+                                    expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.false();
+                                    return Audit.findAudit('Blogs', 'testPutRejectBlogAddUser', {action: {$regex: /remove needsApproval/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.match(/remove needsApproval/);
+                                    blogsToClear.push('testPutRejectBlogAddUser');
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('testPutRejectBlogAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should send error if the user rejecting is not an owner of the blog', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('testPutRejectBlogNotOwner', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    return b.add(['one@first.com'], 'needsApproval', 'test').save();
+                })
+                .then(function() {
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (u) {
+                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/reject',
+                        headers: {
+                            Authorization: authHeader
+                        },
+                        payload: {
+                            addedSubscribers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            u.setRoles(['readonly'], 'test').save();
+                            expect(response.statusCode).to.equal(401);
+                            Blogs._find({title: 'testPutRejectBlogNotOwner'})
+                                .then(function (b) {
+                                    expect(b).to.exist();
+                                    expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    blogsToClear.push('testPutRejectBlogNotOwner');
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('testPutRejectBlogNotOwner');
+                            done(err);
+                        }
+                    });
+                });
+        });
+    });
+
     describe('POST /blogs', function () {
         it('should send back conflict when you try to create a blog with a title that already exists', function (done) {
             Blogs.create('test POST /blogs dupe', 'silver lining', 'test POST /blogs dupe', [], [], [], [], false, 'public', true, 'test')
@@ -742,6 +1179,39 @@ describe('Blogs', function () {
                     done(err);
                 }
             });
+        });
+        it('should send back forbidden error when you try to delete a blog you are not an owner of', function (done) {
+            var request = {};
+            var authHeader = '';
+            var id = '';
+            Blogs.create('testDelBlogNotOwner', 'silver lining', 'test DELETE /blogs', [], [], [], [], false, 'public', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (u) {
+                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    authHeader = tu.authorizationHeader(u);
+                    request = {
+                        method: 'DELETE',
+                        url: '/blogs/' + id,
+                        headers: {
+                            Authorization: authHeader
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            blogsToClear.push('testDelBlogNotOwner');
+                            done();
+                        } catch (err) {
+                            blogsToClear.push('testDelBlogNotOwner');
+                            done(err);
+                        }
+                    });
+                });
         });
         it('should deactivate blog and have changes audited', function (done) {
             Blogs.create('test DELETE /blogs/id', 'silver lining', 'test DELETE /blogs/id', [], [], [], [], false, 'public', true, 'test')

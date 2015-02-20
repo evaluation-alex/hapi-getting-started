@@ -295,10 +295,7 @@ describe('UserGroups', function () {
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test');
-                })
-                .then(function (u) {
-                    return u.loginSuccess('test', 'test');
+                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
                 })
                 .then(function (u) {
                     authHeader = tu.authorizationHeader(u);
@@ -1064,10 +1061,7 @@ describe('UserGroups', function () {
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test');
-                })
-                .then(function (u) {
-                    return u.loginSuccess('test', 'test');
+                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
                 })
                 .then(function (u) {
                     authHeader = tu.authorizationHeader(u);

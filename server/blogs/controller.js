@@ -1,6 +1,7 @@
 'use strict';
 var Joi = require('joi');
 var _ = require('lodash');
+var AuthPlugin = require('./../common/auth');
 var Blogs = require('./model');
 var BaseController = require('./../common/controller').BaseController;
 var Users = require('./../users/model');
@@ -82,5 +83,46 @@ Controller.new = BaseController.new('blogs', Blogs, {
 
 Controller.delete = BaseController.delete('blogs', Blogs);
 Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])});
+
+Controller.subscribe = BaseController.update('blogs', Blogs, {
+    payload: {
+        addedSubscribers: Joi.array().includes(Joi.string()).unique()
+    }
+}, [
+    AuthPlugin.preware.ensurePermissions('view', 'blogs'),
+    {assign: 'validMembers', method: areValid(Users, 'email', 'addedSubscribers')}
+], function (b, request) {
+    var by = request.auth.credentials.user.email;
+    return b.add(request.payload.addedSubscribers, b.access === 'public' ? 'subscribers' : 'needsApproval', by)
+        .save();
+});
+
+Controller.approve = BaseController.update('blogs', Blogs, {
+    payload: {
+        addedSubscribers: Joi.array().includes(Joi.string()).unique()
+    }
+}, [
+    {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])},
+    {assign: 'validMembers', method: areValid(Users, 'email', 'addedSubscribers')}
+], function (b, request) {
+    var by = request.auth.credentials.user.email;
+    return b.add(request.payload.addedSubscribers, 'subscribers', by)
+        .remove(request.payload.addedSubscribers, 'needsApproval', by)
+        .save();
+});
+
+Controller.reject = BaseController.update('blogs', Blogs, {
+    payload: {
+        addedSubscribers: Joi.array().includes(Joi.string()).unique()
+    }
+}, [
+    {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])},
+    {assign: 'validMembers', method: areValid(Users, 'email', 'addedSubscribers')}
+], function (b, request) {
+    var by = request.auth.credentials.user.email;
+    return b.remove(request.payload.addedSubscribers, 'needsApproval', by)
+        .save();
+});
+
 
 module.exports.Controller = Controller;

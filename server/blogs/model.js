@@ -23,7 +23,7 @@ var Blogs = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
-_.extend(Blogs.prototype, new AddRemove({owner: 'owners', contributor: 'contributors', subscriber: 'subscribers', groups: 'subscriberGroups'}));
+_.extend(Blogs.prototype, new AddRemove({owner: 'owners', contributor: 'contributors', subscriber: 'subscribers', groups: 'subscriberGroups', needsApproval: 'needsApproval'}));
 _.extend(Blogs.prototype, IsActive);
 _.extend(Blogs.prototype, new Properties(['description', 'isActive', 'needsReview', 'access', 'allowComments']));
 _.extend(Blogs.prototype, new Save(Blogs, Audit));
@@ -57,6 +57,7 @@ Blogs.schema = Joi.object().keys({
     contributors: Joi.array().includes(Joi.string()).unique(),
     subscribers: Joi.array().includes(Joi.string()).unique(),
     subscriberGroups: Joi.array().includes(Joi.string()).unique(),
+    needsApproval: Joi.array().includes(Joi.string()).unique(),
     needsReview: Joi.boolean().default(false),
     access: Joi.string().valid(['public', 'restricted']),
     allowComments: Joi.boolean().default(true),
@@ -69,7 +70,9 @@ Blogs.schema = Joi.object().keys({
 
 Blogs.indexes = [
     [{title: 1, organisation: 1}, {unique: true}],
-    [{description: 1}]
+    [{description: 1}],
+    [{owners: 1}],
+    [{contributors: 1}]
 ];
 
 Blogs.newObject = function (doc, by) {
@@ -88,6 +91,7 @@ Blogs.create = function (title, organisation, description, owners, contributors,
             contributors: contributors ? contributors : [by],
             subscribers: subscribers ? subscribers : [by],
             subscriberGroups: subscriberGroups ? subscriberGroups : [],
+            needsApproval: [],
             needsReview: needsReview,
             access: access,
             allowComments: allowComments,

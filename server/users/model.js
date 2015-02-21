@@ -110,12 +110,13 @@ Users.prototype.resetPassword = function (newPassword, by) {
     }
     return self;
 };
-Users.prototype.update = function (payload, by) {
+Users.prototype.update = function (doc, by) {
     var self = this;
     return self._invalidateSession()
-        .setIsActive(payload.isActive, by)
-        .setRoles(payload.roles, by)
-        .resetPassword(payload.password, by);
+        .setIsActive(doc.payload.isActive, by)
+        .setRoles(doc.payload.roles, by)
+        .resetPassword(doc.payload.password, by)
+        .save();
 };
 
 Users._collection = 'users';

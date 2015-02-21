@@ -55,7 +55,7 @@ Controller.update = BaseController.update('blogs', Blogs, {
     {assign: 'validSubscribers', method: areValid(Users, 'email', 'addedSubscribers')},
     {assign: 'validSubscriberGroups', method: areValid(UserGroups, 'name', 'addedSubscriberGroups')},
     {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])}
-]);
+], 'update');
 
 Controller.new = BaseController.new('blogs', Blogs, {
     payload: {
@@ -91,11 +91,7 @@ Controller.subscribe = BaseController.update('blogs', Blogs, {
 }, [
     AuthPlugin.preware.ensurePermissions('view', 'blogs'),
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedSubscribers')}
-], function (b, request) {
-    var by = request.auth.credentials.user.email;
-    return b.add(request.payload.addedSubscribers, b.access === 'public' ? 'subscribers' : 'needsApproval', by)
-        .save();
-});
+], 'join');
 
 Controller.approve = BaseController.update('blogs', Blogs, {
     payload: {
@@ -104,12 +100,7 @@ Controller.approve = BaseController.update('blogs', Blogs, {
 }, [
     {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedSubscribers')}
-], function (b, request) {
-    var by = request.auth.credentials.user.email;
-    return b.add(request.payload.addedSubscribers, 'subscribers', by)
-        .remove(request.payload.addedSubscribers, 'needsApproval', by)
-        .save();
-});
+], 'approve');
 
 Controller.reject = BaseController.update('blogs', Blogs, {
     payload: {
@@ -118,11 +109,7 @@ Controller.reject = BaseController.update('blogs', Blogs, {
 }, [
     {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedSubscribers')}
-], function (b, request) {
-    var by = request.auth.credentials.user.email;
-    return b.remove(request.payload.addedSubscribers, 'needsApproval', by)
-        .save();
-});
+], 'reject');
 
 
 module.exports.Controller = Controller;

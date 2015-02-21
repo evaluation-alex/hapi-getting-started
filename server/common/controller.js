@@ -172,7 +172,7 @@ Controller.update = function (component, Model, validator, prereqs, updateCb) {
                         return false;
                     } else {
                         var by = request.auth.credentials.user.email;
-                        return updateCb ? updateCb(u, request) : u.update(request.payload, by).save();
+                        return u[updateCb](request, by);
                     }
                 })
                 .then(function (u) {

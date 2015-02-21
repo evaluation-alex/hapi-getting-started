@@ -42,7 +42,7 @@ Controller.update = BaseController.update('user-groups', UserGroups, {
 }, [{assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
     {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')}
-]);
+], 'update');
 
 Controller.new = BaseController.new('user-groups', UserGroups, {
     payload: {
@@ -72,11 +72,7 @@ Controller.join = BaseController.update('user-groups', UserGroups, {
 }, [
     AuthPlugin.preware.ensurePermissions('view', 'user-groups'),
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
-], function (ug, request) {
-    var by = request.auth.credentials.user.email;
-    return ug.add(request.payload.addedMembers, ug.access === 'public' ? 'members' : 'needsApproval', by)
-        .save();
-});
+], 'join');
 
 Controller.approve = BaseController.update('user-groups', UserGroups, {
     payload: {
@@ -85,12 +81,7 @@ Controller.approve = BaseController.update('user-groups', UserGroups, {
 }, [
     {assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
-], function (ug, request) {
-    var by = request.auth.credentials.user.email;
-    return ug.add(request.payload.addedMembers, 'members', by)
-        .remove(request.payload.addedMembers, 'needsApproval', by)
-        .save();
-});
+], 'approve');
 
 Controller.reject = BaseController.update('user-groups', UserGroups, {
     payload: {
@@ -99,10 +90,6 @@ Controller.reject = BaseController.update('user-groups', UserGroups, {
 }, [
     {assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
     {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
-], function (ug, request) {
-    var by = request.auth.credentials.user.email;
-    return ug.remove(request.payload.addedMembers, 'needsApproval', by)
-        .save();
-});
+], 'reject');
 
 module.exports.Controller = Controller;

@@ -36,14 +36,15 @@ Permissions.prototype.isPermissionFor = function (forAction, onObject) {
         (self.object === onObject || self.object === '*');
     return ret;
 };
-Permissions.prototype.update = function (payload, by) {
+Permissions.prototype.update = function (doc, by) {
     var self = this;
-    return self.setIsActive(payload.isActive, by)
-        .add(payload.addedUsers, 'user', by)
-        .remove(payload.removedUsers, 'user', by)
-        .add(payload.addedGroups, 'group', by)
-        .remove(payload.removedGroups, 'group', by)
-        .setDescription(payload.description, by);
+    return self.setIsActive(doc.payload.isActive, by)
+        .add(doc.payload.addedUsers, 'user', by)
+        .remove(doc.payload.removedUsers, 'user', by)
+        .add(doc.payload.addedGroups, 'group', by)
+        .remove(doc.payload.removedGroups, 'group', by)
+        .setDescription(doc.payload.description, by)
+        .save();
 };
 
 Permissions._collection = 'permissions';

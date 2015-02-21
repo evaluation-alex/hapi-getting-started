@@ -41,7 +41,7 @@ Controller.update = BaseController.update('permissions', Permissions, {
     }
 }, [{assign: 'validUsers', method: areValid(Users, 'email', 'addedUsers')},
     {assign: 'validGroups', method: areValid(UserGroups, 'name', 'addedGroups')}
-]);
+], 'update');
 
 Controller.new = BaseController.new('permissions', Permissions, {
     payload: {

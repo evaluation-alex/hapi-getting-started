@@ -24,6 +24,12 @@ Audit.schema = Joi.object().keys({
     timestamp: Joi.date()
 });
 
+Audit.indexes = [
+    [{organisation: 1, objectChangedType: 1, objectChangedId: 1, action: 1}],
+    [{by: 1, timestamp: 1}],
+    [{timestamp: 1}]
+];
+
 Audit.create = function (type, id, action, origValues, newValues, by, organisation) {
     var self = this;
     var doc = {

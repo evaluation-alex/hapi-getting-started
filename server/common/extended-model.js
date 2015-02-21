@@ -185,6 +185,43 @@ var CommonMixinAddRemove = function (roles) {
 
 module.exports.AddRemove = CommonMixinAddRemove;
 
+var CommonMixinJoinApproveReject = function (property, roleToAdd, needsApproval) {
+    return {
+        join: function (doc, by) {
+            var self = this;
+            return self.add(doc.payload[property], self.access === 'public' ? roleToAdd : needsApproval, by).save();
+        },
+        approve: function (doc, by) {
+            var self = this;
+            return self.add(doc.payload[property], roleToAdd, by).remove(doc.payload[property], needsApproval, by).save();
+        },
+        reject: function (doc, by) {
+            var self = this;
+            return self.remove(doc.payload[property], needsApproval, by).save();
+        }
+    };
+};
+
+module.exports.JoinApproveReject = CommonMixinJoinApproveReject;
+
+var CommonMixinUpdate = function (properties, lists) {
+    return {
+        update: function (doc, by) {
+            var self = this;
+            _.forIn(properties, function(value, key) {
+                self['set' + _.capitalize(key)](doc.payload[value], by);
+            });
+            _.forIn(lists, function(value, key) {
+                self.add(doc.payload['added' + _.capitalize(value)], key, by);
+                self.remove(doc.payload['removed' + _.capitalize(value)], key, by);
+            });
+            return self.save();
+        }
+    };
+};
+
+module.exports.Update = CommonMixinUpdate;
+
 var CommonMixinIsActive = {
     deactivate: function (by) {
         var self = this;
@@ -228,9 +265,10 @@ var CommonMixinSave = function (Model, Audit) {
             });
             return self;
         },
+        /*jshint unused:false*/
         _saveAudit: function () {
             var self = this;
-            return new Promise(function (resolve/*, reject*/) {
+            return new Promise(function (resolve, reject) {
                 if (self.audit && self.audit.length > 0) {
                     Promise.settle(_.map(self.audit, function (a) {
                         return Audit._insert(a, []);
@@ -244,6 +282,7 @@ var CommonMixinSave = function (Model, Audit) {
                 }
             });
         },
+        /*jshint unused:true*/
         save: function () {
             var self = this;
             return new Promise(function (resolve, reject) {

@@ -3,8 +3,10 @@ var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
 var AddRemove = require('./../common/extended-model').AddRemove;
-var IsActive = require('./../common/extended-model').IsActive;
+var JoinApproveReject = require('./../common/extended-model').JoinApproveReject;
+var Update = require('./../common/extended-model').Update;
 var Properties = require('./../common/extended-model').Properties;
+var IsActive = require('./../common/extended-model').IsActive;
 var Save = require('./../common/extended-model').Save;
 var CAudit = require('./../common/extended-model').Audit;
 var Promise = require('bluebird');
@@ -24,27 +26,12 @@ var Blogs = ExtendedModel.extend({
 });
 
 _.extend(Blogs.prototype, new AddRemove({owner: 'owners', contributor: 'contributors', subscriber: 'subscribers', groups: 'subscriberGroups', needsApproval: 'needsApproval'}));
-_.extend(Blogs.prototype, IsActive);
 _.extend(Blogs.prototype, new Properties(['description', 'isActive', 'needsReview', 'access', 'allowComments']));
+_.extend(Blogs.prototype, new JoinApproveReject('addedSubscribers', 'subscriber', 'needsApproval'));
+_.extend(Blogs.prototype, new Update({isActive: 'isActive', description: 'description', needsReview: 'needsReview', access: 'access', allowComments: 'allowComments'}, {owner: 'owners', contributor: 'contributors', subscriber: 'subscribers', groups: 'subscriberGroups', needsApproval: 'needsApproval'}));
+_.extend(Blogs.prototype, IsActive);
 _.extend(Blogs.prototype, new Save(Blogs, Audit));
 _.extend(Blogs.prototype, new CAudit('Blogs', 'title'));
-
-Blogs.prototype.update = function(payload, by) {
-    var self = this;
-    return self.setIsActive(payload.isActive, by)
-        .add(payload.addedOwners, 'owner', by)
-        .remove(payload.removedOwners, 'owner', by)
-        .add(payload.addedContributors, 'contributor', by)
-        .remove(payload.removedContributors, 'contributor', by)
-        .add(payload.addedSubscribers, 'subscriber', by)
-        .remove(payload.removedSubscribers, 'subscriber', by)
-        .add(payload.addedSubscriberGroups, 'groups', by)
-        .remove(payload.removedSubscriberGroups, 'groups', by)
-        .setDescription(payload.description, by)
-        .setNeedsReview(payload.needsReview, by)
-        .setAccess(payload.access, by)
-        .setAllowComments(payload.allowComments, by);
-};
 
 Blogs._collection = 'blogs';
 

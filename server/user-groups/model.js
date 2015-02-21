@@ -4,6 +4,8 @@ var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model').ExtendedModel;
 var AddRemove = require('./../common/extended-model').AddRemove;
 var IsActive = require('./../common/extended-model').IsActive;
+var JoinApproveReject = require('./../common/extended-model').JoinApproveReject;
+var Update = require('./../common/extended-model').Update;
 var Properties = require('./../common/extended-model').Properties;
 var Save = require('./../common/extended-model').Save;
 var CAudit = require('./../common/extended-model').Audit;
@@ -26,19 +28,10 @@ var UserGroups = ExtendedModel.extend({
 _.extend(UserGroups.prototype, new AddRemove({owner: 'owners', member: 'members', needsApproval: 'needsApproval'}));
 _.extend(UserGroups.prototype, IsActive);
 _.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActive']));
+_.extend(UserGroups.prototype, new JoinApproveReject('addedMembers', 'member', 'needsApproval'));
+_.extend(UserGroups.prototype, new Update({isActive: 'isActive', description: 'description', access: 'access'}, {owner: 'owners', member: 'members', needsApproval: 'needsApproval'}));
 _.extend(UserGroups.prototype, new Save(UserGroups, Audit));
 _.extend(UserGroups.prototype, new CAudit('UserGroups', 'name'));
-
-UserGroups.prototype.update = function (payload, by) {
-    var self = this;
-    return self.setIsActive(payload.isActive, by)
-        .add(payload.addedMembers, 'member', by)
-        .remove(payload.removedMembers, 'member', by)
-        .add(payload.addedOwners, 'owner', by)
-        .remove(payload.removedOwners, 'owner', by)
-        .setDescription(payload.description, by)
-        .setAccess(payload.access, by);
-};
 
 UserGroups._collection = 'userGroups';
 
@@ -64,9 +57,10 @@ UserGroups.indexes = [
     [{'owners': 1}]
 ];
 
+/*jshint unused:false*/
 UserGroups.newObject = function (doc, by) {
     var self = this;
-    return new Promise(function (resolve/*, reject*/) {
+    return new Promise(function (resolve, reject) {
         self.create(doc.payload.name, doc.auth.credentials.user.organisation, doc.payload.description, by)
             .then(function (userGroup) {
                 if (userGroup) {
@@ -80,6 +74,7 @@ UserGroups.newObject = function (doc, by) {
             });
     });
 };
+/*jshint unused:true*/
 
 UserGroups.create = function (name, organisation, description, owner) {
     var self = this;

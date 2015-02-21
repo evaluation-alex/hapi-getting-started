@@ -43,7 +43,7 @@ Controller.update = BaseController.update('users', Users, {
         roles: Joi.array().includes(Joi.string()),
         password: Joi.string()
     }
-}, []);
+}, [], 'update');
 
 Controller.signup = {
     validator: {

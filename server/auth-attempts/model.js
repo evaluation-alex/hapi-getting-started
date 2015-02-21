@@ -29,6 +29,18 @@ AuthAttempts.indexes = [
     [{ip: 1, email: 1}],
     [{email: 1}]
 ];
+/*jshint unused:false*/
+AuthAttempts.prototype.del = function (doc, by) {
+    var self = this;
+    AuthAttempts._findByIdAndRemove(self._id);
+    return self;
+};
+/*jshint unused:true*/
+
+AuthAttempts.prototype.save = function() {
+    var self = this;
+    return Promise.resolve(self);
+};
 
 AuthAttempts.create = function (ip, email) {
     var self = this;

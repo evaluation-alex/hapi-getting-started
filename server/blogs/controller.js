@@ -1,7 +1,6 @@
 'use strict';
 var Joi = require('joi');
 var _ = require('lodash');
-var AuthPlugin = require('./../common/auth');
 var Blogs = require('./model');
 var BaseController = require('./../common/controller').BaseController;
 var Users = require('./../users/model');
@@ -84,32 +83,10 @@ Controller.new = BaseController.new('blogs', Blogs, {
 Controller.delete = BaseController.delete('blogs', Blogs);
 Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])});
 
-Controller.subscribe = BaseController.update('blogs', Blogs, {
-    payload: {
-        addedSubscribers: Joi.array().includes(Joi.string()).unique()
-    }
-}, [
-    AuthPlugin.preware.ensurePermissions('view', 'blogs'),
-    {assign: 'validMembers', method: areValid(Users, 'email', 'addedSubscribers')}
-], 'join');
+Controller.subscribe = BaseController.join('blogs', Blogs, 'addedSubscribers');
 
-Controller.approve = BaseController.update('blogs', Blogs, {
-    payload: {
-        addedSubscribers: Joi.array().includes(Joi.string()).unique()
-    }
-}, [
-    {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])},
-    {assign: 'validMembers', method: areValid(Users, 'email', 'addedSubscribers')}
-], 'approve');
+Controller.approve = BaseController.approve('blogs', Blogs, 'addedSubscribers', 'owners');
 
-Controller.reject = BaseController.update('blogs', Blogs, {
-    payload: {
-        addedSubscribers: Joi.array().includes(Joi.string()).unique()
-    }
-}, [
-    {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])},
-    {assign: 'validMembers', method: areValid(Users, 'email', 'addedSubscribers')}
-], 'reject');
-
+Controller.reject = BaseController.reject('blogs', Blogs, 'addedSubscribers', 'owners');
 
 module.exports.Controller = Controller;

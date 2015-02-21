@@ -1,7 +1,6 @@
 'use strict';
 var _ = require('lodash');
 var Joi = require('joi');
-var AuthPlugin = require('./../common/auth');
 var UserGroups = require('./model');
 var Users = require('./../users/model');
 var BaseController = require('./../common/controller').BaseController;
@@ -65,31 +64,10 @@ Controller.new = BaseController.new('user-groups', UserGroups, {
 Controller.delete = BaseController.delete('user-groups', UserGroups);
 Controller.delete.pre.push({assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])});
 
-Controller.join = BaseController.update('user-groups', UserGroups, {
-    payload: {
-        addedMembers: Joi.array().includes(Joi.string()).unique()
-    }
-}, [
-    AuthPlugin.preware.ensurePermissions('view', 'user-groups'),
-    {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
-], 'join');
+Controller.join = BaseController.join('user-groups', UserGroups, 'addedMembers');
 
-Controller.approve = BaseController.update('user-groups', UserGroups, {
-    payload: {
-        addedMembers: Joi.array().includes(Joi.string()).unique()
-    }
-}, [
-    {assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
-    {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
-], 'approve');
+Controller.approve = BaseController.approve('user-groups', UserGroups, 'addedMembers', 'owners');
 
-Controller.reject = BaseController.update('user-groups', UserGroups, {
-    payload: {
-        addedMembers: Joi.array().includes(Joi.string()).unique()
-    }
-}, [
-    {assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
-    {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')}
-], 'reject');
+Controller.reject = BaseController.reject('user-groups', UserGroups, 'addedMembers', 'owners');
 
 module.exports.Controller = Controller;

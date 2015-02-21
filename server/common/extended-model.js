@@ -189,15 +189,15 @@ var CommonMixinJoinApproveReject = function (property, roleToAdd, needsApproval)
     return {
         join: function (doc, by) {
             var self = this;
-            return self.add(doc.payload[property], self.access === 'public' ? roleToAdd : needsApproval, by).save();
+            return self.add(doc.payload[property], self.access === 'public' ? roleToAdd : needsApproval, by);
         },
         approve: function (doc, by) {
             var self = this;
-            return self.add(doc.payload[property], roleToAdd, by).remove(doc.payload[property], needsApproval, by).save();
+            return self.add(doc.payload[property], roleToAdd, by).remove(doc.payload[property], needsApproval, by);
         },
         reject: function (doc, by) {
             var self = this;
-            return self.remove(doc.payload[property], needsApproval, by).save();
+            return self.remove(doc.payload[property], needsApproval, by);
         }
     };
 };
@@ -215,7 +215,7 @@ var CommonMixinUpdate = function (properties, lists) {
                 self.add(doc.payload['added' + _.capitalize(value)], key, by);
                 self.remove(doc.payload['removed' + _.capitalize(value)], key, by);
             });
-            return self.save();
+            return self;
         }
     };
 };
@@ -223,6 +223,10 @@ var CommonMixinUpdate = function (properties, lists) {
 module.exports.Update = CommonMixinUpdate;
 
 var CommonMixinIsActive = {
+    del: function (doc, by) {
+        var self = this;
+        return self.deactivate(by);
+    },
     deactivate: function (by) {
         var self = this;
         return self.setIsActive(false, by);

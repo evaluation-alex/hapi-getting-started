@@ -5,6 +5,7 @@ var ExtendedModel = require('./../common/extended-model').ExtendedModel;
 var AddRemove = require('./../common/extended-model').AddRemove;
 var IsActive = require('./../common/extended-model').IsActive;
 var Properties = require('./../common/extended-model').Properties;
+var Update = require('./../common/extended-model').Update;
 var Save = require('./../common/extended-model').Save;
 var CAudit = require('./../common/extended-model').Audit;
 var Promise = require('bluebird');
@@ -27,6 +28,7 @@ var Permissions = ExtendedModel.extend({
 _.extend(Permissions.prototype, new AddRemove({user: 'users', group: 'groups'}));
 _.extend(Permissions.prototype, IsActive);
 _.extend(Permissions.prototype, new Properties(['description', 'isActive']));
+_.extend(Permissions.prototype, new Update({isActive: 'isActive', description: 'description'}, {user: 'users', group: 'groups'}));
 _.extend(Permissions.prototype, new Save(Permissions, Audit));
 _.extend(Permissions.prototype, new CAudit('Permissions', '_id'));
 
@@ -35,16 +37,6 @@ Permissions.prototype.isPermissionFor = function (forAction, onObject) {
     var ret = (self.action === forAction || self.action === '*') &&
         (self.object === onObject || self.object === '*');
     return ret;
-};
-Permissions.prototype.update = function (doc, by) {
-    var self = this;
-    return self.setIsActive(doc.payload.isActive, by)
-        .add(doc.payload.addedUsers, 'user', by)
-        .remove(doc.payload.removedUsers, 'user', by)
-        .add(doc.payload.addedGroups, 'group', by)
-        .remove(doc.payload.removedGroups, 'group', by)
-        .setDescription(doc.payload.description, by)
-        .save();
 };
 
 Permissions._collection = 'permissions';

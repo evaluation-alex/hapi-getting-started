@@ -4,6 +4,7 @@ var Boom = require('boom');
 var AuthPlugin = require('./../common/auth');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');
+var Users = require('./../users/model');
 
 var Controller = {};
 
@@ -159,7 +160,7 @@ Controller.update = function (component, Model, validator, prereqs, updateCb) {
     var perms = _.find(prereqs, function (prereq) {
         return prereq.assign === 'ensurePermissions';
     });
-    var pre = _.flatten([perms ? AuthPlugin.preware.ensurePermissions('update', component) : [], prereqs]);
+    var pre = _.flatten([perms ? [] : AuthPlugin.preware.ensurePermissions('update', component), prereqs]);
     return {
         validator: validator,
         pre: pre,
@@ -172,7 +173,7 @@ Controller.update = function (component, Model, validator, prereqs, updateCb) {
                         return false;
                     } else {
                         var by = request.auth.credentials.user.email;
-                        return u[updateCb](request, by);
+                        return u[updateCb](request, by).save();
                     }
                 })
                 .then(function (u) {
@@ -188,34 +189,45 @@ Controller.update = function (component, Model, validator, prereqs, updateCb) {
 };
 
 Controller.delete = function (component, Model) {
-    return {
-        pre: [AuthPlugin.preware.ensurePermissions('update', component)],
-        handler: function (request, reply) {
-            var id = BaseModel.ObjectID(request.params.id);
-            Model._findOne({_id: id})
-                .then(function (f) {
-                    if (!f) {
-                        reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
-                        return false;
-                    } else {
-                        if (f.deactivate) {
-                            var by = request.auth.credentials.user.email;
-                            return f.deactivate(by).save();
-                        } else {
-                            return Model._findByIdAndRemove(id);
-                        }
-                    }
-                })
-                .then(function (f) {
-                    if (f) {
-                        reply(f);
-                    }
-                })
-                .catch(function (err) {
-                    reply(Boom.badImplementation(err));
-                });
-        }
-    };
+    var ret = Controller.update(component, Model, undefined, [], 'del');
+    return ret;
 };
+
+Controller.join = function (component, Model, toAdd) {
+    var validator = {
+        payload: {}
+    };
+    validator.payload[toAdd] = Joi.array().includes(Joi.string()).unique();
+    var ret = Controller.update(component, Model, validator, [
+        AuthPlugin.preware.ensurePermissions('view', component),
+        {assign: 'validMembers', method: areValid(Users, 'email', toAdd)}
+    ], 'join');
+    return ret;
+};
+
+Controller.approve = function(component, Model, toAdd, approvers) {
+    var validator = {
+        payload: {}
+    };
+    validator.payload[toAdd] = Joi.array().includes(Joi.string()).unique();
+    var ret = Controller.update(component, Model, validator, [
+        {assign: 'validAndPermitted', method: validAndPermitted(Model, 'id', [approvers])},
+        {assign: 'validMembers', method: areValid(Users, 'email', toAdd)}
+    ], 'approve');
+    return ret;
+};
+
+Controller.reject = function(component, Model, toAdd, approvers) {
+    var validator = {
+        payload: {}
+    };
+    validator.payload[toAdd] = Joi.array().includes(Joi.string()).unique();
+    var ret = Controller.update(component, Model, validator, [
+        {assign: 'validAndPermitted', method: validAndPermitted(Model, 'id', [approvers])},
+        {assign: 'validMembers', method: areValid(Users, 'email', toAdd)}
+    ], 'reject');
+    return ret;
+};
+
 
 module.exports.BaseController = Controller;

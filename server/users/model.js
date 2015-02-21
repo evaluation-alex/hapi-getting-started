@@ -115,8 +115,7 @@ Users.prototype.update = function (doc, by) {
     return self._invalidateSession()
         .setIsActive(doc.payload.isActive, by)
         .setRoles(doc.payload.roles, by)
-        .resetPassword(doc.payload.password, by)
-        .save();
+        .resetPassword(doc.payload.password, by);
 };
 
 Users._collection = 'users';

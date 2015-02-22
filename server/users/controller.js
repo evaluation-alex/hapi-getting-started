@@ -4,9 +4,7 @@ var Boom = require('boom');
 var Config = require('./../../config');
 var Users = require('./model');
 var Mailer = require('./../common/mailer');
-var BaseController = require('./../common/controller').BaseController;
-
-var Controller = {};
+var ControllerFactory = require('./../common/controller-factory').ControllerFactory;
 
 var emailCheck = function (request, reply) {
     Users._findOne({email: request.payload.email, organisation: request.payload.organisation})
@@ -22,28 +20,28 @@ var emailCheck = function (request, reply) {
         });
 };
 
-Controller.find = BaseController.find('users', Users, {
-    query: {
-        email: Joi.string(),
-        isActive: Joi.string()
-    }
-}, function (request) {
-    var query = {};
-    if (request.query.email) {
-        query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
-    }
-    return query;
-});
-
-Controller.findOne = BaseController.findOne('users', Users);
-
-Controller.update = BaseController.update('users', Users, {
+var Controller = new ControllerFactory('users', Users)
+    .findController({
+        query: {
+            email: Joi.string(),
+            isActive: Joi.string()
+        }
+    }, function (request) {
+        var query = {};
+        if (request.query.email) {
+            query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
+        }
+        return query;
+    })
+    .findOneController()
+    .updateController({
     payload: {
         isActive: Joi.boolean(),
         roles: Joi.array().includes(Joi.string()),
         password: Joi.string()
     }
-}, [], 'update');
+}, [], 'update', 'update')
+    .doneConfiguring();
 
 Controller.signup = {
     validator: {

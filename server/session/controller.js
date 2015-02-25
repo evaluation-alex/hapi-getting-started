@@ -87,4 +87,4 @@ Controller.logout = {
     }
 };
 
-module.exports.Controller = Controller;
+module.exports = Controller;

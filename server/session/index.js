@@ -1,8 +1,8 @@
 'use strict';
 var RouteFactory = require('./../common/route-factory');
-var Controller = require('./controller').Controller;
+var Controller = require('./controller');
 
-module.exports.Routes = [
+module.exports = [
     RouteFactory.newRoute()
         .forMethod('POST')
         .onPath('/login')

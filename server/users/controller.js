@@ -4,7 +4,7 @@ var Boom = require('boom');
 var Config = require('./../../config');
 var Users = require('./model');
 var Mailer = require('./../common/mailer');
-var ControllerFactory = require('./../common/controller-factory').ControllerFactory;
+var ControllerFactory = require('./../common/controller-factory');
 
 var emailCheck = function (request, reply) {
     Users._findOne({email: request.payload.email, organisation: request.payload.organisation})
@@ -179,4 +179,4 @@ Controller.loginReset = {
     }
 };
 
-module.exports.Controller = Controller;
+module.exports = Controller;

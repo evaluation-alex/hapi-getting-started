@@ -1,7 +1,7 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../common/extended-model').ExtendedModel;
+var ExtendedModel = require('./../common/extended-model');
 var Config = require('./../../config');
 var Promise = require('bluebird');
 
@@ -37,7 +37,7 @@ AuthAttempts.prototype.del = function (doc, by) {
 };
 /*jshint unused:true*/
 
-AuthAttempts.prototype.save = function() {
+AuthAttempts.prototype.save = function () {
     var self = this;
     return Promise.resolve(self);
 };

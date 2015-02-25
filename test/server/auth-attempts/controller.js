@@ -22,18 +22,9 @@ describe('AuthAttempts', function () {
     var groupsToClear = [];
     beforeEach(function (done) {
         tu.setupServer()
-            .then(function (s) {
-                server = s;
-                return tu.setupRolesAndUsers();
-            })
-            .then(function () {
-                return Users._findOne({email: 'root'});
-            })
-            .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test').save();
-            })
-            .then(function (foundUser) {
-                authheader = tu.authorizationHeader(foundUser);
+            .then(function (res) {
+                server = res.server;
+                authheader = res.authheader;
                 done();
             })
             .catch(function (err) {

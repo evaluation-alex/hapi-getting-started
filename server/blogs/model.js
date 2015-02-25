@@ -1,14 +1,14 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../common/extended-model').ExtendedModel;
-var AddRemove = require('./../common/extended-model').AddRemove;
-var JoinApproveReject = require('./../common/extended-model').JoinApproveReject;
-var Update = require('./../common/extended-model').Update;
-var Properties = require('./../common/extended-model').Properties;
-var IsActive = require('./../common/extended-model').IsActive;
-var Save = require('./../common/extended-model').Save;
-var CAudit = require('./../common/extended-model').Audit;
+var ExtendedModel = require('./../common/extended-model');
+var AddRemove = require('./../common/model-mixins').AddRemove;
+var JoinApproveReject = require('./../common/model-mixins').JoinApproveReject;
+var Update = require('./../common/model-mixins').Update;
+var Properties = require('./../common/model-mixins').Properties;
+var IsActive = require('./../common/model-mixins').IsActive;
+var Save = require('./../common/model-mixins').Save;
+var CAudit = require('./../common/model-mixins').Audit;
 var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var _ = require('lodash');
@@ -25,10 +25,28 @@ var Blogs = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
-_.extend(Blogs.prototype, new AddRemove({owner: 'owners', contributor: 'contributors', subscriber: 'subscribers', groups: 'subscriberGroups', needsApproval: 'needsApproval'}));
+_.extend(Blogs.prototype, new AddRemove({
+    owner: 'owners',
+    contributor: 'contributors',
+    subscriber: 'subscribers',
+    groups: 'subscriberGroups',
+    needsApproval: 'needsApproval'
+}));
 _.extend(Blogs.prototype, new Properties(['description', 'isActive', 'needsReview', 'access', 'allowComments']));
 _.extend(Blogs.prototype, new JoinApproveReject('addedSubscribers', 'subscriber', 'needsApproval'));
-_.extend(Blogs.prototype, new Update({isActive: 'isActive', description: 'description', needsReview: 'needsReview', access: 'access', allowComments: 'allowComments'}, {owner: 'owners', contributor: 'contributors', subscriber: 'subscribers', groups: 'subscriberGroups', needsApproval: 'needsApproval'}));
+_.extend(Blogs.prototype, new Update({
+    isActive: 'isActive',
+    description: 'description',
+    needsReview: 'needsReview',
+    access: 'access',
+    allowComments: 'allowComments'
+}, {
+    owner: 'owners',
+    contributor: 'contributors',
+    subscriber: 'subscribers',
+    groups: 'subscriberGroups',
+    needsApproval: 'needsApproval'
+}));
 _.extend(Blogs.prototype, IsActive);
 _.extend(Blogs.prototype, new Save(Blogs, Audit));
 _.extend(Blogs.prototype, new CAudit('Blogs', 'title'));
@@ -64,7 +82,17 @@ Blogs.indexes = [
 
 Blogs.newObject = function (doc, by) {
     var self = this;
-    return self.create(doc.payload.title, doc.auth.credentials.user.organisation, doc.payload.description, doc.payload.owners, doc.payload.contributors, doc.payload.subscribers, doc.payload.subscriberGroups, doc.payload.needsReview, doc.payload.access, doc.payload.allowComments, by);
+    return self.create(doc.payload.title,
+        doc.auth.credentials.user.organisation,
+        doc.payload.description,
+        doc.payload.owners,
+        doc.payload.contributors,
+        doc.payload.subscribers,
+        doc.payload.subscriberGroups,
+        doc.payload.needsReview,
+        doc.payload.access,
+        doc.payload.allowComments,
+        by);
 };
 
 Blogs.create = function (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {

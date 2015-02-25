@@ -1,7 +1,7 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../common/extended-model').ExtendedModel;
+var ExtendedModel = require('./../common/extended-model');
 var Promise = require('bluebird');
 
 var Roles = ExtendedModel.extend({
@@ -12,17 +12,17 @@ var Roles = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
-Roles.prototype.hasPermissionsTo= function (performAction, onObject) {
-        var ret = false;
-        if (this.permissions) {
-            this.permissions.forEach(function (permission) {
-                if ((permission.object.indexOf(onObject) !== -1 || permission.object === '*') && (permission.action === 'update' || permission.action === performAction)) {
-                    ret = ret || true;
-                }
-            });
-        }
-        return ret;
-    };
+Roles.prototype.hasPermissionsTo = function (performAction, onObject) {
+    var ret = false;
+    if (this.permissions) {
+        this.permissions.forEach(function (permission) {
+            if ((permission.object.indexOf(onObject) !== -1 || permission.object === '*') && (permission.action === 'update' || permission.action === performAction)) {
+                ret = ret || true;
+            }
+        });
+    }
+    return ret;
+};
 
 Roles._collection = 'roles';
 Roles.schema = Joi.object().keys({

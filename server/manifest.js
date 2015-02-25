@@ -49,12 +49,13 @@ var plugins = {
         mongodb: Config.hapiMongoModels.mongodb,
         models: {
             AuthAttempts: './server/auth-attempts/model',
-            Roles: './server/roles/model',
             Audit: './server/audit/model',
+            Roles: './server/roles/model',
             Users: './server/users/model',
             UserGroups: './server/user-groups/model',
             Permissions: './server/permissions/model',
-            Blogs: './server/blogs/model'
+            Blogs: './server/blogs/model',
+            Posts: './server/blogs/posts/model'
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },
@@ -72,7 +73,8 @@ var components = [
     './server/session',
     './server/user-groups',
     './server/permissions',
-    './server/blogs'
+    './server/blogs',
+    './server/blogs/posts'
 ];
 
 module.exports.components = components;

@@ -5,80 +5,7 @@ var AuthPlugin = require('./../common/auth');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');
 var Users = require('./../users/model');
-
-var isUnique = function (Model, queryBuilder) {
-    return function (request, reply) {
-        if (queryBuilder) {
-            var query = queryBuilder(request);
-            Model._findOne(query)
-                .then(function (f) {
-                    if (f) {
-                        reply(Boom.conflict('Object already exists'));
-                    } else {
-                        reply(true);
-                    }
-                })
-                .catch(function (err) {
-                    reply(Boom.badImplementation(err));
-                });
-        }
-    };
-};
-
-var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
-    return function (request, reply) {
-        if (request.payload[payloadPropertyToLookup] && request.payload[payloadPropertyToLookup].length > 0) {
-            var msg = 'Bad data : ';
-            Model.areValid(docPropertyToLookup, request.payload[payloadPropertyToLookup], request.auth.credentials.user.organisation)
-                .then(function (validated) {
-                    _.forEach(request.payload[payloadPropertyToLookup], function (a) {
-                        if (!validated[a]) {
-                            msg += a + ',';
-                        }
-                    });
-                })
-                .then(function () {
-                    if (msg.indexOf(',') > -1) {
-                        reply(Boom.badData(msg));
-                    } else {
-                        reply();
-                    }
-                })
-                .catch(function (err) {
-                    reply(Boom.badImplementation(err));
-                });
-        } else {
-            reply();
-        }
-    };
-};
-
-module.exports.areValid = areValid;
-
-var validAndPermitted = function (Model, idProperty, groups){
-    return function (request, reply) {
-        Model.isValid(BaseModel.ObjectID(request.params[idProperty]), groups, request.auth.credentials.user.email)
-            .then(function (m) {
-                var cases = {
-                    'valid': function () {
-                        reply();
-                    },
-                    'not found': function () {
-                        reply(Boom.notFound(JSON.stringify(m)));
-                    }
-                };
-                cases['not a member of ' + JSON.stringify(groups) + ' list'] = function () {
-                    reply(Boom.unauthorized(JSON.stringify(m)));
-                };
-                cases[m.message]();
-            })
-            .catch(function (err) {
-                reply(Boom.badImplementation(err));
-            });
-    };
-};
-
-module.exports.validAndPermitted = validAndPermitted;
+var PreReqs = require('./pre-reqs');
 
 var ControllerFactory = function (component, model) {
     var self = this;
@@ -161,7 +88,7 @@ var ControllerFactory = function (component, model) {
             });
         return self;
     };
-    self.findOneController = function () {
+    self.findOneController = function (findOneCb) {
         self.forMethod('findOne')
             .preProcessWith(AuthPlugin.preware.ensurePermissions('view', component))
             .handleUsing(function (request, reply) {
@@ -171,7 +98,7 @@ var ControllerFactory = function (component, model) {
                         if (!f) {
                             reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
                         } else {
-                            reply(f);
+                            reply(findOneCb ? findOneCb(f) : f);
                         }
                     })
                     .catch(function (err) {
@@ -180,12 +107,12 @@ var ControllerFactory = function (component, model) {
             });
         return self;
     };
-    self.updateController = function (validator, prereqs, method, updateCb) {
+    self.updateController = function (validator, prereqs, methodName, updateCb) {
         var perms = _.find(prereqs, function (prereq) {
             return prereq.assign === 'ensurePermissions';
         });
         var pre = _.flatten([perms ? [] : AuthPlugin.preware.ensurePermissions('update', component), prereqs]);
-        self.forMethod(method)
+        self.forMethod(methodName)
             .preProcessWith(pre)
             .handleUsing(function (request, reply) {
                 var id = BaseModel.ObjectID(request.params.id);
@@ -196,7 +123,11 @@ var ControllerFactory = function (component, model) {
                             return false;
                         } else {
                             var by = request.auth.credentials.user.email;
-                            return f[updateCb](request, by).save();
+                            if (_.isFunction(updateCb)) {
+                                return updateCb(f, request, by).save();
+                            } else {
+                                return f[updateCb](request, by).save();
+                            }
                         }
                     })
                     .then(function (f) {
@@ -212,7 +143,7 @@ var ControllerFactory = function (component, model) {
     };
     self.newController = function (validator, prereqs, uniqueCheck, newCb) {
         var pre = _.flatten([AuthPlugin.preware.ensurePermissions('update', component),
-            {assign: 'isUnique', method: isUnique(model, uniqueCheck)},
+            {assign: 'isUnique', method: PreReqs.isUnique(model, uniqueCheck)},
             prereqs]);
         self.forMethod('new')
             .preProcessWith(pre)
@@ -242,15 +173,15 @@ var ControllerFactory = function (component, model) {
         validator.payload[toAdd] = Joi.array().includes(Joi.string()).unique();
         self.updateController(validator, [
             AuthPlugin.preware.ensurePermissions('view', component),
-            {assign: 'validMembers', method: areValid(Users, 'email', toAdd)}
+            {assign: 'validMembers', method: PreReqs.areValid(Users, 'email', toAdd)}
         ], actions[0], 'join');
         self.updateController(validator, [
-            {assign: 'validAndPermitted', method: validAndPermitted(model, 'id', [approvers])},
-            {assign: 'validMembers', method: areValid(Users, 'email', toAdd)}
+            {assign: 'validAndPermitted', method: PreReqs.validAndPermitted(model, 'id', [approvers])},
+            {assign: 'validMembers', method: PreReqs.areValid(Users, 'email', toAdd)}
         ], actions[1], 'approve');
         self.updateController(validator, [
-            {assign: 'validAndPermitted', method: validAndPermitted(model, 'id', [approvers])},
-            {assign: 'validMembers', method: areValid(Users, 'email', toAdd)}
+            {assign: 'validAndPermitted', method: PreReqs.validAndPermitted(model, 'id', [approvers])},
+            {assign: 'validMembers', method: PreReqs.areValid(Users, 'email', toAdd)}
         ], actions[2], 'reject');
         return self;
     };
@@ -258,4 +189,4 @@ var ControllerFactory = function (component, model) {
     return self;
 };
 
-module.exports.ControllerFactory = ControllerFactory;
+module.exports = ControllerFactory;

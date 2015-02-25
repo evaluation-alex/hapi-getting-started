@@ -1,14 +1,14 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../common/extended-model').ExtendedModel;
-var AddRemove = require('./../common/extended-model').AddRemove;
-var IsActive = require('./../common/extended-model').IsActive;
-var JoinApproveReject = require('./../common/extended-model').JoinApproveReject;
-var Update = require('./../common/extended-model').Update;
-var Properties = require('./../common/extended-model').Properties;
-var Save = require('./../common/extended-model').Save;
-var CAudit = require('./../common/extended-model').Audit;
+var ExtendedModel = require('./../common/extended-model');
+var AddRemove = require('./../common/model-mixins').AddRemove;
+var IsActive = require('./../common/model-mixins').IsActive;
+var JoinApproveReject = require('./../common/model-mixins').JoinApproveReject;
+var Update = require('./../common/model-mixins').Update;
+var Properties = require('./../common/model-mixins').Properties;
+var Save = require('./../common/model-mixins').Save;
+var CAudit = require('./../common/model-mixins').Audit;
 var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var _ = require('lodash');
@@ -25,11 +25,21 @@ var UserGroups = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
-_.extend(UserGroups.prototype, new AddRemove({owner: 'owners', member: 'members', needsApproval: 'needsApproval'}));
+_.extend(UserGroups.prototype, new AddRemove({owner: 'owners',
+    member: 'members',
+    needsApproval: 'needsApproval'
+}));
 _.extend(UserGroups.prototype, IsActive);
 _.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActive']));
 _.extend(UserGroups.prototype, new JoinApproveReject('addedMembers', 'member', 'needsApproval'));
-_.extend(UserGroups.prototype, new Update({isActive: 'isActive', description: 'description', access: 'access'}, {owner: 'owners', member: 'members', needsApproval: 'needsApproval'}));
+_.extend(UserGroups.prototype, new Update({
+    isActive: 'isActive',
+    description: 'description',
+    access: 'access'
+}, {owner: 'owners',
+    member: 'members',
+    needsApproval: 'needsApproval'
+}));
 _.extend(UserGroups.prototype, new Save(UserGroups, Audit));
 _.extend(UserGroups.prototype, new CAudit('UserGroups', 'name'));
 
@@ -61,7 +71,10 @@ UserGroups.indexes = [
 UserGroups.newObject = function (doc, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.create(doc.payload.name, doc.auth.credentials.user.organisation, doc.payload.description, by)
+        self.create(doc.payload.name,
+            doc.auth.credentials.user.organisation,
+            doc.payload.description,
+            by)
             .then(function (userGroup) {
                 if (userGroup) {
                     resolve(userGroup.add(doc.payload.members, 'member', by)

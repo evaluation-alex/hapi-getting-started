@@ -55,6 +55,7 @@
         "joi": "5.1.x",
         "lodash": "3.3.x",
         "lout": "6.2.x",
+        "lru-cache": "^2.5.0",
         "mkdirp": "0.5.x",
         "moment": "2.9.x",
         "mongodb": "1.4.x",

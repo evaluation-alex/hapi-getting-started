@@ -1,7 +1,7 @@
 'use strict';
 var Joi = require('joi');
 var Audit = require('./model');
-var ControllerFactory = require('./../common/controller-factory').ControllerFactory;
+var ControllerFactory = require('./../common/controller-factory');
 
 var Controller = new ControllerFactory('audit', Audit)
     .findController({
@@ -25,4 +25,4 @@ var Controller = new ControllerFactory('audit', Audit)
     })
     .doneConfiguring();
 
-module.exports.Controller = Controller;
+module.exports = Controller;

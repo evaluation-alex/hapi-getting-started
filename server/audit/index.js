@@ -1,5 +1,5 @@
 'use strict';
 var RouteFactory = require('./../common/route-factory');
-var Controller = require('./controller').Controller;
+var Controller = require('./controller');
 
-module.exports.Routes = RouteFactory.discoverDefaultRoutes('audit', Controller);
+module.exports = RouteFactory.discoverDefaultRoutes('audit', Controller);

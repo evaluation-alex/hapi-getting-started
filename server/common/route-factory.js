@@ -87,28 +87,28 @@ var RouteFactory = function () {
             .withController(controller);
         return self;
     };
-    var path = function (component) {
-        return '/' + component;
+    var path = function (pathPrefix, component) {
+        return ((pathPrefix ? pathPrefix : '') + '/' + component);
     };
-    var pathWithId = function (component) {
-        return '/' + component + '/{id}';
+    var pathWithId = function (pathPrefix, component) {
+        return ((pathPrefix ? pathPrefix : '') + '/' + component + '/{id}');
     };
-    self.defaultFindRoute = function (component, controller) {
-        return self._defaultRoute('GET', path(component), controller).doneConfiguring();
+    self.defaultFindRoute = function (component, controller, pathPrefix) {
+        return self._defaultRoute('GET', path(pathPrefix, component), controller).doneConfiguring();
     };
-    self.defaultFindOneRoute = function (component, controller) {
-        return self._defaultRoute('GET', pathWithId(component), controller).doneConfiguring();
+    self.defaultFindOneRoute = function (component, controller, pathPrefix) {
+        return self._defaultRoute('GET', pathWithId(pathPrefix, component), controller).doneConfiguring();
     };
-    self.defaultUpdateRoute = function (component, controller) {
-        return self._defaultRoute('PUT', pathWithId(component), controller).doneConfiguring();
+    self.defaultUpdateRoute = function (component, controller, pathPrefix) {
+        return self._defaultRoute('PUT', pathWithId(pathPrefix, component), controller).doneConfiguring();
     };
-    self.defaultNewRoute = function (component, controller) {
-        return self._defaultRoute('POST', path(component), controller).doneConfiguring();
+    self.defaultNewRoute = function (component, controller, pathPrefix) {
+        return self._defaultRoute('POST', path(pathPrefix, component), controller).doneConfiguring();
     };
-    self.defaultDeleteRoute = function (component, controller) {
-        return self._defaultRoute('DELETE', pathWithId(component), controller).doneConfiguring();
+    self.defaultDeleteRoute = function (component, controller, pathPrefix) {
+        return self._defaultRoute('DELETE', pathWithId(pathPrefix, component), controller).doneConfiguring();
     };
-    self.discoverDefaultRoutes = function (component, controller) {
+    self.discoverDefaultRoutes = function (component, controller, pathPrefix) {
         var routes = [];
         var discover = {
             find: self.defaultFindRoute,
@@ -119,7 +119,7 @@ var RouteFactory = function () {
         };
         _.forOwn(discover, function (dfn, mthd) {
             if (controller[mthd]) {
-                routes.push(dfn(component, controller[mthd]));
+                routes.push(dfn(component, controller[mthd], pathPrefix));
             }
         });
         return routes;

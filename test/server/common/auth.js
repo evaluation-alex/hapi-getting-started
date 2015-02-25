@@ -20,10 +20,9 @@ describe('Auth', function () {
     var authheader;
 
     beforeEach(function (done) {
-        server = tu.setupServer()
-            .then(function (s) {
-                server = s;
-                return tu.setupRolesAndUsers();
+        tu.setupServer()
+            .then(function (res) {
+                server = res.server;
             })
             .then(function () {
                 return Users.create(email, 'auth123', 'silver lining');

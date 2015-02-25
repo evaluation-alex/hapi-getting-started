@@ -583,7 +583,7 @@ describe('Blogs Model', function () {
                     done();
                 });
         });
-        it('should do nothing if there is no change in the needsReview', function (done) {
+        it('should do nothing if there is no change in the allowComments', function (done) {
             var error = null;
             testblog.setAllowComments(testblog.allowComments, 'test').save()
                 .then(function (p) {
@@ -601,7 +601,7 @@ describe('Blogs Model', function () {
                     tu.testComplete(done, error);
                 });
         });
-        it('should update to the new needsReview', function (done) {
+        it('should update to the new allowComments', function (done) {
             var error = null;
             testblog.setAllowComments(false, 'test').save()
                 .then(function (p) {

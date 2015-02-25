@@ -20,11 +20,10 @@ describe('Users', function () {
     var server = null;
     var emails = [];
     beforeEach(function (done) {
-        server = tu.setupServer()
-            .then(function (s) {
-                server = s;
-                return tu.setupRolesAndUsers();
-            })
+        tu.setupServer()
+            .then(function (res) {
+                server = res.server;
+             })
             .then(function () {
                 emails.push('test.users@test.api');
                 return Users.create('test.users@test.api', 'password123', 'silver lining');
@@ -461,8 +460,7 @@ describe('Signup', function () {
     beforeEach(function (done) {
         tu.setupServer()
             .then(function (s) {
-                server = s;
-                tu.setupRolesAndUsers();
+                server = s.server;
                 done();
             })
             .catch(function (err) {

@@ -1,7 +1,7 @@
 'use strict';
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../common/extended-model').ExtendedModel;
+var ExtendedModel = require('./../common/extended-model');
 
 var Audit = ExtendedModel.extend({
     /* jshint -W064 */
@@ -45,7 +45,7 @@ Audit.create = function (type, id, action, origValues, newValues, by, organisati
     return self._insert(doc, undefined);
 };
 
-Audit.findAudit = function(type, id, conditions) {
+Audit.findAudit = function (type, id, conditions) {
     var self = this;
     conditions.objectChangedType = type;
     conditions.objectChangedId = id;

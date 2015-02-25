@@ -3,9 +3,9 @@ var _ = require('lodash');
 var Joi = require('joi');
 var UserGroups = require('./model');
 var Users = require('./../users/model');
-var ControllerFactory = require('./../common/controller-factory').ControllerFactory;
-var areValid = require('./../common/controller-factory').areValid;
-var validAndPermitted = require('./../common/controller-factory').validAndPermitted;
+var ControllerFactory = require('./../common/controller-factory');
+var areValid = require('./../common/pre-reqs').areValid;
+var validAndPermitted = require('./../common/pre-reqs').validAndPermitted;
 
 var Controller = new ControllerFactory('user-groups', UserGroups)
     .findController({
@@ -60,4 +60,4 @@ var Controller = new ControllerFactory('user-groups', UserGroups)
     .joinApproveRejectController(['join', 'approve', 'reject'], 'addedMembers', 'owners')
     .doneConfiguring();
 
-module.exports.Controller = Controller;
+module.exports = Controller;

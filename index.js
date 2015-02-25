@@ -7,7 +7,7 @@ Glue.compose(Manifest.manifest, {relativeTo: __dirname}, function (err, server) 
         throw err;
     }
     Manifest.components.forEach(function (component) {
-        server.route(require(component).Routes);
+        server.route(require(component));
     });
     server.start(function () {
         console.log('engage');

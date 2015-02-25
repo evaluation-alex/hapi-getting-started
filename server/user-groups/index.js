@@ -1,6 +1,6 @@
 'use strict';
 var RouteFactory = require('./../common/route-factory');
-var Controller = require('./controller').Controller;
+var Controller = require('./controller');
 var _ = require('lodash');
 
 var routes = RouteFactory.discoverDefaultRoutes('user-groups', Controller);
@@ -13,4 +13,4 @@ _.forEach(['join', 'approve', 'reject'], function (action) {
         .doneConfiguring());
 });
 
-module.exports.Routes = routes;
+module.exports = routes;

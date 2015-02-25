@@ -22,19 +22,10 @@ describe('UserGroups', function () {
     var server = null;
     var groupsToClear = [];
     beforeEach(function (done) {
-        server = tu.setupServer()
-            .then(function (s) {
-                server = s;
-                return tu.setupRolesAndUsers();
-            })
-            .then(function () {
-                return Users._findOne({email: 'root'});
-            })
-            .then(function (root) {
-                return root.loginSuccess('test', 'test').save();
-            })
-            .then(function (root) {
-                rootAuthHeader = tu.authorizationHeader(root);
+        tu.setupServer()
+            .then(function (res) {
+                server = res.server;
+                rootAuthHeader = res.authheader;
                 done();
             })
             .catch(function (err) {
@@ -43,7 +34,6 @@ describe('UserGroups', function () {
                 }
             })
             .done();
-
     });
 
     describe('GET /user-groups', function () {

@@ -16,23 +16,11 @@ describe('Audit', function () {
     var authheader = '';
     var server = null;
     var emails = [];
-    var permissionsToClear = [];
-    var groupsToClear = [];
-    var blogsToClear = [];
     beforeEach(function (done) {
         tu.setupServer()
-            .then(function (s) {
-                server = s;
-                return tu.setupRolesAndUsers();
-            })
-            .then(function () {
-                return Users._findOne({email: 'root'});
-            })
-            .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test').save();
-            })
-            .then(function (foundUser) {
-                authheader = tu.authorizationHeader(foundUser);
+            .then(function (res) {
+                server = res.server;
+                authheader = res.authheader;
                 done();
             })
             .catch(function (err) {
@@ -108,21 +96,11 @@ describe('Audit', function () {
                 });
             });
         });
-
-        describe('permissions', function () {
-        });
-
-        describe('user-groups', function () {
-
-        });
-        describe('blogs', function () {
-
-        });
     });
 
 
     afterEach(function (done) {
-        return tu.cleanup({users: emails, userGroups: groupsToClear, permissions: permissionsToClear, blogs: blogsToClear}, done);
+        return tu.cleanup({users: emails}, done);
     });
 
 });

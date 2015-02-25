@@ -13,10 +13,24 @@ var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Permissions = require(relativeToServer + 'permissions/model');
 var Blogs = require(relativeToServer + 'blogs/model');
+var Posts = require(relativeToServer + 'blogs/posts/model');
 var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
 var Roles = require(relativeToServer + 'roles/model');
 
 var mongodb;
+
+var authorizationHeader = function (user) {
+    return 'Basic ' + (new Buffer(user.email + ':' + user.session.key)).toString('base64');
+};
+
+exports.authorizationHeader = authorizationHeader;
+
+var authorizationHeader2 = function (user, password) {
+    return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
+};
+
+exports.authorizationHeader2 = authorizationHeader2;
+
 var setupConnect = function () {
     return new Promise(function (resolve, reject) {
         BaseModel.connect(Config.hapiMongoModels.mongodb, function (err, db) {
@@ -110,8 +124,14 @@ exports.setupRolesAndUsers = setupRolesAndUsers;
 
 var setupServer = function () {
     return new Promise(function (resolve, reject) {
-        setupConnect()
+        setupRolesAndUsers()
             .then(function () {
+                return Users._findOne({email: 'root'});
+            })
+            .then(function (foundUser) {
+                return foundUser.loginSuccess('test', 'test').save();
+            })
+            .then(function (foundUser) {
                 var Manifest = require('./../../server/manifest').manifest;
                 var components = [
                     '../../server/audit',
@@ -121,7 +141,8 @@ var setupServer = function () {
                     '../../server/session',
                     '../../server/user-groups',
                     '../../server/users',
-                    '../../server/blogs'
+                    '../../server/blogs',
+                    '../../server/blogs/posts'
                 ];
                 var ModelsPlugin = {
                     register: require('hapi-mongo-models'),
@@ -136,13 +157,12 @@ var setupServer = function () {
                     } else {
                         components.forEach(function (component) {
                             try {
-                                var routes = require(component).Routes;
-                                server.route(routes);
+                                server.route(require(component));
                             } catch (err) {
                                 console.log(err);
                             }
                         });
-                        resolve(server);
+                        resolve({server: server, authheader: authorizationHeader(foundUser)});
                     }
                 });
             })
@@ -161,11 +181,7 @@ function cleanupUsers (usersToCleanup) {
     return new Promise(function (resolve, reject) {
         if (usersToCleanup && usersToCleanup.length > 0) {
             Users.remove({email: {$in: usersToCleanup}}, function (err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(true);
-                }
+                err ? reject(err) : resolve(true);
             });
         } else {
             resolve(true);
@@ -177,11 +193,7 @@ function cleanupUserGroups (groupsToCleanup) {
     return new Promise(function (resolve, reject) {
         if (groupsToCleanup && groupsToCleanup.length > 0) {
             UserGroups.remove({name: {$in: groupsToCleanup}}, function (err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(true);
-                }
+                err ? reject(err) : resolve(true);
             });
         } else {
             resolve(true);
@@ -193,11 +205,7 @@ function cleanupPermissions (permissionsToCleanup) {
     return new Promise(function (resolve, reject) {
         if (permissionsToCleanup && permissionsToCleanup.length > 0) {
             Permissions.remove({description: {$in: permissionsToCleanup}}, function (err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(true);
-                }
+                err ? reject(err) : resolve(true);
             });
         } else {
             resolve(true);
@@ -209,11 +217,19 @@ function cleanupBlogs (blogsToCleanup) {
     return new Promise(function (resolve, reject) {
         if (blogsToCleanup && blogsToCleanup.length > 0) {
             Blogs.remove({title: {$in: blogsToCleanup}}, function (err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(true);
-                }
+                err ? reject(err) : resolve(true);
+            });
+        } else {
+            resolve(true);
+        }
+    });
+}
+
+function cleanupPosts (postsToCleanup) {
+    return new Promise(function (resolve, reject) {
+        if (postsToCleanup && postsToCleanup.length > 0) {
+            Posts.remove({title: {$in: postsToCleanup}}, function (err) {
+                err ? reject(err) : resolve(true);
             });
         } else {
             resolve(true);
@@ -224,11 +240,7 @@ function cleanupBlogs (blogsToCleanup) {
 function cleanupMetrics() {
     return new Promise(function (resolve, reject) {
         mongodb.collection('metrics').remove({}, function (err, no) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(no);
-            }
+            err ? reject(err) : resolve(no);
         });
     });
 }
@@ -236,11 +248,7 @@ function cleanupMetrics() {
 function cleanupAudit () {
     return new Promise(function (resolve, reject) {
         Audit.remove({}, function (err) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(true);
-            }
+            err ? reject(err) : resolve(true);
         });
     });
 }
@@ -248,11 +256,7 @@ function cleanupAudit () {
 function cleanupAuthAttempts () {
     return new Promise(function (resolve, reject) {
         AuthAttempts.remove({}, function (err) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(true);
-            }
+            err ? reject(err) : resolve(true);
         });
     });
 }
@@ -260,11 +264,7 @@ function cleanupAuthAttempts () {
 var cleanupRoles = function(roles) {
     return new Promise(function (resolve, reject) {
         Roles.remove({name: {$in : roles}}, function (err) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(true);
-            }
+            err ? reject(err) : resolve(true);
         });
     });
 };
@@ -279,7 +279,7 @@ function cleanupConnect (cb) {
 exports.cleanupConnect = cleanupConnect;
 
 var cleanup = function (toClear, cb) {
-    Promise.join(cleanupUsers(toClear.users), cleanupUserGroups(toClear.userGroups), cleanupPermissions(toClear.permissions), cleanupBlogs(toClear.blogs), cleanupAudit(), cleanupAuthAttempts(), cleanupMetrics(),
+    Promise.join(cleanupUsers(toClear.users), cleanupUserGroups(toClear.userGroups), cleanupPermissions(toClear.permissions), cleanupBlogs(toClear.blogs), cleanupPosts(toClear.posts), cleanupAudit(), cleanupAuthAttempts(), cleanupMetrics(),
         function () {
             //cleanupConnect(cb);
             cb();
@@ -292,17 +292,6 @@ var cleanup = function (toClear, cb) {
 
 exports.cleanup = cleanup;
 
-var authorizationHeader = function (user) {
-    return 'Basic ' + (new Buffer(user.email + ':' + user.session.key)).toString('base64');
-};
-
-exports.authorizationHeader = authorizationHeader;
-
-var authorizationHeader2 = function (user, password) {
-    return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
-};
-
-exports.authorizationHeader2 = authorizationHeader2;
 
 var testComplete = function (notify, err) {
     if (notify) {

@@ -13,12 +13,9 @@ var expect = Code.expect;
 describe('Contact', function () {
     var server;
     beforeEach(function (done) {
-        server = tu.setupServer()
-            .then(function (s) {
-                server = s;
-                return tu.setupRolesAndUsers();
-            })
-            .then(function () {
+        tu.setupServer()
+            .then(function (res) {
+                server = res.server;
                 done();
             })
             .catch(function (err) {

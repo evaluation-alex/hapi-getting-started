@@ -35,4 +35,4 @@ Controller.contact = {
     }
 };
 
-module.exports.Controller = Controller;
+module.exports = Controller;

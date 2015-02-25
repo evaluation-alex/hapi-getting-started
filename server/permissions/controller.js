@@ -4,8 +4,8 @@ var Joi = require('joi');
 var Permissions = require('./model');
 var Users = require('./../users/model');
 var UserGroups = require('./../user-groups/model');
-var ControllerFactory = require('./../common/controller-factory').ControllerFactory;
-var areValid = require('./../common/controller-factory').areValid;
+var ControllerFactory = require('./../common/controller-factory');
+var areValid = require('./../common/pre-reqs').areValid;
 
 var Controller = new ControllerFactory('permissions', Permissions)
     .findController({
@@ -59,4 +59,4 @@ var Controller = new ControllerFactory('permissions', Permissions)
     .deleteController()
     .doneConfiguring();
 
-module.exports.Controller = Controller;
+module.exports = Controller;

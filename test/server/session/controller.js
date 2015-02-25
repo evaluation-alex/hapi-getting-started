@@ -22,10 +22,9 @@ describe('Login', function () {
     var server = null;
     var emails = [];
     beforeEach(function (done) {
-        server = tu.setupServer()
-            .then(function (s) {
-                server = s;
-                return tu.setupRolesAndUsers();
+        tu.setupServer()
+            .then(function (res) {
+                server = res.server;
             })
             .then(function () {
                 emails.push('test.users@test.api');
@@ -299,10 +298,9 @@ describe('Logout', function () {
     var emails = [];
 
     beforeEach(function (done) {
-        server = tu.setupServer()
+        tu.setupServer()
             .then(function (s) {
-                server = s;
-                tu.setupRolesAndUsers();
+                server = s.server;
                 done();
             })
             .catch(function (err) {

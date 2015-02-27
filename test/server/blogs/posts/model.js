@@ -35,14 +35,18 @@ describe('Posts Model', function () {
     describe('Posts.create', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
             var error = null;
-            Posts.create(blogId, 'silver lining', 'newPost', 'draft', 'public', true, 'testing', ['testing', 'unit testing'], 'we better test code or not write code', [], 'test')
+            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
+            Posts.create(blogId, 'silver lining', 'newPost', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing'], 'we better test code or not write code', [], 'test')
                 .then(function (post) {
                     expect(post).to.exist();
                     expect(post).to.be.instanceof(Posts);
                     var filepath = 'silver-lining/blogs/'+blogId.toString()+'/'+moment(post.createdOn).format('YYYYMMDD')+'/'+post._id.toString();
                     expect(post.content).to.equal(filepath);
-                    //expect(fs.existsSync(Config.storage.diskPath + '/' + filepath)).to.be.true();
-                    //expect(fs.readFileSync(Config.storage.diskPath + '/' + filepath, {})).to.equal('we better test code or not write code');
+                    var timeout = setTimeout(function () {
+                        expect(fs.existsSync(Config.storage.diskPath + '/' + filepath)).to.be.true();
+                        expect(fs.readFileSync(Config.storage.diskPath + '/' + filepath, {}).toString()).to.equal('we better test code or not write code');
+                        clearTimeout(timeout);
+                    }, 1000);
                     return Audit.findAudit('Posts', post._id, {action: 'create'});
                 })
                 .then(function (audit) {
@@ -64,8 +68,8 @@ describe('Posts Model', function () {
     describe('Posts._find, _findOne', function () {
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'test _find', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'search'], 'testing is a chore but it pays off in the long run', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'test _find2', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'search'], 'testing requires patience', [], 'test');
+            var p1 = Posts.create(blogId, 'silver lining', 'test _find', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'search'], 'testing is a chore but it pays off in the long run', [], 'test');
+            var p2 = Posts.create(blogId, 'silver lining', 'test _find2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'search'], 'testing requires patience', [], 'test');
             Promise.join(p1, p2).then(function () {done();});
         });
         it('should find all posts that match the conditions and posts should have content populated', function (done) {
@@ -130,8 +134,8 @@ describe('Posts Model', function () {
     describe('Posts.this.setContent, readContentFromDisk', function () {
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'test setContent', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'setContent'], 'figuring out data for test cases requires more thinking than what it took to write the code', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'test setContent2', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'search'], 'and sometimes it reveals bugs in your test code too', [], 'test');
+            var p1 = Posts.create(blogId, 'silver lining', 'test setContent', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setContent'], 'figuring out data for test cases requires more thinking than what it took to write the code', [], 'test');
+            var p2 = Posts.create(blogId, 'silver lining', 'test setContent2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'search'], 'and sometimes it reveals bugs in your test code too', [], 'test');
             Promise.join(p1, p2).then(function () {done();});
         });
         it('should create the directory structure for the post file, if it doesnt exist', function (done) {
@@ -183,11 +187,11 @@ describe('Posts Model', function () {
     describe('Posts.this.approve', function () {
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'test approve', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'approve'], 'approving is hard work', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'test approve2', 'published', 'public', true, 'testing', ['testing', 'unit testing', 'approve'], 'approve, dont approve, doesnt matter', [], 'test');
-            var p3 = Posts.create(blogId, 'silver lining', 'test approve3', 'pending review', 'public', true, 'testing', ['testing', 'unit testing', 'approve'], 'approving is hard work', [], 'test');
-            var p4 = Posts.create(blogId, 'silver lining', 'test approve4', 'do not publish', 'public', true, 'testing', ['testing', 'unit testing', 'approve'], 'approving is hard work', [], 'test');
-            var p5 = Posts.create(blogId, 'silver lining', 'test approve5', 'archived', 'public', true, 'testing', ['testing', 'unit testing', 'approve'], 'approving is hard work', [], 'test');
+            var p1 = Posts.create(blogId, 'silver lining', 'test approve', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'approve'], 'approving is hard work', [], 'test');
+            var p2 = Posts.create(blogId, 'silver lining', 'test approve2', 'published', 'public', true, true, 'testing', ['testing', 'unit testing', 'approve'], 'approve, dont approve, doesnt matter', [], 'test');
+            var p3 = Posts.create(blogId, 'silver lining', 'test approve3', 'pending review', 'public', true, true, 'testing', ['testing', 'unit testing', 'approve'], 'approving is hard work', [], 'test');
+            var p4 = Posts.create(blogId, 'silver lining', 'test approve4', 'do not publish', 'public', true, true, 'testing', ['testing', 'unit testing', 'approve'], 'approving is hard work', [], 'test');
+            var p5 = Posts.create(blogId, 'silver lining', 'test approve5', 'archived', 'public', true, true, 'testing', ['testing', 'unit testing', 'approve'], 'approving is hard work', [], 'test');
             Promise.join(p1, p2, p3, p4, p5).then(function () {done();});
         });
         it('should change state to published only if its in draft or pending review state, changes should be audited', function (done) {
@@ -286,10 +290,10 @@ describe('Posts Model', function () {
     describe('Posts.this.reject', function () {
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'test reject', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'reject'], 'rejecting is hard work', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'test reject2', 'published', 'public', true, 'testing', ['testing', 'unit testing', 'reject'], 'reject, dont reject, doesnt matter', [], 'test');
-            var p3 = Posts.create(blogId, 'silver lining', 'test reject3', 'pending review', 'public', true, 'testing', ['testing', 'unit testing', 'reject'], 'rejecting is hard work', [], 'test');
-            var p5 = Posts.create(blogId, 'silver lining', 'test reject5', 'archived', 'public', true, 'testing', ['testing', 'unit testing', 'reject'], 'approving is hard work', [], 'test');
+            var p1 = Posts.create(blogId, 'silver lining', 'test reject', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'reject'], 'rejecting is hard work', [], 'test');
+            var p2 = Posts.create(blogId, 'silver lining', 'test reject2', 'published', 'public', true, true, 'testing', ['testing', 'unit testing', 'reject'], 'reject, dont reject, doesnt matter', [], 'test');
+            var p3 = Posts.create(blogId, 'silver lining', 'test reject3', 'pending review', 'public', true, true, 'testing', ['testing', 'unit testing', 'reject'], 'rejecting is hard work', [], 'test');
+            var p5 = Posts.create(blogId, 'silver lining', 'test reject5', 'archived', 'public', true, true, 'testing', ['testing', 'unit testing', 'reject'], 'approving is hard work', [], 'test');
             Promise.join(p1, p2, p3, p5).then(function () {done();});
         });
         it('should change state to published only if its in draft or pending review state, changes should be audited', function (done) {
@@ -375,8 +379,8 @@ describe('Posts Model', function () {
         var activated = null, deactivated = null;
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'activate', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'activate'], 'just an on/off switch', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'deactivate', 'published', 'public', true, 'testing', ['testing', 'unit testing', 'deactivate'], 'just an on/off switch', [], 'test');
+            var p1 = Posts.create(blogId, 'silver lining', 'activate', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'activate'], 'just an on/off switch', [], 'test');
+            var p2 = Posts.create(blogId, 'silver lining', 'deactivate', 'published', 'public', true, true, 'testing', ['testing', 'unit testing', 'deactivate'], 'just an on/off switch', [], 'test');
             Promise.join(p1, p2, function (p11, p12) {
                 activated = p11;
                 deactivated = p12;
@@ -459,7 +463,7 @@ describe('Posts Model', function () {
         var testpost = null;
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.updateTitle', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'setTitle'], 'titles matter', [], 'test')
+            testpost = Posts.create(blogId, 'silver lining', 'post.updateTitle', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setTitle'], 'titles matter', [], 'test')
                 .then(function (p) {
                     testpost = p;
                     done();
@@ -513,7 +517,7 @@ describe('Posts Model', function () {
         var testpost = null;
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.setCategory', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
+            testpost = Posts.create(blogId, 'silver lining', 'post.setCategory', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
                 .then(function (p) {
                     testpost = p;
                     done();
@@ -566,7 +570,7 @@ describe('Posts Model', function () {
         var testpost = null;
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.setAccess', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
+            testpost = Posts.create(blogId, 'silver lining', 'post.setAccess', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
                 .then(function (p) {
                     testpost = p;
                     done();
@@ -619,7 +623,7 @@ describe('Posts Model', function () {
         var testpost = null;
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.setAllowComments', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
+            testpost = Posts.create(blogId, 'silver lining', 'post.setAllowComments', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
                 .then(function (p) {
                     testpost = p;
                     done();
@@ -668,11 +672,64 @@ describe('Posts Model', function () {
         });
     });
 
+    describe('Posts.this.needsReview', function () {
+        var testpost = null;
+        before(function (done) {
+            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
+            testpost = Posts.create(blogId, 'silver lining', 'post.needsReview', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
+                .then(function (p) {
+                    testpost = p;
+                    done();
+                });
+        });
+        it('should do nothing if there is no change in the needsReview', function (done) {
+            var error = null;
+            testpost.setNeedsReview(testpost.needsReview, 'test').save()
+                .then(function (p) {
+                    expect(p.needsReview).to.equal(true);
+                    return Audit.findAudit('Posts',  p._id, {action: {$regex: /^needsReview/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(0);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should update to the new needsReview', function (done) {
+            var error = null;
+            testpost.setNeedsReview(false, 'test').save()
+                .then(function (p) {
+                    expect(p.needsReview).to.equal(false);
+                    return Audit.findAudit('Posts',  p._id, {action: {$regex: /^needsReview/}});
+                })
+                .then(function (paudit) {
+                    expect(paudit.length).to.equal(1);
+                    expect(paudit[0].newValues).to.equal(false);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        after(function (done) {
+            postsToClear.push('post.needsReview');
+            done();
+        });
+    });
+
     describe('Posts.this.addTags', function () {
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'addTags1', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'addTags'], 'tag it, bag it and go', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'addTags2', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'addTags'], 'tag it, bag it and go', [], 'test');
+            var p1 = Posts.create(blogId, 'silver lining', 'addTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], 'tag it, bag it and go', [], 'test');
+            var p2 = Posts.create(blogId, 'silver lining', 'addTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], 'tag it, bag it and go', [], 'test');
             Promise.join(p1, p2).then(function () {
                     done();
                 });
@@ -730,8 +787,8 @@ describe('Posts Model', function () {
     describe('Posts.this.removeTags', function () {
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'removeTags1', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'removeTags'], 'tag it, bag it and check if you can go', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'removeTags2', 'draft', 'public', true, 'testing', ['testing', 'unit testing', 'removeTags'], 'tag it, bag it and check if you can go', [], 'test');
+            var p1 = Posts.create(blogId, 'silver lining', 'removeTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], 'tag it, bag it and check if you can go', [], 'test');
+            var p2 = Posts.create(blogId, 'silver lining', 'removeTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], 'tag it, bag it and check if you can go', [], 'test');
             Promise.join(p1, p2).then(function () {
                     done();
                 });

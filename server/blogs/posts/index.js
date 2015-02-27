@@ -3,7 +3,10 @@ var RouteFactory = require('./../../common/route-factory');
 var Controller = require('./controller');
 var _ = require('lodash');
 
-var routes = RouteFactory.discoverDefaultRoutes('posts', Controller, '/blogs/{blogId}');
+var routes = [
+    RouteFactory.discoverDefaultRoutes('posts', Controller, '/blogs/{blogId}'),
+    RouteFactory.discoverDefaultRoutes('posts', Controller)
+];
 _.forEach(['approve', 'reject'], function (action) {
     routes.push(RouteFactory.newRoute()
         .forMethod('PUT')
@@ -11,6 +14,12 @@ _.forEach(['approve', 'reject'], function (action) {
         .usingAuthStrategy('simple')
         .withController(Controller[action])
         .doneConfiguring());
+    routes.push(RouteFactory.newRoute()
+        .forMethod('PUT')
+        .onPath('/posts/{id}/' + action)
+        .usingAuthStrategy('simple')
+        .withController(Controller[action])
+        .doneConfiguring());
 });
 
-module.exports = routes;
+module.exports = _.flatten(routes);

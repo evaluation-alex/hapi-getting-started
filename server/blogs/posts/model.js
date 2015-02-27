@@ -19,7 +19,11 @@ var readFileP = Promise.promisify(require('fs').readFile);
 var writeFileP = Promise.promisify(require('fs').writeFile);
 var LRUCache = require('lru-cache');
 
-var cache = new LRUCache({max: 100*1024*1024, length: function(n) {return n.length;}, maxAge: 1000 * 60 * 60});
+var cache = new LRUCache({
+    max: 100 * 1024 * 1024, length: function (n) {
+        return n.length;
+    }, maxAge: 1000 * 60 * 60
+});
 
 var Posts = ExtendedModel.extend({
     /* jshint -W064 */
@@ -38,13 +42,14 @@ _.extend(Posts.prototype, new AddRemove({
     attachments: 'attachments'
 }));
 _.extend(Posts.prototype, IsActive);
-_.extend(Posts.prototype, new Properties(['title', 'state', 'category', 'access', 'allowComments', 'isActive']));
+_.extend(Posts.prototype, new Properties(['title', 'state', 'category', 'access', 'allowComments', 'needsReview', 'isActive']));
 _.extend(Posts.prototype, new Update({
     isActive: 'isActive',
     category: 'category',
     title: 'title',
     access: 'access',
     allowComments: 'allowComments',
+    needsReview: 'needsReview',
     content: 'content'
 }, {
     tags: 'tags',
@@ -63,6 +68,7 @@ Posts.schema = Joi.object().keys({
     state: Joi.string().valid(['draft', 'pending review', 'published', 'archived', 'do not publish']).default('draft'),
     access: Joi.string().valid(['public', 'restricted']).default('public'),
     allowComments: Joi.boolean().default(true),
+    needsReview: Joi.boolean().default(false),
     category: Joi.string(),
     tags: Joi.array().includes(Joi.string()).unique(),
     content: Joi.string(),
@@ -163,6 +169,7 @@ Posts.newObject = function (doc, by) {
         doc.payload.state,
         doc.payload.access,
         doc.payload.allowComments,
+        doc.payload.needsReview,
         doc.payload.category,
         doc.payload.tags,
         doc.payload.content,
@@ -171,7 +178,7 @@ Posts.newObject = function (doc, by) {
 };
 /*jshint unused:true*/
 
-Posts.create = function (blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by) {
+Posts.create = function (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, content, attachments, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
         var now = new Date();
@@ -184,6 +191,7 @@ Posts.create = function (blogId, organisation, title, state, access, allowCommen
             state: state,
             access: access,
             allowComments: allowComments,
+            needsReview: needsReview,
             category: category,
             tags: tags,
             content: Posts.filenameForPost({
@@ -229,7 +237,7 @@ Posts._find = function (conditions) {
                 if (!docs) {
                     resolve([]);
                 } else {
-                    process.nextTick(function() {
+                    process.nextTick(function () {
                         resolve(Promise.all(_.map(docs, function (doc) {
                             return doc.readContentFromDisk();
                         })));
@@ -255,6 +263,18 @@ Posts._findOne = function (conditions) {
                     });
                 }
             }
+        });
+    });
+};
+
+Posts._findByIdAndUpdate = function (id, obj) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        if (obj.content !== Posts.filenameForPost(obj).join('')) {
+            obj.setContent(obj.content, obj.updatedBy);
+        }
+        self.findByIdAndUpdate(id, obj, function (err, doc) {
+            err ? reject(err) : resolve(doc);
         });
     });
 };

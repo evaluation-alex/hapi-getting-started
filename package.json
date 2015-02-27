@@ -55,7 +55,7 @@
         "joi": "5.1.x",
         "lodash": "3.3.x",
         "lout": "6.2.x",
-        "lru-cache": "^2.5.0",
+        "lru-cache": "2.5.x",
         "mkdirp": "0.5.x",
         "moment": "2.9.x",
         "mongodb": "1.4.x",
@@ -64,6 +64,7 @@
         "nodemailer-markdown": "1.0.x",
         "object-assign": "2.0.x",
         "poop": "1.2.x",
+        "rimraf": "2.2.x",
         "tv": "4.1.x",
         "useragent": "2.1.x"
     },

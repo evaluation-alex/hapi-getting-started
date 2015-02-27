@@ -3,9 +3,9 @@ var relativeTo = './../../';
 var relativeToServer = './../../server/';
 var Hapi = require('hapi');
 var HapiAuthBasic = require('hapi-auth-basic');
+var Promise = require('bluebird');
 var AuthPlugin = require(relativeToServer + 'common/auth');
 var MetricsPlugin = require(relativeToServer + 'common/metrics');
-var Promise = require('bluebird');
 var Config = require(relativeTo + 'config');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Users = require(relativeToServer + 'users/model');
@@ -53,7 +53,10 @@ function setupRootRole () {
                 if (found && found.length > 0) {
                     resolve(found[0]);
                 } else {
-                    resolve(Roles.create('root', 'silver lining', [{action: 'update', object: '*'}, {action: 'view', object: '*'}]));
+                    resolve(Roles.create('root', 'silver lining', [{action: 'update', object: '*'}, {
+                        action: 'view',
+                        object: '*'
+                    }]));
                 }
             });
     });
@@ -74,7 +77,7 @@ function setupReadonlyRole () {
 
 function setupRootUser () {
     return new Promise(function (resolve/*, reject*/) {
-        Users._findOne({email:'root'})
+        Users._findOne({email: 'root'})
             .then(function (found) {
                 if (found) {
                     resolve(found.setRoles(['root'], 'testSetup').save());
@@ -237,7 +240,7 @@ function cleanupPosts (postsToCleanup) {
     });
 }
 
-function cleanupMetrics() {
+function cleanupMetrics () {
     return new Promise(function (resolve, reject) {
         mongodb.collection('metrics').remove({}, function (err, no) {
             err ? reject(err) : resolve(no);
@@ -261,9 +264,9 @@ function cleanupAuthAttempts () {
     });
 }
 
-var cleanupRoles = function(roles) {
+var cleanupRoles = function (roles) {
     return new Promise(function (resolve, reject) {
-        Roles.remove({name: {$in : roles}}, function (err) {
+        Roles.remove({name: {$in: roles}}, function (err) {
             err ? reject(err) : resolve(true);
         });
     });
@@ -291,7 +294,6 @@ var cleanup = function (toClear, cb) {
 };
 
 exports.cleanup = cleanup;
-
 
 var testComplete = function (notify, err) {
     if (notify) {

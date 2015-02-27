@@ -56,7 +56,8 @@ module.exports.areValid = areValid;
 
 var validAndPermitted = function (Model, idProperty, groups){
     return function (request, reply) {
-        Model.isValid(BaseModel.ObjectID(request.params[idProperty]), groups, request.auth.credentials.user.email)
+        var id = request.params[idProperty] ? request.params[idProperty] : request.query[idProperty];
+        Model.isValid(BaseModel.ObjectID(id), groups, request.auth.credentials.user.email)
             .then(function (m) {
                 var cases = {
                     'valid': function () {

@@ -60,6 +60,26 @@ var ControllerFactory = function (component, model) {
         }
         return self.controller;
     };
+    self.findHandler = function (queryBuilder) {
+        return function (request, reply) {
+            var query = queryBuilder(request);
+            query.organisation = query.organisation || {$regex: new RegExp('^.*?' + request.auth.credentials.user.organisation + '.*$', 'i')};
+            if (request.query.isActive) {
+                query.isActive = request.query.isActive === '"true"';
+            }
+            var fields = request.query.fields;
+            var sort = request.query.sort;
+            var limit = request.query.limit;
+            var page = request.query.page;
+            model.pagedFind(query, fields, sort, limit, page, function (err, results) {
+                if (err) {
+                    reply(Boom.badImplementation(err));
+                } else {
+                    reply(results);
+                }
+            });
+        };
+    };
     self.findController = function (validator, queryBuilder) {
         validator.query.fields = Joi.string();
         validator.query.sort = Joi.string();
@@ -68,45 +88,59 @@ var ControllerFactory = function (component, model) {
         self.forMethod('find')
             .withValidation(validator)
             .preProcessWith(AuthPlugin.preware.ensurePermissions('view', component))
-            .handleUsing(function (request, reply) {
-                var query = queryBuilder(request);
-                query.organisation = query.organisation || {$regex: new RegExp('^.*?' + request.auth.credentials.user.organisation + '.*$', 'i')};
-                if (request.query.isActive) {
-                    query.isActive = request.query.isActive === '"true"';
-                }
-                var fields = request.query.fields;
-                var sort = request.query.sort;
-                var limit = request.query.limit;
-                var page = request.query.page;
-                model.pagedFind(query, fields, sort, limit, page, function (err, results) {
-                    if (err) {
-                        reply(Boom.badImplementation(err));
-                    } else {
-                        reply(results);
-                    }
-                });
-            });
+            .handleUsing(self.findHandler(queryBuilder));
         return self;
+    };
+    self.findOneHandler = function (findOneCb) {
+        return function (request, reply) {
+            var id = BaseModel.ObjectID(request.params.id);
+            model._findOne({_id: id})
+                .then(function (f) {
+                    if (!f) {
+                        reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
+                    } else {
+                        reply(findOneCb ? findOneCb(f) : f);
+                    }
+                })
+                .catch(function (err) {
+                    reply(Boom.badImplementation(err));
+                });
+        };
     };
     self.findOneController = function (findOneCb) {
         self.forMethod('findOne')
             .preProcessWith(AuthPlugin.preware.ensurePermissions('view', component))
-            .handleUsing(function (request, reply) {
-                var id = BaseModel.ObjectID(request.params.id);
-                model._findOne({_id: id})
-                    .then(function (f) {
-                        if (!f) {
-                            reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
-                        } else {
-                            reply(findOneCb ? findOneCb(f) : f);
-                        }
-                    })
-                    .catch(function (err) {
-                        reply(Boom.badImplementation(err));
-                    });
-            });
+            .handleUsing(self.findOneHandler(findOneCb));
         return self;
     };
+    self.updateHandler = function (updateCb) {
+        return function (request, reply) {
+            var id = BaseModel.ObjectID(request.params.id);
+            model._findOne({_id: id})
+                .then(function (f) {
+                    if (!f) {
+                        reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
+                        return false;
+                    } else {
+                        var by = request.auth.credentials.user.email;
+                        if (_.isFunction(updateCb)) {
+                            return updateCb(f, request, by).save();
+                        } else {
+                            return f[updateCb](request, by).save();
+                        }
+                    }
+                })
+                .then(function (f) {
+                    if (f) {
+                        reply(f);
+                    }
+                })
+                .catch(function (err) {
+                    reply(Boom.badImplementation(err));
+                });
+        };
+    };
+
     self.updateController = function (validator, prereqs, methodName, updateCb) {
         var perms = _.find(prereqs, function (prereq) {
             return prereq.assign === 'ensurePermissions';
@@ -114,32 +148,24 @@ var ControllerFactory = function (component, model) {
         var pre = _.flatten([perms ? [] : AuthPlugin.preware.ensurePermissions('update', component), prereqs]);
         self.forMethod(methodName)
             .preProcessWith(pre)
-            .handleUsing(function (request, reply) {
-                var id = BaseModel.ObjectID(request.params.id);
-                model._findOne({_id: id})
-                    .then(function (f) {
-                        if (!f) {
-                            reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
-                            return false;
-                        } else {
-                            var by = request.auth.credentials.user.email;
-                            if (_.isFunction(updateCb)) {
-                                return updateCb(f, request, by).save();
-                            } else {
-                                return f[updateCb](request, by).save();
-                            }
-                        }
-                    })
-                    .then(function (f) {
-                        if (f) {
-                            reply(f);
-                        }
-                    })
-                    .catch(function (err) {
-                        reply(Boom.badImplementation(err));
-                    });
-            });
+            .handleUsing(self.updateHandler(updateCb));
         return self;
+    };
+    self.newHandler = function (newCb) {
+        return function (request, reply) {
+            var by = request.auth.credentials.user.email;
+            newCb ? newCb(request, by) : model.newObject(request, by)
+                .then(function (n) {
+                    if (!n) {
+                        reply(Boom.notFound(component + ' could not be created.'));
+                    } else {
+                        reply(n).code(201);
+                    }
+                })
+                .catch(function (err) {
+                    reply(Boom.badImplementation(err));
+                });
+        };
     };
     self.newController = function (validator, prereqs, uniqueCheck, newCb) {
         var pre = _.flatten([AuthPlugin.preware.ensurePermissions('update', component),
@@ -147,20 +173,7 @@ var ControllerFactory = function (component, model) {
             prereqs]);
         self.forMethod('new')
             .preProcessWith(pre)
-            .handleUsing(function (request, reply) {
-                var by = request.auth.credentials.user.email;
-                newCb ? newCb(request, by) : model.newObject(request, by)
-                    .then(function (n) {
-                        if (!n) {
-                            reply(Boom.notFound(component + ' could not be created.'));
-                        } else {
-                            reply(n).code(201);
-                        }
-                    })
-                    .catch(function (err) {
-                        reply(Boom.badImplementation(err));
-                    });
-            });
+            .handleUsing(self.newHandler(newCb));
         return self;
     };
     self.deleteController = function (pre) {

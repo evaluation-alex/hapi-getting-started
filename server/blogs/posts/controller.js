@@ -80,18 +80,13 @@ var Controller = new ControllerFactory('posts', Posts)
             blogId: request.params.blogId ? request.params.blogId : request.query.blogId,
             organisation: request.auth.credentials.user.organisation,
             title: request.payload.title,
-            publishedOn: {$gte: moment().subtract(5, 'seconds').toDate()}
+            createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
         };
     }, function (request, by) {
         return new Promise(function (resolve, reject) {
             var id = request.params.blogId ? request.params.blogId : request.query.blogId;
             Blogs._findOne({_id: BaseModel.ObjectID(id)})
                 .then(function (blog) {
-                    if (request.payload.state === 'published') {
-                        if (blog.needsReview && !_.findWhere(blog.owners, by)) {
-                            request.payload.state = 'pending review';
-                        }
-                    }
                     request.payload.access = _.isUndefined(request.payload.access) ?
                         blog.access :
                         request.payload.access;
@@ -101,6 +96,11 @@ var Controller = new ControllerFactory('posts', Posts)
                     request.payload.needsReview = _.isUndefined(request.payload.needsReview) ?
                         blog.needsReview :
                         request.payload.needsReview;
+                    if (request.payload.state === 'published') {
+                        if (request.payload.needsReview && !_.findWhere(blog.owners, by)) {
+                            request.payload.state = 'pending review';
+                        }
+                    }
                     resolve(Posts.newObject(request, by));
                 })
                 .catch(function (err) {

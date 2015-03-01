@@ -16,7 +16,7 @@ var moment = require('moment');
 var Config = require('./../../../config');
 var mkdirp = Promise.promisify(require('mkdirp'));
 var readFileP = Promise.promisify(require('fs').readFile);
-var writeFileP = Promise.promisify(require('fs').writeFile);
+var writeFile = require('fs').writeFile;
 var LRUCache = require('lru-cache');
 
 var cache = new LRUCache({
@@ -99,16 +99,11 @@ Posts.prototype.setContent = function (content, by) {
     if (!_.isUndefined(content)) {
         var fnm = Posts.filenameForPost(self);
         var filename = fnm.join('');
-        mkdirp(Config.storage.diskPath + '/' + fnm[0], {})
-            .then(function () {
-                return writeFileP(Config.storage.diskPath + '/' + filename, content, {});
-            })
-            .catch(function (err) {
-                if (err) {
-                    console.log(err);
-                }
-            })
-            .done();
+        writeFile(Config.storage.diskPath + '/' + filename, content, {}, function (err) {
+            if (err) {
+                console.log(err);
+            }
+        });
         cache.set(filename, content);
         self.content = filename;
         self.updatedBy = by;
@@ -183,6 +178,12 @@ Posts.create = function (blogId, organisation, title, state, access, allowCommen
     return new Promise(function (resolve, reject) {
         var now = new Date();
         var id = BaseModel.ObjectID();
+        var fnm = self.filenameForPost({
+            organisation: organisation,
+            blogId: blogId,
+            createdOn: now,
+            _id: id
+        });
         var document = {
             _id: id,
             blogId: blogId,
@@ -194,12 +195,7 @@ Posts.create = function (blogId, organisation, title, state, access, allowCommen
             needsReview: needsReview,
             category: category,
             tags: tags,
-            content: Posts.filenameForPost({
-                organisation: organisation,
-                blogId: blogId,
-                createdOn: now,
-                _id: id
-            }).join(''),
+            content: fnm.join(''),
             attachments: attachments,
             publishedBy: by,
             publishedOn: state === 'published' ? now : null,
@@ -211,7 +207,10 @@ Posts.create = function (blogId, organisation, title, state, access, allowCommen
             updatedBy: by,
             updatedOn: now
         };
-        self._insert(document, false)
+        mkdirp(Config.storage.diskPath + '/' + fnm[0], {})
+            .then(function () {
+                return self._insert(document, false);
+            })
             .then(function (post) {
                 if (post) {
                     Audit.create('Posts', post._id, 'create', null, post, by, organisation);

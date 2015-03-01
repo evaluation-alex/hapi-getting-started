@@ -28,8 +28,8 @@ describe('Posts', function () {
     var rootAuthHeader = null;
     var server = null;
     var blogsToClear = [];
-    var groupsToClear = [];
     var postsToClear = [];
+
     beforeEach(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -79,6 +79,7 @@ describe('Posts', function () {
                     done(err);
                 });
         });
+
         it('should give posts when isactive = true is sent', function (done) {
             var request = {
                 method: 'GET',
@@ -100,6 +101,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         it('should give inactive posts when isactive = false is sent', function (done) {
             var request = {
                 method: 'GET',
@@ -121,6 +123,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         it('should give the posts where the title matches or partially matches the query', function (done) {
             var request = {
                 method: 'GET',
@@ -145,6 +148,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         it('should give the posts where any tag in the post matches or partially matches the query', function (done) {
             var request = {
                 method: 'GET',
@@ -171,6 +175,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         it('should give all posts for a given blog', function (done) {
             var request = {
                 method: 'GET',
@@ -192,6 +197,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         it('should give all posts for a given blog2', function (done) {
             var request = {
                 method: 'GET',
@@ -213,6 +219,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         it('should give all posts in a given time period', function (done) {
             var request = {
                 method: 'GET',
@@ -234,6 +241,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         after(function (done) {
             blogsToClear.push('test GET /posts1');
             blogsToClear.push('test GET /posts2 is active = false');
@@ -247,6 +255,7 @@ describe('Posts', function () {
     describe('GET /blogs/{blogId}/posts/{id}, GET /posts/{id}', function () {
         var id = '';
         var blogId = '';
+
         before(function (done) {
             Blogs.create('test GET /blogs/{blogId}/posts/{id}', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(function (b) {
@@ -261,6 +270,7 @@ describe('Posts', function () {
                     done(err);
                 });
         });
+
         it('should only send back post with the id in params', function (done) {
             var request = {
                 method: 'GET',
@@ -279,6 +289,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         it('should only send back post with the id, blogId in params', function (done) {
             var request = {
                 method: 'GET',
@@ -297,6 +308,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         it('should send back not found when the post with the id in params is not found', function (done) {
             var request = {
                 method: 'GET',
@@ -314,6 +326,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         it('should send back not found when the post with the blogId, id in params is not found', function (done) {
             var request = {
                 method: 'GET',
@@ -331,6 +344,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         after(function (done) {
             blogsToClear.push('test GET /blogs/{blogId}/posts/{id}');
             postsToClear.push('GET /posts/{id}');
@@ -551,7 +565,7 @@ describe('Posts', function () {
             });
         });
 
-        it('should update access, allowComments and have changes audited', function (done) {
+        it('should update access, allowComments, needsReview and have changes audited', function (done) {
             var request = {
                 method: 'PUT',
                 url: '/blogs/' + blogId + '/posts/' + postId,
@@ -597,6 +611,190 @@ describe('Posts', function () {
                 }
             });
         });
+
+        it('should update approve draft / pending review posts', function (done) {
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.add(['one@first.com'], 'owner', 'test').save();
+                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
+                })
+                .then(function (post) {
+                    post.setState('draft').setNeedsReview(true).save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/approve',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            access: 'public',
+                            allowComments: true,
+                            needsReview: true
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                                .then(function (found) {
+                                    expect(found[0].access).to.equal('public');
+                                    expect(found[0].allowComments).to.equal(true);
+                                    expect(found[0].needsReview).to.equal(true);
+                                    expect(found[0].state).to.equal('published');
+                                    return Audit.findAudit('Posts', found[0]._id, {action: {$regex: /state/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit).to.exist();
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].action).to.equal('state');
+                                    done();
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
+        it('should update reject draft / pending review posts', function (done) {
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.add(['one@first.com'], 'owner', 'test').save();
+                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
+                })
+                .then(function (post) {
+                    post.setState('draft').setNeedsReview(true).save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            access: 'restricted',
+                            allowComments: false,
+                            needsReview: false
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                                .then(function (found) {
+                                    expect(found[0].access).to.equal('restricted');
+                                    expect(found[0].allowComments).to.equal(false);
+                                    expect(found[0].needsReview).to.equal(false);
+                                    expect(found[0].state).to.equal('do not publish');
+                                    return Audit.findAudit('Posts', found[0]._id, {action: {$regex: /state/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit).to.exist();
+                                    expect(foundAudit.length).to.equal(2);
+                                    expect(foundAudit[0].action).to.equal('state');
+                                    expect(foundAudit[1].action).to.equal('state');
+                                    done();
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
+        it('should fail approve draft / pending review posts if user is not an owner of the blog', function (done) {
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.remove(['one@first.com'], 'owner', 'test').save();
+                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
+                })
+                .then(function (post) {
+                    post.setState('draft').setNeedsReview(true).save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/approve',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            access: 'public',
+                            allowComments: true,
+                            needsReview: true
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                                .then(function (found) {
+                                    expect(found[0].state).to.equal('draft');
+                                    done();
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
+        it('should fail reject draft / pending review posts if user is not an owner of the blog', function (done) {
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.remove(['one@first.com'], 'owner', 'test').save();
+                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
+                })
+                .then(function (post) {
+                    post.setState('draft').setNeedsReview(true).save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            access: 'restricted',
+                            allowComments: false,
+                            needsReview: false
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                                .then(function (found) {
+                                    expect(found[0].state).to.equal('draft');
+                                    done();
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
         after(function (done) {
             blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}');
             postsToClear.push('test PUT');
@@ -604,542 +802,76 @@ describe('Posts', function () {
         });
     });
 
-    /*
-     describe('PUT /blogs/{id}/subscribe', function () {
-     it('should send back not found error when you try to join a non existent blog', function (done) {
-     var request = {
-     method: 'PUT',
-     url: '/blogs/54c894fe1d1d4ab4032ed94e/subscribe',
-     headers: {
-     Authorization: rootAuthHeader
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(404);
-     blogsToClear.push('testBlogsPutSubscribeNotFound');
-     done();
-     } catch (err) {
-     blogsToClear.push('testBlogsPutSubscribeNotFound');
-     done(err);
-     }
-     });
-     });
-     it('should send back error if any of the users trying to join are not valid', function (done) {
-     var id = '';
-     Blogs.create('testBlogUserExistPUTSubscribe', 'silver lining', 'test PUT /blogs/subscribe', [], [], [], [], false, 'public', true, 'test')
-     .then(function (b) {
-     id = b._id.toString();
-     var request = {
-     method: 'PUT',
-     url: '/blogs/' + id + '/subscribe',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     addedSubscribers: ['unknown']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(422);
-     blogsToClear.push('testBlogUserExistPUTSubscribe');
-     done();
-     } catch (err) {
-     blogsToClear.push('testBlogUserExistPUTSubscribe');
-     done(err);
-     }
-     });
-     });
-     });
-     it('should add users who have joined to the needsApproval list', function (done) {
-     var request = {};
-     var id = '';
-     Blogs.create('testPutSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', [], [], [], [], false, 'restricted', true, 'test')
-     .then(function (b) {
-     id = b._id.toString();
-     request = {
-     method: 'PUT',
-     url: '/blogs/' + id + '/subscribe',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     addedSubscribers: ['one@first.com']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(200);
-     Blogs._find({title: 'testPutSubscribeGroupAddUser'})
-     .then(function (b) {
-     expect(b).to.exist();
-     expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
-     return Audit.findAudit('Blogs', 'testPutSubscribeGroupAddUser', {action: {$regex: /add needsApproval/}});
-     })
-     .then(function (foundAudit) {
-     expect(foundAudit.length).to.equal(1);
-     expect(foundAudit[0].action).to.match(/add needsApproval/);
-     blogsToClear.push('testPutSubscribeGroupAddUser');
-     done();
-     });
-     } catch (err) {
-     blogsToClear.push('testPutSubscribeGroupAddUser');
-     done(err);
-     }
-     });
-     });
-     });
-     it('should add to members if the group access is public and have changes audited', function (done) {
-     var request = {};
-     var id = '';
-     Blogs.create('testPutSubscribePublicGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', [], [], [], [], false, 'public', true, 'test')
-     .then(function (b) {
-     id = b._id.toString();
-     b.setAccess('public');
-     return b.save();
-     })
-     .then(function () {
-     request = {
-     method: 'PUT',
-     url: '/blogs/' + id + '/subscribe',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     addedSubscribers: ['one@first.com']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(200);
-     Blogs._find({title: 'testPutSubscribePublicGroupAddUser'})
-     .then(function (b) {
-     expect(b).to.exist();
-     expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
-     return Audit.findAudit('Blogs', 'testPutSubscribePublicGroupAddUser', {action: {$regex: /add subscriber/}});
-     })
-     .then(function (foundAudit) {
-     expect(foundAudit.length).to.equal(1);
-     expect(foundAudit[0].action).to.match(/add subscriber/);
-     blogsToClear.push('testPutSubscribePublicGroupAddUser');
-     done();
-     });
-     } catch (err) {
-     blogsToClear.push('testPutSubscribePublicGroupAddUser');
-     done(err);
-     }
-     });
-     });
-     });
-     });
+    describe('POST /blogs/{blogId}/posts', function () {
+        var blogId = null;
 
-     describe('PUT /blogs/{id}/approve', function () {
-     it('should send back not found error when you try to approve a non existent blog', function (done) {
-     var request = {
-     method: 'PUT',
-     url: '/blogs/54c894fe1d1d4ab4032ed94e/approve',
-     headers: {
-     Authorization: rootAuthHeader
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(404);
-     blogsToClear.push('testBlogsPutApproveNotFound');
-     done();
-     } catch (err) {
-     blogsToClear.push('testBlogsPutApproveNotFound');
-     done(err);
-     }
-     });
-     });
-     it('should send back error if any of the users being approved to subscribe are not valid', function (done) {
-     var id = '';
-     Blogs.create('testBlogUserExistPUTApprove', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
-     .then(function (b) {
-     id = b._id.toString();
-     var request = {
-     method: 'PUT',
-     url: '/blogs/' + id + '/approve',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     addedSubscribers: ['unknown']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(422);
-     blogsToClear.push('testBlogUserExistPUTApprove');
-     done();
-     } catch (err) {
-     blogsToClear.push('testBlogUserExistPUTApprove');
-     done(err);
-     }
-     });
-     });
-     });
-     it('should add users who have been approved to the subscribers list', function (done) {
-     var request = {};
-     var id = '';
-     Blogs.create('testBlogPutApproveAddUser', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
-     .then(function (b) {
-     id = b._id.toString();
-     return b.add(['one@first.com'], 'needApprovals', 'test').save();
-     })
-     .then(function () {
-     request = {
-     method: 'PUT',
-     url: '/blogs/' + id + '/approve',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     addedSubscribers: ['one@first.com']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(200);
-     Blogs._find({title: 'testBlogPutApproveAddUser'})
-     .then(function (b) {
-     expect(b).to.exist();
-     expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
-     return Audit.findAudit('Blogs', 'testBlogPutApproveAddUser', {action: {$regex: /add subscriber/}});
-     })
-     .then(function (foundAudit) {
-     expect(foundAudit.length).to.equal(1);
-     expect(foundAudit[0].action).to.match(/add subscriber/);
-     blogsToClear.push('testBlogPutApproveAddUser');
-     done();
-     });
-     } catch (err) {
-     blogsToClear.push('testBlogPutApproveAddUser');
-     done(err);
-     }
-     });
-     });
-     });
-     it('should send error if the user approving is not an owner of the blog', function (done) {
-     var request = {};
-     var id = '';
-     Blogs.create('testPutApproveBlogNotOwner', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
-     .then(function (b) {
-     id = b._id.toString();
-     return b.add(['one@first.com'], 'needApprovals', 'test').save();
-     })
-     .then(function () {
-     return Users._findOne({email: 'one@first.com'});
-     })
-     .then(function (u) {
-     return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-     })
-     .then(function (u) {
-     var authHeader = tu.authorizationHeader(u);
-     request = {
-     method: 'PUT',
-     url: '/blogs/' + id + '/approve',
-     headers: {
-     Authorization: authHeader
-     },
-     payload: {
-     addedSubscribers: ['one@first.com']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     u.setRoles(['readonly'], 'test').save();
-     expect(response.statusCode).to.equal(401);
-     Blogs._find({title: 'testPutApproveBlogNotOwner'})
-     .then(function (b) {
-     expect(b).to.exist();
-     expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.false();
-     return Audit.findAudit('Blogs', 'testPutApproveBlogNotOwner', {action: {$regex: /add subscriber/}});
-     })
-     .then(function (foundAudit) {
-     expect(foundAudit.length).to.equal(0);
-     blogsToClear.push('testPutApproveBlogNotOwner');
-     done();
-     });
-     } catch (err) {
-     blogsToClear.push('testPutApproveBlogNotOwner');
-     done(err);
-     }
-     });
-     });
-     });
-     });
+        before(function (done) {
+            Blogs.create('test POST /blogs/{blogId}/posts', 'silver lining', 'test POST /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
+                .then(function (blog) {
+                    blogId = blog._id.toString();
+                    done();
+                })
+                .catch(function(err) {
+                    done(err);
+                });
+        });
 
-     describe('PUT /blogs/{id}/reject', function () {
-     it('should send back not found error when you try to reject a non existent blog', function (done) {
-     var request = {
-     method: 'PUT',
-     url: '/blogs/54c894fe1d1d4ab4032ed94e/reject',
-     headers: {
-     Authorization: rootAuthHeader
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(404);
-     blogsToClear.push('testBlogPutRejectNotFound');
-     done();
-     } catch (err) {
-     blogsToClear.push('testBlogPutRejectNotFound');
-     done(err);
-     }
-     });
-     });
-     it('should send back error if any of the users being rejected to join are not valid', function (done) {
-     var id = '';
-     Blogs.create('testBlogUserExistPUTReject', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
-     .then(function (b) {
-     id = b._id.toString();
-     var request = {
-     method: 'PUT',
-     url: '/blogs/' + id + '/reject',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     addedSubscribers: ['unknown']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(422);
-     blogsToClear.push('testBlogUserExistPUTReject');
-     done();
-     } catch (err) {
-     blogsToClear.push('testBlogUserExistPUTReject');
-     done(err);
-     }
-     });
-     });
-     });
-     it('should remove users who have been rejected from the needsApproval list', function (done) {
-     var request = {};
-     var id = '';
-     Blogs.create('testPutRejectBlogAddUser', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
-     .then(function (b) {
-     id = b._id.toString();
-     return b.add(['one@first.com'], 'needsApproval', 'test').save();
-     })
-     .then(function () {
-     request = {
-     method: 'PUT',
-     url: '/blogs/' + id + '/reject',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     addedSubscribers: ['one@first.com']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(200);
-     Blogs._find({title: 'testPutRejectBlogAddUser'})
-     .then(function (b) {
-     expect(b).to.exist();
-     expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.false();
-     return Audit.findAudit('Blogs', 'testPutRejectBlogAddUser', {action: {$regex: /remove needsApproval/}});
-     })
-     .then(function (foundAudit) {
-     expect(foundAudit.length).to.equal(1);
-     expect(foundAudit[0].action).to.match(/remove needsApproval/);
-     blogsToClear.push('testPutRejectBlogAddUser');
-     done();
-     });
-     } catch (err) {
-     blogsToClear.push('testPutRejectBlogAddUser');
-     done(err);
-     }
-     });
-     });
-     });
-     it('should send error if the user rejecting is not an owner of the blog', function (done) {
-     var request = {};
-     var id = '';
-     Blogs.create('testPutRejectBlogNotOwner', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
-     .then(function (b) {
-     id = b._id.toString();
-     return b.add(['one@first.com'], 'needsApproval', 'test').save();
-     })
-     .then(function () {
-     return Users._findOne({email: 'one@first.com'});
-     })
-     .then(function (u) {
-     return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-     })
-     .then(function (u) {
-     var authHeader = tu.authorizationHeader(u);
-     request = {
-     method: 'PUT',
-     url: '/blogs/' + id + '/reject',
-     headers: {
-     Authorization: authHeader
-     },
-     payload: {
-     addedSubscribers: ['one@first.com']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     u.setRoles(['readonly'], 'test').save();
-     expect(response.statusCode).to.equal(401);
-     Blogs._find({title: 'testPutRejectBlogNotOwner'})
-     .then(function (b) {
-     expect(b).to.exist();
-     expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
-     blogsToClear.push('testPutRejectBlogNotOwner');
-     done();
-     });
-     } catch (err) {
-     blogsToClear.push('testPutRejectBlogNotOwner');
-     done(err);
-     }
-     });
-     });
-     });
-     });
+        it('should send back conflict when you try to create a post with a title that you just created', function (done) {
+            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
+            Posts.create(blogId, 'silver lining', 'test POST unique', 'draft', 'public', true, true, 'testing put', ['testing'], 'nothing is immutable, embrace change', [], 'test')
+                .then(function () {
+                    var request = {
+                        method: 'POST',
+                        url: '/blogs/' + blogId + '/posts',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            title: 'test POST unique',
+                            state: 'draft',
+                            content: 'something. anything will do.',
+                            tags: ['testing'],
+                            category: 'POST',
+                            attachments: []
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(409);
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
 
-     describe('POST /blogs', function () {
-     it('should send back conflict when you try to create a blog with a title that already exists', function (done) {
-     Blogs.create('test POST /blogs dupe', 'silver lining', 'test POST /blogs dupe', [], [], [], [], false, 'public', true, 'test')
-     .then(function () {
-     var request = {
-     method: 'POST',
-     url: '/blogs',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     title: 'test POST /blogs dupe',
-     description: 'test POST /blogs dupe',
-     owners: [],
-     contributors: [],
-     subscribers: [],
-     subscriberGroups: []
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(409);
-     blogsToClear.push('test POST /blogs dupe');
-     done();
-     } catch (err) {
-     blogsToClear.push('test POST /blogs dupe');
-     done(err);
-     }
-     });
-     })
-     .done();
-     });
-     it('should send back error if any user sent in the request does not exist', function (done) {
-     var request = {
-     method: 'POST',
-     url: '/blogs',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     title: 'test POST /blogs invalid owner',
-     description: 'test POST /blogs invalid owner',
-     owners: ['unknown'],
-     contributors: [],
-     subscribers: [],
-     subscriberGroups: []
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(422);
-     expect(response.payload).to.match(/unknown/);
-     blogsToClear.push('test POST /blogs invalid owner');
-     done();
-     } catch (err) {
-     blogsToClear.push('test POST /blogs invalid owner');
-     done(err);
-     }
-     });
-     });
-     it('should send back error if any group sent in the request does not exist', function (done) {
-     var request = {
-     method: 'POST',
-     url: '/blogs',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     title: 'test POST /blogs invalidgroup',
-     description: 'test POST /blogs invalidgroup',
-     owners: [],
-     contributors: [],
-     subscribers: [],
-     subscriberGroups: ['madeup']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(422);
-     expect(response.payload).to.match(/madeup/);
-     blogsToClear.push('test POST /blogs invalidgroup');
-     done();
-     } catch (err) {
-     blogsToClear.push('test POST /blogs invalidgroup');
-     done(err);
-     }
-     });
-     });
-     it('should create blog successfully', function (done) {
-     UserGroups.create('test post /blogs', 'silver lining', 'success', 'test')
-     .then(function () {
-     var request = {
-     method: 'POST',
-     url: '/blogs',
-     headers: {
-     Authorization: rootAuthHeader
-     },
-     payload: {
-     title: 'test post /blogs success',
-     description: 'test post /blogs sucess',
-     owners: ['one@first.com'],
-     contributors: [],
-     subscribers: [],
-     subscriberGroups: ['test post /blogs']
-     }
-     };
-     server.inject(request, function (response) {
-     try {
-     expect(response.statusCode).to.equal(201);
-     Blogs._find({title: 'test post /blogs success'})
-     .then(function (found) {
-     expect(found).to.exist();
-     expect(found.length).to.equal(1);
-     expect(found[0].description).to.equal('test post /blogs sucess');
-     expect(found[0].title).to.equal('test post /blogs success');
-     return Audit.findAudit('Blogs', 'test post /blogs success', {action: 'create'});
-     })
-     .then(function (fa) {
-     expect(fa.length).to.equal(1);
-     groupsToClear.push('test post /blogs');
-     blogsToClear.push('test post /blogs success');
-     done();
-     });
-     } catch (err) {
-     groupsToClear.push('test post /blogs');
-     blogsToClear.push('test post /blogs success');
-     done(err);
-     }
-     });
-     })
-     .done();
-     });
-     });
-     */
+        it('should not allow you to create a post if you are not an owner / contributor to the blog', function (done) {
+            done();
+        });
+
+        it('should create post successfully, and publish if blog doesnt have needsReview set', function (done) {
+            done();
+        });
+
+        it('should create post successfully, and mark it as pending review if blog has needsReview set', function (done) {
+            done();
+        });
+
+        it('should create post successfully, and mark it as published if creator is an owner of the blog', function (done) {
+            done();
+        });
+
+        it('should create post successfully, inherit needsReview, allowComments, access from blog if not passed', function (done) {
+            done();
+        });
+
+        after(function (done) {
+            blogsToClear.push('test POST /blogs/{blogId}/posts');
+            done();
+        });
+    });
+
     describe('DELETE /blogs/{blogId}/posts/{id}', function () {
         it('should send back not found error when you try to modify a non existent post', function (done) {
             var request = {
@@ -1158,6 +890,7 @@ describe('Posts', function () {
                 }
             });
         });
+
         it('should send back forbidden error when you try to delete a post from a blog you are not an owner of', function (done) {
             var request = {};
             var authHeader = '';
@@ -1198,6 +931,7 @@ describe('Posts', function () {
                     });
                 });
         });
+
         it('should deactivate blog and have changes audited', function (done) {
             var blogId = '';
             var postId = '';
@@ -1246,8 +980,9 @@ describe('Posts', function () {
                 });
         });
     });
+
     afterEach(function (done) {
-        return tu.cleanup({userGroups: groupsToClear, blogs: blogsToClear, posts: postsToClear}, done);
+        return tu.cleanup({blogs: blogsToClear, posts: postsToClear}, done);
     });
 
 });

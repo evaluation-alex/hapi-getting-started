@@ -11,7 +11,7 @@ var ControllerFactory = require('./../../common/controller-factory');
 var validAndPermitted = require('./../../common/pre-reqs').validAndPermitted;
 
 var prePopulateBlog = function (request, reply) {
-    var blogId = request.params.blogId ? request.params.blogId : request.query.blogId;
+    var blogId = request.params.blogId; //TODO: look at query too, but right now that doesnt seem to be working
     Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
         .then(function (blog) {
             reply(blog);
@@ -90,7 +90,7 @@ var Controller = new ControllerFactory('posts', Posts)
         {assign: 'blog', method: prePopulateBlog}
     ], function (request) {
         return {
-            blogId: request.params.blogId ? request.params.blogId : request.query.blogId,
+            blogId: request.params.blogId, //TODO: look at query as well, but that doesnt seem to be working right now
             organisation: request.auth.credentials.user.organisation,
             title: request.payload.title,
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
@@ -109,8 +109,7 @@ var Controller = new ControllerFactory('posts', Posts)
                 blog.needsReview :
                 request.payload.needsReview;
             if (request.payload.state === 'published') {
-                var f1 = blog._isMemberOf('owners', by);
-                if (request.payload.needsReview && !(f1 || by === 'root')) {
+                if (request.payload.needsReview && !(blog._isMemberOf('owners', by) || by === 'root')) {
                     request.payload.state = 'pending review';
                 }
             }

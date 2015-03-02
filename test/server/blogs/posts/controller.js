@@ -242,6 +242,28 @@ describe('Posts', function () {
             });
         });
 
+        it('should give all posts in a given time period2', function (done) {
+            var request = {
+                method: 'GET',
+                url: '/posts?publishedOnAfter=2015-02-13',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var p = JSON.parse(response.payload);
+                    _.forEach(p.data, function (d) {
+                        expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true();
+                    });
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+
         after(function (done) {
             blogsToClear.push('test GET /posts1');
             blogsToClear.push('test GET /posts2 is active = false');
@@ -1166,6 +1188,50 @@ describe('Posts', function () {
                 });
         });
 
+        it('should create post successfully, and mark it as draft if user has marked it as draft irrespective of whether user is owner / needsReview setting', function (done) {
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.remove(['one@first.com'], 'owner', 'test').add(['one@first.com'], 'contributor', 'test').setNeedsReview(true, 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'POST',
+                        url: '/blogs/' + blogId + '/posts',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            title: 'test POST draft',
+                            state: 'draft',
+                            content: 'something. anything will do.',
+                            tags: ['testing'],
+                            category: 'POST',
+                            attachments: [],
+                            needsReview: true
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(201);
+                            Posts._find({title: 'test POST draft'})
+                                .then(function (found) {
+                                    expect(found.length).to.equal(1);
+                                    expect(found[0].state).to.equal('draft');
+                                    postsToClear.push('test POST draft');
+                                    done();
+                                });
+                        } catch (err) {
+                            postsToClear.push('test POST draft');
+                            done(err);
+                        }
+                    });
+                });
+        });
+
         it('should create post successfully, and mark it as published if creator is an owner of the blog', function (done) {
             Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
                 .then(function (blog) {
@@ -1189,7 +1255,9 @@ describe('Posts', function () {
                             tags: ['testing'],
                             category: 'POST',
                             attachments: [],
-                            needsReview: true
+                            needsReview: true,
+                            access: 'restricted',
+                            allowComments: false
                         }
                     };
                     server.inject(request, function (response) {

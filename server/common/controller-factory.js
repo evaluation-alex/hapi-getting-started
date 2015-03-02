@@ -154,17 +154,16 @@ var ControllerFactory = function (component, model) {
     self.newHandler = function (newCb) {
         return function (request, reply) {
             var by = request.auth.credentials.user.email;
-            newCb ? newCb(request, by) : model.newObject(request, by)
-                .then(function (n) {
-                    if (!n) {
-                        reply(Boom.notFound(component + ' could not be created.'));
-                    } else {
-                        reply(n).code(201);
-                    }
-                })
-                .catch(function (err) {
-                    reply(Boom.badImplementation(err));
-                });
+            var newObjPromise = newCb ? newCb(request, by) : model.newObject(request, by);
+            newObjPromise.then(function (n) {
+                if (!n) {
+                    reply(Boom.notFound(component + ' could not be created.'));
+                } else {
+                    reply(n).code(201);
+                }
+            }).catch(function (err) {
+                reply(Boom.badImplementation(err));
+            });
         };
     };
     self.newController = function (validator, prereqs, uniqueCheck, newCb) {

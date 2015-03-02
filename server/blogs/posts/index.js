@@ -7,7 +7,7 @@ var routes = [
     RouteFactory.discoverDefaultRoutes('posts', Controller, '/blogs/{blogId}'),
     RouteFactory.discoverDefaultRoutes('posts', Controller)
 ];
-_.forEach(['approve', 'reject'], function (action) {
+_.forEach(['publish', 'reject'], function (action) {
     routes.push(RouteFactory.newRoute()
         .forMethod('PUT')
         .onPath('/blogs/{blogId}/posts/{id}/' + action)

@@ -45,6 +45,7 @@ _.extend(Posts.prototype, IsActive);
 _.extend(Posts.prototype, new Properties(['title', 'state', 'category', 'access', 'allowComments', 'needsReview', 'isActive']));
 _.extend(Posts.prototype, new Update({
     isActive: 'isActive',
+    state: 'state',
     category: 'category',
     title: 'title',
     access: 'access',
@@ -85,9 +86,10 @@ Posts.schema = Joi.object().keys({
 });
 
 Posts.indexes = [
-    [{blogId: 1, organisation: 1, publishedOn: 1, state: 1}],
+    [{blogId: 1, organisation: 1, title: 1, publishedOn: 1}],
     [{title: 1}],
-    [{tags: 1}]
+    [{tags: 1}],
+    [{state: 1, publishedOn: 1}]
 ];
 
 Posts.filenameForPost = function (post) {
@@ -99,15 +101,15 @@ Posts.prototype.setContent = function (content, by) {
     if (!_.isUndefined(content)) {
         var fnm = Posts.filenameForPost(self);
         var filename = fnm.join('');
+        cache.set(filename, content);
+        self.content = filename;
+        self.updatedBy = by;
+        self.updatedOn = new Date();
         writeFile(Config.storage.diskPath + '/' + filename, content, {}, function (err) {
             if (err) {
                 console.log(err);
             }
         });
-        cache.set(filename, content);
-        self.content = filename;
-        self.updatedBy = by;
-        self.updatedOn = new Date();
     }
     return self;
 };
@@ -131,29 +133,6 @@ Posts.prototype.readContentFromDisk = function () {
                 });
         }
     });
-};
-
-Posts.prototype.approve = function (doc, by) {
-    var self = this;
-    if (self.state === 'draft' || self.state === 'pending review' || self.state === 'do not publish') {
-        var now = new Date();
-        self.setState('published', by);
-        self.reviewedBy = by;
-        self.reviewedOn = now;
-        self.publishedOn = now;
-    }
-    return self.update(doc, by);
-};
-
-Posts.prototype.reject = function (doc, by) {
-    var self = this;
-    if (self.state === 'draft' || self.state === 'pending review') {
-        var now = new Date();
-        self.setState('do not publish', by);
-        self.reviewedBy = by;
-        self.reviewedOn = now;
-    }
-    return self.update(doc, by);
 };
 
 Posts.newObject = function (doc, by) {
@@ -216,9 +195,7 @@ Posts.create = function (blogId, organisation, title, state, access, allowCommen
                     Audit.create('Posts', post._id, 'create', null, post, by, organisation);
                     post.setContent(content, by);
                 }
-                process.nextTick(function () {
-                    resolve(post);
-                });
+                resolve(post);
             })
             .catch(function (err) {
                 reject(err);

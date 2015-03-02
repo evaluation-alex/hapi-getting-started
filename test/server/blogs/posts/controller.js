@@ -612,14 +612,36 @@ describe('Posts', function () {
             });
         });
 
-        it('should update approve draft / pending review posts', function (done) {
+        after(function (done) {
+            blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}');
+            postsToClear.push('test PUT');
+            done();
+        });
+    });
+
+    describe('PUT /blogs/{blogId}/posts/{id}/publish', function () {
+        var blogId = null;
+        var postId = null;
+        before(function (done) {
+            Blogs.create('test PUT /blogs/{blogId}/posts/{id}/publish', 'silver lining', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
+                .then(function (b) {
+                    blogId = b._id.toString();
+                    //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
+                    return Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], 'nothing is immutable, embrace change', [], 'test');
+                })
+                .then(function (p) {
+                    postId = p._id.toString();
+                    done();
+                })
+                .catch(function (err) {
+                    done(err);
+                });
+        });
+
+        it('should publish draft / pending review posts', function (done) {
             Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owner', 'test').save();
-                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
-                })
-                .then(function (post) {
-                    post.setState('draft').setNeedsReview(true).save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -628,14 +650,12 @@ describe('Posts', function () {
                 .then(function (u) {
                     var request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/approve',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
                             Authorization: tu.authorizationHeader(u)
                         },
                         payload: {
-                            access: 'public',
-                            allowComments: true,
-                            needsReview: true
+                            access: 'restricted'
                         }
                     };
                     server.inject(request, function (response) {
@@ -643,9 +663,7 @@ describe('Posts', function () {
                             expect(response.statusCode).to.equal(200);
                             Posts._find({_id: BaseModel.ObjectID(postId)})
                                 .then(function (found) {
-                                    expect(found[0].access).to.equal('public');
-                                    expect(found[0].allowComments).to.equal(true);
-                                    expect(found[0].needsReview).to.equal(true);
+                                    expect(found[0].access).to.equal('restricted');
                                     expect(found[0].state).to.equal('published');
                                     return Audit.findAudit('Posts', found[0]._id, {action: {$regex: /state/}});
                                 })
@@ -662,6 +680,191 @@ describe('Posts', function () {
                 });
         });
 
+        it('should fail to publish draft / pending review posts if user is not an owner/contributor of the blog', function (done) {
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.remove(['one@first.com'], 'owner', 'test').save();
+                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
+                })
+                .then(function (post) {
+                    post.setState('draft', 'test').setNeedsReview(true, 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            access: 'restricted'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                                .then(function (found) {
+                                    expect(found[0].state).to.equal('draft');
+                                    done();
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
+        it('should move draft to pending review posts if user is contributor, but not owner of the blog', function (done) {
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.remove(['one@first.com'], 'owner', 'test').add(['one@first.com'], 'contributor', 'test').save();
+                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
+                })
+                .then(function (post) {
+                    post.setState('draft', 'test').setNeedsReview(true, 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            access: 'restricted'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                                .then(function (found) {
+                                    expect(found[0].state).to.equal('pending review');
+                                    expect(found[0].access).to.equal('restricted');
+                                    done();
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
+        it('should move draft to published posts if user is contributor, and needsReview is false', function (done) {
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.remove(['one@first.com'], 'owner', 'test').add(['one@first.com'], 'contributor', 'test').save();
+                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
+                })
+                .then(function (post) {
+                    post.setState('draft', 'test').setNeedsReview(false, 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            access: 'restricted'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                                .then(function (found) {
+                                    expect(found[0].state).to.equal('published');
+                                    expect(found[0].access).to.equal('restricted');
+                                    done();
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
+        it('should do nothing if the post is already published / archived', function (done) {
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.add(['one@first.com'], 'owner', 'test').save();
+                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
+                })
+                .then(function (post) {
+                    post.setState('archived', 'test').setNeedsReview(true, 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            access: 'restricted'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                                .then(function (found) {
+                                    expect(found[0].state).to.equal('archived');
+                                    expect(found[0].access).to.equal('restricted');
+                                    done();
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
+        after(function (done) {
+            blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}/publish');
+            postsToClear.push('test PUT publish');
+            done();
+        });
+    });
+
+    describe('PUT /blogs/{blogId}/posts/{id}/reject', function () {
+        var blogId = null;
+        var postId = null;
+        before(function (done) {
+            Blogs.create('test PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
+                .then(function (b) {
+                    blogId = b._id.toString();
+                    //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
+                    return Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], 'nothing is immutable, embrace change', [], 'test');
+                })
+                .then(function (p) {
+                    postId = p._id.toString();
+                    done();
+                })
+                .catch(function (err) {
+                    done(err);
+                });
+        });
+
         it('should update reject draft / pending review posts', function (done) {
             Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
                 .then(function (blog) {
@@ -669,7 +872,7 @@ describe('Posts', function () {
                     return Posts._findOne({_id: BaseModel.ObjectID(postId)});
                 })
                 .then(function (post) {
-                    post.setState('draft').setNeedsReview(true).save();
+                    post.setState('draft', 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -683,9 +886,7 @@ describe('Posts', function () {
                             Authorization: tu.authorizationHeader(u)
                         },
                         payload: {
-                            access: 'restricted',
-                            allowComments: false,
-                            needsReview: false
+                            access: 'restricted'
                         }
                     };
                     server.inject(request, function (response) {
@@ -694,57 +895,7 @@ describe('Posts', function () {
                             Posts._find({_id: BaseModel.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].access).to.equal('restricted');
-                                    expect(found[0].allowComments).to.equal(false);
-                                    expect(found[0].needsReview).to.equal(false);
                                     expect(found[0].state).to.equal('do not publish');
-                                    return Audit.findAudit('Posts', found[0]._id, {action: {$regex: /state/}});
-                                })
-                                .then(function (foundAudit) {
-                                    expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(2);
-                                    expect(foundAudit[0].action).to.equal('state');
-                                    expect(foundAudit[1].action).to.equal('state');
-                                    done();
-                                });
-                        } catch (err) {
-                            done(err);
-                        }
-                    });
-                });
-        });
-
-        it('should fail approve draft / pending review posts if user is not an owner of the blog', function (done) {
-            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
-                .then(function (blog) {
-                    blog.remove(['one@first.com'], 'owner', 'test').save();
-                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
-                })
-                .then(function (post) {
-                    post.setState('draft').setNeedsReview(true).save();
-                    return Users._findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    var request = {
-                        method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/approve',
-                        headers: {
-                            Authorization: tu.authorizationHeader(u)
-                        },
-                        payload: {
-                            access: 'public',
-                            allowComments: true,
-                            needsReview: true
-                        }
-                    };
-                    server.inject(request, function (response) {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            Posts._find({_id: BaseModel.ObjectID(postId)})
-                                .then(function (found) {
-                                    expect(found[0].state).to.equal('draft');
                                     done();
                                 });
                         } catch (err) {
@@ -761,7 +912,7 @@ describe('Posts', function () {
                     return Posts._findOne({_id: BaseModel.ObjectID(postId)});
                 })
                 .then(function (post) {
-                    post.setState('draft').setNeedsReview(true).save();
+                    post.setState('draft', 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -775,9 +926,7 @@ describe('Posts', function () {
                             Authorization: tu.authorizationHeader(u)
                         },
                         payload: {
-                            access: 'restricted',
-                            allowComments: false,
-                            needsReview: false
+                            access: 'restricted'
                         }
                     };
                     server.inject(request, function (response) {
@@ -795,9 +944,48 @@ describe('Posts', function () {
                 });
         });
 
+        it('should do nothing if the post is already published / archived', function (done) {
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.add(['one@first.com'], 'owner', 'test').save();
+                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
+                })
+                .then(function (post) {
+                    post.setState('published', 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            access: 'restricted'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                                .then(function (found) {
+                                    expect(found[0].state).to.equal('published');
+                                    done();
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
         after(function (done) {
-            blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}');
-            postsToClear.push('test PUT');
+            blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}/reject');
+            postsToClear.push('test PUT reject');
             done();
         });
     });
@@ -838,8 +1026,10 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(409);
+                            postsToClear.push('test POST unique');
                             done();
                         } catch (err) {
+                            postsToClear.push('test POST unique');
                             done(err);
                         }
                     });
@@ -847,23 +1037,222 @@ describe('Posts', function () {
         });
 
         it('should not allow you to create a post if you are not an owner / contributor to the blog', function (done) {
-            done();
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.remove(['one@first.com'], 'owner', 'test').remove(['one@first.com'], 'contributor', 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'POST',
+                        url: '/blogs/' + blogId + '/posts',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            title: 'test POST blog owner',
+                            state: 'draft',
+                            content: 'something. anything will do.',
+                            tags: ['testing'],
+                            category: 'POST',
+                            attachments: []
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            Posts._find({title: 'test POST blog owner'})
+                                .then(function (found) {
+                                    expect(found.length).to.equal(0);
+                                    postsToClear.push('test POST blog owner');
+                                    done();
+                                });
+                        } catch (err) {
+                            postsToClear.push('test POST blog owner');
+                            done(err);
+                        }
+                    });
+                });
         });
 
         it('should create post successfully, and publish if blog doesnt have needsReview set', function (done) {
-            done();
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.add(['one@first.com'], 'contributor', 'test').setNeedsReview(false, 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'POST',
+                        url: '/blogs/' + blogId + '/posts',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            title: 'test POST needsReview and publish',
+                            state: 'published',
+                            content: 'something. anything will do.',
+                            tags: ['testing'],
+                            category: 'POST',
+                            attachments: [],
+                            needsReview: false
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(201);
+                            Posts._find({title: 'test POST needsReview and publish'})
+                                .then(function (found) {
+                                    expect(found.length).to.equal(1);
+                                    expect(found[0].state).to.equal('published');
+                                    postsToClear.push('test POST needsReview and publish');
+                                    done();
+                                });
+                        } catch (err) {
+                            postsToClear.push('test POST needsReview and publish');
+                            done(err);
+                        }
+                    });
+                });
         });
 
         it('should create post successfully, and mark it as pending review if blog has needsReview set', function (done) {
-            done();
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.remove(['one@first.com'], 'owner', 'test').add(['one@first.com'], 'contributor', 'test').setNeedsReview(true, 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'POST',
+                        url: '/blogs/' + blogId + '/posts',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            title: 'test POST needsReview and pending review',
+                            state: 'published',
+                            content: 'something. anything will do.',
+                            tags: ['testing'],
+                            category: 'POST',
+                            attachments: [],
+                            needsReview: true
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(201);
+                            Posts._find({title: 'test POST needsReview and pending review'})
+                                .then(function (found) {
+                                    expect(found.length).to.equal(1);
+                                    expect(found[0].state).to.equal('pending review');
+                                    postsToClear.push('test POST needsReview and pending review');
+                                    done();
+                                });
+                        } catch (err) {
+                            postsToClear.push('test POST needsReview and pending review');
+                            done(err);
+                        }
+                    });
+                });
         });
 
         it('should create post successfully, and mark it as published if creator is an owner of the blog', function (done) {
-            done();
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.add(['one@first.com'], 'owner', 'test').remove(['one@first.com'], 'contributor', 'test').setNeedsReview(true, 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'POST',
+                        url: '/blogs/' + blogId + '/posts',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            title: 'test POST needsReview, owner and published',
+                            state: 'published',
+                            content: 'something. anything will do.',
+                            tags: ['testing'],
+                            category: 'POST',
+                            attachments: [],
+                            needsReview: true
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(201);
+                            Posts._find({title: 'test POST needsReview, owner and published'})
+                                .then(function (found) {
+                                    expect(found.length).to.equal(1);
+                                    expect(found[0].state).to.equal('published');
+                                    postsToClear.push('test POST needsReview, owner and published');
+                                    done();
+                                });
+                        } catch (err) {
+                            postsToClear.push('test POST needsReview, owner and published');
+                            done(err);
+                        }
+                    });
+                });
         });
 
         it('should create post successfully, inherit needsReview, allowComments, access from blog if not passed', function (done) {
-            done();
+            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+                .then(function (blog) {
+                    blog.add(['one@first.com'], 'owner', 'test').add(['one@first.com'], 'contributor', 'test').setNeedsReview(true, 'test').setAccess('restricted', 'test').setAllowComments(false, 'test').save();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'POST',
+                        url: '/blogs/' + blogId + '/posts',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            title: 'test POST needsReview, access, allowComments',
+                            state: 'published',
+                            content: 'something. anything will do.',
+                            tags: ['testing'],
+                            category: 'POST',
+                            attachments: []
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(201);
+                            Posts._find({title: 'test POST needsReview, access, allowComments'})
+                                .then(function (found) {
+                                    expect(found.length).to.equal(1);
+                                    expect(found[0].needsReview).to.equal(true);
+                                    expect(found[0].access).to.equal('restricted');
+                                    expect(found[0].allowComments).to.equal(false);
+                                    postsToClear.push('test POST needsReview, access, allowComments');
+                                    done();
+                                });
+                        } catch (err) {
+                            postsToClear.push('test POST needsReview, access, allowComments');
+                            done(err);
+                        }
+                    });
+                });
         });
 
         after(function (done) {

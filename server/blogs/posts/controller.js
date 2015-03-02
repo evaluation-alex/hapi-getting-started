@@ -1,13 +1,25 @@
 'use strict';
 var Joi = require('joi');
+var Boom = require('boom');
+var Promise = require('bluebird');
 var _ = require('lodash');
 var moment = require('moment');
-var Promise = require('bluebird');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Posts = require('./model');
 var Blogs = require('./../model');
 var ControllerFactory = require('./../../common/controller-factory');
 var validAndPermitted = require('./../../common/pre-reqs').validAndPermitted;
+
+var prePopulateBlog = function (request, reply) {
+    var blogId = request.params.blogId ? request.params.blogId : request.query.blogId;
+    Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+        .then(function (blog) {
+            reply(blog);
+        })
+        .catch(function (err) {
+            reply(Boom.badImplementation(err));
+        });
+};
 
 var Controller = new ControllerFactory('posts', Posts)
     .findController({
@@ -74,7 +86,8 @@ var Controller = new ControllerFactory('posts', Posts)
             needsReview: Joi.boolean()
         }
     }, [
-        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['contributors', 'owners'])}
+        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['contributors', 'owners'])},
+        {assign: 'blog', method: prePopulateBlog}
     ], function (request) {
         return {
             blogId: request.params.blogId ? request.params.blogId : request.query.blogId,
@@ -83,51 +96,72 @@ var Controller = new ControllerFactory('posts', Posts)
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
         };
     }, function (request, by) {
+        /*jshint unused: false*/
         return new Promise(function (resolve, reject) {
-            var id = request.params.blogId ? request.params.blogId : request.query.blogId;
-            Blogs._findOne({_id: BaseModel.ObjectID(id)})
-                .then(function (blog) {
-                    request.payload.access = _.isUndefined(request.payload.access) ?
-                        blog.access :
-                        request.payload.access;
-                    request.payload.allowComments = _.isUndefined(request.payload.allowComments) ?
-                        blog.allowComments :
-                        request.payload.allowComments;
-                    request.payload.needsReview = _.isUndefined(request.payload.needsReview) ?
-                        blog.needsReview :
-                        request.payload.needsReview;
-                    if (request.payload.state === 'published') {
-                        if (request.payload.needsReview && !_.findWhere(blog.owners, by)) {
-                            request.payload.state = 'pending review';
-                        }
-                    }
-                    resolve(Posts.newObject(request, by));
-                })
-                .catch(function (err) {
-                    reject(err);
-                });
+            var blog = request.pre.blog;
+            request.payload.access = _.isUndefined(request.payload.access) ?
+                blog.access :
+                request.payload.access;
+            request.payload.allowComments = _.isUndefined(request.payload.allowComments) ?
+                blog.allowComments :
+                request.payload.allowComments;
+            request.payload.needsReview = _.isUndefined(request.payload.needsReview) ?
+                blog.needsReview :
+                request.payload.needsReview;
+            if (request.payload.state === 'published') {
+                var f1 = blog._isMemberOf('owners', by);
+                if (request.payload.needsReview && !(f1 || by === 'root')) {
+                    request.payload.state = 'pending review';
+                }
+            }
+            resolve(Posts.newObject(request, by));
         });
+        /*jshint unused: true*/
     })
     .updateController({
         payload: {
             blogId: Joi.string(),
-            access: Joi.string().valid(['public', 'restricted']),
-            allowComments: Joi.boolean(),
-            needsReview: Joi.boolean()
+            access: Joi.string().valid(['public', 'restricted'])
         }
-    },
-    [{assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['owners'])}],
-    'approve', 'approve')
+    }, [
+        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['owners', 'contributors'])},
+        {assign: 'blog', method: prePopulateBlog}
+    ],
+    'publish',
+    function (post, request, by) {
+        if (post.state === 'draft' || post.state === 'pending review') {
+            var blog = request.pre.blog;
+            if ((_.findWhere(blog.owners, by) || by === 'root') || (!post.needsReview)) {
+                request.payload.state = 'published';
+                post.reviewedBy = by;
+                post.reviewedOn = new Date();
+                post.publishedOn = new Date();
+            } else {
+                request.payload.state = 'pending review';
+            }
+            post.update(request, by);
+        }
+        return post;
+    })
     .updateController({
         payload: {
             blogId: Joi.string(),
             isActive: Joi.boolean(),
-            access: Joi.string().valid(['public', 'restricted']),
-            allowComments: Joi.boolean()
+            access: Joi.string().valid(['public', 'restricted'])
         }
-    },
-    [{assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['owners'])}],
-    'reject', 'reject')
+    }, [
+        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['owners', 'contributors'])}
+    ],
+    'reject',
+    function (post, request, by) {
+        if (post.state === 'draft' || post.state === 'pending review') {
+            request.payload.state = 'do not publish';
+            post.reviewedBy = by;
+            post.reviewedOn = new Date();
+            post.update(request, by);
+        }
+        return post;
+    })
     .deleteController({assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['owners'])})
     .doneConfiguring();
 

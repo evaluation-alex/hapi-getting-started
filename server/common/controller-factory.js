@@ -182,7 +182,7 @@ var ControllerFactory = function (component, model) {
         var validator = {
             payload: {}
         };
-        validator.payload[toAdd] = Joi.array().includes(Joi.string()).unique();
+        validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
         self.updateController(validator, [
             AuthPlugin.preware.ensurePermissions('view', component),
             {assign: 'validMembers', method: PreReqs.areValid(Users, 'email', toAdd)}

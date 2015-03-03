@@ -29,8 +29,8 @@ Roles.schema = Joi.object().keys({
     _id: Joi.object(),
     name: Joi.string().required(),
     organisation: Joi.string().required(),
-    permissions: Joi.array().includes(Joi.object().keys({
-        action: Joi.string().valid('view', 'update'),
+    permissions: Joi.array().items(Joi.object().keys({
+        action: Joi.string().only('view', 'update').required(),
         object: Joi.string().required()
     })).unique()
 });

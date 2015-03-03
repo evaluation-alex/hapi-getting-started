@@ -60,13 +60,13 @@ var Controller = new ControllerFactory('posts', Posts)
         payload: {
             blogId: Joi.string(),
             isActive: Joi.boolean(),
-            addedTags: Joi.array().includes(Joi.string()).unique(),
-            removedTags: Joi.array().includes(Joi.string()).unique(),
-            addedAttachments: Joi.array().includes(Joi.string()).unique(),
-            removedAttachments: Joi.array().includes(Joi.string()).unique(),
+            addedTags: Joi.array().items(Joi.string()).unique(),
+            removedTags: Joi.array().items(Joi.string()).unique(),
+            addedAttachments: Joi.array().items(Joi.string()).unique(),
+            removedAttachments: Joi.array().items(Joi.string()).unique(),
             title: Joi.string(),
             content: Joi.string(),
-            access: Joi.string().valid(['public', 'restricted']),
+            access: Joi.string().only(['public', 'restricted']),
             allowComments: Joi.boolean()
         }
     }, [
@@ -76,12 +76,12 @@ var Controller = new ControllerFactory('posts', Posts)
         payload: {
             blogId: Joi.string(),
             title: Joi.string(),
-            state: Joi.string().valid(['draft', 'pending review', 'published', 'archived']),
+            state: Joi.string().only(['draft', 'pending review', 'published', 'archived']),
             content: Joi.string(),
-            tags: Joi.array().includes(Joi.string()).unique(),
+            tags: Joi.array().items(Joi.string()).unique(),
             category: Joi.string(),
-            attachments: Joi.array().includes(Joi.object()).unique(),
-            access: Joi.string().valid(['public', 'restricted']),
+            attachments: Joi.array().items(Joi.object()).unique(),
+            access: Joi.string().only(['public', 'restricted']),
             allowComments: Joi.boolean(),
             needsReview: Joi.boolean()
         }
@@ -120,7 +120,7 @@ var Controller = new ControllerFactory('posts', Posts)
     .updateController({
         payload: {
             blogId: Joi.string(),
-            access: Joi.string().valid(['public', 'restricted'])
+            access: Joi.string().only(['public', 'restricted'])
         }
     }, [
         {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['owners', 'contributors'])},
@@ -146,7 +146,7 @@ var Controller = new ControllerFactory('posts', Posts)
         payload: {
             blogId: Joi.string(),
             isActive: Joi.boolean(),
-            access: Joi.string().valid(['public', 'restricted'])
+            access: Joi.string().only(['public', 'restricted'])
         }
     }, [
         {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['owners', 'contributors'])}

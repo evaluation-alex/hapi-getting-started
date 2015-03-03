@@ -49,10 +49,10 @@ Permissions._collection = 'permissions';
 
 Permissions.schema = Joi.object().keys({
     _id: Joi.object(),
-    organisation: Joi.string(),
+    organisation: Joi.string().required(),
     description: Joi.string(),
-    users: Joi.array().includes(Joi.string()).unique(),
-    groups: Joi.array().includes(Joi.string()).unique(),
+    users: Joi.array().items(Joi.string()).unique(),
+    groups: Joi.array().items(Joi.string()).unique(),
     action: Joi.string().required(),
     object: Joi.string().required(),
     isActive: Joi.boolean().default(true),

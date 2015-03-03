@@ -32,17 +32,17 @@ var Controller = new ControllerFactory('blogs', Blogs)
     .updateController({
         payload: {
             isActive: Joi.boolean(),
-            addedOwners: Joi.array().includes(Joi.string()).unique(),
-            removedOwners: Joi.array().includes(Joi.string()).unique(),
-            addedContributors: Joi.array().includes(Joi.string()).unique(),
-            removedContributors: Joi.array().includes(Joi.string()).unique(),
-            addedSubscribers: Joi.array().includes(Joi.string()).unique(),
-            removedSubscribers: Joi.array().includes(Joi.string()).unique(),
-            addedSubscriberGroups: Joi.array().includes(Joi.string()).unique(),
-            removedSubscriberGroups: Joi.array().includes(Joi.string()).unique(),
+            addedOwners: Joi.array().items(Joi.string()).unique(),
+            removedOwners: Joi.array().items(Joi.string()).unique(),
+            addedContributors: Joi.array().items(Joi.string()).unique(),
+            removedContributors: Joi.array().items(Joi.string()).unique(),
+            addedSubscribers: Joi.array().items(Joi.string()).unique(),
+            removedSubscribers: Joi.array().items(Joi.string()).unique(),
+            addedSubscriberGroups: Joi.array().items(Joi.string()).unique(),
+            removedSubscriberGroups: Joi.array().items(Joi.string()).unique(),
             description: Joi.string(),
             needsReview: Joi.boolean(),
-            access: Joi.string().valid(['public', 'restricted']),
+            access: Joi.string().only(['public', 'restricted']),
             allowComments: Joi.boolean()
         }
     }, [
@@ -56,12 +56,12 @@ var Controller = new ControllerFactory('blogs', Blogs)
         payload: {
             title: Joi.string(),
             description: Joi.string(),
-            owners: Joi.array().includes(Joi.string()).unique(),
-            contributors: Joi.array().includes(Joi.string()).unique(),
-            subscribers: Joi.array().includes(Joi.string()).unique(),
-            subscriberGroups: Joi.array().includes(Joi.string()).unique(),
+            owners: Joi.array().items(Joi.string()).unique(),
+            contributors: Joi.array().items(Joi.string()).unique(),
+            subscribers: Joi.array().items(Joi.string()).unique(),
+            subscriberGroups: Joi.array().items(Joi.string()).unique(),
             needsReview: Joi.boolean().default(false),
-            access: Joi.string().valid(['public', 'restricted']).default('public'),
+            access: Joi.string().only(['public', 'restricted']).default('public'),
             allowComments: Joi.boolean().default(true)
         }
     }, [

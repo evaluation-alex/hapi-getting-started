@@ -37,7 +37,7 @@ var Controller = new ControllerFactory('users', Users)
     .updateController({
     payload: {
         isActive: Joi.boolean(),
-        roles: Joi.array().includes(Joi.string()),
+        roles: Joi.array().items(Joi.string()),
         password: Joi.string()
     }
 }, [], 'update', 'update')

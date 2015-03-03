@@ -15,12 +15,12 @@ Audit._collection = 'audit';
 
 Audit.schema = Joi.object().keys({
     objectChangedType: Joi.string().required(),
-    objectChangedId: Joi.string(),
+    objectChangedId: Joi.string().required(),
     action: Joi.string(),
     origValues: Joi.object(),
     newValues: Joi.object(),
-    organisation: Joi.string(),
-    by: Joi.string(),
+    organisation: Joi.string().required(),
+    by: Joi.string().required(),
     timestamp: Joi.date()
 });
 

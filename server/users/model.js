@@ -123,9 +123,9 @@ Users._collection = 'users';
 Users.schema = Joi.object().keys({
     _id: Joi.object(),
     email: Joi.string().email().required(),
-    password: Joi.string(),
+    password: Joi.string().required(),
     organisation: Joi.string().required(),
-    roles: Joi.array().includes(Joi.string()),
+    roles: Joi.array().items(Joi.string()).unique(),
     resetPwd: Joi.object().keys({
         token: Joi.string().required(),
         expires: Joi.date().required()

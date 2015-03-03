@@ -30,10 +30,10 @@ var Controller = new ControllerFactory('permissions', Permissions)
     .updateController({
         payload: {
             isActive: Joi.boolean(),
-            addedUsers: Joi.array().includes(Joi.string()).unique(),
-            removedUsers: Joi.array().includes(Joi.string()).unique(),
-            addedGroups: Joi.array().includes(Joi.string()).unique(),
-            removedGroups: Joi.array().includes(Joi.string()).unique(),
+            addedUsers: Joi.array().items(Joi.string()).unique(),
+            removedUsers: Joi.array().items(Joi.string()).unique(),
+            addedGroups: Joi.array().items(Joi.string()).unique(),
+            removedGroups: Joi.array().items(Joi.string()).unique(),
             description: Joi.string()
         }
     }, [{assign: 'validUsers', method: areValid(Users, 'email', 'addedUsers')},
@@ -42,8 +42,8 @@ var Controller = new ControllerFactory('permissions', Permissions)
     .newController({
         payload: {
             description: Joi.string(),
-            users: Joi.array().includes(Joi.string()).unique(),
-            groups: Joi.array().includes(Joi.string()).unique(),
+            users: Joi.array().items(Joi.string()).unique(),
+            groups: Joi.array().items(Joi.string()).unique(),
             action: Joi.string().required(),
             object: Joi.string().required()
         }

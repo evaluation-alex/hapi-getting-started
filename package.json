@@ -52,7 +52,7 @@
         "hapi-mongo-models": "1.1.x",
         "hapi-require-https": "2.0.x",
         "hoek": "2.11.x",
-        "joi": "5.1.x",
+        "joi": "6.0.x",
         "lodash": "3.3.x",
         "lout": "6.2.x",
         "lru-cache": "2.5.x",

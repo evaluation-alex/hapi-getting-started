@@ -28,12 +28,12 @@ var Controller = new ControllerFactory('user-groups', UserGroups)
     .updateController({
         payload: {
             isActive: Joi.boolean(),
-            addedMembers: Joi.array().includes(Joi.string()).unique(),
-            removedMembers: Joi.array().includes(Joi.string()).unique(),
-            addedOwners: Joi.array().includes(Joi.string()).unique(),
-            removedOwners: Joi.array().includes(Joi.string()).unique(),
+            addedMembers: Joi.array().items(Joi.string()).unique(),
+            removedMembers: Joi.array().items(Joi.string()).unique(),
+            addedOwners: Joi.array().items(Joi.string()).unique(),
+            removedOwners: Joi.array().items(Joi.string()).unique(),
             description: Joi.string(),
-            access: Joi.string().valid(['restricted', 'public'])
+            access: Joi.string().only(['restricted', 'public'])
         }
     }, [{assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
         {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
@@ -42,10 +42,10 @@ var Controller = new ControllerFactory('user-groups', UserGroups)
     .newController({
         payload: {
             name: Joi.string().required(),
-            members: Joi.array().includes(Joi.string()),
-            owners: Joi.array().includes(Joi.string()),
+            members: Joi.array().items(Joi.string()),
+            owners: Joi.array().items(Joi.string()),
             description: Joi.string(),
-            access: Joi.string().valid(['restricted', 'public'])
+            access: Joi.string().only(['restricted', 'public'])
         }
     }, [
         {assign: 'validMembers', method: areValid(Users, 'email', 'members')},

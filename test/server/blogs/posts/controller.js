@@ -4,6 +4,7 @@ var relativeToServer = './../../../../server/';
 var Users = require(relativeToServer + 'users/model');
 var Blogs = require(relativeToServer + 'blogs/model');
 var Posts = require(relativeToServer + 'blogs/posts/model');
+var PostContent = require(relativeToServer + 'blogs/posts/post-content');
 var Audit = require(relativeToServer + 'audit/model');
 var Config = require(relativeToServer + '../config');
 var fs = require('fs');
@@ -55,10 +56,10 @@ describe('Posts', function () {
                     var b1 = b[0];
                     var b2 = b[1];
                     blogId = b1._id;
-                    //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-                    var p1 = Posts.create(b1._id, 'silver lining', 'searchByTitle', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], 'search is good, results are better', [], 'test');
-                    var p2 = Posts.create(b1._id, 'silver lining', 'searchByTitle2', 'published', 'public', true, true, 'testing', ['testing', 'controller testing'], 'you find what you search', [], 'test');
-                    var p3 = Posts.create(b2._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, 'testing', ['testing', 'search testing'], 'dont stop searching for meaning', [], 'test');
+                    //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+                    var p1 = Posts.create(b1._id, 'silver lining', 'searchByTitle', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
+                    var p2 = Posts.create(b1._id, 'silver lining', 'searchByTitle2', 'published', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
+                    var p3 = Posts.create(b2._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, 'testing', ['testing', 'search testing'], [], 'test');
                     return Promise.join(p1, p2, p3);
                 })
                 .then(function (p) {
@@ -282,7 +283,8 @@ describe('Posts', function () {
             Blogs.create('test GET /blogs/{blogId}/posts/{id}', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(function (b) {
                     blogId = b._id.toString();
-                    return Posts.create(b._id, 'silver lining', 'GET /posts/{id}', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], 'search with a spotlight to find the needly in the haystack', [], 'test');
+                    //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+                    return Posts.create(b._id, 'silver lining', 'GET /posts/{id}', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
                 })
                 .then(function (p) {
                     id = p._id.toString();
@@ -381,8 +383,8 @@ describe('Posts', function () {
             Blogs.create('test PUT /blogs/{blogId}/posts/{id}', 'silver lining', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     blogId = b._id.toString();
-                    //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-                    return Posts.create(blogId, 'silver lining', 'test PUT', 'draft', 'public', true, true, 'testing put', ['testing'], 'nothing is immutable, embrace change', [], 'test');
+                    //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+                    return Posts.create(blogId, 'silver lining', 'test PUT', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test');
                 })
                 .then(function (p) {
                     postId = p._id.toString();
@@ -570,13 +572,10 @@ describe('Posts', function () {
                     expect(response.statusCode).to.equal(200);
                     Posts._find({_id: BaseModel.ObjectID(postId)})
                         .then(function (found) {
-                            expect(found[0].content).to.equal('updated');
-                            return Posts.filenameForPost(found[0]).join('');
-                        })
-                        .then(function (fname) {
+                            var filename = PostContent.filenameForPost(found[0]);
                             var timeout = setTimeout(function () {
-                                expect(fs.existsSync(Config.storage.diskPath + '/' + fname)).to.be.true();
-                                expect(fs.readFileSync(Config.storage.diskPath + '/' + fname, {}).toString()).to.equal('updated');
+                                expect(fs.existsSync(Config.storage.diskPath + '/' + filename)).to.be.true();
+                                expect(fs.readFileSync(Config.storage.diskPath + '/' + filename, {}).toString()).to.equal('updated');
                                 done();
                                 clearTimeout(timeout);
                             }, 1000);
@@ -648,8 +647,8 @@ describe('Posts', function () {
             Blogs.create('test PUT /blogs/{blogId}/posts/{id}/publish', 'silver lining', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     blogId = b._id.toString();
-                    //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-                    return Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], 'nothing is immutable, embrace change', [], 'test');
+                    //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+                    return Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test');
                 })
                 .then(function (p) {
                     postId = p._id.toString();
@@ -875,8 +874,8 @@ describe('Posts', function () {
             Blogs.create('test PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     blogId = b._id.toString();
-                    //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-                    return Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], 'nothing is immutable, embrace change', [], 'test');
+                    //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+                    return Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test');
                 })
                 .then(function (p) {
                     postId = p._id.toString();
@@ -1027,8 +1026,8 @@ describe('Posts', function () {
         });
 
         it('should send back conflict when you try to create a post with a title that you just created', function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            Posts.create(blogId, 'silver lining', 'test POST unique', 'draft', 'public', true, true, 'testing put', ['testing'], 'nothing is immutable, embrace change', [], 'test')
+            //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+            Posts.create(blogId, 'silver lining', 'test POST unique', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function () {
                     var request = {
                         method: 'POST',
@@ -1356,7 +1355,8 @@ describe('Posts', function () {
             Blogs.create('testDelPostNotOwner', 'silver lining', 'test DELETE /posts', [], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     blogId = b._id.toString();
-                    return Posts.create(b._id, 'silver lining', 'DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, 'testing', ['testing', 'controller testing'], 'we better test code or not write code', [], 'test');
+                    //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+                    return Posts.create(b._id, 'silver lining', 'DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, 'testing', ['testing', 'controller testing'], [], 'test');
                 })
                 .then(function (p) {
                     postId = p._id.toString();
@@ -1395,7 +1395,8 @@ describe('Posts', function () {
             Blogs.create('testDelPost', 'silver lining', 'test DELETE /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     blogId = b._id.toString();
-                    return Posts.create(b._id, 'silver lining', 'success DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, 'testing', ['testing', 'controller testing'], 'sayonara', [], 'test');
+                    //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+                    return Posts.create(b._id, 'silver lining', 'success DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, 'testing', ['testing', 'controller testing'], [], 'test');
                 })
                 .then(function (p) {
                     postId = p._id.toString();

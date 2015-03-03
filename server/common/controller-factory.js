@@ -1,9 +1,10 @@
 'use strict';
 var Joi = require('joi');
 var Boom = require('boom');
+var _ = require('lodash');
+var Promise = require('bluebird');
 var AuthPlugin = require('./../common/auth');
 var BaseModel = require('hapi-mongo-models').BaseModel;
-var _ = require('lodash');
 var Users = require('./../users/model');
 var PreReqs = require('./pre-reqs');
 
@@ -60,7 +61,31 @@ var ControllerFactory = function (component, model) {
         }
         return self.controller;
     };
-    self.findHandler = function (queryBuilder) {
+    self.newHandler = function (newCb) {
+        return function (request, reply) {
+            var by = request.auth.credentials.user.email;
+            var newObj = newCb ? newCb(request, by) : model.newObject(request, by);
+            newObj.then(function (n) {
+                if (!n) {
+                    reply(Boom.notFound(component + ' could not be created.'));
+                } else {
+                    reply(n).code(201);
+                }
+            }).catch(function (err) {
+                reply(Boom.badImplementation(err));
+            });
+        };
+    };
+    self.newController = function (validator, prereqs, uniqueCheck, newCb) {
+        var pre = _.flatten([AuthPlugin.preware.ensurePermissions('update', component),
+            {assign: 'isUnique', method: PreReqs.isUnique(model, uniqueCheck)},
+            prereqs]);
+        self.forMethod('new')
+            .preProcessWith(pre)
+            .handleUsing(self.newHandler(newCb));
+        return self;
+    };
+    self.findHandler = function (queryBuilder, findCb) {
         return function (request, reply) {
             var query = queryBuilder(request);
             query.organisation = query.organisation || {$regex: new RegExp('^.*?' + request.auth.credentials.user.organisation + '.*$', 'i')};
@@ -71,16 +96,19 @@ var ControllerFactory = function (component, model) {
             var sort = request.query.sort;
             var limit = request.query.limit;
             var page = request.query.page;
-            model.pagedFind(query, fields, sort, limit, page, function (err, results) {
-                if (err) {
+            model._pagedFind(query, fields, sort, limit, page)
+                .then(function (output) {
+                    return findCb ? findCb(output) : output;
+                })
+                .then(function (output) {
+                    reply(output);
+                })
+                .catch(function (err) {
                     reply(Boom.badImplementation(err));
-                } else {
-                    reply(results);
-                }
-            });
+                });
         };
     };
-    self.findController = function (validator, queryBuilder) {
+    self.findController = function (validator, queryBuilder, findCb) {
         validator.query.fields = Joi.string();
         validator.query.sort = Joi.string();
         validator.query.limit = Joi.number().default(20);
@@ -88,7 +116,7 @@ var ControllerFactory = function (component, model) {
         self.forMethod('find')
             .withValidation(validator)
             .preProcessWith(AuthPlugin.preware.ensurePermissions('view', component))
-            .handleUsing(self.findHandler(queryBuilder));
+            .handleUsing(self.findHandler(queryBuilder, findCb));
         return self;
     };
     self.findOneHandler = function (findOneCb) {
@@ -97,10 +125,13 @@ var ControllerFactory = function (component, model) {
             model._findOne({_id: id})
                 .then(function (f) {
                     if (!f) {
-                        reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
+                        return Boom.notFound(component + ' (' + id.toString() + ' ) not found');
                     } else {
-                        reply(findOneCb ? findOneCb(f) : f);
+                        return findOneCb ? findOneCb(f) : f;
                     }
+                })
+                .then(function (f) {
+                    reply(f);
                 })
                 .catch(function (err) {
                     reply(Boom.badImplementation(err));
@@ -119,8 +150,7 @@ var ControllerFactory = function (component, model) {
             model._findOne({_id: id})
                 .then(function (f) {
                     if (!f) {
-                        reply(Boom.notFound(component + ' (' + id.toString() + ' ) not found'));
-                        return false;
+                        return Boom.notFound(component + ' (' + id.toString() + ' ) not found');
                     } else {
                         var by = request.auth.credentials.user.email;
                         if (_.isFunction(updateCb)) {
@@ -131,16 +161,13 @@ var ControllerFactory = function (component, model) {
                     }
                 })
                 .then(function (f) {
-                    if (f) {
-                        reply(f);
-                    }
+                    reply(f);
                 })
                 .catch(function (err) {
                     reply(Boom.badImplementation(err));
                 });
         };
     };
-
     self.updateController = function (validator, prereqs, methodName, updateCb) {
         var perms = _.find(prereqs, function (prereq) {
             return prereq.assign === 'ensurePermissions';
@@ -149,30 +176,6 @@ var ControllerFactory = function (component, model) {
         self.forMethod(methodName)
             .preProcessWith(pre)
             .handleUsing(self.updateHandler(updateCb));
-        return self;
-    };
-    self.newHandler = function (newCb) {
-        return function (request, reply) {
-            var by = request.auth.credentials.user.email;
-            var newObjPromise = newCb ? newCb(request, by) : model.newObject(request, by);
-            newObjPromise.then(function (n) {
-                if (!n) {
-                    reply(Boom.notFound(component + ' could not be created.'));
-                } else {
-                    reply(n).code(201);
-                }
-            }).catch(function (err) {
-                reply(Boom.badImplementation(err));
-            });
-        };
-    };
-    self.newController = function (validator, prereqs, uniqueCheck, newCb) {
-        var pre = _.flatten([AuthPlugin.preware.ensurePermissions('update', component),
-            {assign: 'isUnique', method: PreReqs.isUnique(model, uniqueCheck)},
-            prereqs]);
-        self.forMethod('new')
-            .preProcessWith(pre)
-            .handleUsing(self.newHandler(newCb));
         return self;
     };
     self.deleteController = function (pre) {

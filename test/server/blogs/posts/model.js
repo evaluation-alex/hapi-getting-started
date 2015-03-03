@@ -1,13 +1,9 @@
 'use strict';
 var relativeToServer = './../../../../server/';
-var relativeTo = './../../../../';
-var fs = require('fs');
-var moment = require('moment');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Posts = require(relativeToServer + 'blogs/posts/model');
 var Audit = require(relativeToServer + 'audit/model');
 var _ = require('lodash');
-var Config = require(relativeTo + 'config');
 //var expect = require('chai').expect;
 var tu = require('./../../testutils');
 var Promise = require('bluebird');
@@ -35,18 +31,11 @@ describe('Posts Model', function () {
     describe('Posts.create', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
             var error = null;
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            Posts.create(blogId, 'silver lining', 'newPost', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing'], 'we better test code or not write code', [], 'test')
+            //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+            Posts.create(blogId, 'silver lining', 'newPost', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing'], [], 'test')
                 .then(function (post) {
                     expect(post).to.exist();
                     expect(post).to.be.instanceof(Posts);
-                    var filepath = 'silver-lining/blogs/'+blogId.toString()+'/'+moment(post.createdOn).format('YYYYMMDD')+'/'+post._id.toString();
-                    expect(post.content).to.equal(filepath);
-                    var timeout = setTimeout(function () {
-                        expect(fs.existsSync(Config.storage.diskPath + '/' + filepath)).to.be.true();
-                        expect(fs.readFileSync(Config.storage.diskPath + '/' + filepath, {}).toString()).to.equal('we better test code or not write code');
-                        clearTimeout(timeout);
-                    }, 1000);
                     return Audit.findAudit('Posts', post._id, {action: 'create'});
                 })
                 .then(function (audit) {
@@ -65,131 +54,12 @@ describe('Posts Model', function () {
         });
     });
 
-    describe('Posts._find, _findOne', function () {
-        before(function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'test _find', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'search'], 'testing is a chore but it pays off in the long run', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'test _find2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'search'], 'testing requires patience', [], 'test');
-            Promise.join(p1, p2).then(function () {done();});
-        });
-        it('should find all posts that match the conditions and posts should have content populated', function (done) {
-            var error = null;
-            Posts._find({title: {$regex: '^test _find*'}})
-                .then(function (found) {
-                    expect(found).to.exist();
-                    expect(found.length).to.equal(2);
-                    expect(found[0].content).to.equal('testing is a chore but it pays off in the long run');
-                    expect(found[1].content).to.equal('testing requires patience');
-                    Posts.resetCache();
-                    return Posts._findOne({_id: found[0]._id});
-                })
-                .then(function (found) {
-                    expect(found).to.exist();
-                    expect(found.content).to.equal('testing is a chore but it pays off in the long run');
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        it('_find should return an empty array if none of the posts match the given conditions', function (done) {
-            var error = null;
-            Posts._find({title: 'test _find3'})
-                .then(function (found) {
-                    expect(found).to.exist();
-                    expect(found.length).to.equal(0);
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        it('_findOne should return false if no posts match the given conditions', function (done) {
-            var error = null;
-            Posts._findOne({title: 'test _find3'})
-                .then(function (found) {
-                    expect(found).to.be.false();
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        after(function (done) {
-            postsToClear.push('test _find');
-            postsToClear.push('test _find2');
-            done();
-        });
-    });
-
-    describe('Posts.this.setContent, readContentFromDisk', function () {
-        before(function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'test setContent', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setContent'], 'figuring out data for test cases requires more thinking than what it took to write the code', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'test setContent2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'search'], 'and sometimes it reveals bugs in your test code too', [], 'test');
-            Promise.join(p1, p2).then(function () {done();});
-        });
-        it('should create the directory structure for the post file, if it doesnt exist', function (done) {
-            var error = null;
-            Posts._findOne({title: 'test setContent'})
-                .then(function (post) {{
-                    expect(fs.existsSync(Config.storage.diskPath + '/' + Posts.filenameForPost(post).join(''))).to.be.true();
-                }})
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should update the contents of the file', function (done) {
-            var error = null;
-            Posts._findOne({title: 'test setContent2'})
-                .then(function (post) {{
-                    return post.setContent('new content has been added, and the test should succeed', 'test').save();
-                }})
-                .then(function (post) {
-                    return Audit.findAudit('Posts', post._id, {action: /content/});
-                })
-                .then(function (audit) {
-                    expect(audit.length).to.equal(0);
-                    Posts.resetCache();
-                    return Posts._findOne({title: 'test setContent2'});
-                })
-                .then(function (post) {
-                    expect(fs.readFileSync(Config.storage.diskPath + '/' + Posts.filenameForPost(post).join('')).toString()).to.equal('new content has been added, and the test should succeed');
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        after(function (done) {
-            postsToClear.push('test setContent');
-            postsToClear.push('test setContent2');
-            done();
-        });
-    });
-
     describe('Posts.this.activate/deactivate', function () {
         var activated = null, deactivated = null;
         before(function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'activate', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'activate'], 'just an on/off switch', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'deactivate', 'published', 'public', true, true, 'testing', ['testing', 'unit testing', 'deactivate'], 'just an on/off switch', [], 'test');
+            //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+            var p1 = Posts.create(blogId, 'silver lining', 'activate', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'activate'], [], 'test');
+            var p2 = Posts.create(blogId, 'silver lining', 'deactivate', 'published', 'public', true, true, 'testing', ['testing', 'unit testing', 'deactivate'], [], 'test');
             Promise.join(p1, p2, function (p11, p12) {
                 activated = p11;
                 deactivated = p12;
@@ -271,8 +141,8 @@ describe('Posts Model', function () {
     describe('Posts.this.setTitle', function () {
         var testpost = null;
         before(function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.updateTitle', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setTitle'], 'titles matter', [], 'test')
+            //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+            testpost = Posts.create(blogId, 'silver lining', 'post.updateTitle', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setTitle'], [], 'test')
                 .then(function (p) {
                     testpost = p;
                     done();
@@ -325,8 +195,8 @@ describe('Posts Model', function () {
     describe('Posts.this.setCategory', function () {
         var testpost = null;
         before(function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.setCategory', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
+            //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+            testpost = Posts.create(blogId, 'silver lining', 'post.setCategory', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], [], 'test')
                 .then(function (p) {
                     testpost = p;
                     done();
@@ -378,8 +248,8 @@ describe('Posts Model', function () {
     describe('Posts.this.setAccess', function () {
         var testpost = null;
         before(function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.setAccess', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
+            //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+            testpost = Posts.create(blogId, 'silver lining', 'post.setAccess', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], [], 'test')
                 .then(function (p) {
                     testpost = p;
                     done();
@@ -431,8 +301,8 @@ describe('Posts Model', function () {
     describe('Posts.this.allowComments', function () {
         var testpost = null;
         before(function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.setAllowComments', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
+            //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+            testpost = Posts.create(blogId, 'silver lining', 'post.setAllowComments', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], [], 'test')
                 .then(function (p) {
                     testpost = p;
                     done();
@@ -484,8 +354,8 @@ describe('Posts Model', function () {
     describe('Posts.this.needsReview', function () {
         var testpost = null;
         before(function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.needsReview', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], 'categories matter too', [], 'test')
+            //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+            testpost = Posts.create(blogId, 'silver lining', 'post.needsReview', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], [], 'test')
                 .then(function (p) {
                     testpost = p;
                     done();
@@ -536,9 +406,9 @@ describe('Posts Model', function () {
 
     describe('Posts.this.addTags', function () {
         before(function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'addTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], 'tag it, bag it and go', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'addTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], 'tag it, bag it and go', [], 'test');
+            //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+            var p1 = Posts.create(blogId, 'silver lining', 'addTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], [], 'test');
+            var p2 = Posts.create(blogId, 'silver lining', 'addTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], [], 'test');
             Promise.join(p1, p2).then(function () {
                     done();
                 });
@@ -595,9 +465,9 @@ describe('Posts Model', function () {
 
     describe('Posts.this.removeTags', function () {
         before(function (done) {
-            //blogId, organisation, title, state, access, allowComments, category, tags, content, attachments, by
-            var p1 = Posts.create(blogId, 'silver lining', 'removeTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], 'tag it, bag it and check if you can go', [], 'test');
-            var p2 = Posts.create(blogId, 'silver lining', 'removeTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], 'tag it, bag it and check if you can go', [], 'test');
+            //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
+            var p1 = Posts.create(blogId, 'silver lining', 'removeTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], [], 'test');
+            var p2 = Posts.create(blogId, 'silver lining', 'removeTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], [], 'test');
             Promise.join(p1, p2).then(function () {
                     done();
                 });

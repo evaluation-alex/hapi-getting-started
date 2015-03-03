@@ -8,6 +8,23 @@ var ControllerFactory = require('./../common/controller-factory');
 var areValid = require('./../common/pre-reqs').areValid;
 
 var Controller = new ControllerFactory('permissions', Permissions)
+    .newController({
+        payload: {
+            description: Joi.string(),
+            users: Joi.array().items(Joi.string()).unique(),
+            groups: Joi.array().items(Joi.string()).unique(),
+            action: Joi.string().required(),
+            object: Joi.string().required()
+        }
+    }, [
+        {assign: 'validUsers', method: areValid(Users, 'email', 'users')},
+        {assign: 'validGroups', method: areValid(UserGroups, 'name', 'groups')}
+    ], function (request) {
+        return {
+            action: request.payload.action,
+            object: request.payload.object
+        };
+    })
     .findController({
         query: {
             user: Joi.string(),
@@ -39,23 +56,6 @@ var Controller = new ControllerFactory('permissions', Permissions)
     }, [{assign: 'validUsers', method: areValid(Users, 'email', 'addedUsers')},
         {assign: 'validGroups', method: areValid(UserGroups, 'name', 'addedGroups')}
     ], 'update', 'update')
-    .newController({
-        payload: {
-            description: Joi.string(),
-            users: Joi.array().items(Joi.string()).unique(),
-            groups: Joi.array().items(Joi.string()).unique(),
-            action: Joi.string().required(),
-            object: Joi.string().required()
-        }
-    }, [
-        {assign: 'validUsers', method: areValid(Users, 'email', 'users')},
-        {assign: 'validGroups', method: areValid(UserGroups, 'name', 'groups')}
-    ], function (request) {
-        return {
-            action: request.payload.action,
-            object: request.payload.object
-        };
-    })
     .deleteController()
     .doneConfiguring();
 

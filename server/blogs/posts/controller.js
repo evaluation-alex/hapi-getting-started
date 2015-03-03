@@ -9,6 +9,7 @@ var Posts = require('./model');
 var Blogs = require('./../model');
 var ControllerFactory = require('./../../common/controller-factory');
 var validAndPermitted = require('./../../common/pre-reqs').validAndPermitted;
+var PostContent = require('./post-content');
 
 var prePopulateBlog = function (request, reply) {
     var blogId = request.params.blogId; //TODO: look at query too, but right now that doesnt seem to be working
@@ -22,6 +23,56 @@ var prePopulateBlog = function (request, reply) {
 };
 
 var Controller = new ControllerFactory('posts', Posts)
+    .newController({
+        payload: {
+            blogId: Joi.string(),
+            title: Joi.string(),
+            state: Joi.string().only(['draft', 'pending review', 'published', 'archived']),
+            content: Joi.string(),
+            tags: Joi.array().items(Joi.string()).unique(),
+            category: Joi.string(),
+            attachments: Joi.array().items(Joi.object()).unique(),
+            access: Joi.string().only(['public', 'restricted']),
+            allowComments: Joi.boolean(),
+            needsReview: Joi.boolean()
+        }
+    }, [
+        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['contributors', 'owners'])},
+        {assign: 'blog', method: prePopulateBlog}
+    ], function (request) {
+        return {
+            blogId: request.params.blogId, //TODO: look at query as well, but that doesnt seem to be working right now
+            organisation: request.auth.credentials.user.organisation,
+            title: request.payload.title,
+            createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
+        };
+    }, function (request, by) {
+        return new Promise(function (resolve, reject) {
+            var blog = request.pre.blog;
+            request.payload.access = _.isUndefined(request.payload.access) ?
+                blog.access :
+                request.payload.access;
+            request.payload.allowComments = _.isUndefined(request.payload.allowComments) ?
+                blog.allowComments :
+                request.payload.allowComments;
+            request.payload.needsReview = _.isUndefined(request.payload.needsReview) ?
+                blog.needsReview :
+                request.payload.needsReview;
+            if (request.payload.state === 'published') {
+                if (request.payload.needsReview && !(blog._isMemberOf('owners', by) || by === 'root')) {
+                    request.payload.state = 'pending review';
+                }
+            }
+            Posts.newObject(request, by)
+                .then(function (post) {
+                    PostContent.writeContent(post, request.payload.content);
+                    resolve(post);
+                })
+                .catch(function (err) {
+                    reject(err);
+                });
+        });
+    })
     .findController({
         query: {
             title: Joi.string(),
@@ -54,8 +105,17 @@ var Controller = new ControllerFactory('posts', Posts)
             query.publishedOn.$gte = moment(request.query.publishedOnAfter, ['YYYY-MM-DD']).toDate();
         }
         return query;
+    }, function (output) {
+        //TODO: make this more efficient, right now it is sync and in a loop, terrible combo
+        _.forEach(output.data, function (post) {
+            post.content = PostContent.readContentSync(post);
+        });
+        return output;
     })
-    .findOneController()
+    .findOneController(function (post) {
+        post.content = PostContent.readContentSync(post);
+        return post;
+    })
     .updateController({
         payload: {
             blogId: Joi.string(),
@@ -71,51 +131,11 @@ var Controller = new ControllerFactory('posts', Posts)
         }
     }, [
         {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['contributors', 'owners'])}
-    ], 'update', 'update')
-    .newController({
-        payload: {
-            blogId: Joi.string(),
-            title: Joi.string(),
-            state: Joi.string().only(['draft', 'pending review', 'published', 'archived']),
-            content: Joi.string(),
-            tags: Joi.array().items(Joi.string()).unique(),
-            category: Joi.string(),
-            attachments: Joi.array().items(Joi.object()).unique(),
-            access: Joi.string().only(['public', 'restricted']),
-            allowComments: Joi.boolean(),
-            needsReview: Joi.boolean()
-        }
-    }, [
-        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['contributors', 'owners'])},
-        {assign: 'blog', method: prePopulateBlog}
-    ], function (request) {
-        return {
-            blogId: request.params.blogId, //TODO: look at query as well, but that doesnt seem to be working right now
-            organisation: request.auth.credentials.user.organisation,
-            title: request.payload.title,
-            createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
-        };
-    }, function (request, by) {
-        /*jshint unused: false*/
-        return new Promise(function (resolve, reject) {
-            var blog = request.pre.blog;
-            request.payload.access = _.isUndefined(request.payload.access) ?
-                blog.access :
-                request.payload.access;
-            request.payload.allowComments = _.isUndefined(request.payload.allowComments) ?
-                blog.allowComments :
-                request.payload.allowComments;
-            request.payload.needsReview = _.isUndefined(request.payload.needsReview) ?
-                blog.needsReview :
-                request.payload.needsReview;
-            if (request.payload.state === 'published') {
-                if (request.payload.needsReview && !(blog._isMemberOf('owners', by) || by === 'root')) {
-                    request.payload.state = 'pending review';
-                }
-            }
-            resolve(Posts.newObject(request, by));
-        });
-        /*jshint unused: true*/
+    ],
+    'update',
+    function (post, request, by) {
+        PostContent.writeContent(post, request.payload.content);
+        return post.update(request, by);
     })
     .updateController({
         payload: {

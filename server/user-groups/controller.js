@@ -8,6 +8,23 @@ var areValid = require('./../common/pre-reqs').areValid;
 var validAndPermitted = require('./../common/pre-reqs').validAndPermitted;
 
 var Controller = new ControllerFactory('user-groups', UserGroups)
+    .newController({
+        payload: {
+            name: Joi.string().required(),
+            members: Joi.array().items(Joi.string()),
+            owners: Joi.array().items(Joi.string()),
+            description: Joi.string(),
+            access: Joi.string().only(['restricted', 'public'])
+        }
+    }, [
+        {assign: 'validMembers', method: areValid(Users, 'email', 'members')},
+        {assign: 'validOwners', method: areValid(Users, 'email', 'owners')}
+    ], function (request) {
+        return {
+            name: request.payload.name,
+            organisation: request.auth.credentials.user.organisation
+        };
+    })
     .findController({
         query: {
             email: Joi.string(),
@@ -39,23 +56,6 @@ var Controller = new ControllerFactory('user-groups', UserGroups)
         {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
         {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')}
     ], 'update', 'update')
-    .newController({
-        payload: {
-            name: Joi.string().required(),
-            members: Joi.array().items(Joi.string()),
-            owners: Joi.array().items(Joi.string()),
-            description: Joi.string(),
-            access: Joi.string().only(['restricted', 'public'])
-        }
-    }, [
-        {assign: 'validMembers', method: areValid(Users, 'email', 'members')},
-        {assign: 'validOwners', method: areValid(Users, 'email', 'owners')}
-    ], function (request) {
-        return {
-            name: request.payload.name,
-            organisation: request.auth.credentials.user.organisation
-        };
-    })
     .deleteController({assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])})
     .joinApproveRejectController(['join', 'approve', 'reject'], 'addedMembers', 'owners')
     .doneConfiguring();

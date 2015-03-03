@@ -75,6 +75,13 @@ ExtendedModel._findByIdAndRemove = function (id) {
     });
 };
 
+ExtendedModel._pagedFind = function (query, fields, sort, limit, page) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+        self.pagedFind(query, fields, sort, limit, page, defaultcb(resolve, reject));
+    });
+};
+
 ExtendedModel.areValid = function (property, toCheck, organisation) {
     var self = this;
     return new Promise(function (resolve, reject) {

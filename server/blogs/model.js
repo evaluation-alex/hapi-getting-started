@@ -12,6 +12,8 @@ var CAudit = require('./../common/model-mixins').Audit;
 var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var _ = require('lodash');
+var mkdirp = Promise.promisify(require('mkdirp'));
+var Config = require('./../../config');
 
 var Blogs = ExtendedModel.extend({
     /* jshint -W064 */
@@ -120,6 +122,7 @@ Blogs.create = function (title, organisation, description, owners, contributors,
             .then(function (blog) {
                 if (blog) {
                     Audit.create('Blogs', title, 'create', null, blog, by, organisation);
+                    mkdirp((Config.storage.diskPath + '/' + blog.organisation + '/blogs/' + blog._id.toString()).replace(' ', '-'), {});
                 }
                 resolve(blog);
             })

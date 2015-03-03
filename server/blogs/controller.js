@@ -9,6 +9,29 @@ var areValid = require('./../common/pre-reqs').areValid;
 var validAndPermitted = require('./../common/pre-reqs').validAndPermitted;
 
 var Controller = new ControllerFactory('blogs', Blogs)
+    .newController({
+        payload: {
+            title: Joi.string(),
+            description: Joi.string(),
+            owners: Joi.array().items(Joi.string()).unique(),
+            contributors: Joi.array().items(Joi.string()).unique(),
+            subscribers: Joi.array().items(Joi.string()).unique(),
+            subscriberGroups: Joi.array().items(Joi.string()).unique(),
+            needsReview: Joi.boolean().default(false),
+            access: Joi.string().only(['public', 'restricted']).default('public'),
+            allowComments: Joi.boolean().default(true)
+        }
+    }, [
+        {assign: 'validOwners', method: areValid(Users, 'email', 'owners')},
+        {assign: 'validContributors', method: areValid(Users, 'email', 'contributors')},
+        {assign: 'validSubscribers', method: areValid(Users, 'email', 'subscribers')},
+        {assign: 'validSubscriberGroups', method: areValid(UserGroups, 'name', 'subscriberGroups')}
+    ], function (request) {
+        return {
+            title: request.payload.title,
+            organisation: request.auth.credentials.user.organisation
+        };
+    })
     .findController({
         query: {
             title: Joi.string(),
@@ -52,29 +75,6 @@ var Controller = new ControllerFactory('blogs', Blogs)
         {assign: 'validSubscriberGroups', method: areValid(UserGroups, 'name', 'addedSubscriberGroups')},
         {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])}
     ], 'update', 'update')
-    .newController({
-        payload: {
-            title: Joi.string(),
-            description: Joi.string(),
-            owners: Joi.array().items(Joi.string()).unique(),
-            contributors: Joi.array().items(Joi.string()).unique(),
-            subscribers: Joi.array().items(Joi.string()).unique(),
-            subscriberGroups: Joi.array().items(Joi.string()).unique(),
-            needsReview: Joi.boolean().default(false),
-            access: Joi.string().only(['public', 'restricted']).default('public'),
-            allowComments: Joi.boolean().default(true)
-        }
-    }, [
-        {assign: 'validOwners', method: areValid(Users, 'email', 'owners')},
-        {assign: 'validContributors', method: areValid(Users, 'email', 'contributors')},
-        {assign: 'validSubscribers', method: areValid(Users, 'email', 'subscribers')},
-        {assign: 'validSubscriberGroups', method: areValid(UserGroups, 'name', 'subscriberGroups')}
-    ], function (request) {
-        return {
-            title: request.payload.title,
-            organisation: request.auth.credentials.user.organisation
-        };
-    })
     .deleteController({assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])})
     .joinApproveRejectController(['subscribe', 'approve', 'reject'], 'addedSubscribers', 'owners')
     .doneConfiguring();

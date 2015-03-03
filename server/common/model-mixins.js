@@ -1,6 +1,5 @@
 'use strict';
 var _ = require('lodash');
-var logger = require('./../manifest').logger;
 var Promise = require('bluebird');
 
 var CommonMixinAddRemove = function (roles) {
@@ -121,17 +120,6 @@ module.exports.Properties = CommonMixinProperties;
 
 var CommonMixinSave = function (Model, Audit) {
     return {
-        _logFn: function (start, end) {
-            var self = this;
-            logger.info({
-                collection: Model._collection,
-                id: self._id.toString(),
-                start: start,
-                end: end,
-                elapsed: end - start
-            });
-            return self;
-        },
         /*jshint unused:false*/
         _saveAudit: function () {
             var self = this;
@@ -153,15 +141,12 @@ var CommonMixinSave = function (Model, Audit) {
         save: function () {
             var self = this;
             return new Promise(function (resolve, reject) {
-                var start = Date.now();
                 self._saveAudit()
                     .then(function () {
                         resolve(Model._findByIdAndUpdate(self._id, self));
-                        self._logFn(start, Date.now());
                     })
                     .catch(function (err) {
                         reject(err);
-                        self._logFn(start, Date.now());
                     })
                     .done();
             });

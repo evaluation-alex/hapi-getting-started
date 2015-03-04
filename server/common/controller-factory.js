@@ -3,7 +3,6 @@ var Joi = require('joi');
 var Boom = require('boom');
 var _ = require('lodash');
 var Promise = require('bluebird');
-var AuthPlugin = require('./../common/auth');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Users = require('./../users/model');
 var PreReqs = require('./pre-reqs');
@@ -77,7 +76,7 @@ var ControllerFactory = function (component, model) {
         };
     };
     self.newController = function (validator, prereqs, uniqueCheck, newCb) {
-        var pre = _.flatten([AuthPlugin.preware.ensurePermissions('update', component),
+        var pre = _.flatten([PreReqs.ensurePermissions('update', component),
             {assign: 'isUnique', method: PreReqs.isUnique(model, uniqueCheck)},
             prereqs]);
         self.forMethod('new')
@@ -115,7 +114,7 @@ var ControllerFactory = function (component, model) {
         validator.query.page = Joi.number().default(1);
         self.forMethod('find')
             .withValidation(validator)
-            .preProcessWith(AuthPlugin.preware.ensurePermissions('view', component))
+            .preProcessWith(PreReqs.ensurePermissions('view', component))
             .handleUsing(self.findHandler(queryBuilder, findCb));
         return self;
     };
@@ -140,7 +139,7 @@ var ControllerFactory = function (component, model) {
     };
     self.findOneController = function (findOneCb) {
         self.forMethod('findOne')
-            .preProcessWith(AuthPlugin.preware.ensurePermissions('view', component))
+            .preProcessWith(PreReqs.ensurePermissions('view', component))
             .handleUsing(self.findOneHandler(findOneCb));
         return self;
     };
@@ -172,7 +171,7 @@ var ControllerFactory = function (component, model) {
         var perms = _.find(prereqs, function (prereq) {
             return prereq.assign === 'ensurePermissions';
         });
-        var pre = _.flatten([perms ? [] : AuthPlugin.preware.ensurePermissions('update', component), prereqs]);
+        var pre = _.flatten([perms ? [] : PreReqs.ensurePermissions('update', component), prereqs]);
         self.forMethod(methodName)
             .preProcessWith(pre)
             .handleUsing(self.updateHandler(updateCb));
@@ -187,7 +186,7 @@ var ControllerFactory = function (component, model) {
         };
         validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
         self.updateController(validator, [
-            AuthPlugin.preware.ensurePermissions('view', component),
+            PreReqs.ensurePermissions('view', component),
             {assign: 'validMembers', method: PreReqs.areValid(Users, 'email', toAdd)}
         ], actions[0], 'join');
         self.updateController(validator, [

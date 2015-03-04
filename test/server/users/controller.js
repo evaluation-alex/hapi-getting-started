@@ -259,7 +259,7 @@ describe('Users', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.exist();
-                    expect(response.payload).to.contain(id);
+                    expect(response.payload).to.contain('one@first.com');
                     done();
                 } catch (err) {
                     done(err);

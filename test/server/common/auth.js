@@ -2,7 +2,7 @@
 var relativeToServer = './../../../server/';
 
 var Users = require(relativeToServer + 'users/model');
-var AuthPlugin = require(relativeToServer + 'common/auth');
+var PreReqs = require(relativeToServer + 'common/pre-reqs');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -177,7 +177,7 @@ describe('Auth', function () {
                     strategy: 'simple'
                 },
                 pre: [
-                    AuthPlugin.preware.ensurePermissions('view', 'users')
+                    PreReqs.ensurePermissions('view', 'users')
                 ]
             },
             handler: function (request, reply) {
@@ -224,7 +224,7 @@ describe('Auth', function () {
                     strategy: 'simple'
                 },
                 pre: [
-                    AuthPlugin.preware.ensurePermissions('update', 'users')
+                    PreReqs.ensurePermissions('update', 'users')
                 ]
             },
             handler: function (request, reply) {

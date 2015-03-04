@@ -2,6 +2,7 @@
 var Boom = require('boom');
 var _ = require('lodash');
 var BaseModel = require('hapi-mongo-models').BaseModel;
+var logger = require('./../manifest').logger;
 
 var isUnique = function (Model, queryBuilder) {
     return function (request, reply) {
@@ -79,3 +80,24 @@ var validAndPermitted = function (Model, idProperty, groups){
 };
 
 module.exports.validAndPermitted = validAndPermitted;
+
+var ensurePermissions = function (forAction, onObject) {
+    return {
+        assign: 'ensurePermissions',
+        method: function (request, reply) {
+            var ret = request.auth.credentials.user.hasPermissionsTo(forAction, onObject);
+            if (!ret) {
+                logger.warn(['rolePermissions', 'error'], {
+                    user: request.auth.credentials.user.email,
+                    action: forAction,
+                    object: onObject,
+                    request: {id: request.id, method: request.method, path: request.path}
+                });
+                return reply(Boom.forbidden('Permission denied ' + forAction + ' on ' + onObject));
+            }
+            reply();
+        }
+    };
+};
+
+module.exports.ensurePermissions = ensurePermissions;

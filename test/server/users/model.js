@@ -82,31 +82,31 @@ describe('Users Model', function () {
                 });
         });
 
-        it('should returns false and user for find by credentials when password match fails', function (done) {
+        it('should returns error and user for find by credentials when password match fails', function (done) {
             var error = null;
             Users.findByCredentials(secondEmail, 'wrongpassword')
                 .then(function (foundUser) {
-                    expect(foundUser.fail).to.be.true();
-                    expect(foundUser.user.email).to.equal(secondEmail);
+                    error = foundUser;
+                    expect(foundUser).to.not.exist();
                 })
                 .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
+                    expect(err.type).to.equal('IncorrectPasswordError');
+                    expect(err.user.email).to.equal(secondEmail);
                 })
                 .finally(function () {
                     tu.testComplete(done, error);
                 });
         });
 
-        it('should returns false for find by credentials when user does not exist', function (done) {
+        it('should returns error for find by credentials when user does not exist', function (done) {
             var error = null;
             Users.findByCredentials('test.search.fail@users.module', 'unknownuser')
                 .then(function (foundUser) {
-                    expect(foundUser).to.be.false();
+                    error = foundUser;
+                    expect(foundUser).to.not.exist();
                 })
                 .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
+                    expect(err.type).to.equal('UserNotFoundError');
                 })
                 .finally(function () {
                     tu.testComplete(done, error);

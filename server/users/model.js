@@ -56,8 +56,7 @@ Users.prototype.hydrateRoles = function () {
                 })
                 .catch(function (err) {
                     reject(err);
-                })
-                .done();
+                });
         }
     });
 };
@@ -70,7 +69,7 @@ Users.prototype._invalidateSession = function () {
 Users.prototype._newSession = function () {
     var self = this;
     self.session = {
-        key: Bcrypt.hashSync(Uuid.v4(), 10),
+        key: Bcrypt.hashSync(Uuid.v4().toString(), 10),
         timestamp: new Date()
     };
     return self;
@@ -181,13 +180,18 @@ Users.findByCredentials = function (email, password) {
         self._findOne({email: email, isActive: true})
             .then(function (user) {
                 if (!user) {
-                    resolve(false);
+                    var err = new Error('User ' + email + ' NotFound');
+                    err.type = 'UserNotFoundError';
+                    reject(err);
                 } else {
                     var passwordMatch = Bcrypt.compareSync(password, user.password);
                     if (passwordMatch) {
                         resolve(user);
                     } else {
-                        resolve({fail: true, user: user});
+                        var err2 = new Error('IncorrectPasswordError');
+                        err2.type = 'IncorrectPasswordError';
+                        err2.user = user;
+                        reject(err2);
                     }
                 }
             })
@@ -202,18 +206,14 @@ Users.findBySessionCredentials = function (email, key) {
     return new Promise(function (resolve, reject) {
         self._findOne({email: email})
             .then(function (user) {
-                if (!user) {
-                    resolve(false);
+                if (!user || !user.session || !user.session.key) {
+                    reject(new Error ('User not found or not logged in'));
                 } else {
-                    if (!user.session || !user.session.key) {
-                        resolve(false);
+                    var keyMatch = Bcrypt.compareSync(key, user.session.key) || key === user.session.key;
+                    if (keyMatch) {
+                        resolve(user.hydrateRoles());
                     } else {
-                        var keyMatch = Bcrypt.compareSync(key, user.session.key) || key === user.session.key;
-                        if (keyMatch) {
-                            resolve(user);
-                        } else {
-                            resolve(false);
-                        }
+                        reject(new Error ('Session credentials do not match'));
                     }
                 }
             })

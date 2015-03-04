@@ -3,7 +3,6 @@ var moment = require('moment');
 var Config = require('./../../../config');
 var Promise = require('bluebird');
 var readFileP = Promise.promisify(require('fs').readFile);
-var readFileS = require('fs').readFileSync;
 var writeFile = require('fs').writeFile;
 var LRUCache = require('lru-cache');
 var _ = require('lodash');
@@ -66,27 +65,9 @@ var readContent = function (post) {
 
 module.exports.readContent = readContent;
 
-var readContentSync = function (post) {
-    var filename = filenameForPost(post);
-    if (!cache.has(filename)) {
-        var content = '';
-        try {
-            content = readFileS(Config.storage.diskPath + '/' + filename);
-        } catch (err) {
-            logger.error({error: err});
-            content = JSON.stringify(err);
-        }
-        content = content.toString();
-        cache.set(filename, content);
-    }
-    return cache.get(filename);
-/*
-    var promise = readContent(post);
-    while(!promise.isFulfilled()) {
-        process.nextTick(function () {});
-    }
-    return promise.value();
-*/
+var readContentMultiple = function (posts) {
+    return Promise.settle(_.map(posts, readContent));
 };
 
-module.exports.readContentSync = readContentSync;
+module.exports.readContentMultiple = readContentMultiple;
+

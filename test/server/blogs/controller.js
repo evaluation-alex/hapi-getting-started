@@ -403,7 +403,7 @@ describe('Blogs', function () {
                             expect(response.statusCode).to.equal(200);
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
-                                    expect(found[0].subscribers[0]).to.equal('one@first.com');
+                                    expect(found[0].subscribers[1]).to.equal('one@first.com');
                                     expect(found[0].subscriberGroups[0]).to.equal('testBlogsAddGroup');
                                     return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /add/}});
                                 })

@@ -95,6 +95,24 @@ describe('Audit', function () {
                     }
                 });
             });
+            it('should give audit of all changes', function (done) {
+                var request = {
+                    method: 'GET',
+                    url: '/audit',
+                    headers: {
+                        Authorization: authheader
+                    }
+                };
+                server.inject(request, function (response) {
+                    try {
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.payload).to.exist();
+                        done();
+                    } catch (err) {
+                        done(err);
+                    }
+                });
+            });
         });
     });
 

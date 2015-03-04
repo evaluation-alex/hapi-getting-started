@@ -106,15 +106,28 @@ var Controller = new ControllerFactory('posts', Posts)
         }
         return query;
     }, function (output) {
-        //TODO: make this more efficient, right now it is sync and in a loop, terrible combo
-        _.forEach(output.data, function (post) {
-            post.content = PostContent.readContentSync(post);
+        /*jshint unused: false*/
+        return new Promise(function (resolve, reject) {
+            PostContent.readContentMultiple(output.data)
+                .then(function (contents) {
+                    for (var i = 0, l = output.data.length; i < l; i++) {
+                        output.data[i].content = contents[i].value();
+                    }
+                    resolve(output);
+                });
         });
-        return output;
+        /*jshint unused: true*/
     })
     .findOneController(function (post) {
-        post.content = PostContent.readContentSync(post);
-        return post;
+        /*jshint unused: false*/
+        return new Promise(function (resolve, reject) {
+            PostContent.readContent(post)
+                .then(function (content) {
+                    post.content = content;
+                    resolve(post);
+                });
+        });
+        /*jshint unused: false*/
     })
     .updateController({
         payload: {

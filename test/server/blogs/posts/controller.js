@@ -288,6 +288,7 @@ describe('Posts', function () {
                 })
                 .then(function (p) {
                     id = p._id.toString();
+                    PostContent.writeContent(p, 'something to say, something to listen');
                     done();
                 })
                 .catch(function (err) {
@@ -307,6 +308,7 @@ describe('Posts', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.contain(id);
+                    expect(response.payload).to.contain('something to say, something to listen');
                     done();
                 } catch (err) {
                     done(err);
@@ -315,6 +317,7 @@ describe('Posts', function () {
         });
 
         it('should only send back post with the id, blogId in params', function (done) {
+            PostContent.resetCache();
             var request = {
                 method: 'GET',
                 url: '/blogs/' + blogId + '/posts/' + id,
@@ -326,6 +329,7 @@ describe('Posts', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.contain(id);
+                    expect(response.payload).to.contain('something to say, something to listen');
                     done();
                 } catch (err) {
                     done(err);
@@ -1132,8 +1136,14 @@ describe('Posts', function () {
                                 .then(function (found) {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('published');
+                                    var filename = PostContent.filenameForPost(found[0]);
+                                    var timeout = setTimeout(function () {
+                                        expect(fs.existsSync(Config.storage.diskPath + '/' + filename)).to.be.true();
+                                        expect(fs.readFileSync(Config.storage.diskPath + '/' + filename, {}).toString()).to.equal('something. anything will do.');
+                                        done();
+                                        clearTimeout(timeout);
+                                    }, 1000);
                                     postsToClear.push('test POST needsReview and publish');
-                                    done();
                                 });
                         } catch (err) {
                             postsToClear.push('test POST needsReview and publish');

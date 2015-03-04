@@ -68,7 +68,6 @@ UserGroups.indexes = [
     [{'owners': 1}]
 ];
 
-/*jshint unused:false*/
 UserGroups.newObject = function (doc, by) {
     var self = this;
     return new Promise(function (resolve, reject) {
@@ -77,18 +76,19 @@ UserGroups.newObject = function (doc, by) {
             doc.payload.description,
             by)
             .then(function (userGroup) {
-                if (userGroup) {
-                    resolve(userGroup.add(doc.payload.members, 'member', by)
-                        .add(doc.payload.owners, 'owner', by)
-                        .setAccess(doc.payload.access, by)
-                        .save());
-                } else {
-                    resolve(userGroup);
-                }
+                return userGroup ? userGroup.add(doc.payload.members, 'member', by)
+                    .add(doc.payload.owners, 'owner', by)
+                    .setAccess(doc.payload.access, by)
+                    .save() : userGroup;
+            })
+            .then(function (userGroup) {
+                resolve(userGroup);
+            })
+            .catch(function (err) {
+                utils.logAndReject(err, reject);
             });
     });
 };
-/*jshint unused:true*/
 
 UserGroups.create = function (name, organisation, description, owner) {
     var self = this;

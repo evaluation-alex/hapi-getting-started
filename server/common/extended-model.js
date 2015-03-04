@@ -2,13 +2,14 @@
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Promise = require('bluebird');
 var _ = require('lodash');
+var utils = require('./utils');
 
 var ExtendedModel = BaseModel.extend({
 });
 
 var defaultcb = function (resolve, reject) {
     return function (err, doc) {
-        err ? reject(err) : resolve(doc);
+        err ? utils.logAndReject(err, reject) : resolve(doc);
     };
 };
 
@@ -45,7 +46,7 @@ ExtendedModel._insert = function (document, notCreated) {
     return new Promise(function (resolve, reject) {
         self.insert(document, function (err, docs) {
             if (err) {
-                reject(err);
+                utils.logAndReject(err, reject);
             } else {
                 if (!docs) {
                     resolve(notCreated);
@@ -63,7 +64,7 @@ ExtendedModel._findByIdAndRemove = function (id) {
         var collection = BaseModel.db.collection(self._collection);
         collection.findAndRemove({ _id: id }, function (err, doc) {
             if (err) {
-                reject(err);
+                utils.logAndReject(err, reject);
             } else {
                 if (!doc) {
                     reject(new Error ('document not found'));
@@ -110,7 +111,7 @@ ExtendedModel.areValid = function (property, toCheck, organisation) {
                     }
                 })
                 .catch(function (err) {
-                    reject(err);
+                    utils.logAndReject(err, reject);
                 });
         }
     });
@@ -137,7 +138,7 @@ ExtendedModel.isValid = function (id, roles, member) {
                 }
             })
             .catch(function (err) {
-                reject(err);
+                utils.logAndReject(err, reject);
             })
             .done();
     });

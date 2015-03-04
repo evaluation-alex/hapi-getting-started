@@ -6,6 +6,7 @@ var Nodemailer = require('nodemailer');
 var markdown = require('nodemailer-markdown').markdown;
 var Config = require('./../../config');
 var Promise = require('bluebird');
+var utils = require('./utils');
 
 var transport = Nodemailer.createTransport(Hoek.clone(Config.nodemailer));
 transport.use('compile', markdown({useEmbeddedImages: true}));
@@ -20,7 +21,7 @@ var renderTemplate = function (template, context) {
         } else {
             Fs.readFile(template, {encoding: 'utf-8'}, function (err, source) {
                 if (err) {
-                    reject(err);
+                    utils.logAndReject(err, reject);
                 } else {
                     templateCache[template] = Handlebars.compile(source);
                     resolve(templateCache[template](context));
@@ -39,15 +40,11 @@ var sendEmail = exports.sendEmail = function (options, template, context) {
                     markdown: content
                 });
                 transport.sendMail(options, function (err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(res);
-                    }
+                    err ? utils.logAndReject(err, reject) : resolve(res);
                 });
             })
             .catch(function (err) {
-                reject(err);
+                utils.logAndReject(err, reject);
             })
             .done();
     });

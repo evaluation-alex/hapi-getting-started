@@ -7,6 +7,7 @@ var readFileS = require('fs').readFileSync;
 var writeFile = require('fs').writeFile;
 var LRUCache = require('lru-cache');
 var _ = require('lodash');
+var logger = require('./../../manifest').logger;
 
 var cache = new LRUCache({
     max: 100 * 1024 * 1024, length: function (n) {
@@ -32,7 +33,7 @@ var writeContent = function (post, content) {
         cache.set(filename, content);
         writeFile(Config.storage.diskPath + filename, content, {}, function (err) {
             if (err) {
-                console.log(err);
+                logger.error({error: err});
             }
         });
     }
@@ -55,6 +56,7 @@ var readContent = function (post) {
                     resolve(content);
                 })
                 .catch(function (err) {
+                    logger.error({error: err});
                     resolve(JSON.stringify(err));
                 });
         }
@@ -71,6 +73,7 @@ var readContentSync = function (post) {
         try {
             content = readFileS(Config.storage.diskPath + '/' + filename);
         } catch (err) {
+            logger.error({error: err});
             content = JSON.stringify(err);
         }
         content = content.toString();

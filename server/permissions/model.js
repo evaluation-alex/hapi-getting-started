@@ -12,6 +12,7 @@ var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var UserGroups = require('./../user-groups/model');
 var _ = require('lodash');
+var utils = require('./../common/utils');
 
 var Permissions = ExtendedModel.extend({
     /* jshint -W064 */
@@ -103,9 +104,8 @@ Permissions.create = function (description, organisation, users, groups, action,
                 resolve(doc);
             })
             .catch(function (err) {
-                reject(err);
-            })
-            .done();
+                utils.logAndReject(err, reject);
+            });
     });
 };
 
@@ -120,9 +120,8 @@ Permissions.findAllPermissionsForUser = function (email, organisation) {
                 resolve(self._find({organisation: organisation, $or: [{'users': email}, {'groups': {$in: ug}}]}));
             })
             .catch(function (err) {
-                reject(err);
-            })
-            .done();
+                utils.logAndReject(err, reject);
+            });
     });
 };
 
@@ -142,9 +141,8 @@ Permissions.isPermitted = function (user, organisation, action, object) {
                     resolve(ret);
                 })
                 .catch(function (err) {
-                    reject(err);
-                })
-                .done();
+                    utils.logAndReject(err, reject);
+                });
         }
     });
 };

@@ -11,11 +11,6 @@ var logOptions = {
         count: 7,
         name: 'file',
         level: 'debug'
-    }, {
-        type: 'stream',
-        stream: process.stdout,
-        name: 'console',
-        level: 'error'
     }]
 };
 

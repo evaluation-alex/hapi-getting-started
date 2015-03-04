@@ -3,6 +3,7 @@ var Boom = require('boom');
 var _ = require('lodash');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var logger = require('./../manifest').logger;
+var utils = require('./utils');
 
 var isUnique = function (Model, queryBuilder) {
     return function (request, reply) {
@@ -17,7 +18,7 @@ var isUnique = function (Model, queryBuilder) {
                     }
                 })
                 .catch(function (err) {
-                    reply(Boom.badImplementation(err));
+                    utils.logAndBoom(err, reply);
                 });
         }
     };
@@ -45,7 +46,7 @@ var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
                     }
                 })
                 .catch(function (err) {
-                    reply(Boom.badImplementation(err));
+                    utils.logAndBoom(err);
                 });
         } else {
             reply();
@@ -74,7 +75,7 @@ var validAndPermitted = function (Model, idProperty, groups){
                 cases[m.message]();
             })
             .catch(function (err) {
-                reply(Boom.badImplementation(err));
+                utils.logAndBoom(err);
             });
     };
 };

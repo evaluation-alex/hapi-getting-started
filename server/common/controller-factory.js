@@ -6,6 +6,7 @@ var Promise = require('bluebird');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Users = require('./../users/model');
 var PreReqs = require('./pre-reqs');
+var utils = require('./utils');
 
 var ControllerFactory = function (component, model) {
     var self = this;
@@ -71,7 +72,7 @@ var ControllerFactory = function (component, model) {
                     reply(n).code(201);
                 }
             }).catch(function (err) {
-                reply(Boom.badImplementation(err));
+                utils.logAndBoom(err, reply);
             });
         };
     };
@@ -103,7 +104,7 @@ var ControllerFactory = function (component, model) {
                     reply(output);
                 })
                 .catch(function (err) {
-                    reply(Boom.badImplementation(err));
+                    utils.logAndBoom(err, reply);
                 });
         };
     };
@@ -133,7 +134,7 @@ var ControllerFactory = function (component, model) {
                     reply(f);
                 })
                 .catch(function (err) {
-                    reply(Boom.badImplementation(err));
+                    utils.logAndBoom(err, reply);
                 });
         };
     };
@@ -163,7 +164,7 @@ var ControllerFactory = function (component, model) {
                     reply(f);
                 })
                 .catch(function (err) {
-                    reply(Boom.badImplementation(err));
+                    utils.logAndBoom(err);
                 });
         };
     };

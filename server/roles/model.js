@@ -3,6 +3,7 @@ var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model');
 var Promise = require('bluebird');
+var utils = require('./../common/utils');
 
 var Roles = ExtendedModel.extend({
     /* jshint -W064 */
@@ -61,7 +62,7 @@ Roles.findByName = function (names, organisation) {
                 }
             })
             .catch(function (err) {
-                reject(err);
+                utils.logAndReject(err, reject);
             });
     });
 };

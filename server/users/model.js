@@ -12,6 +12,7 @@ var Roles = require('./../roles/model');
 var Audit = require('./../audit/model');
 var Promise = require('bluebird');
 var _ = require('lodash');
+var utils = require('./../common/utils');
 
 var Users = ExtendedModel.extend({
     /* jshint -W064 */
@@ -55,7 +56,7 @@ Users.prototype.hydrateRoles = function () {
                     resolve(self);
                 })
                 .catch(function (err) {
-                    reject(err);
+                    utils.logAndReject(err, reject);
                 });
         }
     });
@@ -169,7 +170,7 @@ Users.create = function (email, password, organisation) {
                 resolve(user);
             })
             .catch(function (err) {
-                reject(err);
+                utils.logAndReject(err, reject);
             });
     });
 };
@@ -196,7 +197,7 @@ Users.findByCredentials = function (email, password) {
                 }
             })
             .catch(function (err) {
-                reject(err);
+                utils.logAndReject(err, reject);
             });
     });
 };
@@ -218,7 +219,7 @@ Users.findBySessionCredentials = function (email, key) {
                 }
             })
             .catch(function (err) {
-                reject(err);
+                utils.logAndReject(err, reject);
             });
     });
 };

@@ -4,6 +4,7 @@ var Config = require('./../../config');
 var Boom = require('boom');
 var ControllerFactory = require('./../common/controller-factory');
 var mailer = require('./../common/mailer');
+var utils = require('./../common/utils');
 
 var Controller = new ControllerFactory('contact', null)
     .forMethod('contact')
@@ -28,7 +29,7 @@ var Controller = new ControllerFactory('contact', null)
                 reply({message: 'Success.'});
             })
             .catch(function (err) {
-                reply(Boom.badImplementation(err));
+                utils.logAndBoom(err, reply);
             })
             .done();
     })

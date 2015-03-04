@@ -14,6 +14,7 @@ var Audit = require('./../audit/model');
 var _ = require('lodash');
 var mkdirp = Promise.promisify(require('mkdirp'));
 var Config = require('./../../config');
+var utils = require('./../common/utils');
 
 var Blogs = ExtendedModel.extend({
     /* jshint -W064 */
@@ -127,7 +128,7 @@ Blogs.create = function (title, organisation, description, owners, contributors,
                 resolve(blog);
             })
             .catch(function (err) {
-                reject(err);
+                utils.logAndReject(err, reject);
             });
     });
 };

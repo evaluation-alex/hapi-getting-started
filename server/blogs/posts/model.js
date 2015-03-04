@@ -11,6 +11,7 @@ var CAudit = require('./../../common/model-mixins').Audit;
 var Promise = require('bluebird');
 var Audit = require('./../../audit/model');
 var _ = require('lodash');
+var utils = require('./../../common/utils');
 
 var Posts = ExtendedModel.extend({
     /* jshint -W064 */
@@ -126,7 +127,7 @@ Posts.create = function (blogId, organisation, title, state, access, allowCommen
                 resolve(post);
             })
             .catch(function (err) {
-                reject(err);
+                utils.logAndReject(err, reject);
             });
     });
 };

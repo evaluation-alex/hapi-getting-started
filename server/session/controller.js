@@ -4,6 +4,7 @@ var Boom = require('boom');
 var Users = require('./../users/model');
 var AuthAttempts = require('./../auth-attempts/model');
 var ControllerFactory = require('./../common/controller-factory');
+var utils = require('./../common/utils');
 
 var abuseDetected = function (request, reply) {
     AuthAttempts.abuseDetected(request.info.remoteAddress, request.payload.email)
@@ -15,7 +16,7 @@ var abuseDetected = function (request, reply) {
             }
         })
         .catch(function (err) {
-            reply(Boom.badImplementation(err));
+            utils.logAndBoom(err, reply);
         });
 };
 
@@ -53,7 +54,7 @@ var Controller = new ControllerFactory('session', null)
                     err.user.loginFail(ip, ip).save();
                     reply(Boom.unauthorized('Invalid password'));
                 } else {
-                    reply(Boom.badImplementation(err));
+                    utils.logAndBoom(err, reply);
                 }
             });
     })

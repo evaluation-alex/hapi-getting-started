@@ -1,6 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var Promise = require('bluebird');
+var utils = require('./utils');
 
 var CommonMixinAddRemove = function (roles) {
     return {
@@ -146,7 +147,7 @@ var CommonMixinSave = function (Model, Audit) {
                         resolve(Model._findByIdAndUpdate(self._id, self));
                     })
                     .catch(function (err) {
-                        reject(err);
+                        utils.logAndReject(err, reject);
                     })
                     .done();
             });

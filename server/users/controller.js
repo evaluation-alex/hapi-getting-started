@@ -6,6 +6,7 @@ var Config = require('./../../config');
 var Users = require('./model');
 var Mailer = require('./../common/mailer');
 var ControllerFactory = require('./../common/controller-factory');
+var utils = require('./../common/utils');
 
 var emailCheck = function (request, reply) {
     Users._findOne({email: request.payload.email, organisation: request.payload.organisation})
@@ -17,7 +18,7 @@ var emailCheck = function (request, reply) {
             }
         })
         .catch(function (err) {
-            reply(Boom.badImplementation(err));
+            utils.logAndBoom(err, reply);
         });
 };
 
@@ -56,7 +57,7 @@ var Controller = new ControllerFactory('users', Users)
             })
             .then(function (user) {
                 if (!user) {
-                    reply(Boom.badImplementation('User could not be created'));
+                    reply(Boom.notFound('User could not be created.'));
                 } else {
                     reply({
                         user: user.email,
@@ -66,7 +67,7 @@ var Controller = new ControllerFactory('users', Users)
                 }
             })
             .catch(function (err) {
-                reply(Boom.badImplementation(err));
+                utils.logAndBoom(err, reply);
             });
     })
     .findController({
@@ -131,7 +132,7 @@ var Controller = new ControllerFactory('users', Users)
                 reply({message: 'Success.'});
             })
             .catch(function (err) {
-                reply(Boom.badImplementation(err));
+                utils.logAndBoom(err, reply);
             });
     })
     .forMethod('loginReset')
@@ -155,7 +156,7 @@ var Controller = new ControllerFactory('users', Users)
                 }
             })
             .catch(function (err) {
-                reply(Boom.badImplementation(err));
+                utils.logAndBoom(err, reply);
             });
     })
     .doneConfiguring();

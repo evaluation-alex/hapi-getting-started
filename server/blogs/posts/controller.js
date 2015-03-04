@@ -1,6 +1,5 @@
 'use strict';
 var Joi = require('joi');
-var Boom = require('boom');
 var Promise = require('bluebird');
 var _ = require('lodash');
 var moment = require('moment');
@@ -10,6 +9,7 @@ var Blogs = require('./../model');
 var ControllerFactory = require('./../../common/controller-factory');
 var validAndPermitted = require('./../../common/pre-reqs').validAndPermitted;
 var PostContent = require('./post-content');
+var utils = require('./../../common/utils');
 
 var prePopulateBlog = function (request, reply) {
     var blogId = request.params.blogId; //TODO: look at query too, but right now that doesnt seem to be working
@@ -18,7 +18,7 @@ var prePopulateBlog = function (request, reply) {
             reply(blog);
         })
         .catch(function (err) {
-            reply(Boom.badImplementation(err));
+            utils.logAndBoom(err, reply);
         });
 };
 
@@ -69,7 +69,7 @@ var Controller = new ControllerFactory('posts', Posts)
                     resolve(post);
                 })
                 .catch(function (err) {
-                    reject(err);
+                    utils.logAndReject(err, reject);
                 });
         });
     })

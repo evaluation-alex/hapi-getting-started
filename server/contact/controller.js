@@ -1,7 +1,6 @@
 'use strict';
 var Joi = require('joi');
 var Config = require('./../../config');
-var Boom = require('boom');
 var ControllerFactory = require('./../common/controller-factory');
 var mailer = require('./../common/mailer');
 var utils = require('./../common/utils');

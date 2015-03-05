@@ -1,142 +1,15 @@
 'use strict';
-var Hoek = require('hoek');
-var Promise = require('bluebird');
-var _ = require('lodash');
-var Config = require('./../../config');
 var moment = require('moment');
-var MongoClient = require('mongodb').MongoClient;
+var _ = require('lodash');
 var UserAgent = require('useragent');
-var mongodb;
-var logmetrics = Config.logMetrics;
+var StatsDClient = require('node-statsd');
+var Config = require('./../../config');
+var sdc = new StatsDClient({
+    host: Config.statsd.host,
+    port: Config.statsd.port,
+    mock: !Config.statsd.logMetrics
+});
 
-var connect = function (mongouri) {
-    return new Promise(function (resolve, reject) {
-        MongoClient.connect(mongouri, {}, function (err, db) {
-            if (err) {
-                reject(err);
-            } else {
-                mongodb = db;
-                resolve(db);
-            }
-        });
-    });
-};
-
-var enrichWithStat = function (s) {
-    s.count = 0;
-    s.avg = 0;
-    s.min = 0;
-    s.max = 0;
-    s.statusCode = {'0#': 1};
-    return s;
-};
-var preEnrichObj = function (id, val, incr) {
-    var ret = {};
-    ret[id] = incr ? val + 1 : val;
-    return ret;
-};
-var newStatArr = function (size, id, incr) {
-    var ret = [];
-    for (var i = 0; i < size; i++) {
-        ret.push(enrichWithStat(preEnrichObj(id, i, incr)));
-    }
-    return ret;
-};
-var newMetricDoc = function (params, id) {
-    var ret = {
-        _id: id,
-        host: params.host,
-        path: params.path,
-        method: params.method
-    };
-    if (params.user) {
-        ret.user = params.user;
-        ret.type = 'userStats';
-        ret.ua = 'tbd';
-        return enrichWithStat(ret);
-    } else {
-        ret.year = params.year;
-        ret.type = 'combinedStats';
-        ret = enrichWithStat(ret);
-        ret.months = newStatArr(12, 'm', true);
-        var daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-        ret.months.forEach(function (month) {
-            month.days = newStatArr(daysInMonth[month.m - 1], 'd', true);
-            month.days.forEach(function (day) {
-                day.hours = newStatArr(24, 'h', false);
-            });
-        });
-        return ret;
-    }
-};
-var updateMetricDoc = function (stats, ua, statusCode, elapsed) {
-    stats.forEach(function (stat) {
-        if (!_.isUndefined(stat.ua)) {
-            stat.ua = ua.toString();
-            stat.os = ua.os.toString();
-            stat.device = ua.device.toString();
-        }
-        if (_.isUndefined(stat.statusCode[statusCode])) {
-            stat.statusCode[statusCode] = 1;
-        } else {
-            stat.statusCode[statusCode] += 1;
-        }
-        stat.min = stat.min === 0 ? elapsed : stat.min < elapsed ? stat.min : elapsed;
-        stat.max = stat.max > elapsed ? stat.max : elapsed;
-        stat.avg = ((stat.avg * stat.count) + elapsed) / (stat.count + 1);
-        stat.count += 1;
-    });
-};
-/* jshint unused: false*/
-var findAndUpdateMetric = function (host, path, method, user, ua, year, month, day, hour, statusCode, elapsed) {
-    var queries = [
-        {
-            id: [host, path, method, year].join(','),
-            args: {host: host, path: path, method: method, year: year},
-            toUpdate: function (metric, user, year, month, day, hour) {
-                return [
-                    metric,
-                    metric.months[month - 1],
-                    metric.months[month - 1].days[day - 1],
-                    metric.months[month - 1].days[day - 1].hours[hour]
-                ];
-            }
-        },
-        {
-            id: [host, path, method, user].join(','),
-            args: {host: host, path: path, method: method, user: user},
-            toUpdate: function (metric, user, year, month, day, hour) {
-                return [metric];
-            }
-        }
-    ];
-    var retvals = [];
-    var metrics = mongodb.collection('metrics');
-    queries.forEach(function (query) {
-        metrics.findOne({_id: query.id}, function (err, doc) {
-            if (err) {
-                retvals.push({err: err});
-            } else {
-                var metric = doc || newMetricDoc(query.args, query.id);
-                updateMetricDoc(query.toUpdate(metric, user, year, month, day, hour), ua, statusCode, elapsed);
-                !logmetrics || metrics.findAndModify({_id: metric._id},
-                    [['_id', 'asc']],
-                    metric,
-                    {upsert: true, new: true},
-                    function (err, doc) {
-                        if (err) {
-                            retvals.push({err: err});
-                        } else {
-                            retvals.push({doc: doc});
-                        }
-                });
-            }
-        });
-    });
-    return retvals;
-};
-
-/* jshint unused: true*/
 var normalizePath = function (request) {
     var path = request._route.path;
     var specials = request.connection._router.specials;
@@ -147,30 +20,54 @@ var normalizePath = function (request) {
     }
     return path;
 };
+
+var toStatsD = function(route, statusCode, user, ua, start) {
+    var now = Date.now();
+    var year = moment(now).format('YYYY');
+    var month = moment(now).format('MM');
+    var day = moment(now).format('DD');
+    var hour = moment(now).format('HH');
+    var incr = [];
+    var timing = [];
+    var stat = Config.projectName;
+    _.forEach([route, year, month, day, hour], function (param) {
+        stat = stat + '.' + param;
+        timing.push(stat);
+        incr.push(stat);
+        incr.push(stat + '.' + statusCode);
+    });
+    var stat2 = Config.projectName;
+    _.forEach([user, year, month, day], function (param) {
+        stat2 = stat2 + '.' + param;
+        timing.push(stat2);
+        incr.push(stat2);
+        incr.push(stat2 + '.' + statusCode);
+    });
+    incr.push(ua.device.toString());
+    incr.push(ua.toString());
+
+    sdc.set(user, ua.toString());
+    sdc.set(user, ua.device.toString());
+    sdc.increment(incr);
+    sdc.timing(timing, moment(now).diff(moment(start)));
+};
+
 module.exports.register = function (server, options, next) {
-    var settings = Hoek.applyToDefaults({mongodburl: Config.hapiMongoModels.mongodb.url}, options);
-    connect(settings.mongodburl);
     server.ext('onRequest', function (request, reply) {
         return reply.continue();
     });
     server.ext('onPreResponse', function (request, reply) {
-        var now = Date.now();
-        var year = moment(now).format('YYYY');
-        var month = moment(now).format('M');
-        var day = moment(now).format('D');
-        var hour = moment(now).format('H');
-        var host = request.info.host;
         var path = normalizePath(request);
         var method = request.method;
-        var ua = UserAgent.lookup(request.headers['user-agent']);
         var statusCode = (request.response.isBoom) ? request.response.output.statusCode : request.response.statusCode;
         var user = request.auth && request.auth.credentials && request.auth.credentials.user ? request.auth.credentials.user.email : 'notloggedin';
-        var elapsed = moment(request.info.responded === 0 ? now : request.info.responded).diff(moment(request.info.received));
-        findAndUpdateMetric(host, path, method, user, ua, year, month, day, hour, statusCode + '#', elapsed);
+        var ua = UserAgent.lookup(request.headers['user-agent']);
+        toStatsD(method + '.' + path, '#' + statusCode + '#', user, ua, request.info.received);
         return reply.continue();
     });
     next();
 };
+
 module.exports.register.attributes = {
     name: 'metrics'
 };

@@ -16,7 +16,9 @@ var test = {
     port: 3000,
     logdir: './logs',
     logMetrics: false,
-    diskStoragePath: './data'
+    diskStoragePath: './data',
+    statsdhost: './logs/statsd.out',
+    statsdport: 8125
 };
 
 var fromStdIn = function (results, property, message, opts) {
@@ -85,6 +87,12 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
         return fromStdIn(results, 'diskStoragePath', 'disk storage path: ', {default: './'});
     })
     .then(function (results) {
+        return fromStdIn(results, 'statsdhost', 'statsd host: ', {default: '127.0.0.1'});
+    })
+    .then(function (results) {
+        return fromStdIn(results, 'statsdport', 'statsd port: ', {default: 8125});
+    })
+    .then(function (results) {
         console.log('setting up with - ' + JSON.stringify(results));
         var opts = {
             env: 'dev',
@@ -105,9 +113,13 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
                     cert: ''
                 }
             },
-            logmetrics: results.logMetrics,
             storage: {
                 diskPath: results.diskStoragePath
+            },
+            statsd: {
+                host: results.statsdhost,
+                port: results.statsdport,
+                logmetrics: results.logMetrics
             }
         };
         Fs.writeFileSync('.opts', JSON.stringify(opts, null, 4));

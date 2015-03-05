@@ -2,8 +2,6 @@
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model');
-var Promise = require('bluebird');
-var utils = require('./../common/utils');
 var _ = require('lodash');
 
 var Roles = ExtendedModel.extend({

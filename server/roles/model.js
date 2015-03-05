@@ -47,21 +47,4 @@ Roles.create = function (name, organisation, permissions) {
     return self._insert(document, new Error('No role created - ' + name));
 };
 
-Roles.findByName = function (names, organisation) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        self._find({name: {$in: names}, organisation: organisation})
-            .then(function (roles) {
-                if (!roles) {
-                    reject(new Error('no roles found'));
-                } else {
-                    resolve(roles);
-                }
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            });
-    });
-};
-
 module.exports = Roles;

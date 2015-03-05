@@ -10,7 +10,6 @@ var utils = require('./utils');
 var ControllerFactory = function (component, model) {
     var self = this;
     self.controller = {};
-    self.addedToServer = false;
     self.component = component;
     self.model = model;
     return self;
@@ -18,7 +17,9 @@ var ControllerFactory = function (component, model) {
 ControllerFactory.prototype.forMethod = function (method) {
     var self = this;
     self.method = method;
-    self.controller[self.method] = {};
+    self.controller[self.method] = {
+        pre: []
+    };
     return self;
 };
 ControllerFactory.prototype.withValidation = function (validator) {
@@ -28,9 +29,6 @@ ControllerFactory.prototype.withValidation = function (validator) {
 };
 ControllerFactory.prototype.preProcessWith = function (preProcess) {
     var self = this;
-    if (!self.controller[self.method].pre) {
-        self.controller[self.method].pre = [];
-    }
     if (_.isArray(preProcess)) {
         preProcess.forEach(function (pre) {
             self.controller[self.method].pre.push(pre);
@@ -47,11 +45,6 @@ ControllerFactory.prototype.handleUsing = function (handler) {
 };
 ControllerFactory.prototype.doneConfiguring = function () {
     var self = this;
-    if (!self.addedToServer) {
-        self.addedToServer = true;
-    } else {
-        throw new Error('already created controller, create new controller before registering with server again');
-    }
     return self.controller;
 };
 ControllerFactory.prototype.newHandler = function (newCb) {

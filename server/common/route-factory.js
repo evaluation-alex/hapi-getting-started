@@ -10,9 +10,10 @@ var RouteFactory = function () {
 RouteFactory.prototype.newRoute = function () {
     var self = this;
     self.current = self.current + 1;
-    self.addedToServer = false;
     self.routes.push({
-        config: {}
+        config: {
+            pre: []
+        }
     });
     return self;
 };
@@ -40,9 +41,6 @@ RouteFactory.prototype.withValidation = function (validator) {
 };
 RouteFactory.prototype.preProcessWith = function (preProcess) {
     var self = this;
-    if (!self.routes[self.current].config.pre) {
-        self.routes[self.current].config.pre = [];
-    }
     preProcess.forEach(function (pre) {
         self.routes[self.current].config.pre.push(pre);
     });
@@ -55,11 +53,6 @@ RouteFactory.prototype.handleUsing = function (handler) {
 };
 RouteFactory.prototype.doneConfiguring = function () {
     var self = this;
-    if (!self.addedToServer) {
-        self.addedToServer = true;
-    } else {
-        throw new Error('already registered route, create new route before registering with server again');
-    }
     return self.routes;
 };
 RouteFactory.prototype.withController = function (controller) {

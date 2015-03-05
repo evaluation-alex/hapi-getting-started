@@ -45,10 +45,10 @@ var setupConnect = function () {
 };
 
 exports.setupConnect = setupConnect;
-
+/*jshint unused:false*/
 function setupRootRole () {
-    return new Promise(function (resolve/*, reject*/) {
-        Roles.findByName(['root'], 'silver lining')
+    return new Promise(function (resolve, reject) {
+        Roles._find({name: 'root', organisation: 'silver lining'})
             .then(function (found) {
                 if (found && found.length > 0) {
                     resolve(found[0]);
@@ -63,8 +63,8 @@ function setupRootRole () {
 }
 
 function setupReadonlyRole () {
-    return new Promise(function (resolve/*, reject*/) {
-        Roles.findByName(['readonly'], 'silver lining')
+    return new Promise(function (resolve, reject) {
+        Roles._find({name: 'readonly', organisation: 'silver lining'})
             .then(function (found) {
                 if (found && found.length > 0) {
                     resolve(found[0]);
@@ -76,7 +76,7 @@ function setupReadonlyRole () {
 }
 
 function setupRootUser () {
-    return new Promise(function (resolve/*, reject*/) {
+    return new Promise(function (resolve, reject) {
         Users._findOne({email: 'root'})
             .then(function (found) {
                 if (found) {
@@ -92,7 +92,7 @@ function setupRootUser () {
 }
 
 function setupFirstUser () {
-    return new Promise(function (resolve/*, reject*/) {
+    return new Promise(function (resolve, reject) {
         Users._findOne({email: 'one@first.com'})
             .then(function (found) {
                 if (found) {
@@ -103,6 +103,7 @@ function setupFirstUser () {
             });
     });
 }
+/*jshint unused:true*/
 
 function setupRolesAndUsers () {
     return new Promise(function (resolve, reject) {
@@ -240,14 +241,6 @@ function cleanupPosts (postsToCleanup) {
     });
 }
 
-function cleanupMetrics () {
-    return new Promise(function (resolve, reject) {
-        mongodb.collection('metrics').remove({}, function (err, no) {
-            err ? reject(err) : resolve(no);
-        });
-    });
-}
-
 function cleanupAudit () {
     return new Promise(function (resolve, reject) {
         Audit.remove({}, function (err) {
@@ -282,7 +275,13 @@ function cleanupConnect (cb) {
 exports.cleanupConnect = cleanupConnect;
 
 var cleanup = function (toClear, cb) {
-    Promise.join(cleanupUsers(toClear.users), cleanupUserGroups(toClear.userGroups), cleanupPermissions(toClear.permissions), cleanupBlogs(toClear.blogs), cleanupPosts(toClear.posts), cleanupAudit(), cleanupAuthAttempts(), cleanupMetrics(),
+    Promise.join(cleanupUsers(toClear.users),
+        cleanupUserGroups(toClear.userGroups),
+        cleanupPermissions(toClear.permissions),
+        cleanupBlogs(toClear.blogs),
+        cleanupPosts(toClear.posts),
+        cleanupAudit(),
+        cleanupAuthAttempts(),
         function () {
             //cleanupConnect(cb);
             cb();

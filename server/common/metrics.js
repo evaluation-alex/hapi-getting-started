@@ -16,6 +16,16 @@ var normalizePath = function (request) {
     return path;
 };
 
+var buildCountersAndTimingBuckets = function(pail, statusCode, counters, timings) {
+    var bucket = Config.projectName;
+    _.forEach(pail, function (param) {
+        bucket = bucket + '.' + param;
+        timings.push(bucket);
+        counters.push(bucket);
+        counters.push(bucket + '.' + statusCode);
+    });
+};
+
 var toStatsD = function(route, statusCode, user, ua, start, finish) {
     var now = finish ? finish : Date.now();
     var m = moment(now);
@@ -23,30 +33,19 @@ var toStatsD = function(route, statusCode, user, ua, start, finish) {
     var month = m.format('MM');
     var day = m.format('DD');
     var hour = m.format('HH');
-    var incr = [];
-    var timing = [];
-    var stat = Config.projectName;
-    _.forEach([route, year, month, day, hour], function (param) {
-        stat = stat + '.' + param;
-        timing.push(stat);
-        incr.push(stat);
-        incr.push(stat + '.' + statusCode);
-    });
-    var stat2 = Config.projectName;
-    _.forEach([user, year, month, day], function (param) {
-        stat2 = stat2 + '.' + param;
-        timing.push(stat2);
-        incr.push(stat2);
-        incr.push(stat2 + '.' + statusCode);
-    });
-    incr.push(ua.device.toString());
-    incr.push(ua.toString());
+    var counters = [];
+    var timings = [];
+    counters.push(ua.device.toString());
+    counters.push(ua.toString());
+    timings.push(Config.projectName);
+    buildCountersAndTimingBuckets([route, year, month, day, hour], statusCode, counters, timings);
+    buildCountersAndTimingBuckets([user, year, month, day], statusCode, counters, timings);
 
     statsd.unique(user + '.browser', ua.toString());
     statsd.unique(user + '.device', ua.device.toString());
     statsd.unique(user + '.routes', route);
-    statsd.increment(incr, 1);
-    statsd.timing(timing, now - start);
+    statsd.increment(counters, 1);
+    statsd.timing(timings, now - start);
 };
 
 module.exports.register = function (server, options, next) {

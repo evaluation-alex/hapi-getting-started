@@ -48,7 +48,7 @@ Users.prototype.hydrateRoles = function () {
         if (self._roles || !self.roles) {
             resolve(self);
         } else {
-            Roles.findByName(self.roles, self.organisation)
+            Roles._find({name: {$in: self.roles}, organisation: self.organisation})
                 .then(function (roles) {
                     self._roles = roles;
                     resolve(self);

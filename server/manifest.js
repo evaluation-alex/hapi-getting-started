@@ -1,22 +1,5 @@
 'use strict';
 var Config = require('./../config');
-var Bunyan = require('bunyan');
-
-var logOptions = {
-    name: 'main',
-    streams: [{
-        type: 'rotating-file',
-        path: Config.logs.logDir + '/' + Config.projectName + '.log',
-        period: '1d',
-        count: 7,
-        name: 'file',
-        level: 'debug'
-    }]
-};
-
-var logger = Bunyan.createLogger(logOptions);
-
-module.exports.logger = logger;
 
 var server = {
     connections: {
@@ -36,7 +19,7 @@ if (Config.tls) {
 }
 
 var plugins = {
-    'hapi-bunyan': {logger: logger, mergeData: true, includeTags: true, joinTags: ','},
+    'hapi-bunyan': {logger: Config.logger, mergeData: true, includeTags: true, joinTags: ','},
     'lout': {},
     'poop': {logPath: Config.logs.logDir},
     'tv': {},
@@ -57,7 +40,7 @@ var plugins = {
     'hapi-require-https': {},
     'hapi-auth-basic': {},
     './server/common/auth': {},
-    './server/common/metrics': {mongodburl: Config.hapiMongoModels.mongodb.url}
+    './server/common/metrics': {}
 };
 
 var components = [

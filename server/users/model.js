@@ -36,12 +36,10 @@ _.extend(Users.prototype, new CAudit('Users', 'email'));
 _.extend(Users.prototype, new Properties(['isActive', 'roles']));
 
 Users.prototype.hasPermissionsTo = function (performAction, onObject) {
-    var ret = false;
-    if (this._roles) {
-        this._roles.forEach(function (role) {
-            ret = ret || role.hasPermissionsTo(performAction, onObject);
-        });
-    }
+    var self = this;
+    var ret = !!_.find(self._roles, function (role) {
+        return role.hasPermissionsTo(performAction, onObject);
+    });
     return ret;
 };
 Users.prototype.hydrateRoles = function () {

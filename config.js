@@ -1,6 +1,8 @@
 'use strict';
 var Fs = require('fs');
 var devnull = require('dev-null');
+var Bunyan = require('bunyan');
+var StatsD = require('node-statsd');
 
 if (!Fs.existsSync('.opts')) {
     console.log('.opts file missing. will exit');
@@ -33,6 +35,24 @@ if (!args.sendemails) {
     };
 }
 
+var logOptions = {
+    name: 'main',
+    streams: [{
+        type: 'rotating-file',
+        path: args.logdir + '/' + args.projectName + '.log',
+        period: '1d',
+        count: 7,
+        name: 'file',
+        level: 'debug'
+    }]
+};
+
+var statsdOptions = {
+    host: args.statsd.host,
+    port: args.statsd.port,
+    mock: !args.statsd.logMetrics
+};
+
 var config = {
     projectName: args.project,
     port: args.port,
@@ -50,6 +70,7 @@ var config = {
     logs: {
         logDir: args.logdir
     },
+    logger: Bunyan.createLogger(logOptions),
     system: {
         fromAddress: {
             name: args.project,
@@ -63,11 +84,7 @@ var config = {
     storage: {
         diskPath: args.storage.diskPath
     },
-    statsd: {
-        host: args.statsd.host,
-        port: args.statsd.port,
-        logMetrics: args.statsd.logmetrics
-    }
+    statsd: new StatsD(statsdOptions)
 };
 if (args.https.tls.key.length > 0 && args.https.tls.cert.length > 0 && Fs.existsSync(args.https.tls.key) && Fs.existsSync(args.https.tls.cert)) {
     config.tls = {

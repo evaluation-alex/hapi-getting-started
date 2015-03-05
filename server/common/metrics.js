@@ -3,12 +3,7 @@ var moment = require('moment');
 var _ = require('lodash');
 var UserAgent = require('useragent');
 var Config = require('./../../config');
-var StatsDClient = require('node-statsd');
-var sdc = new StatsDClient({
-    host: Config.statsd.host,
-    port: Config.statsd.port,
-    mock: !Config.statsd.logMetrics
-});
+var statsd = Config.statsd;
 
 var normalizePath = function (request) {
     var path = request._route.path;
@@ -21,12 +16,13 @@ var normalizePath = function (request) {
     return path;
 };
 
-var toStatsD = function(route, statusCode, user, ua, start) {
-    var now = Date.now();
-    var year = moment(now).format('YYYY');
-    var month = moment(now).format('MM');
-    var day = moment(now).format('DD');
-    var hour = moment(now).format('HH');
+var toStatsD = function(route, statusCode, user, ua, start, finish) {
+    var now = finish ? finish : Date.now();
+    var m = moment(now);
+    var year = m.format('YYYY');
+    var month = m.format('MM');
+    var day = m.format('DD');
+    var hour = m.format('HH');
     var incr = [];
     var timing = [];
     var stat = Config.projectName;
@@ -46,24 +42,21 @@ var toStatsD = function(route, statusCode, user, ua, start) {
     incr.push(ua.device.toString());
     incr.push(ua.toString());
 
-    sdc.set(user, ua.toString());
-    sdc.set(user, ua.device.toString());
-    sdc.increment(incr);
-    sdc.timing(timing, moment(now).diff(moment(start)));
+    statsd.unique(user + '.browser', ua.toString());
+    statsd.unique(user + '.device', ua.device.toString());
+    statsd.unique(user + '.routes', route);
+    statsd.increment(incr, 1);
+    statsd.timing(timing, now - start);
 };
 
 module.exports.register = function (server, options, next) {
-    server.ext('onRequest', function (request, reply) {
-        return reply.continue();
-    });
-    server.ext('onPreResponse', function (request, reply) {
+    server.on('tail', function (request) {
         var path = normalizePath(request);
         var method = request.method;
-        var statusCode = (request.response.isBoom) ? request.response.output.statusCode : request.response.statusCode;
+        var statusCode = request.response.statusCode;
         var user = request.auth && request.auth.credentials && request.auth.credentials.user ? request.auth.credentials.user.email : 'notloggedin';
         var ua = UserAgent.lookup(request.headers['user-agent']);
-        toStatsD(method + '.' + path, '#' + statusCode + '#', user, ua, request.info.received);
-        return reply.continue();
+        toStatsD(method + '.' + path, '#' + statusCode + '#', user, ua, request.info.received, request.info.responded);
     });
     next();
 };

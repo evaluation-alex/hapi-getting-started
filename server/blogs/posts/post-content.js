@@ -6,7 +6,7 @@ var readFileP = Promise.promisify(require('fs').readFile);
 var writeFile = require('fs').writeFile;
 var LRUCache = require('lru-cache');
 var _ = require('lodash');
-var logger = require('./../../manifest').logger;
+var logger = Config.logger;
 
 var cache = new LRUCache({
     max: 100 * 1024 * 1024, length: function (n) {

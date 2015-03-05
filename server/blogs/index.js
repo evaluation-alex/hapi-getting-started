@@ -3,14 +3,15 @@ var RouteFactory = require('./../common/route-factory');
 var Controller = require('./controller');
 var _ = require('lodash');
 
-var routes = RouteFactory.discoverDefaultRoutes('blogs', Controller);
+var routeFactory = new RouteFactory();
+
+routeFactory.discoverDefaultRoutes('blogs', Controller);
 _.forEach(['subscribe', 'approve', 'reject'], function (action) {
-    routes.push(RouteFactory.newRoute()
+    routeFactory.newRoute()
         .forMethod('PUT')
         .onPath('/blogs/{id}/' + action)
         .usingAuthStrategy('simple')
-        .withController(Controller[action])
-        .doneConfiguring());
+        .withController(Controller[action]);
 });
 
-module.exports = routes;
+module.exports = routeFactory.doneConfiguring();

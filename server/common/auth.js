@@ -1,6 +1,6 @@
 'use strict';
 var Users = require('./../users/model');
-var logger = require('./../manifest').logger;
+var logger = require('./../../config').logger;
 
 var loginValidation = function (email, sessionkey, callback) {
     Users.findBySessionCredentials(email, sessionkey)

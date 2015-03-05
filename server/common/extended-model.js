@@ -4,24 +4,19 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var utils = require('./utils');
 var Config = require('./../../config');
-var StatsDClient = require('node-statsd');
 var moment = require('moment');
-var sdc = new StatsDClient({
-    host: Config.statsd.host,
-    port: Config.statsd.port,
-    mock: !Config.statsd.logMetrics
-});
+var statsd = Config.statsd;
 
 var ExtendedModel = BaseModel.extend({
 });
 
 var timedReject = function (collection, method, start, reject, err) {
-    sdc.timing(Config.projectName + '.' + collection + '.' + method, moment().diff(moment(start)));
+    statsd.timing(Config.projectName + '.' + collection + '.' + method, moment().diff(moment(start)));
     utils.logAndReject(err, reject);
 };
 
 var timedResolve = function (collection, method, start, resolve, val) {
-    sdc.timing(Config.projectName + '.' + collection + '.' + method, moment().diff(moment(start)));
+    statsd.timing(Config.projectName + '.' + collection + '.' + method, moment().diff(moment(start)));
     resolve(val);
 };
 
@@ -86,7 +81,7 @@ ExtendedModel._findByIdAndRemove = function (id) {
             if (err) {
                 timedReject(self._collection, '_findByIdAndRemove', start, reject, err);
             } else {
-                timedResolve(self._collection, '_insert', start, resolve, !doc ? new Error ('document not found') : doc);
+                timedResolve(self._collection, '_findByIdAndRemove', start, resolve, !doc ? new Error ('document not found') : doc);
             }
         });
     });

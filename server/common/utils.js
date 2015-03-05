@@ -1,6 +1,6 @@
 'use strict';
 var Boom = require('boom');
-var logger = require('./../manifest').logger;
+var logger = require('./../../config').logger;
 
 var logAndReject = function(err, reject) {
     logger.error({error: err});

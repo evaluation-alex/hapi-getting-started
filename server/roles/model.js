@@ -4,6 +4,7 @@ var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model');
 var Promise = require('bluebird');
 var utils = require('./../common/utils');
+var _ = require('lodash');
 
 var Roles = ExtendedModel.extend({
     /* jshint -W064 */
@@ -14,14 +15,10 @@ var Roles = ExtendedModel.extend({
 });
 
 Roles.prototype.hasPermissionsTo = function (performAction, onObject) {
-    var ret = false;
-    if (this.permissions) {
-        this.permissions.forEach(function (permission) {
-            if ((permission.object.indexOf(onObject) !== -1 || permission.object === '*') && (permission.action === 'update' || permission.action === performAction)) {
-                ret = ret || true;
-            }
-        });
-    }
+    var self = this;
+    var ret = !!_.find(self.permissions, function (p) {
+        return ((p.object === onObject || p.object === '*') && (p.action === performAction || p.action === 'update'));
+    });
     return ret;
 };
 

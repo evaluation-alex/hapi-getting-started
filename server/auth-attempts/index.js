@@ -2,4 +2,4 @@
 var RouteFactory = require('./../common/route-factory');
 var Controller = require('./controller');
 
-module.exports = RouteFactory.discoverDefaultRoutes('auth-attempts', Controller);
+module.exports = (new RouteFactory()).discoverDefaultRoutes('auth-attempts', Controller).doneConfiguring();

@@ -2,8 +2,8 @@
 var moment = require('moment');
 var _ = require('lodash');
 var UserAgent = require('useragent');
-var StatsDClient = require('node-statsd');
 var Config = require('./../../config');
+var StatsDClient = require('node-statsd');
 var sdc = new StatsDClient({
     host: Config.statsd.host,
     port: Config.statsd.port,

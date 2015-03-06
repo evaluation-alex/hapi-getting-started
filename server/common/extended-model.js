@@ -19,78 +19,72 @@ var timedResolve = function (collection, method, start, resolve, val) {
     resolve(val);
 };
 
-var defaultcb = function (collection, method, start, resolve, reject) {
+ExtendedModel.defaultcb = function (method, resolve, reject) {
+    var self = this;
+    var start = Date.now();
     return function (err, doc) {
-        err ? timedReject(collection, method, start, reject, err) : timedResolve(collection, method, start, resolve, doc);
+        err ? timedReject(self._collection, method, start, reject, err) :
+            timedResolve(self._collection, method, start, resolve, doc);
+    };
+};
+
+ExtendedModel.defaultcb2 = function (method, resolve, reject, notValid) {
+    var self = this;
+    var start = Date.now();
+    return function (err, docs) {
+        err ? timedReject(self._collection, method, start, reject, err) :
+            timedResolve(self._collection, method, start, resolve, !docs ? notValid : docs[0]);
     };
 };
 
 ExtendedModel._find = function (conditions) {
     var self = this;
-    var start = Date.now();
     return new Promise(function (resolve, reject) {
-        self.find(conditions, defaultcb(self._collection, '_find', start, resolve, reject));
+        self.find(conditions, self.defaultcb('_find', resolve, reject));
     });
 };
 
 ExtendedModel._findOne = function (query) {
     var self = this;
-    var start = Date.now();
     return new Promise(function (resolve, reject) {
-        self.findOne(query, defaultcb(self._collection, '_findOne', start, resolve, reject));
+        self.findOne(query, self.defaultcb('_findOne', resolve, reject));
     });
 };
 
 ExtendedModel._findByIdAndUpdate = function (id, obj) {
     var self = this;
-    var start = Date.now();
     return new Promise(function (resolve, reject) {
-        self.findByIdAndUpdate(id, obj, defaultcb(self._collection, '_findByIdAndUpdate', start, resolve, reject));
+        self.findByIdAndUpdate(id, obj, self.defaultcb('_findByIdAndUpdate', resolve, reject));
     });
 };
 
 ExtendedModel._count = function (query) {
     var self = this;
-    var start = Date.now();
     return new Promise(function (resolve, reject) {
-        self.count(query, defaultcb(self._collection, '_count', start, resolve, reject));
+        self.count(query, self.defaultcb('_count', resolve, reject));
     });
 };
 
 ExtendedModel._insert = function (document, notCreated) {
     var self = this;
-    var start = Date.now();
     return new Promise(function (resolve, reject) {
-        self.insert(document, function (err, docs) {
-            if (err) {
-                timedReject(self._collection, '_insert', start, reject, err);
-            } else {
-                timedResolve(self._collection, '_insert', start, resolve, !docs ? notCreated : docs[0]);
-            }
-        });
+        self.insert(document, self.defaultcb2('_insert', resolve, reject, notCreated));
     });
 };
 
 ExtendedModel._findByIdAndRemove = function (id) {
     var self = this;
-    var start = Date.now();
+    var err = new Error('Document not found');
     return new Promise(function (resolve, reject) {
         var collection = BaseModel.db.collection(self._collection);
-        collection.findAndRemove({_id: id}, function (err, doc) {
-            if (err) {
-                timedReject(self._collection, '_findByIdAndRemove', start, reject, err);
-            } else {
-                timedResolve(self._collection, '_findByIdAndRemove', start, resolve, !doc ? new Error('document not found') : doc);
-            }
-        });
+        collection.findAndRemove({_id: id}, self.defaultcb2('_findByIdAndRemove', resolve, reject, err));
     });
 };
 
 ExtendedModel._pagedFind = function (query, fields, sort, limit, page) {
     var self = this;
-    var start = Date.now();
     return new Promise(function (resolve, reject) {
-        self.pagedFind(query, fields, sort, limit, page, defaultcb(self._collection, '_pagedFind', start, resolve, reject));
+        self.pagedFind(query, fields, sort, limit, page, self.defaultcb('_pagedFind', resolve, reject));
     });
 };
 

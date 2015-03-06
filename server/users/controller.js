@@ -7,28 +7,24 @@ var Users = require('./model');
 var Mailer = require('./../common/mailer');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
-var PreReqs = require('./../common/pre-reqs');
 
 var Controller = new ControllerFactory('users', Users)
-    .forMethod('signup')
-    .withValidation({
+    .customNewController('signup', {
         payload: {
             email: Joi.string().email().required(),
             organisation: Joi.string().required(),
             password: Joi.string().required()
         }
-    })
-    .preProcessWith([
-        {assign: 'isUnique', method: PreReqs.isUnique(Users, function (request) {
-            return {email: request.payload.email, organisation: request.payload.organisation};
-        })
-        }
-    ])
-    .handleUsing(function (request, reply) {
+    }, function (request) {
+        return {
+            email: request.payload.email,
+            organisation: request.payload.organisation
+        };
+    }, function (request) {
         var email = request.payload.email;
         var password = request.payload.password;
         var organisation = request.payload.organisation;
-        Users.create(email, password, organisation)
+        return Users.create(email, password, organisation)
             .then(function (user) {
                 return (user) ? user.loginSuccess(request.info.remoteAddress, user.email).save() : user;
             })
@@ -46,18 +42,11 @@ var Controller = new ControllerFactory('users', Users)
                 return user;
             })
             .then(function (user) {
-                if (!user) {
-                    reply(Boom.notFound('User could not be created.'));
-                } else {
-                    reply({
-                        user: user.email,
-                        session: user.session,
-                        authHeader: 'Basic ' + new Buffer(user.email + ':' + user.session.key).toString('base64')
-                    }).code(201);
-                }
-            })
-            .catch(function (err) {
-                utils.logAndBoom(err, reply);
+                return user ? {
+                    user: user.email,
+                    session: user.session,
+                    authHeader: 'Basic ' + new Buffer(user.email + ':' + user.session.key).toString('base64')
+                } : user;
             });
     })
     .findController({
@@ -76,7 +65,7 @@ var Controller = new ControllerFactory('users', Users)
         output.data = _.map(output.data, function (user) {
             return {
                 email: user.email,
-                isLoggedIn: user.session ? true : false
+                isLoggedIn: user.session.key ? true : false
             };
         });
         return output;
@@ -84,7 +73,7 @@ var Controller = new ControllerFactory('users', Users)
     .findOneController(function (user) {
         return {
             email: user.email,
-            isLoggedIn: user.session ? true: false
+            isLoggedIn: user.session.key ? true: false
         };
     })
     .updateController({

@@ -50,7 +50,7 @@ ControllerFactory.prototype.doneConfiguring = function () {
 ControllerFactory.prototype.newHandler = function (newCb) {
     var self = this;
     return function (request, reply) {
-        var by = request.auth.credentials.user.email;
+        var by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
         var newObj = newCb ? newCb(request, by) : self.model.newObject(request, by);
         newObj.then(function (n) {
             if (!n) {
@@ -70,6 +70,13 @@ ControllerFactory.prototype.newController = function (validator, prereqs, unique
         prereqs]);
     self.forMethod('new')
         .preProcessWith(pre)
+        .handleUsing(self.newHandler(newCb));
+    return self;
+};
+ControllerFactory.prototype.customNewController = function (method, validator, uniqueCheck, newCb) {
+    var self = this;
+    self.forMethod(method)
+        .preProcessWith([{assign: 'isUnique', method: PreReqs.isUnique(self.model, uniqueCheck)}])
         .handleUsing(self.newHandler(newCb));
     return self;
 };

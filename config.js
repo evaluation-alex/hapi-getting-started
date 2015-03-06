@@ -39,7 +39,7 @@ var logOptions = {
     name: 'main',
     streams: [{
         type: 'rotating-file',
-        path: args.logdir + '/' + args.projectName + '.log',
+        path: args.logdir + '/' + args.project + '.log',
         period: '1d',
         count: 7,
         name: 'file',

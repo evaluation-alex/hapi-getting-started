@@ -25,13 +25,16 @@ var Permissions = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
-_.extend(Permissions.prototype, new AddRemove({user: 'users',
+_.extend(Permissions.prototype, new AddRemove({
+    user: 'users',
     group: 'groups'
 }));
 _.extend(Permissions.prototype, IsActive);
 _.extend(Permissions.prototype, new Properties(['description', 'isActive']));
-_.extend(Permissions.prototype, new Update({isActive: 'isActive',
-    description: 'description'}, {
+_.extend(Permissions.prototype, new Update({
+    isActive: 'isActive',
+    description: 'description'
+}, {
     user: 'users',
     group: 'groups'
 }));
@@ -81,45 +84,31 @@ Permissions.newObject = function (doc, by) {
 
 Permissions.create = function (description, organisation, users, groups, action, object, by) {
     var self = this;
-    /*jshint unused: false*/
-    return new Promise(function (resolve, reject) {
-        var document = {
-            organisation: organisation,
-            description: description,
-            users: users && users.length > 0 ? users : [by],
-            groups: groups ? groups : [],
-            action: action,
-            object: object,
-            isActive: true,
-            createdBy: by,
-            createdOn: new Date(),
-            updatedBy: by,
-            updatedOn: new Date()
-        };
-        resolve(self._insert(document, false)
-            .then(function (permission) {
-                if (permission) {
-                    Audit.create('Permissions', permission._id, 'create', null, permission, by, organisation);
-                }
-                return permission;
-            }));
-    });
-    /*jshint unused:true*/
+    var document = {
+        organisation: organisation,
+        description: description,
+        users: users && users.length > 0 ? users : [by],
+        groups: groups ? groups : [],
+        action: action,
+        object: object,
+        isActive: true,
+        createdBy: by,
+        createdOn: new Date(),
+        updatedBy: by,
+        updatedOn: new Date()
+    };
+    return self._insertAndAudit(document, false);
 };
 
 Permissions.findAllPermissionsForUser = function (email, organisation) {
     var self = this;
-    /*jshint unused:false*/
-    return new Promise(function (resolve, reject) {
-        resolve(UserGroups.findGroupsForUser(email, organisation)
-            .then(function (userGroups) {
-                var ug = userGroups.map(function (userGroup) {
-                    return userGroup.name;
-                });
-                return self._find({organisation: organisation, $or: [{'users': email}, {'groups': {$in: ug}}]});
-            }));
-    });
-    /*jshint unused:true*/
+    return UserGroups.findGroupsForUser(email, organisation)
+        .then(function (userGroups) {
+            var ug = userGroups.map(function (userGroup) {
+                return userGroup.name;
+            });
+            return self._find({organisation: organisation, $or: [{'users': email}, {'groups': {$in: ug}}]});
+        });
 };
 
 Permissions.isPermitted = function (user, organisation, action, object) {

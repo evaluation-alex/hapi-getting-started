@@ -44,20 +44,19 @@ Users.prototype.hasPermissionsTo = function (performAction, onObject) {
 };
 Users.prototype.hydrateRoles = function () {
     var self = this;
+    /*jshint unused:false*/
     return new Promise(function (resolve, reject) {
-        if (self._roles || !self.roles) {
+        if (self._roles || !self.roles || self.roles.length === 0) {
             resolve(self);
         } else {
-            Roles._find({name: {$in: self.roles}, organisation: self.organisation})
+            resolve(Roles._find({name: {$in: self.roles}, organisation: self.organisation})
                 .then(function (roles) {
                     self._roles = roles;
-                    resolve(self);
-                })
-                .catch(function (err) {
-                    utils.logAndReject(err, reject);
-                });
+                    return self;
+                }));
         }
     });
+    /*jshint unused:true*/
 };
 Users.prototype._invalidateSession = function () {
     var self = this;
@@ -146,30 +145,20 @@ Users.indexes = [
 
 Users.create = function (email, password, organisation) {
     var self = this;
-    /*jshint unused:false*/
-    return new Promise(function (resolve, reject) {
-        var hash = Bcrypt.hashSync(password, 10);
-        var document = {
-            email: email,
-            password: hash,
-            organisation: organisation,
-            roles: ['readonly'],
-            session: {},
-            isActive: true,
-            createdBy: email,
-            createdOn: new Date(),
-            updatedBy: email,
-            updatedOn: new Date()
-        };
-        resolve(self._insert(document, false)
-            .then(function (user) {
-                if (user) {
-                    Audit.create('Users', email, 'signup', null, user, email, organisation);
-                }
-                return user;
-            }));
-    });
-    /*jshint unused:true*/
+    var hash = Bcrypt.hashSync(password, 10);
+    var document = {
+        email: email,
+        password: hash,
+        organisation: organisation,
+        roles: ['readonly'],
+        session: {},
+        isActive: true,
+        createdBy: email,
+        createdOn: new Date(),
+        updatedBy: email,
+        updatedOn: new Date()
+    };
+    return self._insertAndAudit(document, false, 'email', 'signup');
 };
 
 Users.findByCredentials = function (email, password) {
@@ -205,13 +194,13 @@ Users.findBySessionCredentials = function (email, key) {
         self._findOne({email: email, isActive: true})
             .then(function (user) {
                 if (!user || !user.session || !user.session.key) {
-                    reject(new Error ('User not found or not logged in'));
+                    reject(new Error('User not found or not logged in'));
                 } else {
                     var keyMatch = Bcrypt.compareSync(key, user.session.key) || key === user.session.key;
                     if (keyMatch) {
                         resolve(user.hydrateRoles());
                     } else {
-                        reject(new Error ('Session credentials do not match'));
+                        reject(new Error('Session credentials do not match'));
                     }
                 }
             })

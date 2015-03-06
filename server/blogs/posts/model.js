@@ -8,7 +8,6 @@ var Update = require('./../../common/model-mixins').Update;
 var Properties = require('./../../common/model-mixins').Properties;
 var Save = require('./../../common/model-mixins').Save;
 var CAudit = require('./../../common/model-mixins').Audit;
-var Promise = require('bluebird');
 var Audit = require('./../../audit/model');
 var _ = require('lodash');
 
@@ -91,12 +90,9 @@ Posts.newObject = function (doc, by) {
         doc.payload.attachments,
         by);
 };
-/*jshint unused:true*/
 
 Posts.create = function (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) {
     var self = this;
-    /*jshint unused: false*/
-    return new Promise(function (resolve, reject) {
         var now = new Date();
         var document = {
             blogId: blogId,
@@ -119,15 +115,7 @@ Posts.create = function (blogId, organisation, title, state, access, allowCommen
             updatedBy: by,
             updatedOn: now
         };
-        resolve(self._insert(document, false)
-            .then(function (post) {
-                if (post) {
-                    Audit.create('Posts', post._id, 'create', null, post, by, organisation);
-                }
-                return post;
-            }));
-    });
-    /*jshint unused:true*/
+        return self._insertAndAudit(document, false);
 };
 
 module.exports = Posts;

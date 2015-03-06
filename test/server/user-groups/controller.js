@@ -207,7 +207,7 @@ describe('UserGroups', function () {
         it('should send back not found when the user-group with the id in params is not found', function (done) {
             var request = {
                 method: 'GET',
-                url: '/user-groups/' + id.replace('a', '0').replace('b', '0').replace('c', '0').replace('d', '0').replace('e', '0').replace('f', '0'),
+                url: '/user-groups/54d4430eed61ad701cc7a721',
                 headers: {
                     Authorization: rootAuthHeader
                 }

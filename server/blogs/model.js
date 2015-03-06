@@ -2,6 +2,7 @@
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model');
+var BaseModel = require('hapi-mongo-models').BaseModel;
 var AddRemove = require('./../common/model-mixins').AddRemove;
 var JoinApproveReject = require('./../common/model-mixins').JoinApproveReject;
 var Update = require('./../common/model-mixins').Update;
@@ -99,36 +100,28 @@ Blogs.newObject = function (doc, by) {
 
 Blogs.create = function (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {
     var self = this;
-    /*jshint unused: false*/
-    return new Promise(function (resolve, reject) {
-        var document = {
-            title: title,
-            organisation: organisation,
-            description: description,
-            owners: owners && owners.length > 0 ? owners : [by],
-            contributors: contributors && contributors.length > 0 ? contributors : [by],
-            subscribers: subscribers && subscribers.length > 0 ? subscribers : [by],
-            subscriberGroups: subscriberGroups ? subscriberGroups : [],
-            needsApproval: [],
-            needsReview: needsReview,
-            access: access,
-            allowComments: allowComments,
-            isActive: true,
-            createdBy: by,
-            createdOn: new Date(),
-            updatedBy: by,
-            updatedOn: new Date()
-        };
-        resolve(self._insert(document, false)
-            .then(function (blog) {
-                if (blog) {
-                    Audit.create('Blogs', title, 'create', null, blog, by, organisation);
-                    mkdirp((Config.storage.diskPath + '/' + blog.organisation + '/blogs/' + blog._id.toString()).replace(' ', '-'), {});
-                }
-                return blog;
-            }));
-    });
-    /*jshint unused: true*/
+    var id = BaseModel.ObjectID();
+    mkdirp((Config.storage.diskPath + '/' + organisation + '/blogs/' + id.toString()).replace(' ', '-'), {});
+    var document = {
+        _id: id,
+        title: title,
+        organisation: organisation,
+        description: description,
+        owners: owners && owners.length > 0 ? owners : [by],
+        contributors: contributors && contributors.length > 0 ? contributors : [by],
+        subscribers: subscribers && subscribers.length > 0 ? subscribers : [by],
+        subscriberGroups: subscriberGroups ? subscriberGroups : [],
+        needsApproval: [],
+        needsReview: needsReview,
+        access: access,
+        allowComments: allowComments,
+        isActive: true,
+        createdBy: by,
+        createdOn: new Date(),
+        updatedBy: by,
+        updatedOn: new Date()
+    };
+    return self._insertAndAudit(document, false, 'title');
 };
 
 module.exports = Blogs;

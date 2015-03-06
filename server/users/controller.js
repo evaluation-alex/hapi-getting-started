@@ -7,20 +7,7 @@ var Users = require('./model');
 var Mailer = require('./../common/mailer');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
-
-var emailCheck = function (request, reply) {
-    Users._findOne({email: request.payload.email, organisation: request.payload.organisation})
-        .then(function (user) {
-            if (user) {
-                reply(Boom.conflict('Email already in use.'));
-            } else {
-                reply(true);
-            }
-        })
-        .catch(function (err) {
-            utils.logAndBoom(err, reply);
-        });
-};
+var PreReqs = require('./../common/pre-reqs');
 
 var Controller = new ControllerFactory('users', Users)
     .forMethod('signup')
@@ -32,7 +19,10 @@ var Controller = new ControllerFactory('users', Users)
         }
     })
     .preProcessWith([
-        {assign: 'emailCheck', method: emailCheck}
+        {assign: 'isUnique', method: PreReqs.isUnique(Users, function (request) {
+            return {email: request.payload.email, organisation: request.payload.organisation};
+        })
+        }
     ])
     .handleUsing(function (request, reply) {
         var email = request.payload.email;

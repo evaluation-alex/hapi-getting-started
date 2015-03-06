@@ -1,6 +1,5 @@
 'use strict';
 var Joi = require('joi');
-var Promise = require('bluebird');
 var _ = require('lodash');
 var moment = require('moment');
 var BaseModel = require('hapi-mongo-models').BaseModel;
@@ -47,31 +46,28 @@ var Controller = new ControllerFactory('posts', Posts)
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
         };
     }, function (request, by) {
-        return new Promise(function (resolve, reject) {
-            var blog = request.pre.blog;
-            request.payload.access = _.isUndefined(request.payload.access) ?
-                blog.access :
-                request.payload.access;
-            request.payload.allowComments = _.isUndefined(request.payload.allowComments) ?
-                blog.allowComments :
-                request.payload.allowComments;
-            request.payload.needsReview = _.isUndefined(request.payload.needsReview) ?
-                blog.needsReview :
-                request.payload.needsReview;
-            if (request.payload.state === 'published') {
-                if (request.payload.needsReview && !(blog._isMemberOf('owners', by) || by === 'root')) {
-                    request.payload.state = 'pending review';
-                }
+        var blog = request.pre.blog;
+        request.payload.access = _.isUndefined(request.payload.access) ?
+            blog.access :
+            request.payload.access;
+        request.payload.allowComments = _.isUndefined(request.payload.allowComments) ?
+            blog.allowComments :
+            request.payload.allowComments;
+        request.payload.needsReview = _.isUndefined(request.payload.needsReview) ?
+            blog.needsReview :
+            request.payload.needsReview;
+        if (request.payload.state === 'published') {
+            if (request.payload.needsReview && !(blog._isMemberOf('owners', by) || by === 'root')) {
+                request.payload.state = 'pending review';
             }
-            Posts.newObject(request, by)
-                .then(function (post) {
+        }
+        return Posts.newObject(request, by)
+            .then(function (post) {
+                if (post) {
                     PostContent.writeContent(post, request.payload.content);
-                    resolve(post);
-                })
-                .catch(function (err) {
-                    utils.logAndReject(err, reject);
-                });
-        });
+                }
+                return post;
+            });
     })
     .findController({
         query: {
@@ -106,28 +102,20 @@ var Controller = new ControllerFactory('posts', Posts)
         }
         return query;
     }, function (output) {
-        /*jshint unused: false*/
-        return new Promise(function (resolve, reject) {
-            PostContent.readContentMultiple(output.data)
-                .then(function (contents) {
-                    for (var i = 0, l = output.data.length; i < l; i++) {
-                        output.data[i].content = contents[i].value();
-                    }
-                    resolve(output);
-                });
-        });
-        /*jshint unused: true*/
+        return PostContent.readContentMultiple(output.data)
+            .then(function (contents) {
+                for (var i = 0, l = output.data.length; i < l; i++) {
+                    output.data[i].content = contents[i].value();
+                }
+                return output;
+            });
     })
     .findOneController(function (post) {
-        /*jshint unused: false*/
-        return new Promise(function (resolve, reject) {
-            PostContent.readContent(post)
-                .then(function (content) {
-                    post.content = content;
-                    resolve(post);
-                });
-        });
-        /*jshint unused: false*/
+        return PostContent.readContent(post)
+            .then(function (content) {
+                post.content = content;
+                return post;
+            });
     })
     .updateController({
         payload: {

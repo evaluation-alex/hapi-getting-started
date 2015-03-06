@@ -30,20 +30,6 @@ Audit.indexes = [
     [{timestamp: 1}]
 ];
 
-Audit.create = function (type, id, action, origValues, newValues, by, organisation) {
-    var self = this;
-    var doc = {
-        objectChangedType: type,
-        objectChangedId: id,
-        action: action,
-        origValues: origValues,
-        newValues: newValues,
-        organisation: organisation,
-        by: by,
-        timestamp: new Date()
-    };
-    return self._insert(doc, undefined);
-};
 
 Audit.findAudit = function (type, id, conditions) {
     var self = this;

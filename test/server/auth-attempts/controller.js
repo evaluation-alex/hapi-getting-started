@@ -120,10 +120,10 @@ describe('AuthAttempts', function () {
         it('should send a 404 if the id sent doesnt exist', function (done) {
             AuthAttempts.create('127.0.0.2', 'test.abuse.delete1@auth.attempts')
                 .then(function (aa) {
-                    var id = aa._id.toString().replace('a','0').replace('b','0').replace('c','0').replace('d','0').replace('e','0').replace('f','0');
+                    //var id = aa._id.toString();
                     var request = {
                         method: 'DELETE',
-                        url: '/auth-attempts/'+id,
+                        url: '/auth-attempts/54d4430eed61ad701cc7a721',
                         headers: {
                             Authorization: authheader
                         }

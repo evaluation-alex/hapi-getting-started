@@ -177,7 +177,7 @@ describe('Users Model', function () {
                     return user.hydrateRoles();
                 })
                 .then(function (decoratedUser) {
-                    expect(decoratedUser._roles).to.be.empty();
+                    expect(decoratedUser._roles).to.be.undefined();
                     decoratedUser.roles = ['readonly'];
                 })
                 .catch(function (err) {

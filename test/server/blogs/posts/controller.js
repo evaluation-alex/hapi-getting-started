@@ -49,7 +49,7 @@ describe('Posts', function () {
     describe('GET /blogs/{blogId}/posts, GET /posts', function () {
         var blogId = null;
         before(function (done) {
-            var b1 = Blogs.create('test GET /posts1', 'silver lining', 'test GET /blogs', ['owner1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test');
+            var b1 = Blogs.create('test GET /posts1', 'silver lining', 'test GET /blogs', null, null, null, null, false, 'public', true, 'test');
             var b2 = Blogs.create('test GET /posts2 is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
             Promise.join(b1, b2)
                 .then(function (b) {

@@ -1,7 +1,7 @@
 'use strict';
 var _ = require('lodash');
+var Config = require('./../../config');
 var Promise = require('bluebird');
-var utils = require('./utils');
 
 var CommonMixinAddRemove = function (roles) {
     return {
@@ -71,10 +71,10 @@ var CommonMixinUpdate = function (properties, lists) {
     return {
         update: function (doc, by) {
             var self = this;
-            _.forIn(properties, function(value, key) {
+            _.forIn(properties, function (value, key) {
                 self['set' + _.capitalize(key)](doc.payload[value], by);
             });
-            _.forIn(lists, function(value, key) {
+            _.forIn(lists, function (value, key) {
                 self.add(doc.payload['added' + _.capitalize(value)], key, by);
                 self.remove(doc.payload['removed' + _.capitalize(value)], key, by);
             });
@@ -124,34 +124,26 @@ var CommonMixinSave = function (Model, Audit) {
         /*jshint unused:false*/
         _saveAudit: function () {
             var self = this;
-            return new Promise(function (resolve, reject) {
-                if (self.audit && self.audit.length > 0) {
-                    Promise.settle(_.map(self.audit, function (a) {
-                        return Audit._insert(a, []);
-                    }))
-                        .then(function () {
-                            self.audit = [];
-                            resolve(self);
-                        });
-                } else {
-                    resolve(self);
-                }
-            });
+            if (self.audit && self.audit.length > 0) {
+                _.forEach(self.audit, function (a) {
+                    Audit.insert(a, function (err, doc) {
+                        if (err) {
+                            Config.logger.error({error: err});
+                        }
+                    });
+                });
+                self.audit = [];
+            }
+            return self;
         },
-        /*jshint unused:true*/
         save: function () {
             var self = this;
             return new Promise(function (resolve, reject) {
-                self._saveAudit()
-                    .then(function () {
-                        resolve(Model._findByIdAndUpdate(self._id, self));
-                    })
-                    .catch(function (err) {
-                        utils.logAndReject(err, reject);
-                    })
-                    .done();
+                self._saveAudit();
+                resolve(Model._findByIdAndUpdate(self._id, self));
             });
         }
+        /*jshint unused:true*/
     };
 };
 

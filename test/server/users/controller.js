@@ -439,7 +439,7 @@ describe('Users', function () {
         it('should return not found if the user is not found', function (done) {
             var request = {
                 method: 'PUT',
-                url: '/users/' + id.replace('a', '0').replace('b', '0').replace('c', '0').replace('d', '0').replace('e', '0').replace('f', '0'),
+                url: '/users/54d4430eed61ad701cc7a721',
                 headers: {
                     Authorization: authheader
                 },

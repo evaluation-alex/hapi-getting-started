@@ -9,7 +9,6 @@ var Update = require('./../common/model-mixins').Update;
 var Properties = require('./../common/model-mixins').Properties;
 var Save = require('./../common/model-mixins').Save;
 var CAudit = require('./../common/model-mixins').Audit;
-var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var _ = require('lodash');
 
@@ -25,7 +24,8 @@ var UserGroups = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
-_.extend(UserGroups.prototype, new AddRemove({owner: 'owners',
+_.extend(UserGroups.prototype, new AddRemove({
+    owner: 'owners',
     member: 'members',
     needsApproval: 'needsApproval'
 }));
@@ -36,7 +36,8 @@ _.extend(UserGroups.prototype, new Update({
     isActive: 'isActive',
     description: 'description',
     access: 'access'
-}, {owner: 'owners',
+}, {
+    owner: 'owners',
     member: 'members',
     needsApproval: 'needsApproval'
 }));
@@ -69,64 +70,46 @@ UserGroups.indexes = [
 
 UserGroups.newObject = function (doc, by) {
     var self = this;
-    /*jshint unused: false*/
-    return new Promise(function (resolve, reject) {
-        resolve(self.create(doc.payload.name,
-            doc.auth.credentials.user.organisation,
-            doc.payload.description,
-            by)
-            .then(function (userGroup) {
-                return userGroup ?
-                    userGroup
-                        .add(doc.payload.members, 'member', by)
-                        .add(doc.payload.owners, 'owner', by)
-                        .setAccess(doc.payload.access, by)
-                        .save() :
-                    userGroup;
-            }));
-    });
-    /*jshint unused: true*/
+    return self.create(doc.payload.name,
+        doc.auth.credentials.user.organisation,
+        doc.payload.description,
+        by)
+        .then(function (userGroup) {
+            return userGroup ?
+                userGroup
+                    .add(doc.payload.members, 'member', by)
+                    .add(doc.payload.owners, 'owner', by)
+                    .setAccess(doc.payload.access, by)
+                    .save() :
+                userGroup;
+        });
 };
 
 UserGroups.create = function (name, organisation, description, owner) {
     var self = this;
-    /*jshint unused: false*/
-    return new Promise(function (resolve, reject) {
-        var document = {
-            name: name,
-            organisation: organisation,
-            description: description,
-            members: [owner],
-            owners: [owner],
-            needsApproval: [],
-            access: 'restricted',
-            isActive: true,
-            createdBy: owner,
-            createdOn: new Date(),
-            updatedBy: owner,
-            updatedOn: new Date()
-        };
-        resolve(self._insert(document, false)
-            .then(function (userGroup) {
-                if (userGroup) {
-                    Audit.create('UserGroups', name, 'create', null, userGroup, owner, organisation);
-                }
-                return userGroup;
-            }));
-    });
-    /*jshint unused: true*/
+    var document = {
+        name: name,
+        organisation: organisation,
+        description: description,
+        members: [owner],
+        owners: [owner],
+        needsApproval: [],
+        access: 'restricted',
+        isActive: true,
+        createdBy: owner,
+        createdOn: new Date(),
+        updatedBy: owner,
+        updatedOn: new Date()
+    };
+    return self._insertAndAudit(document, false, 'name');
 };
 
 UserGroups.findGroupsForUser = function (email, organisation) {
     var self = this;
-    /*jshint unused: false*/
-    return new Promise(function (resolve, reject) {
-        resolve(self._find({members: email, organisation: organisation})
-            .then(function (g) {
-                return g ? g : [];
-            }));
-    });
-    /*jshint unused: true*/
+    return self._find({members: email, organisation: organisation})
+        .then(function (g) {
+            return g ? g : [];
+        });
 };
 
 module.exports = UserGroups;

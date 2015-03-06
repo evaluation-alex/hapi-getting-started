@@ -328,6 +328,11 @@ describe('Permissions Model', function () {
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].action).to.match(/^add user/);
+                    return Permissions._find({description: 'addUsers1'});
+                })
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].add([], 'user', 'test5').add(null, 'user', 'test5').save();
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -417,6 +422,11 @@ describe('Permissions Model', function () {
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
+                    return Permissions._find({description: 'removeUsers1'});
+                })
+                .then(function (found) {
+                    expect(found.length).to.equal(1);
+                    return found[0].remove([], 'user', 'test5').remove(null, 'user', 'test5').save();
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();

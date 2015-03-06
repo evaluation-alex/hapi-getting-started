@@ -94,6 +94,34 @@ ExtendedModel._pagedFind = function (query, fields, sort, limit, page) {
     });
 };
 
+ExtendedModel._insertAndAudit = function (doc, notCreated, idToUse, action) {
+    var self = this;
+    return self._insert(doc, notCreated)
+        .then(function (obj) {
+            if (obj) {
+                var audit = {
+                    objectChangedType: _.capitalize(self._collection),
+                    objectChangedId: obj[idToUse ? idToUse : '_id'],
+                    action: action ? action : 'create',
+                    origValues: null,
+                    newValues: obj,
+                    organisation: obj.organisation,
+                    by: obj.createdBy,
+                    timestamp: new Date()
+                };
+                var collection = BaseModel.db.collection('audit');
+                /*jshint unused:false*/
+                collection.insert(audit, function (err, doc) {
+                    if (err) {
+                        Config.logger.error({error: err});
+                    }
+                });
+                /*jshint unused:true*/
+            }
+            return obj;
+        });
+};
+
 ExtendedModel.areValid = function (property, toCheck, organisation) {
     var self = this;
     /*jshint unused:false*/
@@ -107,20 +135,16 @@ ExtendedModel.areValid = function (property, toCheck, organisation) {
             conditions.organisation = organisation;
             resolve(self._find(conditions)
                 .then(function (docs) {
-                    if (!docs) {
-                        return {};
-                    } else {
-                        var results = Object.create(null);
-                        _.forEach(docs, function (doc) {
-                            results[doc[property]] = true;
-                        });
-                        _.forEach(toCheck, function (e) {
-                            if (!results[e]) {
-                                results[e] = false;
-                            }
-                        });
-                        return results;
-                    }
+                    var results = Object.create(null);
+                    _.forEach(docs, function (doc) {
+                        results[doc[property]] = true;
+                    });
+                    _.forEach(toCheck, function (e) {
+                        if (!results[e]) {
+                            results[e] = false;
+                        }
+                    });
+                    return results;
                 }));
         }
     });
@@ -131,19 +155,23 @@ ExtendedModel.isValid = function (id, roles, member) {
     var self = this;
     /*jshint unused:false*/
     return new Promise(function (resolve, reject) {
-        resolve(self._findOne({_id: id})
-            .then(function (g) {
-                if (!g) {
-                    return {message: 'not found'};
-                } else {
-                    var isValid = member === 'root' || !!_.find(roles, function (role) {
+        if (member === 'root') {
+            resolve({message: 'valid'});
+        } else {
+            resolve(self._findOne({_id: id})
+                .then(function (g) {
+                    var message = '';
+                    if (!g) {
+                        message = 'not found';
+                    } else {
+                        var isValid = !!_.find(roles, function (role) {
                             return g._isMemberOf(role, member);
                         });
-                    return isValid ?
-                    {message: 'valid'} :
-                    {message: 'not a member of ' + JSON.stringify(roles) + ' list'};
-                }
-            }));
+                        message = isValid ? 'valid' : 'not a member of ' + JSON.stringify(roles) + ' list';
+                    }
+                    return {message: message};
+                }));
+        }
     });
     /*jshint unused:true*/
 };

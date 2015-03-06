@@ -19,11 +19,12 @@ var expect = Code.expect;
 describe('Users', function () {
     var server = null;
     var emails = [];
+
     beforeEach(function (done) {
         tu.setupServer()
             .then(function (res) {
                 server = res.server;
-             })
+            })
             .then(function () {
                 emails.push('test.users@test.api');
                 return Users.create('test.users@test.api', 'password123', 'silver lining');
@@ -72,7 +73,7 @@ describe('Users', function () {
             .then(function (foundUser) {
                 return foundUser.loginSuccess('test').save();
             })
-            .then(function(foundUser) {
+            .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);
                 return foundUser.setRoles([], 'test').save();
             })
@@ -144,6 +145,7 @@ describe('Users', function () {
                     done(err);
                 });
         });
+
         it('should give active users when isactive = true is sent', function (done) {
             var request = {
                 method: 'GET',
@@ -163,6 +165,7 @@ describe('Users', function () {
                 }
             });
         });
+
         it('should give inactive users when isactive = false is sent', function (done) {
             var request = {
                 method: 'GET',
@@ -182,6 +185,7 @@ describe('Users', function () {
                 }
             });
         });
+
         it('should give only the user whose email is sent in the parameter', function (done) {
             var request = {
                 method: 'GET',
@@ -202,6 +206,7 @@ describe('Users', function () {
                 }
             });
         });
+
         it('should return both inactive and active users when nothing is sent', function (done) {
             var request = {
                 method: 'GET',
@@ -222,6 +227,7 @@ describe('Users', function () {
                 }
             });
         });
+
         after(function (done) {
             emails.push('test.users2@test.api');
             done();
@@ -247,6 +253,7 @@ describe('Users', function () {
                     }
                 });
         });
+
         it('should only send back user with the id in params', function (done) {
             var request = {
                 method: 'GET',
@@ -266,6 +273,7 @@ describe('Users', function () {
                 }
             });
         });
+
         it('should send back not found when the user with the id in params is not found', function (done) {
             var request = {
                 method: 'GET',
@@ -304,6 +312,7 @@ describe('Users', function () {
                     done();
                 });
         });
+
         it('should update is active, session should be deactivated and changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -322,7 +331,7 @@ describe('Users', function () {
                         .then(function (foundUser) {
                             expect(foundUser.isActive).to.be.false();
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findAudit('Users',  foundUser.email, {action: 'isActive'});
+                            return Audit.findAudit('Users', foundUser.email, {action: 'isActive'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -334,6 +343,7 @@ describe('Users', function () {
                 }
             });
         });
+
         it('should update roles, session should be deactivated and changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -352,7 +362,7 @@ describe('Users', function () {
                         .then(function (foundUser) {
                             expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findAudit('Users',  foundUser.email, {action: 'update roles'});
+                            return Audit.findAudit('Users', foundUser.email, {action: 'update roles'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -364,6 +374,7 @@ describe('Users', function () {
                 }
             });
         });
+
         it('should update password, session should be deactivated and changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -381,7 +392,7 @@ describe('Users', function () {
                     Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findAudit('Users',  foundUser.email, {action: 'reset password'});
+                            return Audit.findAudit('Users', foundUser.email, {action: 'reset password'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -393,6 +404,7 @@ describe('Users', function () {
                 }
             });
         });
+
         it('should update roles, password and is active, session should be deactivated and all changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -423,10 +435,11 @@ describe('Users', function () {
                 }
             });
         });
+
         it('should return not found if the user is not found', function (done) {
             var request = {
                 method: 'PUT',
-                url: '/users/' + id.replace('a','0').replace('b','0').replace('c','0').replace('d','0').replace('e','0').replace('f', '0'),
+                url: '/users/' + id.replace('a', '0').replace('b', '0').replace('c', '0').replace('d', '0').replace('e', '0').replace('f', '0'),
                 headers: {
                     Authorization: authheader
                 },
@@ -447,82 +460,195 @@ describe('Users', function () {
         });
     });
 
-    afterEach(function (done) {
-        return tu.cleanup({users: emails}, done);
-    });
-
-});
-
-describe('Signup', function () {
-    var server = null;
-    var emails = [];
-
-    beforeEach(function (done) {
-        tu.setupServer()
-            .then(function (s) {
-                server = s.server;
-                done();
-            })
-            .catch(function (err) {
-                if (err) {
+    describe('POST /signup', function () {
+        it('returns a conflict when you try to signup with user that already exists', function (done) {
+            var request = {
+                method: 'POST',
+                url: '/signup',
+                payload: {
+                    email: 'one@first.com',
+                    organisation: 'silver lining',
+                    password: 'try becoming the first'
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(409);
+                    done();
+                } catch (err) {
                     done(err);
                 }
-            })
-            .done();
-    });
+            });
+        });
 
-    it('returns a conflict when you try to signup with user that already exists', function (done) {
-        var request = {
-            method: 'POST',
-            url: '/signup',
-            payload: {
-                email: 'one@first.com',
-                organisation: 'silver lining',
-                password: 'try becoming the first'
-            }
-        };
-        server.inject(request, function (response) {
-            try {
-                expect(response.statusCode).to.equal(409);
-                done();
-            } catch (err) {
-                done(err);
-            }
+        it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records', function (done) {
+            var request = {
+                method: 'POST',
+                url: '/signup',
+                payload: {
+                    email: 'test.signup2@signup.api',
+                    organisation: 'silver lining',
+                    password: 'an0th3r1'
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(201);
+                    Users._findOne({email: 'test.signup2@signup.api'})
+                        .then(function (foundUser) {
+                            expect(foundUser).to.exist();
+                            expect(foundUser.session).to.exist();
+                            return Audit.findAudit('Users', 'test.signup2@signup.api', {action: 'signup'});
+                        })
+                        .then(function (foundSignup) {
+                            expect(foundSignup).to.exist();
+                            return Audit.findAudit('Users', 'test.signup2@signup.api', {action: 'login success'});
+                        })
+                        .then(function (foundLogin) {
+                            expect(foundLogin).to.exist();
+                            emails.push(request.payload.email);
+                            done();
+                        });
+                } catch (err) {
+                    emails.push(request.payload.email);
+                    done(err);
+                }
+            });
         });
     });
 
-    it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records', function (done) {
-        var request = {
-            method: 'POST',
-            url: '/signup',
-            payload: {
-                email: 'test.signup2@signup.api',
-                organisation: 'silver lining',
-                password: 'an0th3r1'
-            }
-        };
-        server.inject(request, function (response) {
-            try {
-                expect(response.statusCode).to.equal(201);
-                Users._findOne({email: 'test.signup2@signup.api'})
-                    .then(function (foundUser) {
-                        expect(foundUser).to.exist();
-                        expect(foundUser.session).to.exist();
-                        return Audit.findAudit('Users',  'test.signup2@signup.api', {action: 'signup'});
-                    })
-                    .then(function (foundSignup) {
-                        expect(foundSignup).to.exist();
-                        return Audit.findAudit('Users',  'test.signup2@signup.api', {action: 'login success'});
-                    })
-                    .then(function (foundLogin) {
-                        expect(foundLogin).to.exist();
-                        emails.push(request.payload.email);
-                        done();
+    describe('POST /login/forgot', function () {
+        it('returns an error when user does not exist', function (done) {
+            var request = {
+                method: 'POST',
+                url: '/login/forgot',
+                payload: {
+                    email: 'test.unknown@test.api'
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.contain('Success');
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+
+        it('successfully sends a reset password request', function (done) {
+            var request = {
+                method: 'POST',
+                url: '/login/forgot',
+                payload: {
+                    email: 'test.users@test.api'
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.contain('Success');
+                    Audit.findAudit('Users', 'test.users@test.api', {action: 'reset password sent'})
+                        .then(function (foundAudit) {
+                            expect(foundAudit).to.exist();
+                            return Users._findOne({email: 'test.users@test.api'});
+                        })
+                        .then(function (foundUser) {
+                            expect(foundUser.resetPwd).to.exist();
+                            done();
+                        });
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+    });
+
+    describe('POST /login/reset', function () {
+        it('returns an error when user does not exist', function (done) {
+            var request = {
+                method: 'POST',
+                url: '/login/reset',
+                payload: {
+                    key: 'abcdefgh-ijkl-mnop-qrst-uvwxyz123456',
+                    email: 'test.unkown@test.api',
+                    password: 'random'
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(400);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+
+        it('returns a bad request if the key does not match', function (done) {
+            Users._findOne({email: 'test.users@test.api'})
+                .then(function (foundUser) {
+                    return foundUser.resetPasswordSent('test').save();
+                })
+                .then(function () {
+                    var request = {
+                        method: 'POST',
+                        url: '/login/reset',
+                        payload: {
+                            key: 'abcdefgh-ijkl-mnop-qrst-uvwxyz123456',
+                            email: 'test.users@test.api',
+                            password: 'password1234'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(400);
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
                     });
-            } catch (err) {
-                emails.push(request.payload.email);
-                done(err);
-            }
+                });
+        });
+
+        it('successfully sets a password, invalidates session and logs user out', function (done) {
+            var key = '';
+            Users._findOne({email: 'test.users@test.api'})
+                .then(function (foundUser) {
+                    return foundUser.resetPasswordSent('test').save();
+                })
+                .then(function (foundUser) {
+                    key = foundUser.resetPwd.token;
+                })
+                .then(function () {
+                    var request = {
+                        method: 'POST',
+                        url: '/login/reset',
+                        payload: {
+                            key: key,
+                            email: 'test.users@test.api',
+                            password: 'password1234'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            expect(response.payload).to.contain('Success');
+                            Audit.findAudit('Users', 'test.users@test.api', {action: 'reset password'})
+                                .then(function (foundAudit) {
+                                    expect(foundAudit).to.exist();
+                                    return Users._findOne({email: 'test.users@test.api'});
+                                })
+                                .then(function (foundUser) {
+                                    expect(foundUser.resetPwd).to.not.exist();
+                                    done();
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
         });
     });
 

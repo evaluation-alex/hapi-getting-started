@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-var Users = require(relativeToServer + 'users/model');
 var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
 var Promise = require('bluebird');
 //var expect = require('chai').expect;

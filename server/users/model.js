@@ -146,6 +146,7 @@ Users.indexes = [
 
 Users.create = function (email, password, organisation) {
     var self = this;
+    /*jshint unused:false*/
     return new Promise(function (resolve, reject) {
         var hash = Bcrypt.hashSync(password, 10);
         var document = {
@@ -160,17 +161,15 @@ Users.create = function (email, password, organisation) {
             updatedBy: email,
             updatedOn: new Date()
         };
-        self._insert(document, false)
+        resolve(self._insert(document, false)
             .then(function (user) {
                 if (user) {
                     Audit.create('Users', email, 'signup', null, user, email, organisation);
                 }
-                resolve(user);
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            });
+                return user;
+            }));
     });
+    /*jshint unused:true*/
 };
 
 Users.findByCredentials = function (email, password) {
@@ -203,7 +202,7 @@ Users.findByCredentials = function (email, password) {
 Users.findBySessionCredentials = function (email, key) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self._findOne({email: email})
+        self._findOne({email: email, isActive: true})
             .then(function (user) {
                 if (!user || !user.session || !user.session.key) {
                     reject(new Error ('User not found or not logged in'));

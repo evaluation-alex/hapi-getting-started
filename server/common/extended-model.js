@@ -4,19 +4,18 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var utils = require('./utils');
 var Config = require('./../../config');
-var moment = require('moment');
 var statsd = Config.statsd;
 
-var ExtendedModel = BaseModel.extend({
-});
+var ExtendedModel = BaseModel.extend({});
 
 var timedReject = function (collection, method, start, reject, err) {
-    statsd.timing(Config.projectName + '.' + collection + '.' + method, moment().diff(moment(start)));
+    statsd.timing(Config.projectName + '.' + collection + '.' + method, Date.now() - start);
+    statsd.increment(Config.projectName + '.' + collection + '.' + method + '.err', 1);
     utils.logAndReject(err, reject);
 };
 
 var timedResolve = function (collection, method, start, resolve, val) {
-    statsd.timing(Config.projectName + '.' + collection + '.' + method, moment().diff(moment(start)));
+    statsd.timing(Config.projectName + '.' + collection + '.' + method, Date.now() - start);
     resolve(val);
 };
 
@@ -34,11 +33,11 @@ ExtendedModel._find = function (conditions) {
     });
 };
 
-ExtendedModel._findOne = function (conditions) {
+ExtendedModel._findOne = function (query) {
     var self = this;
     var start = Date.now();
     return new Promise(function (resolve, reject) {
-        self.findOne(conditions, defaultcb(self._collection, '_findOne', start, resolve, reject));
+        self.findOne(query, defaultcb(self._collection, '_findOne', start, resolve, reject));
     });
 };
 
@@ -77,11 +76,11 @@ ExtendedModel._findByIdAndRemove = function (id) {
     var start = Date.now();
     return new Promise(function (resolve, reject) {
         var collection = BaseModel.db.collection(self._collection);
-        collection.findAndRemove({ _id: id }, function (err, doc) {
+        collection.findAndRemove({_id: id}, function (err, doc) {
             if (err) {
                 timedReject(self._collection, '_findByIdAndRemove', start, reject, err);
             } else {
-                timedResolve(self._collection, '_findByIdAndRemove', start, resolve, !doc ? new Error ('document not found') : doc);
+                timedResolve(self._collection, '_findByIdAndRemove', start, resolve, !doc ? new Error('document not found') : doc);
             }
         });
     });
@@ -97,6 +96,7 @@ ExtendedModel._pagedFind = function (query, fields, sort, limit, page) {
 
 ExtendedModel.areValid = function (property, toCheck, organisation) {
     var self = this;
+    /*jshint unused:false*/
     return new Promise(function (resolve, reject) {
         if (!toCheck || toCheck.length === 0) {
             resolve({});
@@ -105,10 +105,10 @@ ExtendedModel.areValid = function (property, toCheck, organisation) {
             conditions[property] = {$in: toCheck};
             conditions.isActive = true;
             conditions.organisation = organisation;
-            self._find(conditions)
+            resolve(self._find(conditions)
                 .then(function (docs) {
                     if (!docs) {
-                        resolve({});
+                        return {};
                     } else {
                         var results = Object.create(null);
                         _.forEach(docs, function (doc) {
@@ -119,41 +119,33 @@ ExtendedModel.areValid = function (property, toCheck, organisation) {
                                 results[e] = false;
                             }
                         });
-                        resolve(results);
+                        return results;
                     }
-                })
-                .catch(function (err) {
-                    utils.logAndReject(err, reject);
-                });
+                }));
         }
     });
+    /*jshint unused:true*/
 };
 
 ExtendedModel.isValid = function (id, roles, member) {
     var self = this;
+    /*jshint unused:false*/
     return new Promise(function (resolve, reject) {
-        self._findOne({_id: id})
+        resolve(self._findOne({_id: id})
             .then(function (g) {
                 if (!g) {
-                    resolve({message: 'not found'});
+                    return {message: 'not found'};
                 } else {
-                    var isValid = false;
-                    isValid = member === 'root';
-                    _.forEach(roles, function (role) {
-                        isValid = isValid || g._isMemberOf(role, member);
-                    });
-                    if (isValid) {
-                        resolve({message: 'valid'});
-                    } else {
-                        resolve({message: 'not a member of ' + JSON.stringify(roles) + ' list'});
-                    }
+                    var isValid = member === 'root' || !!_.find(roles, function (role) {
+                            return g._isMemberOf(role, member);
+                        });
+                    return isValid ?
+                    {message: 'valid'} :
+                    {message: 'not a member of ' + JSON.stringify(roles) + ' list'};
                 }
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            })
-            .done();
+            }));
     });
+    /*jshint unused:true*/
 };
 
 module.exports = ExtendedModel;

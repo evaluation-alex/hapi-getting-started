@@ -1,7 +1,6 @@
 'use strict';
 var relativeToServer = './../../../server/';
 
-var Users = require(relativeToServer + 'users/model');
 var Permissions = require(relativeToServer + 'permissions/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
@@ -440,7 +439,7 @@ describe('Permissions', function () {
                             expect(response.statusCode).to.equal(200);
                             Permissions._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
-                                    expect(found[0].users[0]).to.equal('one@first.com');
+                                    expect(found[0].users[1]).to.equal('one@first.com');
                                     expect(found[0].groups[0]).to.equal('testPermissionsAddGroup');
                                     return Audit.findAudit('Permissions', BaseModel.ObjectID(id), {action: {$regex: /add/}});
                                 })

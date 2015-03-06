@@ -11,7 +11,6 @@ var CAudit = require('./../../common/model-mixins').Audit;
 var Promise = require('bluebird');
 var Audit = require('./../../audit/model');
 var _ = require('lodash');
-var utils = require('./../../common/utils');
 
 var Posts = ExtendedModel.extend({
     /* jshint -W064 */
@@ -96,6 +95,7 @@ Posts.newObject = function (doc, by) {
 
 Posts.create = function (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) {
     var self = this;
+    /*jshint unused: false*/
     return new Promise(function (resolve, reject) {
         var now = new Date();
         var document = {
@@ -119,17 +119,15 @@ Posts.create = function (blogId, organisation, title, state, access, allowCommen
             updatedBy: by,
             updatedOn: now
         };
-        self._insert(document, false)
+        resolve(self._insert(document, false)
             .then(function (post) {
                 if (post) {
                     Audit.create('Posts', post._id, 'create', null, post, by, organisation);
                 }
-                resolve(post);
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            });
+                return post;
+            }));
     });
+    /*jshint unused:true*/
 };
 
 module.exports = Posts;

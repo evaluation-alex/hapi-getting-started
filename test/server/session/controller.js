@@ -18,9 +18,10 @@ var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
 
-describe('Login', function () {
+describe('Session', function () {
     var server = null;
     var emails = [];
+
     beforeEach(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -35,9 +36,7 @@ describe('Login', function () {
                 done();
             })
             .catch(function (err) {
-                if (err) {
                     done(err);
-                }
             })
             .done();
     });
@@ -154,19 +153,15 @@ describe('Login', function () {
         });
     });
 
-    describe('POST /login/forgot', function () {
-        it('returns an error when user does not exist', function (done) {
+    describe('DELETE /logout', function () {
+        it('returns an error when no authorization is passed', function (done) {
             var request = {
-                method: 'POST',
-                url: '/login/forgot',
-                payload: {
-                    email: 'test.unknown@test.api'
-                }
+                method: 'DELETE',
+                url: '/logout'
             };
             server.inject(request, function (response) {
                 try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.contain('Success');
+                    expect(response.statusCode).to.equal(401);
                     done();
                 } catch (err) {
                     done(err);
@@ -174,111 +169,82 @@ describe('Login', function () {
             });
         });
 
-        it('successfully sends a reset password request', function (done) {
+        it('returns a not found when user does not exist', function (done) {
             var request = {
-                method: 'POST',
-                url: '/login/forgot',
-                payload: {
-                    email: 'test.users@test.api'
+                method: 'DELETE',
+                url: '/logout',
+                headers: {
+                    Authorization: tu.authorizationHeader2('test.not.created@logout.api', '123')
                 }
             };
             server.inject(request, function (response) {
                 try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.contain('Success');
-                    Audit.findAudit('Users', 'test.users@test.api', {action: 'reset password sent'})
-                        .then(function (foundAudit) {
-                            expect(foundAudit).to.exist();
-                            return Users._findOne({email: 'test.users@test.api'});
-                        })
+                    expect(response.statusCode).to.equal(401);
+                    emails.push('test.not.created@logout.api');
+                    done();
+                } catch (err) {
+                    emails.push('test.not.created@logout.api');
+                    done(err);
+                }
+            });
+        });
+
+        it('returns a not found when user has already logged out', function (done) {
+            var request = {
+                method: 'DELETE',
+                url: '/logout',
+                headers: {
+                    Authorization: ''
+                }
+            };
+            Users._findOne({email: 'one@first.com'})
+                .then(function (foundUser) {
+                    return foundUser.loginSuccess('test', 'test').save();
+                })
+                .then(function (foundUser) {
+                    request.headers.Authorization = tu.authorizationHeader(foundUser);
+                    return foundUser.logout('test', 'test').save();
+                })
+                .done();
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(401);
+                    Users._findOne({email: 'one@first.com'})
                         .then(function (foundUser) {
-                            expect(foundUser.resetPwd).to.exist();
+                            foundUser.loginSuccess('test', 'test').save();
                             done();
-                        });
-                } catch (err) {
-                    done(err);
-                }
-            });
-        });
-    });
-
-    describe('POST /login/reset', function () {
-        it('returns an error when user does not exist', function (done) {
-            var request = {
-                method: 'POST',
-                url: '/login/reset',
-                payload: {
-                    key: 'abcdefgh-ijkl-mnop-qrst-uvwxyz123456',
-                    email: 'test.unkown@test.api',
-                    password: 'random'
-                }
-            };
-            server.inject(request, function (response) {
-                try {
-                    expect(response.statusCode).to.equal(400);
-                    done();
+                        })
+                        .done();
                 } catch (err) {
                     done(err);
                 }
             });
         });
 
-        it('returns a bad request if the key does not match', function (done) {
-            Users._findOne({email: 'test.users@test.api'})
+        it('removes the authenticated user session successfully', function (done) {
+            Users._findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
-                    return foundUser.resetPasswordSent('test').save();
-                })
-                .then(function () {
+                    return foundUser.loginSuccess('test', 'test').save();
+                }).
+                then(function (foundUser) {
                     var request = {
-                        method: 'POST',
-                        url: '/login/reset',
-                        payload: {
-                            key: 'abcdefgh-ijkl-mnop-qrst-uvwxyz123456',
-                            email: 'test.users@test.api',
-                            password: 'password1234'
+                        method: 'DELETE',
+                        url: '/logout',
+                        headers: {
+                            Authorization: ''
                         }
                     };
-                    server.inject(request, function (response) {
-                        try {
-                            expect(response.statusCode).to.equal(400);
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
-                    });
-                });
-        });
-
-        it('successfully sets a password, invalidates session and logs user out', function (done) {
-            var key = '';
-            Users._findOne({email: 'test.users@test.api'})
-                .then(function (foundUser) {
-                    return foundUser.resetPasswordSent('test').save();
+                    request.headers.Authorization = tu.authorizationHeader(foundUser);
+                    return request;
                 })
-                .then(function (foundUser) {
-                    key = foundUser.resetPwd.token;
-                })
-                .then(function () {
-                    var request = {
-                        method: 'POST',
-                        url: '/login/reset',
-                        payload: {
-                            key: key,
-                            email: 'test.users@test.api',
-                            password: 'password1234'
-                        }
-                    };
+                .then(function (request) {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            expect(response.payload).to.contain('Success');
-                            Audit.findAudit('Users', 'test.users@test.api', {action: 'reset password'})
-                                .then(function (foundAudit) {
-                                    expect(foundAudit).to.exist();
-                                    return Users._findOne({email: 'test.users@test.api'});
-                                })
+                            Users._findOne({email: 'one@first.com'})
                                 .then(function (foundUser) {
-                                    expect(foundUser.resetPwd).to.not.exist();
+                                    expect(foundUser.session).to.not.exist();
+                                    foundUser.loginSuccess('test', 'test').save();
                                     done();
                                 });
                         } catch (err) {
@@ -288,131 +254,10 @@ describe('Login', function () {
                 });
         });
     });
+
     afterEach(function (done) {
         return tu.cleanup({ users: emails}, done);
     });
 });
 
-describe('Logout', function () {
-    var server = null;
-    var emails = [];
-
-    beforeEach(function (done) {
-        tu.setupServer()
-            .then(function (s) {
-                server = s.server;
-                done();
-            })
-            .catch(function (err) {
-                if (err) {
-                    done(err);
-                }
-            })
-            .done();
-    });
-
-    it('returns an error when no authorization is passed', function (done) {
-        var request = {
-            method: 'DELETE',
-            url: '/logout'
-        };
-        server.inject(request, function (response) {
-            try {
-                expect(response.statusCode).to.equal(401);
-                done();
-            } catch (err) {
-                done(err);
-            }
-        });
-    });
-
-    it('returns a not found when user does not exist', function (done) {
-        var request = {
-            method: 'DELETE',
-            url: '/logout',
-            headers: {
-                Authorization: tu.authorizationHeader2('test.not.created@logout.api', '123')
-            }
-        };
-        server.inject(request, function (response) {
-            try {
-                expect(response.statusCode).to.equal(401);
-                emails.push('test.not.created@logout.api');
-                done();
-            } catch (err) {
-                emails.push('test.not.created@logout.api');
-                done(err);
-            }
-        });
-    });
-
-    it('returns a not found when user has already logged out', function (done) {
-        var request = {
-            method: 'DELETE',
-            url: '/logout',
-            headers: {
-                Authorization: ''
-            }
-        };
-        Users._findOne({email: 'one@first.com'})
-            .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test').save();
-            })
-            .then(function (foundUser) {
-                request.headers.Authorization = tu.authorizationHeader(foundUser);
-                return foundUser.logout('test', 'test').save();
-            })
-            .done();
-        server.inject(request, function (response) {
-            try {
-                expect(response.statusCode).to.equal(401);
-                Users._findOne({email: 'one@first.com'})
-                    .then(function (foundUser) {
-                        foundUser.loginSuccess('test', 'test').save();
-                        done();
-                    })
-                    .done();
-            } catch (err) {
-                done(err);
-            }
-        });
-    });
-
-    it('removes the authenticated user session successfully', function (done) {
-        Users._findOne({email: 'one@first.com'})
-            .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test').save();
-            }).
-            then(function (foundUser) {
-                var request = {
-                    method: 'DELETE',
-                    url: '/logout',
-                    headers: {
-                        Authorization: ''
-                    }
-                };
-                request.headers.Authorization = tu.authorizationHeader(foundUser);
-                return request;
-            })
-            .then(function (request) {
-                server.inject(request, function (response) {
-                    try {
-                        expect(response.statusCode).to.equal(200);
-                        Users._findOne({email: 'one@first.com'})
-                            .then(function (foundUser) {
-                                expect(foundUser.session).to.not.exist();
-                                foundUser.loginSuccess('test', 'test').save();
-                                done();
-                            });
-                    } catch (err) {
-                        done(err);
-                    }
-                });
-            });
-    });
-
-    afterEach(function (done) {
-        return tu.cleanup({users: emails}, done);
-    });
-});
 

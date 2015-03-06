@@ -12,7 +12,6 @@ var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var UserGroups = require('./../user-groups/model');
 var _ = require('lodash');
-var utils = require('./../common/utils');
 
 var Permissions = ExtendedModel.extend({
     /* jshint -W064 */
@@ -82,11 +81,12 @@ Permissions.newObject = function (doc, by) {
 
 Permissions.create = function (description, organisation, users, groups, action, object, by) {
     var self = this;
+    /*jshint unused: false*/
     return new Promise(function (resolve, reject) {
         var document = {
             organisation: organisation,
             description: description,
-            users: users ? users : [by],
+            users: users && users.length > 0 ? users : [by],
             groups: groups ? groups : [],
             action: action,
             object: object,
@@ -96,55 +96,49 @@ Permissions.create = function (description, organisation, users, groups, action,
             updatedBy: by,
             updatedOn: new Date()
         };
-        self._insert(document, {})
-            .then(function (doc) {
-                if (!_.isEmpty(doc)) {
-                    Audit.create('Permissions', doc._id, 'create', null, doc, by, organisation);
+        resolve(self._insert(document, false)
+            .then(function (permission) {
+                if (permission) {
+                    Audit.create('Permissions', permission._id, 'create', null, permission, by, organisation);
                 }
-                resolve(doc);
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            });
+                return permission;
+            }));
     });
+    /*jshint unused:true*/
 };
 
 Permissions.findAllPermissionsForUser = function (email, organisation) {
     var self = this;
+    /*jshint unused:false*/
     return new Promise(function (resolve, reject) {
-        UserGroups.findGroupsForUser(email, organisation)
+        resolve(UserGroups.findGroupsForUser(email, organisation)
             .then(function (userGroups) {
                 var ug = userGroups.map(function (userGroup) {
                     return userGroup.name;
                 });
-                resolve(self._find({organisation: organisation, $or: [{'users': email}, {'groups': {$in: ug}}]}));
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            });
+                return self._find({organisation: organisation, $or: [{'users': email}, {'groups': {$in: ug}}]});
+            }));
     });
+    /*jshint unused:true*/
 };
 
 Permissions.isPermitted = function (user, organisation, action, object) {
     var self = this;
+    /*jshint unused:false*/
     return new Promise(function (resolve, reject) {
         if (user === 'root') { //root is god
             resolve(true);
         } else {
-            self.findAllPermissionsForUser(user, organisation)
+            resolve(self.findAllPermissionsForUser(user, organisation)
                 .then(function (permissions) {
-                    var ret = false;
-                    var len = permissions.length;
-                    for (var i = 0; i < len && !ret; i++) {
-                        ret = ret || permissions[i].isPermissionFor(action, object);
-                    }
-                    resolve(ret);
-                })
-                .catch(function (err) {
-                    utils.logAndReject(err, reject);
-                });
+                    var ret = !!_.find(permissions, function (p) {
+                        return p.isPermissionFor(action, object);
+                    });
+                    return ret;
+                }));
         }
     });
+    /*jshint unused:true*/
 };
 
 module.exports = Permissions;

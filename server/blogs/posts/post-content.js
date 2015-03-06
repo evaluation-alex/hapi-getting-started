@@ -27,7 +27,7 @@ var filenameForPost = function (post) {
 module.exports.filenameForPost = filenameForPost;
 
 var writeContent = function (post, content) {
-    if (!_.isUndefined(content) && content !== null && content.length > 0) {
+    if (!_.isUndefined(content) && content.length > 0) {
         var filename = filenameForPost(post);
         cache.set(filename, content);
         writeFile(Config.storage.diskPath + filename, content, {}, function (err) {

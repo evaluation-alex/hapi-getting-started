@@ -12,7 +12,6 @@ var CAudit = require('./../common/model-mixins').Audit;
 var Promise = require('bluebird');
 var Audit = require('./../audit/model');
 var _ = require('lodash');
-var utils = require('./../common/utils');
 
 var UserGroups = ExtendedModel.extend({
     /* jshint -W064 */
@@ -70,28 +69,28 @@ UserGroups.indexes = [
 
 UserGroups.newObject = function (doc, by) {
     var self = this;
+    /*jshint unused: false*/
     return new Promise(function (resolve, reject) {
-        self.create(doc.payload.name,
+        resolve(self.create(doc.payload.name,
             doc.auth.credentials.user.organisation,
             doc.payload.description,
             by)
             .then(function (userGroup) {
-                return userGroup ? userGroup.add(doc.payload.members, 'member', by)
-                    .add(doc.payload.owners, 'owner', by)
-                    .setAccess(doc.payload.access, by)
-                    .save() : userGroup;
-            })
-            .then(function (userGroup) {
-                resolve(userGroup);
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            });
+                return userGroup ?
+                    userGroup
+                        .add(doc.payload.members, 'member', by)
+                        .add(doc.payload.owners, 'owner', by)
+                        .setAccess(doc.payload.access, by)
+                        .save() :
+                    userGroup;
+            }));
     });
+    /*jshint unused: true*/
 };
 
 UserGroups.create = function (name, organisation, description, owner) {
     var self = this;
+    /*jshint unused: false*/
     return new Promise(function (resolve, reject) {
         var document = {
             name: name,
@@ -107,34 +106,27 @@ UserGroups.create = function (name, organisation, description, owner) {
             updatedBy: owner,
             updatedOn: new Date()
         };
-        self._insert(document, false)
+        resolve(self._insert(document, false)
             .then(function (userGroup) {
                 if (userGroup) {
                     Audit.create('UserGroups', name, 'create', null, userGroup, owner, organisation);
                 }
-                resolve(userGroup);
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            });
+                return userGroup;
+            }));
     });
+    /*jshint unused: true*/
 };
 
 UserGroups.findGroupsForUser = function (email, organisation) {
     var self = this;
+    /*jshint unused: false*/
     return new Promise(function (resolve, reject) {
-        self._find({members: email, organisation: organisation})
+        resolve(self._find({members: email, organisation: organisation})
             .then(function (g) {
-                if (!g) {
-                    resolve([]);
-                } else {
-                    resolve(g);
-                }
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            });
+                return g ? g : [];
+            }));
     });
+    /*jshint unused: true*/
 };
 
 module.exports = UserGroups;

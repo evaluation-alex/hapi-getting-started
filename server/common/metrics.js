@@ -27,17 +27,16 @@ var buildCountersAndTimingBuckets = function(pail, statusCode, counters, timings
 };
 
 var toStatsD = function(route, statusCode, user, ua, start, finish) {
-    var now = finish ? finish : Date.now();
+    var now = finish;
     var m = moment(now);
     var year = m.format('YYYY');
     var month = m.format('MM');
     var day = m.format('DD');
     var hour = m.format('HH');
-    var counters = [];
-    var timings = [];
-    counters.push(ua.device.toString());
-    counters.push(ua.toString());
-    timings.push(Config.projectName);
+
+    var counters = [ua.device.toString(), ua.toString()];
+    var timings = [Config.projectName];
+
     buildCountersAndTimingBuckets([route, year, month, day, hour], statusCode, counters, timings);
     buildCountersAndTimingBuckets([user, year, month, day], statusCode, counters, timings);
 
@@ -50,12 +49,12 @@ var toStatsD = function(route, statusCode, user, ua, start, finish) {
 
 module.exports.register = function (server, options, next) {
     server.on('tail', function (request) {
-        var path = normalizePath(request);
-        var method = request.method;
-        var statusCode = request.response.statusCode;
-        var user = request.auth && request.auth.credentials && request.auth.credentials.user ? request.auth.credentials.user.email : 'notloggedin';
-        var ua = UserAgent.lookup(request.headers['user-agent']);
-        toStatsD(method + '.' + path, '#' + statusCode + '#', user, ua, request.info.received, request.info.responded);
+        toStatsD(request.method + '.' + normalizePath(request),
+            '#' + request.response.statusCode + '#',
+            request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin',
+            UserAgent.lookup(request.headers['user-agent']),
+            request.info.received,
+            request.info.responded);
     });
     next();
 };

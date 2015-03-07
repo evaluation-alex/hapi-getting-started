@@ -50,7 +50,7 @@ var logOptions = {
 var statsdOptions = {
     host: args.statsd.host,
     port: args.statsd.port,
-    mock: !args.statsd.logMetrics
+    mock: !args.statsd.logmetrics
 };
 
 var config = {

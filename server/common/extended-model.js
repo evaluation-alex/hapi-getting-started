@@ -9,13 +9,13 @@ var statsd = Config.statsd;
 var ExtendedModel = BaseModel.extend({});
 
 var timedReject = function (collection, method, start, reject, err) {
-    statsd.timing(Config.projectName + '.' + collection + '.' + method, Date.now() - start);
-    statsd.increment(Config.projectName + '.' + collection + '.' + method + '.err', 1);
+    statsd.timing(collection + '.' + method, Date.now() - start);
+    statsd.increment(collection + '.' + method + '.err', 1);
     utils.logAndReject(err, reject);
 };
 
 var timedResolve = function (collection, method, start, resolve, val) {
-    statsd.timing(Config.projectName + '.' + collection + '.' + method, Date.now() - start);
+    statsd.timing(collection + '.' + method, Date.now() - start);
     resolve(val);
 };
 
@@ -40,35 +40,35 @@ ExtendedModel.defaultcb2 = function (method, resolve, reject, notValid) {
 ExtendedModel._find = function (conditions) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.find(conditions, self.defaultcb('_find', resolve, reject));
+        self.find(conditions, self.defaultcb('find', resolve, reject));
     });
 };
 
 ExtendedModel._findOne = function (query) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.findOne(query, self.defaultcb('_findOne', resolve, reject));
+        self.findOne(query, self.defaultcb('findOne', resolve, reject));
     });
 };
 
 ExtendedModel._findByIdAndUpdate = function (id, obj) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.findByIdAndUpdate(id, obj, self.defaultcb('_findByIdAndUpdate', resolve, reject));
+        self.findByIdAndUpdate(id, obj, self.defaultcb('findByIdAndUpdate', resolve, reject));
     });
 };
 
 ExtendedModel._count = function (query) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.count(query, self.defaultcb('_count', resolve, reject));
+        self.count(query, self.defaultcb('count', resolve, reject));
     });
 };
 
 ExtendedModel._insert = function (document, notCreated) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.insert(document, self.defaultcb2('_insert', resolve, reject, notCreated));
+        self.insert(document, self.defaultcb2('insert', resolve, reject, notCreated));
     });
 };
 
@@ -77,14 +77,14 @@ ExtendedModel._findByIdAndRemove = function (id) {
     var err = new Error('Document not found');
     return new Promise(function (resolve, reject) {
         var collection = BaseModel.db.collection(self._collection);
-        collection.findAndRemove({_id: id}, self.defaultcb2('_findByIdAndRemove', resolve, reject, err));
+        collection.findAndRemove({_id: id}, self.defaultcb2('findByIdAndRemove', resolve, reject, err));
     });
 };
 
 ExtendedModel._pagedFind = function (query, fields, sort, limit, page) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        self.pagedFind(query, fields, sort, limit, page, self.defaultcb('_pagedFind', resolve, reject));
+        self.pagedFind(query, fields, sort, limit, page, self.defaultcb('pagedFind', resolve, reject));
     });
 };
 
@@ -147,12 +147,10 @@ ExtendedModel.areValid = function (property, toCheck, organisation) {
 
 ExtendedModel.isValid = function (id, roles, member) {
     var self = this;
-    /*jshint unused:false*/
-    return new Promise(function (resolve, reject) {
         if (member === 'root') {
-            resolve({message: 'valid'});
+            return Promise.resolve({message: 'valid'});
         } else {
-            resolve(self._findOne({_id: id})
+            return self._findOne({_id: id})
                 .then(function (g) {
                     var message = '';
                     if (!g) {
@@ -164,10 +162,8 @@ ExtendedModel.isValid = function (id, roles, member) {
                         message = isValid ? 'valid' : 'not a member of ' + JSON.stringify(roles) + ' list';
                     }
                     return {message: message};
-                }));
+                });
         }
-    });
-    /*jshint unused:true*/
 };
 
 module.exports = ExtendedModel;

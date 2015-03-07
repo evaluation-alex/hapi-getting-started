@@ -17,7 +17,7 @@ var test = {
     logdir: './logs',
     logMetrics: false,
     diskStoragePath: './data',
-    statsdhost: './logs/statsd.out',
+    statsdhost: '127.0.0.1',
     statsdport: 8125
 };
 

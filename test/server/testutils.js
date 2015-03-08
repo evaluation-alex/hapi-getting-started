@@ -4,6 +4,7 @@ var relativeToServer = './../../server/';
 var Hapi = require('hapi');
 var HapiAuthBasic = require('hapi-auth-basic');
 var Promise = require('bluebird');
+Promise.longStackTraces();
 var AuthPlugin = require(relativeToServer + 'common/auth');
 var MetricsPlugin = require(relativeToServer + 'common/metrics');
 var Config = require(relativeTo + 'config');
@@ -16,6 +17,9 @@ var Blogs = require(relativeToServer + 'blogs/model');
 var Posts = require(relativeToServer + 'blogs/posts/model');
 var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
 var Roles = require(relativeToServer + 'roles/model');
+var Notifications = require(relativeToServer + 'users/notifications/model');
+
+var _ = require('lodash');
 
 var mongodb;
 
@@ -146,7 +150,8 @@ var setupServer = function () {
                     '../../server/user-groups',
                     '../../server/users',
                     '../../server/blogs',
-                    '../../server/blogs/posts'
+                    '../../server/blogs/posts',
+                    '../../server/users/notifications'
                 ];
                 var ModelsPlugin = {
                     register: require('hapi-mongo-models'),
@@ -241,6 +246,19 @@ function cleanupPosts (postsToCleanup) {
     });
 }
 
+function cleanupNotifications (toClear) {
+    return new Promise(function (resolve, reject) {
+        var notificationsToCleanup = _.flatten(_.map(['userGroups', 'blogs', 'posts'], function (a) {
+            return _.map(toClear[a], function (i) {
+                return new RegExp(i, 'g');
+            });
+        }));
+        Notifications.remove({title: {$in: notificationsToCleanup}}, function (err) {
+            err ? reject(err) : resolve(true);
+        });
+    });
+}
+
 function cleanupAudit () {
     return new Promise(function (resolve, reject) {
         Audit.remove({}, function (err) {
@@ -280,6 +298,7 @@ var cleanup = function (toClear, cb) {
         cleanupPermissions(toClear.permissions),
         cleanupBlogs(toClear.blogs),
         cleanupPosts(toClear.posts),
+        cleanupNotifications(toClear),
         cleanupAudit(),
         cleanupAuthAttempts(),
         function () {

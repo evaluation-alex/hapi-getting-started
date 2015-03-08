@@ -115,7 +115,7 @@ Posts.create = function (blogId, organisation, title, state, access, allowCommen
             updatedBy: by,
             updatedOn: now
         };
-        return self._insertAndAudit(document, false);
+        return self._insertAndAudit(document);
 };
 
 module.exports = Posts;

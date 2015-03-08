@@ -41,27 +41,22 @@ var writeContent = function (post, content) {
 
 module.exports.writeContent = writeContent;
 
-/*jshint unused:false*/
 var readContent = function (post) {
-    return new Promise(function (resolve, reject) {
-        var filename = filenameForPost(post);
-        if (cache.has(filename)) {
-            resolve(cache.get(filename));
-        } else {
-            readFileP(Config.storage.diskPath + filename)
-                .then(function (content) {
-                    content = content.toString();
-                    cache.set(filename, content);
-                    resolve(content);
-                })
-                .catch(function (err) {
-                    logger.error({error: err});
-                    resolve(JSON.stringify(err));
-                });
-        }
-    });
+    var filename = filenameForPost(post);
+    if (cache.has(filename)) {
+        return Promise.resolve(cache.get(filename));
+    } else {
+        return readFileP(Config.storage.diskPath + filename)
+            .then(function (content) {
+                content = content.toString();
+                cache.set(filename, content);
+                return content;
+            }, function (err) {
+                logger.error({error: err});
+                return JSON.stringify(err);
+            });
+    }
 };
-/*jshint unused:true*/
 
 module.exports.readContent = readContent;
 

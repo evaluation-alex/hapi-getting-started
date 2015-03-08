@@ -16,9 +16,6 @@ var expect = Code.expect;
 describe('AuthAttempts', function () {
     var authheader = '';
     var server = null;
-    var emails = [];
-    var permissionsToClear = [];
-    var groupsToClear = [];
     beforeEach(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -94,54 +91,8 @@ describe('AuthAttempts', function () {
         });
     });
 
-    describe('DELETE /auth-attempts', function () {
-        it('should delete the auth attempt whose id was sent', function (done) {
-            AuthAttempts.create('127.0.0.2', 'test.abuse.delete@auth.attempts')
-                .then(function (aa) {
-                    var id = aa._id.toString();
-                    var request = {
-                        method: 'DELETE',
-                        url: '/auth-attempts/'+id,
-                        headers: {
-                            Authorization: authheader
-                        }
-                    };
-                    server.inject(request, function (response) {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            expect(response.payload).to.match(/id/);
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
-                    });
-                });
-        });
-        it('should send a 404 if the id sent doesnt exist', function (done) {
-            AuthAttempts.create('127.0.0.2', 'test.abuse.delete1@auth.attempts')
-                .then(function (aa) {
-                    //var id = aa._id.toString();
-                    var request = {
-                        method: 'DELETE',
-                        url: '/auth-attempts/54d4430eed61ad701cc7a721',
-                        headers: {
-                            Authorization: authheader
-                        }
-                    };
-                    server.inject(request, function (response) {
-                        try {
-                            expect(response.statusCode).to.equal(404);
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
-                    });
-                });
-        });
-    });
-
     afterEach(function (done) {
-        return tu.cleanup({users: emails, userGroups: groupsToClear, permissions: permissionsToClear}, done);
+        return tu.cleanup({}, done);
     });
 
 });

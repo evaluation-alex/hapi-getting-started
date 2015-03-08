@@ -29,18 +29,6 @@ AuthAttempts.indexes = [
     [{ip: 1, email: 1}],
     [{email: 1}]
 ];
-/*jshint unused:false*/
-AuthAttempts.prototype.del = function (doc, by) {
-    var self = this;
-    AuthAttempts._findByIdAndRemove(self._id);
-    return self;
-};
-/*jshint unused:true*/
-
-AuthAttempts.prototype.save = function () {
-    var self = this;
-    return Promise.resolve(self);
-};
 
 AuthAttempts.create = function (ip, email) {
     var self = this;
@@ -50,21 +38,20 @@ AuthAttempts.create = function (ip, email) {
         organisation: '*',
         time: new Date()
     };
-    return self._insert(document, {});
+    return self._insert(document)
+        .then(function (aa) {
+            return aa[0];
+        });
 };
 
-/*jshint unused:false*/
 AuthAttempts.abuseDetected = function (ip, email) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        Promise.join(self._count({ip: ip}), self._count({ip: ip, email: email}),
+    return Promise.join(self._count({ip: ip}), self._count({ip: ip, email: email}),
             function (abusiveIpCount, abusiveIpUserCount) {
                 var ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;
                 var ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
-                resolve(ipLimitReached || ipUserLimitReached);
+                return (ipLimitReached || ipUserLimitReached);
             });
-    });
 };
-/*jshint unused:true*/
 
 module.exports = AuthAttempts;

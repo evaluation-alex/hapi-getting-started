@@ -20,7 +20,6 @@ var Controller = new ControllerFactory('auth-attempts', AuthAttempts)
         query.organisation = '*';
         return query;
     })
-    .deleteController()
     .doneConfiguring();
 
 module.exports = Controller;

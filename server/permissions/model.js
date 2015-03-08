@@ -97,7 +97,7 @@ Permissions.create = function (description, organisation, users, groups, action,
         updatedBy: by,
         updatedOn: new Date()
     };
-    return self._insertAndAudit(document, false);
+    return self._insertAndAudit(document);
 };
 
 Permissions.findAllPermissionsForUser = function (email, organisation) {
@@ -113,21 +113,17 @@ Permissions.findAllPermissionsForUser = function (email, organisation) {
 
 Permissions.isPermitted = function (user, organisation, action, object) {
     var self = this;
-    /*jshint unused:false*/
-    return new Promise(function (resolve, reject) {
-        if (user === 'root') { //root is god
-            resolve(true);
-        } else {
-            resolve(self.findAllPermissionsForUser(user, organisation)
-                .then(function (permissions) {
-                    var ret = !!_.find(permissions, function (p) {
-                        return p.isPermissionFor(action, object);
-                    });
-                    return ret;
-                }));
-        }
-    });
-    /*jshint unused:true*/
+    if (user === 'root') { //root is god
+        return Promise.resolve(true);
+    } else {
+        return self.findAllPermissionsForUser(user, organisation)
+            .then(function (permissions) {
+                var ret = !!_.find(permissions, function (p) {
+                    return p.isPermissionFor(action, object);
+                });
+                return ret;
+            });
+    }
 };
 
 module.exports = Permissions;

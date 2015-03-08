@@ -121,7 +121,7 @@ Blogs.create = function (title, organisation, description, owners, contributors,
         updatedBy: by,
         updatedOn: new Date()
     };
-    return self._insertAndAudit(document, false, 'title');
+    return self._insertAndAudit(document, 'title');
 };
 
 module.exports = Blogs;

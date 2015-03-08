@@ -81,7 +81,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     ug.members.push('someUser');
                     ug.members.push('anotherUser');
-                    UserGroups._findByIdAndUpdate(ug._id, ug);
+                    return ug.save();
                 })
                 .then(function () {
                     return UserGroups.create('test.search2.user@test.api', 'silver lining', 'testing2 findGroupForUser', 'test2');
@@ -90,7 +90,7 @@ describe('UserGroups Model', function () {
                     ug2.members.push('someUser');
                     ug2.owners.push('someUser');
                     ug2.members.push('anotherUser');
-                    return UserGroups._findByIdAndUpdate(ug2._id, ug2);
+                    return ug2.save();
                 })
                 .catch(function(err) {
                     if (err) {
@@ -265,7 +265,7 @@ describe('UserGroups Model', function () {
             UserGroups.create('addUsersTest1', 'silver lining', 'UserGroups.this.addMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
                     ug.members.push('alreadyMember');
-                    return UserGroups._findByIdAndUpdate(ug._id, ug);
+                    return ug.save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'alreadyMember')).to.be.true();
@@ -291,7 +291,7 @@ describe('UserGroups Model', function () {
             UserGroups.create('addUsersTest2', 'silver lining', 'UserGroups.this.addOwnerAlreadyPresent', 'test3')
                 .then(function (ug) {
                     ug.owners.push('alreadyOwner');
-                    return UserGroups._findByIdAndUpdate(ug._id, ug);
+                    return ug.save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('owners', 'alreadyOwner')).to.be.true();
@@ -436,7 +436,7 @@ describe('UserGroups Model', function () {
             UserGroups.create('removeUsersTest1', 'silver lining', 'UserGroups.this.removeMemberNotPresent', 'test4')
                 .then(function (ug) {
                     ug.owners.push('notMemberButOwner');
-                    return UserGroups._findByIdAndUpdate(ug._id, ug);
+                    return ug.save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'notMemberButOwner')).to.be.false();
@@ -465,7 +465,7 @@ describe('UserGroups Model', function () {
             UserGroups.create('removeUsersTest2', 'silver lining', 'UserGroups.this.removeOwnerNotPresent', 'test4')
                 .then(function (ug) {
                     ug.members.push('notOwnerButMember');
-                    return UserGroups._findByIdAndUpdate(ug._id, ug);
+                    return ug.save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'notOwnerButMember')).to.be.true();
@@ -529,7 +529,7 @@ describe('UserGroups Model', function () {
             UserGroups.create('removeUsersTest4.0', 'silver lining', 'UserGroups.this.removeOwner', 'test4')
                 .then(function (ug) {
                     ug.owners.push('owner');
-                    return UserGroups._findByIdAndUpdate(ug._id, ug);
+                    return ug.save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'owner')).to.be.false();
@@ -560,7 +560,7 @@ describe('UserGroups Model', function () {
             UserGroups.create('removeUsersTest5.0', 'silver lining', 'UserGroups.this.removeMember', 'test4')
                 .then(function (ug) {
                     ug.members.push('member');
-                    return UserGroups._findByIdAndUpdate(ug._id, ug);
+                    return ug.save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'member')).to.be.true();
@@ -607,7 +607,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     ug.isActive = false;
-                    return UserGroups._findByIdAndUpdate(ug._id, ug);
+                    return ug.save();
                 })
                 .then(function (ug) {
                     return ug.deactivate('test5').save();
@@ -648,7 +648,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     ug.isActive = false;
-                    return UserGroups._findByIdAndUpdate(ug._id, ug);
+                    return ug.save();
                 })
                 .then(function (ug) {
                     return ug.reactivate('test5').save();

@@ -45,7 +45,7 @@ var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
                     }
                 })
                 .catch(function (err) {
-                    utils.logAndBoom(err);
+                    utils.logAndBoom(err, reply);
                 });
         } else {
             reply();
@@ -74,7 +74,7 @@ var validAndPermitted = function (Model, idProperty, groups){
                 cases[m.message]();
             })
             .catch(function (err) {
-                utils.logAndBoom(err);
+                utils.logAndBoom(err, reply);
             });
     };
 };

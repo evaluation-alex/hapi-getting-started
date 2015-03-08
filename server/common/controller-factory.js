@@ -7,11 +7,12 @@ var Users = require('./../users/model');
 var PreReqs = require('./pre-reqs');
 var utils = require('./utils');
 
-var ControllerFactory = function (component, model) {
+var ControllerFactory = function (component, model, notify) {
     var self = this;
     self.controller = {};
     self.component = component;
     self.model = model;
+    self.notify = notify;
     return self;
 };
 ControllerFactory.prototype.forMethod = function (method) {
@@ -56,6 +57,9 @@ ControllerFactory.prototype.newHandler = function (newCb) {
             if (!n) {
                 reply(Boom.notFound(self.component + ' could not be created.'));
             } else {
+                if (self.notify) {
+                    self.notify.emit('new ' + self.component, {object: n, request: request});
+                }
                 reply(n).code(201);
             }
         }).catch(function (err) {
@@ -143,28 +147,31 @@ ControllerFactory.prototype.findOneController = function (findOneCb) {
         .handleUsing(self.findOneHandler(findOneCb));
     return self;
 };
-ControllerFactory.prototype.updateHandler = function (updateCb) {
+ControllerFactory.prototype.updateHandler = function (updateCb, methodName) {
     var self = this;
     return function (request, reply) {
         var id = BaseModel.ObjectID(request.params.id);
         self.model._findOne({_id: id})
-            .then(function (f) {
-                if (!f) {
+            .then(function (u) {
+                if (!u) {
                     return Boom.notFound(self.component + ' (' + id.toString() + ' ) not found');
                 } else {
                     var by = request.auth.credentials.user.email;
                     if (_.isFunction(updateCb)) {
-                        return updateCb(f, request, by).save();
+                        return updateCb(u, request, by).save();
                     } else {
-                        return f[updateCb](request, by).save();
+                        return u[updateCb](request, by).save();
                     }
                 }
             })
-            .then(function (f) {
-                reply(f);
+            .then(function (u) {
+                if (!u.isBoom && self.notify) {
+                    self.notify.emit(methodName  + ' ' + self.component, {object: u, request: request});
+                }
+                reply(u);
             })
             .catch(function (err) {
-                utils.logAndBoom(err);
+                utils.logAndBoom(err, reply);
             });
     };
 };
@@ -176,7 +183,7 @@ ControllerFactory.prototype.updateController = function (validator, prereqs, met
     var pre = _.flatten([perms ? [] : PreReqs.ensurePermissions('update', self.component), prereqs]);
     self.forMethod(methodName)
         .preProcessWith(pre)
-        .handleUsing(self.updateHandler(updateCb));
+        .handleUsing(self.updateHandler(updateCb, methodName));
     return self;
 };
 ControllerFactory.prototype.deleteController = function (pre) {

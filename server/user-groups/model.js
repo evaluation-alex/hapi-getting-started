@@ -101,7 +101,7 @@ UserGroups.create = function (name, organisation, description, owner) {
         updatedBy: owner,
         updatedOn: new Date()
     };
-    return self._insertAndAudit(document, false, 'name');
+    return self._insertAndAudit(document, 'name');
 };
 
 UserGroups.findGroupsForUser = function (email, organisation) {

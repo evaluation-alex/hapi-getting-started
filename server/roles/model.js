@@ -42,7 +42,10 @@ Roles.create = function (name, organisation, permissions) {
         organisation: organisation,
         permissions: permissions
     };
-    return self._insert(document, new Error('No role created - ' + name));
+    return self._insert(document)
+        .then(function (role) {
+            return role[0];
+        });
 };
 
 module.exports = Roles;

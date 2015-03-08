@@ -12,7 +12,6 @@ var Roles = require('./../roles/model');
 var Audit = require('./../audit/model');
 var Promise = require('bluebird');
 var _ = require('lodash');
-var utils = require('./../common/utils');
 
 var Users = ExtendedModel.extend({
     /* jshint -W064 */
@@ -44,19 +43,15 @@ Users.prototype.hasPermissionsTo = function (performAction, onObject) {
 };
 Users.prototype.hydrateRoles = function () {
     var self = this;
-    /*jshint unused:false*/
-    return new Promise(function (resolve, reject) {
-        if (self._roles || !self.roles || self.roles.length === 0) {
-            resolve(self);
-        } else {
-            resolve(Roles._find({name: {$in: self.roles}, organisation: self.organisation})
-                .then(function (roles) {
-                    self._roles = roles;
-                    return self;
-                }));
-        }
-    });
-    /*jshint unused:true*/
+    if (self._roles || !self.roles || self.roles.length === 0) {
+        return Promise.resolve(self);
+    } else {
+        return Roles._find({name: {$in: self.roles}, organisation: self.organisation})
+            .then(function (roles) {
+                self._roles = roles;
+                return self;
+            });
+    }
 };
 Users.prototype._invalidateSession = function () {
     var self = this;
@@ -158,56 +153,46 @@ Users.create = function (email, password, organisation) {
         updatedBy: email,
         updatedOn: new Date()
     };
-    return self._insertAndAudit(document, false, 'email', 'signup');
+    return self._insertAndAudit(document, 'email', 'signup');
 };
 
 Users.findByCredentials = function (email, password) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        self._findOne({email: email, isActive: true})
-            .then(function (user) {
-                if (!user) {
-                    var err = new Error('User ' + email + ' NotFound');
-                    err.type = 'UserNotFoundError';
-                    reject(err);
+    return self._findOne({email: email, isActive: true})
+        .then(function (user) {
+            if (!user) {
+                var err = new Error('User ' + email + ' NotFound');
+                err.type = 'UserNotFoundError';
+                throw err;
+            } else {
+                var passwordMatch = Bcrypt.compareSync(password, user.password);
+                if (passwordMatch) {
+                    return user;
                 } else {
-                    var passwordMatch = Bcrypt.compareSync(password, user.password);
-                    if (passwordMatch) {
-                        resolve(user);
-                    } else {
-                        var err2 = new Error('IncorrectPasswordError');
-                        err2.type = 'IncorrectPasswordError';
-                        err2.user = user;
-                        reject(err2);
-                    }
+                    var err2 = new Error('IncorrectPasswordError');
+                    err2.type = 'IncorrectPasswordError';
+                    err2.user = user;
+                    throw err2;
                 }
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            });
-    });
+            }
+        });
 };
 
 Users.findBySessionCredentials = function (email, key) {
     var self = this;
-    return new Promise(function (resolve, reject) {
-        self._findOne({email: email, isActive: true})
-            .then(function (user) {
-                if (!user || !user.session || !user.session.key) {
-                    reject(new Error('User not found or not logged in'));
+    return self._findOne({email: email, isActive: true})
+        .then(function (user) {
+            if (!user || !user.session || !user.session.key) {
+                throw new Error('User not found or not logged in');
+            } else {
+                var keyMatch = Bcrypt.compareSync(key, user.session.key) || key === user.session.key;
+                if (keyMatch) {
+                    return user.hydrateRoles();
                 } else {
-                    var keyMatch = Bcrypt.compareSync(key, user.session.key) || key === user.session.key;
-                    if (keyMatch) {
-                        resolve(user.hydrateRoles());
-                    } else {
-                        reject(new Error('Session credentials do not match'));
-                    }
+                    throw new Error('Session credentials do not match');
                 }
-            })
-            .catch(function (err) {
-                utils.logAndReject(err, reject);
-            });
-    });
+            }
+        });
 };
 
 module.exports = Users;

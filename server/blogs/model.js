@@ -2,7 +2,6 @@
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var ExtendedModel = require('./../common/extended-model');
-var BaseModel = require('hapi-mongo-models').BaseModel;
 var AddRemove = require('./../common/model-mixins').AddRemove;
 var JoinApproveReject = require('./../common/model-mixins').JoinApproveReject;
 var Update = require('./../common/model-mixins').Update;
@@ -100,7 +99,7 @@ Blogs.newObject = function (doc, by) {
 
 Blogs.create = function (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {
     var self = this;
-    var id = BaseModel.ObjectID();
+    var id = Blogs.ObjectID();
     mkdirp((Config.storage.diskPath + '/' + organisation + '/blogs/' + id.toString()).replace(' ', '-'), {});
     var document = {
         _id: id,

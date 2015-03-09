@@ -2,7 +2,6 @@
 var Joi = require('joi');
 var _ = require('lodash');
 var moment = require('moment');
-var BaseModel = require('hapi-mongo-models').BaseModel;
 var Posts = require('./model');
 var Blogs = require('./../model');
 var ControllerFactory = require('./../../common/controller-factory');
@@ -12,7 +11,7 @@ var utils = require('./../../common/utils');
 
 var prePopulateBlog = function (request, reply) {
     var blogId = request.params.blogId; //TODO: look at query too, but right now that doesnt seem to be working
-    Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+    Blogs._findOne({_id: Blogs.ObjectID(blogId)})
         .then(function (blog) {
             reply(blog);
         })
@@ -90,7 +89,7 @@ var Controller = new ControllerFactory('posts', Posts)
         });
         if (request.query.blogId || request.params.blogId) {
             var blogId = request.query.blogId ? request.query.blogId : request.params.blogId;
-            query.blogId = BaseModel.ObjectID(blogId);
+            query.blogId = Blogs.ObjectID(blogId);
         }
         if (request.query.publishedOnBefore) {
             query.publishedOn = {};

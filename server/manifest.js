@@ -31,7 +31,6 @@ var plugins = {
             Roles: './server/roles/model',
             Users: './server/users/model',
             UserGroups: './server/user-groups/model',
-            Permissions: './server/permissions/model',
             Blogs: './server/blogs/model',
             Posts: './server/blogs/posts/model',
             Notifications: './server/users/notifications/model'
@@ -51,7 +50,6 @@ var components = [
     './server/users',
     './server/session',
     './server/user-groups',
-    './server/permissions',
     './server/blogs',
     './server/blogs/posts',
     './server/users/notifications'

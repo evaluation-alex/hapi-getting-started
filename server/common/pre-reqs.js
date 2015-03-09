@@ -1,10 +1,9 @@
 'use strict';
 var Boom = require('boom');
 var _ = require('lodash');
-var BaseModel = require('hapi-mongo-models').BaseModel;
 var utils = require('./utils');
 
-var isUnique = function (Model, queryBuilder) {
+module.exports.isUnique = function isUnique (Model, queryBuilder) {
     return function (request, reply) {
         if (queryBuilder) {
             var query = queryBuilder(request);
@@ -23,15 +22,20 @@ var isUnique = function (Model, queryBuilder) {
     };
 };
 
-module.exports.isUnique = isUnique;
-
-var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
+module.exports.areValid = function areValid (Model, docPropertyToLookup, payloadPropertiesToLookup) {
     return function (request, reply) {
-        if (request.payload[payloadPropertyToLookup] && request.payload[payloadPropertyToLookup].length > 0) {
+        var toLookup = [];
+        payloadPropertiesToLookup.forEach(function (payloadPropertyToLookup){
+            if (request.payload[payloadPropertyToLookup] && request.payload[payloadPropertyToLookup].length > 0) {
+                toLookup.push(request.payload[payloadPropertyToLookup]);
+            }
+        });
+        toLookup = _.flatten(toLookup);
+        if (toLookup.length > 0) {
             var msg = 'Bad data : ';
-            Model.areValid(docPropertyToLookup, request.payload[payloadPropertyToLookup], request.auth.credentials.user.organisation)
+            Model.areValid(docPropertyToLookup, toLookup, request.auth.credentials.user.organisation)
                 .then(function (validated) {
-                    _.forEach(request.payload[payloadPropertyToLookup], function (a) {
+                    _.forEach(toLookup, function (a) {
                         if (!validated[a]) {
                             msg += a + ',';
                         }
@@ -53,12 +57,10 @@ var areValid = function (Model, docPropertyToLookup, payloadPropertyToLookup) {
     };
 };
 
-module.exports.areValid = areValid;
-
-var validAndPermitted = function (Model, idProperty, groups){
+module.exports.validAndPermitted = function validAndPermitted (Model, idProperty, groups){
     return function (request, reply) {
         var id = request.params[idProperty] ? request.params[idProperty] : request.query[idProperty];
-        Model.isValid(BaseModel.ObjectID(id), groups, request.auth.credentials.user.email)
+        Model.isValid(Model.ObjectID(id), groups, request.auth.credentials.user.email)
             .then(function (m) {
                 var cases = {
                     'valid': function () {
@@ -79,9 +81,7 @@ var validAndPermitted = function (Model, idProperty, groups){
     };
 };
 
-module.exports.validAndPermitted = validAndPermitted;
-
-var ensurePermissions = function (forAction, onObject) {
+module.exports.ensurePermissions = function ensurePermissions (forAction, onObject) {
     return {
         assign: 'ensurePermissions',
         method: function (request, reply) {
@@ -93,5 +93,3 @@ var ensurePermissions = function (forAction, onObject) {
         }
     };
 };
-
-module.exports.ensurePermissions = ensurePermissions;

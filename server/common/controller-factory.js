@@ -2,7 +2,6 @@
 var Joi = require('joi');
 var Boom = require('boom');
 var _ = require('lodash');
-var BaseModel = require('hapi-mongo-models').BaseModel;
 var Users = require('./../users/model');
 var PreReqs = require('./pre-reqs');
 var utils = require('./utils');
@@ -123,7 +122,7 @@ ControllerFactory.prototype.findController = function (validator, queryBuilder, 
 ControllerFactory.prototype.findOneHandler = function (findOneCb) {
     var self = this;
     return function (request, reply) {
-        var id = BaseModel.ObjectID(request.params.id);
+        var id = self.model.ObjectID(request.params.id);
         self.model._findOne({_id: id})
             .then(function (f) {
                 if (!f) {
@@ -150,7 +149,7 @@ ControllerFactory.prototype.findOneController = function (findOneCb) {
 ControllerFactory.prototype.updateHandler = function (updateCb, methodName) {
     var self = this;
     return function (request, reply) {
-        var id = BaseModel.ObjectID(request.params.id);
+        var id = self.model.ObjectID(request.params.id);
         self.model._findOne({_id: id})
             .then(function (u) {
                 if (!u) {
@@ -198,15 +197,15 @@ ControllerFactory.prototype.joinApproveRejectController = function (actions, toA
     validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
     self.updateController(validator, [
         PreReqs.ensurePermissions('view', self.component),
-        {assign: 'validMembers', method: PreReqs.areValid(Users, 'email', toAdd)}
+        {assign: 'validUsers', method: PreReqs.areValid(Users, 'email', [toAdd])}
     ], actions[0], 'join');
     self.updateController(validator, [
         {assign: 'validAndPermitted', method: PreReqs.validAndPermitted(self.model, 'id', [approvers])},
-        {assign: 'validMembers', method: PreReqs.areValid(Users, 'email', toAdd)}
+        {assign: 'validUsers', method: PreReqs.areValid(Users, 'email', [toAdd])}
     ], actions[1], 'approve');
     self.updateController(validator, [
         {assign: 'validAndPermitted', method: PreReqs.validAndPermitted(self.model, 'id', [approvers])},
-        {assign: 'validMembers', method: PreReqs.areValid(Users, 'email', toAdd)}
+        {assign: 'validUsers', method: PreReqs.areValid(Users, 'email', [toAdd])}
     ], actions[2], 'reject');
     return self;
 };

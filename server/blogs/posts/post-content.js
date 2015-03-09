@@ -14,21 +14,24 @@ var cache = new LRUCache({
     }, maxAge: 1000 * 60 * 60
 });
 
-var resetCache = function () {
+module.exports.resetCache = function resetCache () {
     cache.reset();
 };
 
-module.exports.resetCache = resetCache;
-
-var filenameForPost = function (post) {
-    return [('/' + post.organisation + '/blogs/' + post.blogId.toString() + '/').replace(' ', '-') + moment(post.createdOn).format('YYYYMMDD') + '__' + post._id.toString()];
+module.exports.filenameForPost = function filenameForPost (post) {
+    return [('/' +
+        post.organisation +
+        '/blogs/' +
+        post.blogId.toString() + '/').replace(' ', '-') +
+        moment(post.createdOn).format('YYYYMMDD') +
+        '__' +
+        post._id.toString()
+    ];
 };
 
-module.exports.filenameForPost = filenameForPost;
-
-var writeContent = function (post, content) {
+module.exports.writeContent = function writeContent (post, content) {
     if (!_.isUndefined(content) && content.length > 0) {
-        var filename = filenameForPost(post);
+        var filename = module.exports.filenameForPost(post);
         cache.set(filename, content);
         writeFile(Config.storage.diskPath + filename, content, {}, function (err) {
             if (err) {
@@ -39,10 +42,8 @@ var writeContent = function (post, content) {
     return post;
 };
 
-module.exports.writeContent = writeContent;
-
-var readContent = function (post) {
-    var filename = filenameForPost(post);
+module.exports.readContent = function readContent (post) {
+    var filename = module.exports.filenameForPost(post);
     if (cache.has(filename)) {
         return Promise.resolve(cache.get(filename));
     } else {
@@ -58,11 +59,8 @@ var readContent = function (post) {
     }
 };
 
-module.exports.readContent = readContent;
 
-var readContentMultiple = function (posts) {
-    return Promise.settle(_.map(posts, readContent));
+module.exports.readContentMultiple = function readContentMultiple (posts) {
+    return Promise.settle(_.map(posts, module.exports.readContent));
 };
-
-module.exports.readContentMultiple = readContentMultiple;
 

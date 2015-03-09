@@ -25,7 +25,7 @@ var renderTemplate = function (template, context) {
     }
 };
 
-var sendEmail = exports.sendEmail = function (options, template, context) {
+module.exports.sendEmail = function sendEmail (options, template, context) {
     return renderTemplate(template, context)
         .then(function (content) {
             options = Hoek.applyToDefaults(options, {
@@ -35,5 +35,3 @@ var sendEmail = exports.sendEmail = function (options, template, context) {
             return transport.sendMailAsync(options);
         });
 };
-
-module.exports.sendEmail = sendEmail;

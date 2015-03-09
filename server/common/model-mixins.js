@@ -2,7 +2,7 @@
 var _ = require('lodash');
 var logger = require('./../../config').logger;
 
-var CommonMixinAddRemove = function (roles) {
+module.exports.AddRemove = function CommonMixinAddRemove (roles) {
     return {
         _isMemberOf: function (role, email) {
             var self = this;
@@ -45,9 +45,7 @@ var CommonMixinAddRemove = function (roles) {
     };
 };
 
-module.exports.AddRemove = CommonMixinAddRemove;
-
-var CommonMixinJoinApproveReject = function (property, roleToAdd, needsApproval) {
+module.exports.JoinApproveReject  = function CommonMixinJoinApproveReject (property, roleToAdd, needsApproval) {
     return {
         join: function (doc, by) {
             var self = this;
@@ -64,9 +62,7 @@ var CommonMixinJoinApproveReject = function (property, roleToAdd, needsApproval)
     };
 };
 
-module.exports.JoinApproveReject = CommonMixinJoinApproveReject;
-
-var CommonMixinUpdate = function (properties, lists) {
+module.exports.Update = function CommonMixinUpdate (properties, lists) {
     return {
         update: function (doc, by) {
             var self = this;
@@ -82,9 +78,7 @@ var CommonMixinUpdate = function (properties, lists) {
     };
 };
 
-module.exports.Update = CommonMixinUpdate;
-
-var CommonMixinIsActive = {
+module.exports.IsActive = {
     del: function (doc, by) {
         var self = this;
         return self.deactivate(by);
@@ -99,9 +93,7 @@ var CommonMixinIsActive = {
     }
 };
 
-module.exports.IsActive = CommonMixinIsActive;
-
-var CommonMixinProperties = function (properties) {
+module.exports.Properties = function CommonMixinProperties (properties) {
     var ret = {};
     _.forEach(properties, function (property) {
         ret['set' + _.capitalize(property)] = function (newValue, by) {
@@ -116,9 +108,7 @@ var CommonMixinProperties = function (properties) {
     return ret;
 };
 
-module.exports.Properties = CommonMixinProperties;
-
-var CommonMixinSave = function (Model, Audit) {
+module.exports.Save = function CommonMixinSave (Model, Audit) {
     return {
         _saveAudit: function () {
             var self = this;
@@ -143,9 +133,7 @@ var CommonMixinSave = function (Model, Audit) {
     };
 };
 
-module.exports.Save = CommonMixinSave;
-
-var CommonMixinAudit = function (type, idToUse) {
+module.exports.Audit = function CommonMixinAudit (type, idToUse) {
     return {
         _audit: function (action, oldValues, newValues, by) {
             var self = this;
@@ -169,4 +157,3 @@ var CommonMixinAudit = function (type, idToUse) {
     };
 };
 
-module.exports.Audit = CommonMixinAudit;

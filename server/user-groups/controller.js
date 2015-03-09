@@ -17,8 +17,7 @@ var Controller = new ControllerFactory('user-groups', UserGroups)
             access: Joi.string().only(['restricted', 'public'])
         }
     }, [
-        {assign: 'validMembers', method: areValid(Users, 'email', 'members')},
-        {assign: 'validOwners', method: areValid(Users, 'email', 'owners')}
+        {assign: 'validUsers', method: areValid(Users, 'email', ['members', 'owners'])}
     ], function (request) {
         return {
             name: request.payload.name,
@@ -53,8 +52,7 @@ var Controller = new ControllerFactory('user-groups', UserGroups)
             access: Joi.string().only(['restricted', 'public'])
         }
     }, [{assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
-        {assign: 'validMembers', method: areValid(Users, 'email', 'addedMembers')},
-        {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')}
+        {assign: 'validUsers', method: areValid(Users, 'email', ['addedMembers', 'addedOwners'])}
     ], 'update', 'update')
     .deleteController({assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])})
     .joinApproveRejectController(['join', 'approve', 'reject'], 'addedMembers', 'owners')

@@ -12,7 +12,6 @@ var BaseModel = require('hapi-mongo-models').BaseModel;
 var Users = require(relativeToServer + 'users/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
-var Permissions = require(relativeToServer + 'permissions/model');
 var Blogs = require(relativeToServer + 'blogs/model');
 var Posts = require(relativeToServer + 'blogs/posts/model');
 var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
@@ -145,7 +144,6 @@ var setupServer = function () {
                     '../../server/audit',
                     '../../server/auth-attempts',
                     '../../server/contact',
-                    '../../server/permissions',
                     '../../server/session',
                     '../../server/user-groups',
                     '../../server/users',
@@ -202,18 +200,6 @@ function cleanupUserGroups (groupsToCleanup) {
     return new Promise(function (resolve, reject) {
         if (groupsToCleanup && groupsToCleanup.length > 0) {
             UserGroups.remove({name: {$in: groupsToCleanup}}, function (err) {
-                err ? reject(err) : resolve(true);
-            });
-        } else {
-            resolve(true);
-        }
-    });
-}
-
-function cleanupPermissions (permissionsToCleanup) {
-    return new Promise(function (resolve, reject) {
-        if (permissionsToCleanup && permissionsToCleanup.length > 0) {
-            Permissions.remove({description: {$in: permissionsToCleanup}}, function (err) {
                 err ? reject(err) : resolve(true);
             });
         } else {
@@ -295,7 +281,6 @@ exports.cleanupConnect = cleanupConnect;
 var cleanup = function (toClear, cb) {
     Promise.join(cleanupUsers(toClear.users),
         cleanupUserGroups(toClear.userGroups),
-        cleanupPermissions(toClear.permissions),
         cleanupBlogs(toClear.blogs),
         cleanupPosts(toClear.posts),
         cleanupNotifications(toClear),

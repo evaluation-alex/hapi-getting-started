@@ -80,10 +80,8 @@ var Controller = new ControllerFactory('blogs', Blogs, Notifications)
             allowComments: Joi.boolean().default(true)
         }
     }, [
-        {assign: 'validOwners', method: areValid(Users, 'email', 'owners')},
-        {assign: 'validContributors', method: areValid(Users, 'email', 'contributors')},
-        {assign: 'validSubscribers', method: areValid(Users, 'email', 'subscribers')},
-        {assign: 'validSubscriberGroups', method: areValid(UserGroups, 'name', 'subscriberGroups')}
+        {assign: 'validUsers', method: areValid(Users, 'email', ['owners', 'contributors', 'subscribers'])},
+        {assign: 'validGroups', method: areValid(UserGroups, 'name', ['subscriberGroups'])}
     ], function (request) {
         return {
             title: request.payload.title,
@@ -127,10 +125,8 @@ var Controller = new ControllerFactory('blogs', Blogs, Notifications)
             allowComments: Joi.boolean()
         }
     }, [
-        {assign: 'validOwners', method: areValid(Users, 'email', 'addedOwners')},
-        {assign: 'validContributors', method: areValid(Users, 'email', 'addedContributors')},
-        {assign: 'validSubscribers', method: areValid(Users, 'email', 'addedSubscribers')},
-        {assign: 'validSubscriberGroups', method: areValid(UserGroups, 'name', 'addedSubscriberGroups')},
+        {assign: 'validUsers', method: areValid(Users, 'email', ['addedOwners', 'addedContributors', 'addedSubscribers'])},
+        {assign: 'validGroups', method: areValid(UserGroups, 'name', ['addedSubscriberGroups'])},
         {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])}
     ], 'update', 'update')
     .deleteController({assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])})

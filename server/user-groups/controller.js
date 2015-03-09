@@ -2,10 +2,9 @@
 var _ = require('lodash');
 var Joi = require('joi');
 var UserGroups = require('./model');
-var Users = require('./../users/model');
 var ControllerFactory = require('./../common/controller-factory');
-var areValid = require('./../common/pre-reqs').areValid;
-var validAndPermitted = require('./../common/pre-reqs').validAndPermitted;
+var areValid = require('./../common/prereqs/are-valid');
+var validAndPermitted = require('./../common/prereqs/valid-permitted');
 
 var Controller = new ControllerFactory('user-groups', UserGroups)
     .newController({
@@ -17,7 +16,7 @@ var Controller = new ControllerFactory('user-groups', UserGroups)
             access: Joi.string().only(['restricted', 'public'])
         }
     }, [
-        {assign: 'validUsers', method: areValid(Users, 'email', ['members', 'owners'])}
+        areValid.users(['members', 'owners'])
     ], function (request) {
         return {
             name: request.payload.name,
@@ -51,10 +50,10 @@ var Controller = new ControllerFactory('user-groups', UserGroups)
             description: Joi.string(),
             access: Joi.string().only(['restricted', 'public'])
         }
-    }, [{assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])},
-        {assign: 'validUsers', method: areValid(Users, 'email', ['addedMembers', 'addedOwners'])}
+    }, [validAndPermitted(UserGroups, 'id', ['owners']),
+        areValid.users(['addedMembers', 'addedOwners'])
     ], 'update', 'update')
-    .deleteController({assign: 'validAndPermitted', method: validAndPermitted(UserGroups, 'id', ['owners'])})
+    .deleteController(validAndPermitted(UserGroups, 'id', ['owners']))
     .joinApproveRejectController(['join', 'approve', 'reject'], 'addedMembers', 'owners')
     .doneConfiguring();
 

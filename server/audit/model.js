@@ -1,15 +1,18 @@
 'use strict';
+var BaseModel = require('hapi-mongo-models').BaseModel;
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../common/extended-model');
+var Promisify = require('./../common/mixins/promisify');
 
-var Audit = ExtendedModel.extend({
+var Audit = BaseModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
     }
     /* jshint +W064 */
 });
+
+Promisify(Audit, ['pagedFind', 'find']);
 
 Audit._collection = 'audit';
 

@@ -1,16 +1,19 @@
 'use strict';
-var Joi = require('joi');
+var BaseModel = require('hapi-mongo-models').BaseModel;
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../common/extended-model');
+var Joi = require('joi');
+var Promisify = require('./../common/mixins/promisify');
 var _ = require('lodash');
 
-var Roles = ExtendedModel.extend({
+var Roles = BaseModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
     }
     /* jshint +W064 */
 });
+
+Promisify(Roles, ['insert', 'find', 'findOne']);
 
 Roles.prototype.hasPermissionsTo = function (performAction, onObject) {
     var self = this;

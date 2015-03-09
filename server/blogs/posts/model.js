@@ -1,17 +1,18 @@
 'use strict';
+var BaseModel = require('hapi-mongo-models').BaseModel;
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../../common/extended-model');
-var AddRemove = require('./../../common/model-mixins').AddRemove;
-var IsActive = require('./../../common/model-mixins').IsActive;
-var Update = require('./../../common/model-mixins').Update;
-var Properties = require('./../../common/model-mixins').Properties;
-var Save = require('./../../common/model-mixins').Save;
-var CAudit = require('./../../common/model-mixins').Audit;
-var Audit = require('./../../audit/model');
+var Promisify = require('./../../common/mixins/promisify');
+var Insert = require('./../../common/mixins/insert');
+var AddRemove = require('./../../common/mixins/add-remove');
+var IsActive = require('./../../common/mixins/is-active');
+var Update = require('./../../common/mixins/update');
+var Properties = require('./../../common/mixins/properties');
+var Save = require('./../../common/mixins/save');
+var CAudit = require('./../../common/mixins/audit');
 var _ = require('lodash');
 
-var Posts = ExtendedModel.extend({
+var Posts = BaseModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
@@ -23,11 +24,13 @@ var Posts = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
+Promisify(Posts, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+_.extend(Posts, new Insert('_id', 'create'));
+_.extend(Posts.prototype, new IsActive());
 _.extend(Posts.prototype, new AddRemove({
     tags: 'tags',
     attachments: 'attachments'
 }));
-_.extend(Posts.prototype, IsActive);
 _.extend(Posts.prototype, new Properties(['title', 'state', 'category', 'access', 'allowComments', 'needsReview', 'isActive']));
 _.extend(Posts.prototype, new Update({
     isActive: 'isActive',
@@ -41,7 +44,7 @@ _.extend(Posts.prototype, new Update({
     tags: 'tags',
     attachments: 'attachments'
 }));
-_.extend(Posts.prototype, new Save(Posts, Audit));
+_.extend(Posts.prototype, new Save(Posts));
 _.extend(Posts.prototype, new CAudit('Posts', '_id'));
 
 Posts._collection = 'posts';

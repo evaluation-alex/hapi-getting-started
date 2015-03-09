@@ -1,21 +1,23 @@
 'use strict';
-var Joi = require('joi');
+var BaseModel = require('hapi-mongo-models').BaseModel;
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../common/extended-model');
-var AddRemove = require('./../common/model-mixins').AddRemove;
-var JoinApproveReject = require('./../common/model-mixins').JoinApproveReject;
-var Update = require('./../common/model-mixins').Update;
-var Properties = require('./../common/model-mixins').Properties;
-var IsActive = require('./../common/model-mixins').IsActive;
-var Save = require('./../common/model-mixins').Save;
-var CAudit = require('./../common/model-mixins').Audit;
+var Joi = require('joi');
+var Promisify = require('./../common/mixins/promisify');
+var Insert = require('./../common/mixins/insert');
+var IsValid = require('./../common/mixins/is-valid-role-in');
+var AddRemove = require('./../common/mixins/add-remove');
+var JoinApproveReject = require('./../common/mixins/join-approve-reject');
+var Update = require('./../common/mixins/update');
+var Properties = require('./../common/mixins/properties');
+var IsActive = require('./../common/mixins/is-active');
+var Save = require('./../common/mixins/save');
+var CAudit = require('./../common/mixins/audit');
 var Promise = require('bluebird');
-var Audit = require('./../audit/model');
 var _ = require('lodash');
 var mkdirp = Promise.promisify(require('mkdirp'));
 var Config = require('./../../config');
 
-var Blogs = ExtendedModel.extend({
+var Blogs = BaseModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
@@ -27,6 +29,10 @@ var Blogs = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
+Promisify(Blogs, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+_.extend(Blogs, new Insert('title', 'create'));
+_.extend(Blogs, new IsValid());
+_.extend(Blogs.prototype, new IsActive());
 _.extend(Blogs.prototype, new AddRemove({
     owner: 'owners',
     contributor: 'contributors',
@@ -49,8 +55,7 @@ _.extend(Blogs.prototype, new Update({
     groups: 'subscriberGroups',
     needsApproval: 'needsApproval'
 }));
-_.extend(Blogs.prototype, IsActive);
-_.extend(Blogs.prototype, new Save(Blogs, Audit));
+_.extend(Blogs.prototype, new Save(Blogs));
 _.extend(Blogs.prototype, new CAudit('Blogs', 'title'));
 
 Blogs._collection = 'blogs';
@@ -120,7 +125,7 @@ Blogs.create = function (title, organisation, description, owners, contributors,
         updatedBy: by,
         updatedOn: new Date()
     };
-    return self._insertAndAudit(document, 'title');
+    return self._insertAndAudit(document);
 };
 
 module.exports = Blogs;

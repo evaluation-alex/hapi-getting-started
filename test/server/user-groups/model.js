@@ -75,82 +75,10 @@ describe('UserGroups Model', function () {
         });
     });
 
-    describe('UserGroups.findGroupsForUser', function () {
-        before(function (done) {
-            UserGroups.create('test.search.user@test.api', 'silver lining', 'testing findGroupForUser', 'test2')
-                .then(function (ug) {
-                    ug.members.push('someUser');
-                    ug.members.push('anotherUser');
-                    return ug.save();
-                })
-                .then(function () {
-                    return UserGroups.create('test.search2.user@test.api', 'silver lining', 'testing2 findGroupForUser', 'test2');
-                })
-                .then(function (ug2) {
-                    ug2.members.push('someUser');
-                    ug2.owners.push('someUser');
-                    ug2.members.push('anotherUser');
-                    return ug2.save();
-                })
-                .catch(function(err) {
-                    if (err) {
-                        done(err);
-                    }
-                })
-                .done(function () {
-                    done();
-                });
-        });
-        it('should return user groups array with groups that have the user as a member', function (done) {
-            var error = null;
-            UserGroups.findGroupsForUser('test2', 'silver lining')
-                .then(function (ug) {
-                    expect(ug.length).to.equal(2);
-                    expect(ug[0]._isMemberOf('members', 'test2')).to.be.true();
-                    expect(ug[1]._isMemberOf('members', 'test2')).to.be.true();
-                })
-                .then(function () {
-                    return UserGroups.findGroupsForUser('someUser', 'silver lining');
-                })
-                .then(function (ug2) {
-                    expect(ug2).to.exist();
-                    expect(ug2.length).to.equal(2);
-                    expect(ug2[0]._isMemberOf('members', 'someUser')).to.be.true();
-                    expect(ug2[1]._isMemberOf('members', 'someUser')).to.be.true();
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should return an empty array when user is not part of any group', function (done) {
-            var error = null;
-            UserGroups.findGroupsForUser('bogus', 'silver lining')
-                .then(function (ug) {
-                    expect(ug.length).to.equal(0);
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        after(function (done) {
-            groupsToCleanup.push('test.search.user@test.api');
-            groupsToCleanup.push('test.search2.user@test.api');
-            done();
-        });
-    });
-
     describe('UserGroups.isValid', function () {
         it ('should return with a not found message when group does not exist', function (done) {
             var error = null;
-            UserGroups.isValid(BaseModel.ObjectID(null), ['owners'], 'unknown')
+            UserGroups.isValid(BaseModel.ObjectID(null), 'unknown', ['owners'])
                 .then(function (m) {
                     expect(m).to.exist();
                     expect(m.message).to.equal('not found');
@@ -167,7 +95,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('isValidTest', 'silver lining', 'isValidTest', 'test5')
                 .then(function(ug) {
-                    return UserGroups.isValid(ug._id, ['owners'], 'unknown');
+                    return UserGroups.isValid(ug._id, 'unknown', ['owners']);
                 })
                 .then(function (m) {
                     expect(m).to.exist();
@@ -186,7 +114,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('isValidTest2', 'silver lining', 'isValidTest2', 'test5')
                 .then(function(ug) {
-                    return UserGroups.isValid(ug._id, ['owners'], 'test5');
+                    return UserGroups.isValid(ug._id, 'test5', ['owners']);
                 })
                 .then(function (m) {
                     expect(m).to.exist();
@@ -205,7 +133,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('isValidTest3', 'silver lining', 'isValidTest3', 'test5')
                 .then(function(ug) {
-                    return UserGroups.isValid(ug._id, ['owners'], 'root');
+                    return UserGroups.isValid(ug._id, 'root', ['owners']);
                 })
                 .then(function (m) {
                     expect(m).to.exist();
@@ -225,7 +153,7 @@ describe('UserGroups Model', function () {
     describe('Users.areValid', function () {
         it('should return empty array when nothing is sent', function (done) {
             var error = null;
-            UserGroups.areValid('name', [])
+            UserGroups.areValid([], 'silver lining')
                 .then(function (result) {
                     expect(result).to.be.empty();
                 })
@@ -241,7 +169,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('test UserGroups.areValid', 'silver lining', 'test', 'test')
                 .then(function () {
-                    return UserGroups.areValid('name', ['test UserGroups.areValid', 'bogus'], 'silver lining');
+                    return UserGroups.areValid(['test UserGroups.areValid', 'bogus'], 'silver lining');
                 })
                 .then(function (result) {
                     expect(result).to.exist();

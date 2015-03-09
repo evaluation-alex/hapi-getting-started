@@ -1,18 +1,19 @@
 'use strict';
+var BaseModel = require('hapi-mongo-models').BaseModel;
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../../common/extended-model');
-var IsActive = require('./../../common/model-mixins').IsActive;
-var Update = require('./../../common/model-mixins').Update;
-var Properties = require('./../../common/model-mixins').Properties;
-var Save = require('./../../common/model-mixins').Save;
-var CAudit = require('./../../common/model-mixins').Audit;
-var Audit = require('./../../audit/model');
+var Promisify = require('./../../common/mixins/promisify');
+var Insert = require('./../../common/mixins/insert');
+var Properties = require('./../../common/mixins/properties');
+var Update = require('./../../common/mixins/update');
+var IsActive = require('./../../common/mixins/is-active');
+var Save = require('./../../common/mixins/save');
+var CAudit = require('./../../common/mixins/audit');
 var _ = require('lodash');
 var EventEmitter = require('events');
 var Promise = require('bluebird');
 
-var Notifications = ExtendedModel.extend({
+var Notifications = BaseModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
@@ -24,14 +25,16 @@ var Notifications = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
+Promisify(Notifications, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+_.extend(Notifications, new Insert('_id', 'create'));
 _.extend(Notifications, EventEmitter.prototype);
-_.extend(Notifications.prototype, IsActive);
+_.extend(Notifications.prototype, new IsActive());
 _.extend(Notifications.prototype, new Properties(['title', 'state', 'category', 'action', 'isActive']));
 _.extend(Notifications.prototype, new Update({
     state: 'state',
     isActive: 'isActive'
 }, {}));
-_.extend(Notifications.prototype, new Save(Notifications, Audit));
+_.extend(Notifications.prototype, new Save(Notifications));
 _.extend(Notifications.prototype, new CAudit('Notifications', '_id'));
 
 Notifications._collection = 'notifications';

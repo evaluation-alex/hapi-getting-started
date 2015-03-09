@@ -50,7 +50,7 @@
         "hapi-require-https": "2.0.x",
         "hoek": "2.11.x",
         "joi": "6.0.x",
-        "lodash": "3.4.x",
+        "lodash": "3.5.x",
         "lout": "6.2.x",
         "lru-cache": "2.5.x",
         "mkdirp": "0.5.x",

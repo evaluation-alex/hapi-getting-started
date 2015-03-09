@@ -5,7 +5,7 @@ var moment = require('moment');
 var Posts = require('./model');
 var Blogs = require('./../model');
 var ControllerFactory = require('./../../common/controller-factory');
-var validAndPermitted = require('./../../common/pre-reqs').validAndPermitted;
+var validAndPermitted = require('./../../common/prereqs/valid-permitted');
 var PostContent = require('./post-content');
 var utils = require('./../../common/utils');
 
@@ -35,7 +35,7 @@ var Controller = new ControllerFactory('posts', Posts)
             needsReview: Joi.boolean()
         }
     }, [
-        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['contributors', 'owners'])},
+        validAndPermitted(Blogs, 'blogId', ['contributors', 'owners']),
         {assign: 'blog', method: prePopulateBlog}
     ], function (request) {
         return {
@@ -130,7 +130,7 @@ var Controller = new ControllerFactory('posts', Posts)
             allowComments: Joi.boolean()
         }
     }, [
-        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['contributors', 'owners'])}
+        validAndPermitted(Blogs, 'blogId', ['contributors', 'owners'])
     ],
     'update',
     function (post, request, by) {
@@ -143,7 +143,7 @@ var Controller = new ControllerFactory('posts', Posts)
             access: Joi.string().only(['public', 'restricted'])
         }
     }, [
-        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['owners', 'contributors'])},
+        validAndPermitted(Blogs, 'blogId', ['owners', 'contributors']),
         {assign: 'blog', method: prePopulateBlog}
     ],
     'publish',
@@ -169,7 +169,7 @@ var Controller = new ControllerFactory('posts', Posts)
             access: Joi.string().only(['public', 'restricted'])
         }
     }, [
-        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['owners', 'contributors'])}
+        validAndPermitted(Blogs, 'blogId', ['owners', 'contributors'])
     ],
     'reject',
     function (post, request, by) {
@@ -181,7 +181,7 @@ var Controller = new ControllerFactory('posts', Posts)
         }
         return post;
     })
-    .deleteController({assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'blogId', ['owners'])})
+    .deleteController(validAndPermitted(Blogs, 'blogId', ['owners']))
     .doneConfiguring();
 
 module.exports = Controller;

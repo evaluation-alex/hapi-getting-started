@@ -1,18 +1,21 @@
 'use strict';
-var Joi = require('joi');
+var BaseModel = require('hapi-mongo-models').BaseModel;
 var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../common/extended-model');
-var AddRemove = require('./../common/model-mixins').AddRemove;
-var IsActive = require('./../common/model-mixins').IsActive;
-var JoinApproveReject = require('./../common/model-mixins').JoinApproveReject;
-var Update = require('./../common/model-mixins').Update;
-var Properties = require('./../common/model-mixins').Properties;
-var Save = require('./../common/model-mixins').Save;
-var CAudit = require('./../common/model-mixins').Audit;
-var Audit = require('./../audit/model');
+var Joi = require('joi');
+var Promisify = require('./../common/mixins/promisify');
+var Insert = require('./../common/mixins/insert');
+var IsValid = require('./../common/mixins/is-valid-role-in');
+var AreValid = require('./../common/mixins/exist');
+var AddRemove = require('./../common/mixins/add-remove');
+var JoinApproveReject = require('./../common/mixins/join-approve-reject');
+var Update = require('./../common/mixins/update');
+var Properties = require('./../common/mixins/properties');
+var IsActive = require('./../common/mixins/is-active');
+var Save = require('./../common/mixins/save');
+var CAudit = require('./../common/mixins/audit');
 var _ = require('lodash');
 
-var UserGroups = ExtendedModel.extend({
+var UserGroups = BaseModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
@@ -24,12 +27,16 @@ var UserGroups = ExtendedModel.extend({
     /* jshint +W064 */
 });
 
+Promisify(UserGroups,['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+_.extend(UserGroups, new Insert('name', 'create'));
+_.extend(UserGroups, new AreValid('name'));
+_.extend(UserGroups, new IsValid());
+_.extend(UserGroups.prototype, new IsActive());
 _.extend(UserGroups.prototype, new AddRemove({
     owner: 'owners',
     member: 'members',
     needsApproval: 'needsApproval'
 }));
-_.extend(UserGroups.prototype, IsActive);
 _.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActive']));
 _.extend(UserGroups.prototype, new JoinApproveReject('addedMembers', 'member', 'needsApproval'));
 _.extend(UserGroups.prototype, new Update({
@@ -41,7 +48,7 @@ _.extend(UserGroups.prototype, new Update({
     member: 'members',
     needsApproval: 'needsApproval'
 }));
-_.extend(UserGroups.prototype, new Save(UserGroups, Audit));
+_.extend(UserGroups.prototype, new Save(UserGroups));
 _.extend(UserGroups.prototype, new CAudit('UserGroups', 'name'));
 
 UserGroups._collection = 'userGroups';
@@ -101,16 +108,7 @@ UserGroups.create = function (name, organisation, description, owner) {
         updatedBy: owner,
         updatedOn: new Date()
     };
-    return self._insertAndAudit(document, 'name');
-};
-
-UserGroups.findGroupsForUser = function (email, organisation) {
-    var self = this;
-    return self._find({members: email, organisation: organisation})
-        .then(function (g) {
-            return g ? g : [];
-        });
+    return self._insertAndAudit(document);
 };
 
 module.exports = UserGroups;
-

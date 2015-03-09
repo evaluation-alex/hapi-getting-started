@@ -2,11 +2,9 @@
 var Joi = require('joi');
 var _ = require('lodash');
 var Blogs = require('./model');
-var Users = require('./../users/model');
-var UserGroups = require('./../user-groups/model');
 var ControllerFactory = require('./../common/controller-factory');
-var areValid = require('./../common/pre-reqs').areValid;
-var validAndPermitted = require('./../common/pre-reqs').validAndPermitted;
+var areValid = require('./../common/prereqs/are-valid');
+var validAndPermitted = require('./../common/prereqs/valid-permitted');
 var Notifications = require('./../users/notifications/model');
 
 Notifications.on('new blogs', function (obj) {
@@ -80,8 +78,8 @@ var Controller = new ControllerFactory('blogs', Blogs, Notifications)
             allowComments: Joi.boolean().default(true)
         }
     }, [
-        {assign: 'validUsers', method: areValid(Users, 'email', ['owners', 'contributors', 'subscribers'])},
-        {assign: 'validGroups', method: areValid(UserGroups, 'name', ['subscriberGroups'])}
+        areValid.users(['owners', 'contributors', 'subscribers']),
+        areValid.groups(['subscriberGroups'])
     ], function (request) {
         return {
             title: request.payload.title,
@@ -125,11 +123,11 @@ var Controller = new ControllerFactory('blogs', Blogs, Notifications)
             allowComments: Joi.boolean()
         }
     }, [
-        {assign: 'validUsers', method: areValid(Users, 'email', ['addedOwners', 'addedContributors', 'addedSubscribers'])},
-        {assign: 'validGroups', method: areValid(UserGroups, 'name', ['addedSubscriberGroups'])},
-        {assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])}
+        areValid.users(['addedOwners', 'addedContributors', 'addedSubscribers']),
+        areValid.groups(['addedSubscriberGroups']),
+        validAndPermitted(Blogs, 'id', ['owners'])
     ], 'update', 'update')
-    .deleteController({assign: 'validAndPermitted', method: validAndPermitted(Blogs, 'id', ['owners'])})
+    .deleteController(validAndPermitted(Blogs, 'id', ['owners']))
     .joinApproveRejectController(['subscribe', 'approve', 'reject'], 'addedSubscribers', 'owners')
     .doneConfiguring();
 

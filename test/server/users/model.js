@@ -118,7 +118,7 @@ describe('Users Model', function () {
     describe('Users.areValid', function () {
         it('should return empty array when nothing is sent', function (done) {
             var error = null;
-            Users.areValid('email', [])
+            Users.areValid([], 'silver lining')
                 .then(function (result) {
                     expect(result).to.be.empty();
                 })
@@ -132,7 +132,7 @@ describe('Users Model', function () {
         });
         it('should return an object with as many entries as emails sent, appropriately populated', function(done) {
             var error = null;
-            Users.areValid('email', [firstEmail, secondEmail, 'bogus'], 'silver lining')
+            Users.areValid([firstEmail, secondEmail, 'bogus'], 'silver lining')
                 .then(function (result) {
                     expect(result).to.exist();
                     expect(result[firstEmail]).to.be.true();

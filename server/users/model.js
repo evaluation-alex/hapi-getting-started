@@ -1,19 +1,20 @@
 'use strict';
+var BaseModel = require('hapi-mongo-models').BaseModel;
+var ObjectAssign = require('object-assign');
 var Joi = require('joi');
 var Uuid = require('node-uuid');
 var Bcrypt = require('bcrypt');
-var ObjectAssign = require('object-assign');
-var ExtendedModel = require('./../common/extended-model');
-var IsActive = require('./../common/model-mixins').IsActive;
-var Properties = require('./../common/model-mixins').Properties;
-var Save = require('./../common/model-mixins').Save;
-var CAudit = require('./../common/model-mixins').Audit;
+var Promisify = require('./../common/mixins/promisify');
+var Insert = require('./../common/mixins/insert');
+var AreValid = require('./../common/mixins/exist');
+var Properties = require('./../common/mixins/properties');
+var IsActive = require('./../common/mixins/is-active');
+var Save = require('./../common/mixins/save');
+var CAudit = require('./../common/mixins/audit');
 var Roles = require('./../roles/model');
-var Audit = require('./../audit/model');
-var Promise = require('bluebird');
 var _ = require('lodash');
 
-var Users = ExtendedModel.extend({
+var Users = BaseModel.extend({
     /* jshint -W064 */
     constructor: function (attrs) {
         ObjectAssign(this, attrs);
@@ -28,11 +29,13 @@ var Users = ExtendedModel.extend({
     }
     /* jshint +W064 */
 });
-
-_.extend(Users.prototype, IsActive);
-_.extend(Users.prototype, new Save(Users, Audit));
-_.extend(Users.prototype, new CAudit('Users', 'email'));
+Promisify(Users, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+_.extend(Users, new Insert('email', 'signup'));
+_.extend(Users, new AreValid('email'));
+_.extend(Users.prototype, new IsActive());
 _.extend(Users.prototype, new Properties(['isActive', 'roles']));
+_.extend(Users.prototype, new Save(Users));
+_.extend(Users.prototype, new CAudit('Users', 'email'));
 
 Users.prototype.hasPermissionsTo = function (performAction, onObject) {
     var self = this;
@@ -153,7 +156,7 @@ Users.create = function (email, password, organisation) {
         updatedBy: email,
         updatedOn: new Date()
     };
-    return self._insertAndAudit(document, 'email', 'signup');
+    return self._insertAndAudit(document);
 };
 
 Users.findByCredentials = function (email, password) {

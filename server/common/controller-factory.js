@@ -2,8 +2,11 @@
 var Joi = require('joi');
 var Boom = require('boom');
 var _ = require('lodash');
-var Users = require('./../users/model');
-var PreReqs = require('./pre-reqs');
+var validAndPermitted = require('./prereqs/valid-permitted');
+var ensurePermissions = require('./prereqs/ensure-permissions');
+var isUnique = require('./prereqs/is-unique');
+var areValid = require('./prereqs/are-valid');
+
 var utils = require('./utils');
 
 var ControllerFactory = function (component, model, notify) {
@@ -68,8 +71,8 @@ ControllerFactory.prototype.newHandler = function (newCb) {
 };
 ControllerFactory.prototype.newController = function (validator, prereqs, uniqueCheck, newCb) {
     var self = this;
-    var pre = _.flatten([PreReqs.ensurePermissions('update', self.component),
-        {assign: 'isUnique', method: PreReqs.isUnique(self.model, uniqueCheck)},
+    var pre = _.flatten([ensurePermissions('update', self.component),
+        isUnique(self.model, uniqueCheck),
         prereqs]);
     self.forMethod('new')
         .preProcessWith(pre)
@@ -79,7 +82,7 @@ ControllerFactory.prototype.newController = function (validator, prereqs, unique
 ControllerFactory.prototype.customNewController = function (method, validator, uniqueCheck, newCb) {
     var self = this;
     self.forMethod(method)
-        .preProcessWith([{assign: 'isUnique', method: PreReqs.isUnique(self.model, uniqueCheck)}])
+        .preProcessWith([isUnique(self.model, uniqueCheck)])
         .handleUsing(self.newHandler(newCb));
     return self;
 };
@@ -115,7 +118,7 @@ ControllerFactory.prototype.findController = function (validator, queryBuilder, 
     validator.query.page = Joi.number().default(1);
     self.forMethod('find')
         .withValidation(validator)
-        .preProcessWith(PreReqs.ensurePermissions('view', self.component))
+        .preProcessWith(ensurePermissions('view', self.component))
         .handleUsing(self.findHandler(queryBuilder, findCb));
     return self;
 };
@@ -142,7 +145,7 @@ ControllerFactory.prototype.findOneHandler = function (findOneCb) {
 ControllerFactory.prototype.findOneController = function (findOneCb) {
     var self = this;
     self.forMethod('findOne')
-        .preProcessWith(PreReqs.ensurePermissions('view', self.component))
+        .preProcessWith(ensurePermissions('view', self.component))
         .handleUsing(self.findOneHandler(findOneCb));
     return self;
 };
@@ -179,7 +182,7 @@ ControllerFactory.prototype.updateController = function (validator, prereqs, met
     var perms = _.find(prereqs, function (prereq) {
         return prereq.assign === 'ensurePermissions';
     });
-    var pre = _.flatten([perms ? [] : PreReqs.ensurePermissions('update', self.component), prereqs]);
+    var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prereqs]);
     self.forMethod(methodName)
         .preProcessWith(pre)
         .handleUsing(self.updateHandler(updateCb, methodName));
@@ -196,16 +199,16 @@ ControllerFactory.prototype.joinApproveRejectController = function (actions, toA
     };
     validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
     self.updateController(validator, [
-        PreReqs.ensurePermissions('view', self.component),
-        {assign: 'validUsers', method: PreReqs.areValid(Users, 'email', [toAdd])}
+        ensurePermissions('view', self.component),
+        areValid.users([toAdd])
     ], actions[0], 'join');
     self.updateController(validator, [
-        {assign: 'validAndPermitted', method: PreReqs.validAndPermitted(self.model, 'id', [approvers])},
-        {assign: 'validUsers', method: PreReqs.areValid(Users, 'email', [toAdd])}
+        validAndPermitted(self.model, 'id', [approvers]),
+        areValid.users([toAdd])
     ], actions[1], 'approve');
     self.updateController(validator, [
-        {assign: 'validAndPermitted', method: PreReqs.validAndPermitted(self.model, 'id', [approvers])},
-        {assign: 'validUsers', method: PreReqs.areValid(Users, 'email', [toAdd])}
+        validAndPermitted(self.model, 'id', [approvers]),
+        areValid.users([toAdd])
     ], actions[2], 'reject');
     return self;
 };

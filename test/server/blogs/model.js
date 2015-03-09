@@ -82,7 +82,7 @@ describe('Blogs Model', function () {
     describe('Blogs.isValid', function () {
         it ('should return with a not found message when blog does not exist', function (done) {
             var error = null;
-            Blogs.isValid(BaseModel.ObjectID(null), ['owners'], 'unknown')
+            Blogs.isValid(BaseModel.ObjectID(null), 'unknown', ['owners'])
                 .then(function (m) {
                     expect(m).to.exist();
                     expect(m.message).to.equal('not found');
@@ -99,7 +99,7 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs.create('isValidTest', 'silver lining', 'Blog.isValid test', [], [], [], [], false, 'public', true, 'test')
                 .then(function(b) {
-                    return Blogs.isValid(b._id, ['owners'], 'unknown');
+                    return Blogs.isValid(b._id, 'unknown', ['owners']);
                 })
                 .then(function (m) {
                     expect(m).to.exist();
@@ -118,7 +118,7 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs.create('isValidTest2', 'silver lining', 'Blog.isValid test2', ['validOwner'], [], [], [], false, 'public', true, 'test')
                 .then(function(b) {
-                    return Blogs.isValid(b._id, ['owners'], 'validOwner');
+                    return Blogs.isValid(b._id, 'validOwner', ['owners']);
                 })
                 .then(function (m) {
                     expect(m).to.exist();
@@ -137,7 +137,7 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs.create('isValidTest3', 'silver lining', 'Blog.isValid test3', ['validOwner'], [], [], [], false, 'public', true, 'test')
                 .then(function(b) {
-                    return Blogs.isValid(b._id, ['owners'], 'root');
+                    return Blogs.isValid(b._id, 'root', ['owners']);
                 })
                 .then(function (m) {
                     expect(m).to.exist();

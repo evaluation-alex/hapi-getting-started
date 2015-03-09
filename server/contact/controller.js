@@ -14,7 +14,7 @@ var Controller = new ControllerFactory('contact', null)
             message: Joi.string().required()
         }
     })
-    .handleUsing(function (request, reply) {
+    .handleUsing(function contactHandler(request, reply) {
         var options = {
             subject: Config.projectName + ' contact form',
             to: Config.system.toAddress,

@@ -1,16 +1,16 @@
 'use strict';
 
-module.exports = function () {
+module.exports = function IsActive () {
     return {
-        del: function (doc, by) {
+        del: function del (doc, by) {
             var self = this;
             return self.deactivate(by);
         },
-        deactivate: function (by) {
+        deactivate: function deactivate (by) {
             var self = this;
             return self.setIsActive(false, by);
         },
-        reactivate: function (by) {
+        reactivate: function reactivate (by) {
             var self = this;
             return self.setIsActive(true, by);
         }

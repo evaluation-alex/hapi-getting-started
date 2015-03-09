@@ -34,7 +34,7 @@ Audit.indexes = [
 ];
 
 
-Audit.findAudit = function (type, id, conditions) {
+Audit.findAudit = function findAudit (type, id, conditions) {
     var self = this;
     conditions.objectChangedType = type;
     conditions.objectChangedId = id;

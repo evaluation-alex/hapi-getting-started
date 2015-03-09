@@ -9,7 +9,7 @@ var _ = require('lodash');
 var logger = Config.logger;
 
 var cache = new LRUCache({
-    max: 100 * 1024 * 1024, length: function (n) {
+    max: 100 * 1024 * 1024, length: function length (n) {
         return n.length;
     }, maxAge: 1000 * 60 * 60
 });

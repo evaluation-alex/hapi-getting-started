@@ -79,7 +79,7 @@ Posts.indexes = [
     [{state: 1, publishedOn: 1}]
 ];
 
-Posts.newObject = function (doc, by) {
+Posts.newObject = function newObject (doc, by) {
     var self = this;
     return self.create(doc.params.blogId,
         doc.auth.credentials.user.organisation,
@@ -94,7 +94,7 @@ Posts.newObject = function (doc, by) {
         by);
 };
 
-Posts.create = function (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) {
+Posts.create = function create (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) {
     var self = this;
         var now = new Date();
         var document = {

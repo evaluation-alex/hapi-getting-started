@@ -15,7 +15,7 @@ var Controller = new ControllerFactory('notifications', Notifications)
             createdOnAfter: Joi.date(),
             isActive: Joi.string()
         }
-    }, function (request) {
+    }, function buildFindQuery (request) {
         var query = {};
         var fields = [['title', 'title'], ['state', 'state'], ['objectType', 'objectType']];
         _.forEach(fields, function (pair) {

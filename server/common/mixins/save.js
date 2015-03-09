@@ -5,7 +5,7 @@ var BaseModel = require('hapi-mongo-models').BaseModel;
 
 module.exports = function CommonMixinSave (Model) {
     return {
-        _saveAudit: function () {
+        _saveAudit: function saveAudit () {
             var self = this;
             if (self.audit && self.audit.length > 0) {
                 _.forEach(self.audit, function (audit) {
@@ -22,7 +22,7 @@ module.exports = function CommonMixinSave (Model) {
             }
             return self;
         },
-        save: function () {
+        save: function save () {
             var self = this;
             return Model._findByIdAndUpdate(self._id, self._saveAudit());
         }

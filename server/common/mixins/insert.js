@@ -3,7 +3,7 @@ var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');
 var logger = require('./../../../config').logger;
 
-module.exports = function (idToUse, action) {
+module.exports = function InsertAndAudit (idToUse, action) {
     return {
         _insertAndAudit: function insertAndAudit (doc) {
             var self = this;

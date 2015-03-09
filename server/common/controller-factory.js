@@ -9,7 +9,7 @@ var areValid = require('./prereqs/are-valid');
 
 var utils = require('./utils');
 
-var ControllerFactory = function (component, model, notify) {
+var ControllerFactory = function ControllerFactory (component, model, notify) {
     var self = this;
     self.controller = {};
     self.component = component;
@@ -17,7 +17,7 @@ var ControllerFactory = function (component, model, notify) {
     self.notify = notify;
     return self;
 };
-ControllerFactory.prototype.forMethod = function (method) {
+ControllerFactory.prototype.forMethod = function forMethod (method) {
     var self = this;
     self.method = method;
     self.controller[self.method] = {
@@ -25,12 +25,12 @@ ControllerFactory.prototype.forMethod = function (method) {
     };
     return self;
 };
-ControllerFactory.prototype.withValidation = function (validator) {
+ControllerFactory.prototype.withValidation = function withValidation (validator) {
     var self = this;
     self.controller[self.method].validate = validator;
     return self;
 };
-ControllerFactory.prototype.preProcessWith = function (preProcess) {
+ControllerFactory.prototype.preProcessWith = function preProcessWith (preProcess) {
     var self = this;
     if (_.isArray(preProcess)) {
         preProcess.forEach(function (pre) {
@@ -41,18 +41,18 @@ ControllerFactory.prototype.preProcessWith = function (preProcess) {
     }
     return self;
 };
-ControllerFactory.prototype.handleUsing = function (handler) {
+ControllerFactory.prototype.handleUsing = function handleUsing (handler) {
     var self = this;
     self.controller[self.method].handler = handler;
     return self;
 };
-ControllerFactory.prototype.doneConfiguring = function () {
+ControllerFactory.prototype.doneConfiguring = function doneConfiguring () {
     var self = this;
     return self.controller;
 };
-ControllerFactory.prototype.newHandler = function (newCb) {
+ControllerFactory.prototype.newHandler = function createNewHandler (newCb) {
     var self = this;
-    return function (request, reply) {
+    return function createHandler (request, reply) {
         var by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
         var newObj = newCb ? newCb(request, by) : self.model.newObject(request, by);
         newObj.then(function (n) {
@@ -69,7 +69,7 @@ ControllerFactory.prototype.newHandler = function (newCb) {
         });
     };
 };
-ControllerFactory.prototype.newController = function (validator, prereqs, uniqueCheck, newCb) {
+ControllerFactory.prototype.newController = function newController (validator, prereqs, uniqueCheck, newCb) {
     var self = this;
     var pre = _.flatten([ensurePermissions('update', self.component),
         isUnique(self.model, uniqueCheck),
@@ -79,16 +79,16 @@ ControllerFactory.prototype.newController = function (validator, prereqs, unique
         .handleUsing(self.newHandler(newCb));
     return self;
 };
-ControllerFactory.prototype.customNewController = function (method, validator, uniqueCheck, newCb) {
+ControllerFactory.prototype.customNewController = function customNewController (method, validator, uniqueCheck, newCb) {
     var self = this;
     self.forMethod(method)
         .preProcessWith([isUnique(self.model, uniqueCheck)])
         .handleUsing(self.newHandler(newCb));
     return self;
 };
-ControllerFactory.prototype.findHandler = function (queryBuilder, findCb) {
+ControllerFactory.prototype.findHandler = function createFindHandler (queryBuilder, findCb) {
     var self = this;
-    return function (request, reply) {
+    return function findHandler (request, reply) {
         var query = queryBuilder(request);
         query.organisation = query.organisation || {$regex: new RegExp('^.*?' + request.auth.credentials.user.organisation + '.*$', 'i')};
         if (request.query.isActive) {
@@ -110,7 +110,7 @@ ControllerFactory.prototype.findHandler = function (queryBuilder, findCb) {
             });
     };
 };
-ControllerFactory.prototype.findController = function (validator, queryBuilder, findCb) {
+ControllerFactory.prototype.findController = function findController (validator, queryBuilder, findCb) {
     var self = this;
     validator.query.fields = Joi.string();
     validator.query.sort = Joi.string();
@@ -122,9 +122,9 @@ ControllerFactory.prototype.findController = function (validator, queryBuilder, 
         .handleUsing(self.findHandler(queryBuilder, findCb));
     return self;
 };
-ControllerFactory.prototype.findOneHandler = function (findOneCb) {
+ControllerFactory.prototype.findOneHandler = function createFindOneHandler (findOneCb) {
     var self = this;
-    return function (request, reply) {
+    return function findOneHandler (request, reply) {
         var id = self.model.ObjectID(request.params.id);
         self.model._findOne({_id: id})
             .then(function (f) {
@@ -142,16 +142,16 @@ ControllerFactory.prototype.findOneHandler = function (findOneCb) {
             });
     };
 };
-ControllerFactory.prototype.findOneController = function (findOneCb) {
+ControllerFactory.prototype.findOneController = function findOneController (findOneCb) {
     var self = this;
     self.forMethod('findOne')
         .preProcessWith(ensurePermissions('view', self.component))
         .handleUsing(self.findOneHandler(findOneCb));
     return self;
 };
-ControllerFactory.prototype.updateHandler = function (updateCb, methodName) {
+ControllerFactory.prototype.updateHandler = function createUpdateHandler (updateCb, methodName) {
     var self = this;
-    return function (request, reply) {
+    return function updateHandler (request, reply) {
         var id = self.model.ObjectID(request.params.id);
         self.model._findOne({_id: id})
             .then(function (u) {
@@ -177,7 +177,7 @@ ControllerFactory.prototype.updateHandler = function (updateCb, methodName) {
             });
     };
 };
-ControllerFactory.prototype.updateController = function (validator, prereqs, methodName, updateCb) {
+ControllerFactory.prototype.updateController = function updateController (validator, prereqs, methodName, updateCb) {
     var self = this;
     var perms = _.find(prereqs, function (prereq) {
         return prereq.assign === 'ensurePermissions';
@@ -188,11 +188,11 @@ ControllerFactory.prototype.updateController = function (validator, prereqs, met
         .handleUsing(self.updateHandler(updateCb, methodName));
     return self;
 };
-ControllerFactory.prototype.deleteController = function (pre) {
+ControllerFactory.prototype.deleteController = function deleteController (pre) {
     var self = this;
     return self.updateController(undefined, pre ? pre : [], 'delete', 'del');
 };
-ControllerFactory.prototype.joinApproveRejectController = function (actions, toAdd, approvers) {
+ControllerFactory.prototype.joinApproveRejectController = function joinApproveRejectController (actions, toAdd, approvers) {
     var self = this;
     var validator = {
         payload: {}

@@ -10,7 +10,7 @@ var Controller = new ControllerFactory('audit', Audit)
             objectType: Joi.string(),
             objectChangedId: Joi.string()
         }
-    }, function (request) {
+    }, function buildFindQuery (request) {
         var query = {};
         if (request.query.by) {
             query.by = {$regex: new RegExp('^.*?' + request.query.by + '.*$', 'i')};

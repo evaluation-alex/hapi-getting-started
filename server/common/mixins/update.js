@@ -3,7 +3,7 @@ var _ = require('lodash');
 
 module.exports = function CommonMixinUpdate (properties, lists) {
     return {
-        update: function (doc, by) {
+        update: function update (doc, by) {
             var self = this;
             _.forIn(properties, function (value, key) {
                 self['set' + _.capitalize(key)](doc.payload[value], by);

@@ -2,7 +2,7 @@
 var UserAgent = require('useragent');
 var utils = require('./utils');
 
-var normalizePath = function (request) {
+var normalizePath = function normalizePath (request) {
     var specials = request.connection._router.specials;
     if (request._route === specials.notFound.route) {
         return 'notFound*';
@@ -13,8 +13,8 @@ var normalizePath = function (request) {
     }
 };
 
-module.exports.register = function (server, options, next) {
-    server.on('tail', function (request) {
+module.exports.register = function register (server, options, next) {
+    server.on('tail', function gatherPerfStats (request) {
         var ua = UserAgent.lookup(request.headers['user-agent']);
         utils.toStatsD(normalizePath(request) + '.' + request.method.toUpperCase(),
             '.' + request.response.statusCode,

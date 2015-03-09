@@ -15,12 +15,12 @@ var Controller = new ControllerFactory('users', Users)
             organisation: Joi.string().required(),
             password: Joi.string().required()
         }
-    }, function (request) {
+    }, function uniqueCheckQuery (request) {
         return {
             email: request.payload.email,
             organisation: request.payload.organisation
         };
-    }, function (request) {
+    }, function newUser (request) {
         var email = request.payload.email;
         var password = request.payload.password;
         var organisation = request.payload.organisation;
@@ -54,14 +54,14 @@ var Controller = new ControllerFactory('users', Users)
             email: Joi.string(),
             isActive: Joi.string()
         }
-    }, function (request) {
+    }, function buildFindQuery (request) {
         var query = {};
         if (request.query.email) {
             query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
         }
         return query;
     },
-    function (output) {
+    function stripPrivateData (output) {
         output.data = _.map(output.data, function (user) {
             return {
                 email: user.email,
@@ -70,7 +70,7 @@ var Controller = new ControllerFactory('users', Users)
         });
         return output;
     })
-    .findOneController(function (user) {
+    .findOneController(function stripPrivateData (user) {
         return {
             email: user.email,
             isLoggedIn: user.session.key ? true: false
@@ -92,7 +92,7 @@ var Controller = new ControllerFactory('users', Users)
             email: Joi.string().email().required()
         }
     })
-    .handleUsing(function (request, reply) {
+    .handleUsing(function loginForgotHandler (request, reply) {
         Users._findOne({email: request.payload.email})
             .then(function(user) {
                 return user ? user.resetPasswordSent(user.email).save() : user;
@@ -122,7 +122,7 @@ var Controller = new ControllerFactory('users', Users)
             password: Joi.string().required()
         }
     })
-    .handleUsing(function (request, reply) {
+    .handleUsing(function loginResetHandler (request, reply) {
         Users._findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
             .then(function (user) {
                 if (!user || (request.payload.key !== user.resetPwd.token)) {

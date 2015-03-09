@@ -33,7 +33,7 @@ AuthAttempts.indexes = [
     [{email: 1}]
 ];
 
-AuthAttempts.create = function (ip, email) {
+AuthAttempts.create = function create (ip, email) {
     var self = this;
     var document = {
         ip: ip,
@@ -47,7 +47,7 @@ AuthAttempts.create = function (ip, email) {
         });
 };
 
-AuthAttempts.abuseDetected = function (ip, email) {
+AuthAttempts.abuseDetected = function abuseDetected (ip, email) {
     var self = this;
     return Promise.join(self._count({ip: ip}), self._count({ip: ip, email: email}),
             function (abusiveIpCount, abusiveIpUserCount) {

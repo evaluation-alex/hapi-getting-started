@@ -62,7 +62,7 @@ Notifications.indexes = [
     [{email: 1, objectType: 1, objectId: 1, title: 1}],
 ];
 
-Notifications.create = function (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
+Notifications.create = function create (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
     var self = this;
     if (_.isArray(email)) {
         return Promise.join(_.map(email, function (e) {
@@ -89,7 +89,7 @@ Notifications.create = function (email, organisation, objectType, objectId, titl
     }
 };
 
-Notifications.cancel = function (userids, objectType, objectId, title, by) {
+Notifications.cancel = function cancel (userids, objectType, objectId, title, by) {
     return Notifications._find({
         email: {$in: userids},
         objectType: objectType,

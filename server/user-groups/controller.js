@@ -17,7 +17,7 @@ var Controller = new ControllerFactory('user-groups', UserGroups)
         }
     }, [
         areValid.users(['members', 'owners'])
-    ], function (request) {
+    ], function uniqueCheckQuery (request) {
         return {
             name: request.payload.name,
             organisation: request.auth.credentials.user.organisation
@@ -29,7 +29,7 @@ var Controller = new ControllerFactory('user-groups', UserGroups)
             groupName: Joi.string(),
             isActive: Joi.string()
         }
-    }, function (request) {
+    }, function buildFindQuery (request) {
         var query = {};
         var fields = [['email', 'members'], ['groupName', 'name']];
         _.forEach(fields, function (pair) {

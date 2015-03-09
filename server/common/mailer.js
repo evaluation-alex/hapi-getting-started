@@ -12,7 +12,7 @@ var readFile = Promise.promisify(Fs.readFile);
 
 var templateCache = {};
 
-var renderTemplate = function (template, context) {
+var renderTemplate = function renderTemplate (template, context) {
     context.projectName = Config.projectName;
     if (templateCache[template]) {
         return Promise.resolve(templateCache[template](context));

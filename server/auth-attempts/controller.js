@@ -9,7 +9,7 @@ var Controller = new ControllerFactory('auth-attempts', AuthAttempts)
             ip: Joi.string(),
             email: Joi.string()
         }
-    }, function (request) {
+    }, function buildFindQuery (request) {
         var query = {};
         if (request.query.ip) {
             query.ip = request.query.ip;

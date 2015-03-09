@@ -2,7 +2,7 @@
 var Users = require('./../users/model');
 var logger = require('./../../config').logger;
 
-var loginValidation = function (email, sessionkey, callback) {
+var loginValidation = function loginValidation (email, sessionkey, callback) {
     Users.findBySessionCredentials(email, sessionkey)
         .then(function (user) {
             logger.info(['auth'], {user: email, success: true});
@@ -15,7 +15,7 @@ var loginValidation = function (email, sessionkey, callback) {
         .done();
 };
 
-module.exports.register = function (server, options, next) {
+module.exports.register = function register (server, options, next) {
     server.connections.forEach(function (connection) {
         connection.auth.strategy('simple', 'basic', {
             validateFunc: loginValidation

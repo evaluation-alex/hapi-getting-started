@@ -18,7 +18,7 @@ module.exports.toStatsD = function toStatsD (route, statusCode, user, device, br
 
 module.exports.defaultcb = function defaultcb(bucket, resolve, reject) {
     var start = Date.now();
-    return function (err, res) {
+    return function mongoCb (err, res) {
         if (err) {
             logger.error({error: err, stack: err.stack});
             reject(err);

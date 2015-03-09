@@ -3,7 +3,7 @@ var Promise = require('bluebird');
 var utils = require('./../utils');
 var _ = require('lodash');
 
-module.exports = function (Model, toPromisify) {
+module.exports = function promisify (Model, toPromisify) {
     //['find', 'findOne', 'count', 'pagedFind', 'findByIdAndUpdate', 'insert']
     _.forEach(toPromisify, function (method) {
         Model['_' + method] = function () {

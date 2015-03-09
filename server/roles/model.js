@@ -15,7 +15,7 @@ var Roles = BaseModel.extend({
 
 Promisify(Roles, ['insert', 'find', 'findOne']);
 
-Roles.prototype.hasPermissionsTo = function (performAction, onObject) {
+Roles.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
     var self = this;
     var ret = !!_.find(self.permissions, function (p) {
         return ((p.object === onObject || p.object === '*') && (p.action === performAction || p.action === 'update'));
@@ -38,7 +38,7 @@ Roles.indexes = [
     [{name: 1, organisation: 1}, {unique: true}],
 ];
 
-Roles.create = function (name, organisation, permissions) {
+Roles.create = function create (name, organisation, permissions) {
     var self = this;
     var document = {
         name: name,

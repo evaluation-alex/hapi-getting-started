@@ -37,14 +37,14 @@ _.extend(Users.prototype, new Properties(['isActive', 'roles']));
 _.extend(Users.prototype, new Save(Users));
 _.extend(Users.prototype, new CAudit('Users', 'email'));
 
-Users.prototype.hasPermissionsTo = function (performAction, onObject) {
+Users.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
     var self = this;
     var ret = !!_.find(self._roles, function (role) {
         return role.hasPermissionsTo(performAction, onObject);
     });
     return ret;
 };
-Users.prototype.hydrateRoles = function () {
+Users.prototype.hydrateRoles = function hydrateRoles () {
     var self = this;
     if (self._roles || !self.roles || self.roles.length === 0) {
         return Promise.resolve(self);
@@ -56,13 +56,13 @@ Users.prototype.hydrateRoles = function () {
             });
     }
 };
-Users.prototype._invalidateSession = function () {
+Users.prototype._invalidateSession = function invalidateSession () {
     var self = this;
     self.session = {};
     delete self.session;
     return self;
 };
-Users.prototype._newSession = function () {
+Users.prototype._newSession = function newSession () {
     var self = this;
     self.session = {
         key: Bcrypt.hashSync(Uuid.v4().toString(), 10),
@@ -70,23 +70,23 @@ Users.prototype._newSession = function () {
     };
     return self;
 };
-Users.prototype.loginSuccess = function (ipaddress, by) {
+Users.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
     var self = this;
     self._newSession();
     delete self.resetPwd;
     return self._audit('login success', null, ipaddress, by);
 };
-Users.prototype.loginFail = function (ipaddress, by) {
+Users.prototype.loginFail = function loginFail (ipaddress, by) {
     var self = this;
     self._invalidateSession();
     return self._audit('login fail', null, ipaddress, by);
 };
-Users.prototype.logout = function (ipaddress, by) {
+Users.prototype.logout = function logout (ipaddress, by) {
     var self = this;
     self._invalidateSession();
     return self._audit('logout', null, ipaddress, by);
 };
-Users.prototype.resetPasswordSent = function (by) {
+Users.prototype.resetPasswordSent = function resetPasswordSent (by) {
     var self = this;
     self.resetPwd = {
         token: Uuid.v4(),
@@ -94,7 +94,7 @@ Users.prototype.resetPasswordSent = function (by) {
     };
     return self._audit('reset password sent', null, self.resetPwd, by);
 };
-Users.prototype.resetPassword = function (newPassword, by) {
+Users.prototype.resetPassword = function resetPassword (newPassword, by) {
     var self = this;
     if (newPassword) {
         var oldPassword = self.password;
@@ -105,7 +105,7 @@ Users.prototype.resetPassword = function (newPassword, by) {
     }
     return self;
 };
-Users.prototype.update = function (doc, by) {
+Users.prototype.update = function update (doc, by) {
     var self = this;
     return self._invalidateSession()
         .setIsActive(doc.payload.isActive, by)
@@ -141,7 +141,7 @@ Users.indexes = [
     [{email: 1, organisation: 1}, {unique: true}]
 ];
 
-Users.create = function (email, password, organisation) {
+Users.create = function create (email, password, organisation) {
     var self = this;
     var hash = Bcrypt.hashSync(password, 10);
     var document = {
@@ -159,7 +159,7 @@ Users.create = function (email, password, organisation) {
     return self._insertAndAudit(document);
 };
 
-Users.findByCredentials = function (email, password) {
+Users.findByCredentials = function findByCredentials (email, password) {
     var self = this;
     return self._findOne({email: email, isActive: true})
         .then(function (user) {
@@ -181,7 +181,7 @@ Users.findByCredentials = function (email, password) {
         });
 };
 
-Users.findBySessionCredentials = function (email, key) {
+Users.findBySessionCredentials = function findBySessionCredentials (email, key) {
     var self = this;
     return self._findOne({email: email, isActive: true})
         .then(function (user) {

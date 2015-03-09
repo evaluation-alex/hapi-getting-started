@@ -9,7 +9,7 @@ var validAndPermitted = require('./../../common/prereqs/valid-permitted');
 var PostContent = require('./post-content');
 var utils = require('./../../common/utils');
 
-var prePopulateBlog = function (request, reply) {
+var prePopulateBlog = function prePopulateBlog (request, reply) {
     var blogId = request.params.blogId; //TODO: look at query too, but right now that doesnt seem to be working
     Blogs._findOne({_id: Blogs.ObjectID(blogId)})
         .then(function (blog) {
@@ -37,14 +37,14 @@ var Controller = new ControllerFactory('posts', Posts)
     }, [
         validAndPermitted(Blogs, 'blogId', ['contributors', 'owners']),
         {assign: 'blog', method: prePopulateBlog}
-    ], function (request) {
+    ], function uniqueCheckQuery (request) {
         return {
             blogId: request.params.blogId, //TODO: look at query as well, but that doesnt seem to be working right now
             organisation: request.auth.credentials.user.organisation,
             title: request.payload.title,
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
         };
-    }, function (request, by) {
+    }, function newPost (request, by) {
         var blog = request.pre.blog;
         request.payload.access = _.isUndefined(request.payload.access) ?
             blog.access :
@@ -79,7 +79,7 @@ var Controller = new ControllerFactory('posts', Posts)
             isActive: Joi.string(),
             state: Joi.string()
         }
-    }, function (request) {
+    }, function buildFindQuery (request) {
         var query = {};
         var fields = [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']];
         _.forEach(fields, function (pair) {
@@ -100,7 +100,7 @@ var Controller = new ControllerFactory('posts', Posts)
             query.publishedOn.$gte = moment(request.query.publishedOnAfter, ['YYYY-MM-DD']).toDate();
         }
         return query;
-    }, function (output) {
+    }, function enrichPosts (output) {
         return PostContent.readContentMultiple(output.data)
             .then(function (contents) {
                 for (var i = 0, l = output.data.length; i < l; i++) {
@@ -109,7 +109,7 @@ var Controller = new ControllerFactory('posts', Posts)
                 return output;
             });
     })
-    .findOneController(function (post) {
+    .findOneController(function enrichPost (post) {
         return PostContent.readContent(post)
             .then(function (content) {
                 post.content = content;
@@ -133,7 +133,7 @@ var Controller = new ControllerFactory('posts', Posts)
         validAndPermitted(Blogs, 'blogId', ['contributors', 'owners'])
     ],
     'update',
-    function (post, request, by) {
+    function update (post, request, by) {
         PostContent.writeContent(post, request.payload.content);
         return post.update(request, by);
     })
@@ -147,7 +147,7 @@ var Controller = new ControllerFactory('posts', Posts)
         {assign: 'blog', method: prePopulateBlog}
     ],
     'publish',
-    function (post, request, by) {
+    function publish (post, request, by) {
         if (post.state === 'draft' || post.state === 'pending review') {
             var blog = request.pre.blog;
             if ((_.findWhere(blog.owners, by) || by === 'root') || (!post.needsReview)) {
@@ -172,7 +172,7 @@ var Controller = new ControllerFactory('posts', Posts)
         validAndPermitted(Blogs, 'blogId', ['owners', 'contributors'])
     ],
     'reject',
-    function (post, request, by) {
+    function reject (post, request, by) {
         if (post.state === 'draft' || post.state === 'pending review') {
             request.payload.state = 'do not publish';
             post.reviewedBy = by;

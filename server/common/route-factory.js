@@ -1,13 +1,13 @@
 'use strict';
 var _ = require('lodash');
 
-var RouteFactory = function () {
+var RouteFactory = function RouteFactory () {
     var self = this;
     self.routes = [];
     self.current = -1;
     return self;
 };
-RouteFactory.prototype.newRoute = function () {
+RouteFactory.prototype.newRoute = function newRoute () {
     var self = this;
     self.current = self.current + 1;
     self.routes.push({
@@ -17,45 +17,45 @@ RouteFactory.prototype.newRoute = function () {
     });
     return self;
 };
-RouteFactory.prototype.forMethod = function (method) {
+RouteFactory.prototype.forMethod = function forMethod (method) {
     var self = this;
     self.routes[self.current].method = method;
     return self;
 };
-RouteFactory.prototype.onPath = function (path) {
+RouteFactory.prototype.onPath = function onPath (path) {
     var self = this;
     self.routes[self.current].path = path;
     return self;
 };
-RouteFactory.prototype.usingAuthStrategy = function (strategy) {
+RouteFactory.prototype.usingAuthStrategy = function usingAuthStrategy (strategy) {
     var self = this;
     self.routes[self.current].config.auth = {
         strategy: strategy
     };
     return self;
 };
-RouteFactory.prototype.withValidation = function (validator) {
+RouteFactory.prototype.withValidation = function withValidation (validator) {
     var self = this;
     self.routes[self.current].config.validate = validator;
     return self;
 };
-RouteFactory.prototype.preProcessWith = function (preProcess) {
+RouteFactory.prototype.preProcessWith = function preProcessWith (preProcess) {
     var self = this;
     preProcess.forEach(function (pre) {
         self.routes[self.current].config.pre.push(pre);
     });
     return self;
 };
-RouteFactory.prototype.handleUsing = function (handler) {
+RouteFactory.prototype.handleUsing = function handleUsing (handler) {
     var self = this;
     self.routes[self.current].handler = handler;
     return self;
 };
-RouteFactory.prototype.doneConfiguring = function () {
+RouteFactory.prototype.doneConfiguring = function doneConfiguring () {
     var self = this;
     return self.routes;
 };
-RouteFactory.prototype.withController = function (controller) {
+RouteFactory.prototype.withController = function withController (controller) {
     var self = this;
     self.handleUsing(controller.handler);
     if (controller.validate) {
@@ -66,7 +66,7 @@ RouteFactory.prototype.withController = function (controller) {
     }
     return self;
 };
-RouteFactory.prototype._defaultRoute = function (method, path, controller) {
+RouteFactory.prototype._defaultRoute = function _defaultRoute (method, path, controller) {
     var self = this;
     self.newRoute()
         .forMethod(method)
@@ -75,33 +75,33 @@ RouteFactory.prototype._defaultRoute = function (method, path, controller) {
         .withController(controller);
     return self;
 };
-var path = function (pathPrefix, component) {
+var path = function path (pathPrefix, component) {
     return ((pathPrefix ? pathPrefix : '') + '/' + component);
 };
-var pathWithId = function (pathPrefix, component) {
+var pathWithId = function pathWithId (pathPrefix, component) {
     return ((pathPrefix ? pathPrefix : '') + '/' + component + '/{id}');
 };
-RouteFactory.prototype.defaultNewRoute = function (component, controller, pathPrefix) {
+RouteFactory.prototype.defaultNewRoute = function defaultNewRoute (component, controller, pathPrefix) {
     var self = this;
     return self._defaultRoute('POST', path(pathPrefix, component), controller);
 };
-RouteFactory.prototype.defaultFindRoute = function (component, controller, pathPrefix) {
+RouteFactory.prototype.defaultFindRoute = function defaultFindRoute (component, controller, pathPrefix) {
     var self = this;
     return self._defaultRoute('GET', path(pathPrefix, component), controller);
 };
-RouteFactory.prototype.defaultFindOneRoute = function (component, controller, pathPrefix) {
+RouteFactory.prototype.defaultFindOneRoute = function defaultFindOneRoute (component, controller, pathPrefix) {
     var self = this;
     return self._defaultRoute('GET', pathWithId(pathPrefix, component), controller);
 };
-RouteFactory.prototype.defaultUpdateRoute = function (component, controller, pathPrefix) {
+RouteFactory.prototype.defaultUpdateRoute = function defaultUpdateRoute (component, controller, pathPrefix) {
     var self = this;
     return self._defaultRoute('PUT', pathWithId(pathPrefix, component), controller);
 };
-RouteFactory.prototype.defaultDeleteRoute = function (component, controller, pathPrefix) {
+RouteFactory.prototype.defaultDeleteRoute = function defaultDeleteRoute (component, controller, pathPrefix) {
     var self = this;
     return self._defaultRoute('DELETE', pathWithId(pathPrefix, component), controller);
 };
-RouteFactory.prototype.discoverDefaultRoutes = function (component, controller, pathPrefix) {
+RouteFactory.prototype.discoverDefaultRoutes = function discoverDefaultRoutes (component, controller, pathPrefix) {
     var self = this;
     var discover = {
         'new': 'defaultNewRoute',

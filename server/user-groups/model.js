@@ -75,7 +75,7 @@ UserGroups.indexes = [
     [{'owners': 1}]
 ];
 
-UserGroups.newObject = function (doc, by) {
+UserGroups.newObject = function newObject (doc, by) {
     var self = this;
     return self.create(doc.payload.name,
         doc.auth.credentials.user.organisation,
@@ -92,7 +92,7 @@ UserGroups.newObject = function (doc, by) {
         });
 };
 
-UserGroups.create = function (name, organisation, description, owner) {
+UserGroups.create = function create (name, organisation, description, owner) {
     var self = this;
     var document = {
         name: name,

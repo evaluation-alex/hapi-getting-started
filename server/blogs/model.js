@@ -87,7 +87,7 @@ Blogs.indexes = [
     [{contributors: 1}]
 ];
 
-Blogs.newObject = function (doc, by) {
+Blogs.newObject = function newObject (doc, by) {
     var self = this;
     return self.create(doc.payload.title,
         doc.auth.credentials.user.organisation,
@@ -102,7 +102,7 @@ Blogs.newObject = function (doc, by) {
         by);
 };
 
-Blogs.create = function (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {
+Blogs.create = function create (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {
     var self = this;
     var id = Blogs.ObjectID();
     mkdirp((Config.storage.diskPath + '/' + organisation + '/blogs/' + id.toString()).replace(' ', '-'), {});

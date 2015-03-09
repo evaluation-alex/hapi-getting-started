@@ -80,7 +80,7 @@ var Controller = new ControllerFactory('blogs', Blogs, Notifications)
     }, [
         areValid.users(['owners', 'contributors', 'subscribers']),
         areValid.groups(['subscriberGroups'])
-    ], function (request) {
+    ], function uniqueCheckQuery (request) {
         return {
             title: request.payload.title,
             organisation: request.auth.credentials.user.organisation
@@ -95,7 +95,7 @@ var Controller = new ControllerFactory('blogs', Blogs, Notifications)
             subGroup: Joi.string(),
             isActive: Joi.string()
         }
-    }, function (request) {
+    }, function buildFindQuery (request) {
         var query = {};
         var fields = [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'], ['subGroup', 'subscriberGroups']];
         _.forEach(fields, function (pair) {

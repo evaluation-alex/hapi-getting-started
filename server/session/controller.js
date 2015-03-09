@@ -6,7 +6,7 @@ var AuthAttempts = require('./../auth-attempts/model');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
 
-var abuseDetected = function (request, reply) {
+var abuseDetected = function abuseDetected (request, reply) {
     AuthAttempts.abuseDetected(request.info.remoteAddress, request.payload.email)
         .then(function (detected) {
             if (detected) {
@@ -31,7 +31,7 @@ var Controller = new ControllerFactory('session', null)
     .preProcessWith([
         {assign: 'abuseDetected', method: abuseDetected}
     ])
-    .handleUsing(function (request, reply) {
+    .handleUsing(function loginHandler (request, reply) {
         var email = request.payload.email;
         var password = request.payload.password;
         var ip = request.info.remoteAddress;
@@ -59,7 +59,7 @@ var Controller = new ControllerFactory('session', null)
             });
     })
     .forMethod('logout')
-    .handleUsing(function (request, reply) {
+    .handleUsing(function logoutHandler(request, reply) {
         var user = request.auth.credentials.user;
         user.logout(request.info.remoteAddress, user.email).save()
             .then(function () {

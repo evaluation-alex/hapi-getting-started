@@ -1,7 +1,7 @@
 'use strict';
 module.exports = function CommonMixinAudit (type, idToUse) {
     return {
-        _audit: function (action, oldValues, newValues, by) {
+        _audit: function audit (action, oldValues, newValues, by) {
             var self = this;
             if (!self.audit) {
                 self.audit = [];

@@ -40,14 +40,14 @@ var areValid = function areValid (Model, payloadPropertiesToLookup) {
     };
 };
 
-module.exports.users = function (payloadPropertiesToLookup) {
+module.exports.users = function validUsers (payloadPropertiesToLookup) {
     return {
         assign: 'validUsers',
         method: areValid(Users, payloadPropertiesToLookup)
     };
 };
 
-module.exports.groups = function (payloadPropertiesToLookup) {
+module.exports.groups = function validGroups (payloadPropertiesToLookup) {
     return {
         assign: 'validUserGroups',
         method: areValid(UserGroups, payloadPropertiesToLookup)

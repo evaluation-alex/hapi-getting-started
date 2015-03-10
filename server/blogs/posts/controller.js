@@ -9,7 +9,7 @@ var validAndPermitted = require('./../../common/prereqs/valid-permitted');
 var prePopulate = require('./../../common/prereqs/pre-populate');
 var PostContent = require('./post-content');
 
-var Controller = new ControllerFactory('posts', Posts)
+var Controller = new ControllerFactory(Posts)
     .newController({
         payload: {
             blogId: Joi.string(),

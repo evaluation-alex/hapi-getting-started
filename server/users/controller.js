@@ -4,11 +4,11 @@ var _ = require('lodash');
 var Boom = require('boom');
 var Config = require('./../../config');
 var Users = require('./model');
-var Mailer = require('./../common/mailer');
+var Mailer = require('./../common/plugins/mailer');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
 
-var Controller = new ControllerFactory('users', Users)
+var Controller = new ControllerFactory(Users)
     .customNewController('signup', {
         payload: {
             email: Joi.string().email().required(),

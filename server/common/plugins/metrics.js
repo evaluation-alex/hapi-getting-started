@@ -1,6 +1,6 @@
 'use strict';
 var UserAgent = require('useragent');
-var utils = require('./utils');
+var utils = require('./../utils');
 
 var normalizePath = function normalizePath (request) {
     var specials = request.connection._router.specials;

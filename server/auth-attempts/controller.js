@@ -3,7 +3,7 @@ var Joi = require('joi');
 var AuthAttempts = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
 
-var Controller = new ControllerFactory('auth-attempts', AuthAttempts)
+var Controller = new ControllerFactory(AuthAttempts)
     .findController({
         query: {
             ip: Joi.string(),

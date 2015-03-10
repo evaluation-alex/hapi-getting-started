@@ -81,7 +81,7 @@ Posts.indexes = [
 
 Posts.newObject = function newObject (doc, by) {
     var self = this;
-    return self.create(doc.params.blogId,
+    return self.create(doc.params.blogId || doc.payload.blogId,
         doc.auth.credentials.user.organisation,
         doc.payload.title,
         doc.payload.state,

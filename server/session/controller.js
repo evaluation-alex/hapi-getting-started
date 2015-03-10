@@ -20,7 +20,7 @@ var abuseDetected = function abuseDetected (request, reply) {
         });
 };
 
-var Controller = new ControllerFactory('session', null)
+var Controller = new ControllerFactory()
     .forMethod('login')
     .withValidation({
         payload: {

@@ -6,7 +6,7 @@ var ControllerFactory = require('./../common/controller-factory');
 var areValid = require('./../common/prereqs/are-valid');
 var validAndPermitted = require('./../common/prereqs/valid-permitted');
 
-var Controller = new ControllerFactory('user-groups', UserGroups)
+var Controller = new ControllerFactory(UserGroups)
     .newController({
         payload: {
             name: Joi.string().required(),

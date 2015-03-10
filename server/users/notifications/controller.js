@@ -5,7 +5,7 @@ var moment = require('moment');
 var Notifications = require('./model');
 var ControllerFactory = require('./../../common/controller-factory');
 
-var Controller = new ControllerFactory('notifications', Notifications)
+var Controller = new ControllerFactory(Notifications)
     .findController({
         query: {
             title: Joi.string(),

@@ -39,8 +39,8 @@ var plugins = {
     },
     'hapi-require-https': {},
     'hapi-auth-basic': {},
-    './server/common/auth': {},
-    './server/common/metrics': {}
+    './server/common/plugins/auth': {},
+    './server/common/auth/metrics': {}
 };
 
 var components = [

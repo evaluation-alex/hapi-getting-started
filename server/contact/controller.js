@@ -2,10 +2,10 @@
 var Joi = require('joi');
 var Config = require('./../../config');
 var ControllerFactory = require('./../common/controller-factory');
-var mailer = require('./../common/mailer');
+var mailer = require('./../common/plugins/mailer');
 var utils = require('./../common/utils');
 
-var Controller = new ControllerFactory('contact', null)
+var Controller = new ControllerFactory()
     .forMethod('contact')
     .withValidation({
         payload: {

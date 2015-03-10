@@ -64,7 +64,7 @@ Notifications.on('subscribe blogs', function (obj) {
     }
 });
 
-var Controller = new ControllerFactory('blogs', Blogs, Notifications)
+var Controller = new ControllerFactory(Blogs, Notifications)
     .newController({
         payload: {
             title: Joi.string(),

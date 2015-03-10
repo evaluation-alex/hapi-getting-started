@@ -15,7 +15,8 @@ module.exports = function CommonMixinAddRemove (roles) {
         add: function add (toAdd, role, by) {
             var self = this;
             var rolePair = self._findRoles(role);
-            if (toAdd && toAdd.length > 0 && rolePair) {
+            toAdd = toAdd || [];
+            if (rolePair) {
                 _.forEach(toAdd, function (memberToAdd) {
                     var found = _.findWhere(self[rolePair[1]], memberToAdd);
                     if (!found) {
@@ -29,7 +30,8 @@ module.exports = function CommonMixinAddRemove (roles) {
         remove: function remove (toRemove, role, by) {
             var self = this;
             var rolePair = self._findRoles(role);
-            if (toRemove && toRemove.length > 0 && rolePair) {
+            toRemove = toRemove || [];
+            if (rolePair) {
                 _.forEach(toRemove, function (memberToRemove) {
                     var found = _.remove(self[rolePair[1]], function (m) {
                         return m === memberToRemove;

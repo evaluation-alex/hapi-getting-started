@@ -2,7 +2,7 @@
 var relativeToServer = './../../../server/';
 
 var Hapi = require('hapi');
-var MetricsPlugin = require(relativeToServer + 'common/metrics');
+var MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
 
 //var expect = require('chai').expect;
 var Lab = require('lab');

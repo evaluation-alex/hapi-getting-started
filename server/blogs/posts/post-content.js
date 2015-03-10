@@ -33,7 +33,7 @@ module.exports.writeContent = function writeContent (post, content) {
     if (!_.isUndefined(content) && content.length > 0) {
         var filename = module.exports.filenameForPost(post);
         cache.set(filename, content);
-        writeFile(Config.storage.diskPath + filename, content, {}, function (err) {
+        writeFile(Config.storage.diskPath + filename, content, {}, function errHandler (err) {
             if (err) {
                 logger.error({error: err});
             }

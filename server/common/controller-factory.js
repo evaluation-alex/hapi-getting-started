@@ -1,21 +1,26 @@
 'use strict';
 var Joi = require('joi');
-var Boom = require('boom');
-var Promise = require('bluebird');
 var _ = require('lodash');
 var ensurePermissions = require('./prereqs/ensure-permissions');
 var validAndPermitted = require('./prereqs/valid-permitted');
 var isUnique = require('./prereqs/is-unique');
 var areValid = require('./prereqs/are-valid');
 var prePopulate = require('./prereqs/pre-populate');
-var utils = require('./utils');
+var createNewHandler = require('./handlers/create');
+var createFindHandler = require('./handlers/find');
+var createFindOneHandler = require('./handlers/find-one');
+var createUpdateHandler = require('./handlers/update');
 
-var ControllerFactory = function ControllerFactory (component, model, notify) {
+var ControllerFactory = function ControllerFactory (model, notify) {
     var self = this;
     self.controller = {};
-    self.component = component;
-    self.model = model;
-    self.notify = notify;
+    if (model) {
+        self.model = model;
+        self.component = model._collection;
+    }
+    if (notify) {
+        self.notify = notify;
+    }
     return self;
 };
 ControllerFactory.prototype.forMethod = function forMethod (method) {
@@ -51,28 +56,6 @@ ControllerFactory.prototype.doneConfiguring = function doneConfiguring () {
     var self = this;
     return self.controller;
 };
-ControllerFactory.prototype.newHandler = function createNewHandler (newCb) {
-    var self = this;
-    var newObjHook = function newObjCb (request, by) {
-        return Promise.resolve(newCb ? newCb(request, by) : self.model.newObject(request, by));
-    };
-    return function createHandler (request, reply) {
-        var by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
-        newObjHook(request, by)
-            .then(function (n) {
-                if (!n) {
-                    reply(Boom.notFound(self.component + ' could not be created.'));
-                } else {
-                    if (self.notify) {
-                        self.notify.emit('new ' + self.component, {object: n, request: request});
-                    }
-                    reply(n).code(201);
-                }
-            }).catch(function (err) {
-                utils.logAndBoom(err, reply);
-            });
-    };
-};
 ControllerFactory.prototype.newController = function newController (validator, prereqs, uniqueCheck, newCb) {
     var self = this;
     var pre = _.flatten([ensurePermissions('update', self.component),
@@ -80,38 +63,15 @@ ControllerFactory.prototype.newController = function newController (validator, p
         prereqs]);
     self.forMethod('new')
         .preProcessWith(pre)
-        .handleUsing(self.newHandler(newCb));
+        .handleUsing(createNewHandler(self.model, self.notify, newCb));
     return self;
 };
 ControllerFactory.prototype.customNewController = function customNewController (method, validator, uniqueCheck, newCb) {
     var self = this;
     self.forMethod(method)
         .preProcessWith([isUnique(self.model, uniqueCheck)])
-        .handleUsing(self.newHandler(newCb));
+        .handleUsing(createNewHandler(self.model, self.notify, newCb));
     return self;
-};
-ControllerFactory.prototype.findHandler = function createFindHandler (queryBuilder, findCb) {
-    var self = this;
-    var findHook = function findObjsCb(output) {
-        return Promise.resolve(findCb ? findCb(output): output);
-    };
-    return function findHandler (request, reply) {
-        var query = queryBuilder(request);
-        query.organisation = query.organisation || {$regex: new RegExp('^.*?' + request.auth.credentials.user.organisation + '.*$', 'i')};
-        if (request.query.isActive) {
-            query.isActive = request.query.isActive === '"true"';
-        }
-        var fields = request.query.fields;
-        var sort = request.query.sort;
-        var limit = request.query.limit;
-        var page = request.query.page;
-        self.model._pagedFind(query, fields, sort, limit, page)
-            .then(findHook)
-            .then(reply)
-            .catch(function (err) {
-                utils.logAndBoom(err, reply);
-            });
-    };
 };
 ControllerFactory.prototype.findController = function findController (validator, queryBuilder, findCb) {
     var self = this;
@@ -122,50 +82,15 @@ ControllerFactory.prototype.findController = function findController (validator,
     self.forMethod('find')
         .withValidation(validator)
         .preProcessWith(ensurePermissions('view', self.component))
-        .handleUsing(self.findHandler(queryBuilder, findCb));
+        .handleUsing(createFindHandler(self.model, queryBuilder, findCb));
     return self;
-};
-ControllerFactory.prototype.findOneHandler = function createFindOneHandler (findOneCb) {
-    var self = this;
-    var findOneHook = function findOneCB(output) {
-        return Promise.resolve(findOneCb ? findOneCb(output) : output);
-    };
-    return function findOneHandler (request, reply) {
-        var f = request.pre[self.model._collection];
-        findOneHook(f)
-            .then(reply)
-            .catch(function (err) {
-                utils.logAndBoom(err, reply);
-            });
-    };
 };
 ControllerFactory.prototype.findOneController = function findOneController (findOneCb) {
     var self = this;
     self.forMethod('findOne')
         .preProcessWith([ensurePermissions('view', self.component), prePopulate(self.model, 'id')])
-        .handleUsing(self.findOneHandler(findOneCb));
+        .handleUsing(createFindOneHandler(self.model, findOneCb));
     return self;
-};
-ControllerFactory.prototype.updateHandler = function createUpdateHandler (updateCb, methodName) {
-    var self = this;
-    var updateOneHook = function updateCB(u ,request, by) {
-        u = _.isFunction(updateCb) ? updateCb(u, request, by) : u[updateCb](request, by);
-        return u.save();
-    };
-    return function updateHandler (request, reply) {
-        var u = request.pre[self.model._collection];
-        var by = request.auth.credentials.user.email;
-        updateOneHook(u, request, by)
-            .then(function (u) {
-                if (self.notify) {
-                    self.notify.emit(methodName + ' ' + self.component, {object: u, request: request});
-                }
-                reply(u);
-            })
-            .catch(function (err) {
-                utils.logAndBoom(err, reply);
-            });
-    };
 };
 ControllerFactory.prototype.updateController = function updateController (validator, prereqs, methodName, updateCb) {
     var self = this;
@@ -175,7 +100,7 @@ ControllerFactory.prototype.updateController = function updateController (valida
     var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prereqs, prePopulate(self.model, 'id')]);
     self.forMethod(methodName)
         .preProcessWith(pre)
-        .handleUsing(self.updateHandler(updateCb, methodName));
+        .handleUsing(createUpdateHandler(self.model, self.notify, methodName, updateCb));
     return self;
 };
 ControllerFactory.prototype.deleteController = function deleteController (pre) {

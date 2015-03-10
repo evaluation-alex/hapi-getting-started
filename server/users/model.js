@@ -4,6 +4,7 @@ var ObjectAssign = require('object-assign');
 var Joi = require('joi');
 var Uuid = require('node-uuid');
 var Bcrypt = require('bcrypt');
+var Promise = require('bluebird');
 var Promisify = require('./../common/mixins/promisify');
 var Insert = require('./../common/mixins/insert');
 var AreValid = require('./../common/mixins/exist');

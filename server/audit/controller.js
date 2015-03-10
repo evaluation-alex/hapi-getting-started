@@ -3,7 +3,7 @@ var Joi = require('joi');
 var Audit = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
 
-var Controller = new ControllerFactory('audit', Audit)
+var Controller = new ControllerFactory(Audit)
     .findController({
         query: {
             by: Joi.string(),

@@ -35,7 +35,7 @@ module.exports.writeContent = function writeContent (post, content) {
         cache.set(filename, content);
         writeFile(Config.storage.diskPath + filename, content, {}, function errHandler (err) {
             if (err) {
-                logger.error({error: err});
+                logger.error({error: err, stack: err.stack});
             }
         });
     }

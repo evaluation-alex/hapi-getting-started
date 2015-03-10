@@ -326,12 +326,12 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].isActive).to.be.true();
-                                    return Audit.findAudit('Blogs', found[0].title, {action: 'isActive'});
+                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': 'isActive'});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/isActive/);
+                                    expect(foundAudit[0].change[0].action).to.match(/isActive/);
                                     blogsToClear.push('test PUT /blogs isActive=true');
                                     done();
                                 });
@@ -363,12 +363,12 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].isActive).to.be.false();
-                                    return Audit.findAudit('Blogs', found[0].title, {action: 'isActive'});
+                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': 'isActive'});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/isActive/);
+                                    expect(foundAudit[0].change[0].action).to.match(/isActive/);
                                     blogsToClear.push('test PUT /blogs isActive=false');
                                     done();
                                 });
@@ -405,13 +405,13 @@ describe('Blogs', function () {
                                 .then(function (found) {
                                     expect(found[0].subscribers[1]).to.equal('one@first.com');
                                     expect(found[0].subscriberGroups[0]).to.equal('testBlogsAddGroup');
-                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /add/}});
+                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /add/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(2);
-                                    expect(foundAudit[0].action).to.match(/add/);
-                                    expect(foundAudit[1].action).to.match(/add/);
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].change[0].action).to.match(/add/);
+                                    expect(foundAudit[0].change[1].action).to.match(/add/);
                                     blogsToClear.push('test PUT /blogs add subscribers and subscriber groups');
                                     groupsToClear.push('testBlogsAddGroup');
                                     done();
@@ -447,13 +447,13 @@ describe('Blogs', function () {
                                 .then(function (found) {
                                     expect(found[0].subscribers.length).to.equal(0);
                                     expect(found[0].subscriberGroups.length).to.equal(0);
-                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /remove/}});
+                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /remove/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(2);
-                                    expect(foundAudit[0].action).to.match(/remove/);
-                                    expect(foundAudit[1].action).to.match(/remove/);
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].change[0].action).to.match(/remove/);
+                                    expect(foundAudit[0].change[0].action).to.match(/remove/);
                                     blogsToClear.push('test PUT /blogs remove subscribers and sub groups');
                                     done();
                                 });
@@ -485,12 +485,12 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].description).to.equal('updated');
-                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /description/}});
+                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /description/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/description/);
+                                    expect(foundAudit[0].change[0].action).to.match(/description/);
                                     blogsToClear.push('test PUT /blogs update desc');
                                     blogsToClear.push('updated');
                                     done();
@@ -524,12 +524,12 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].access).to.equal('restricted');
-                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /access/}});
+                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /access/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/access/);
+                                    expect(foundAudit[0].change[0].action).to.match(/access/);
                                     blogsToClear.push('test PUT /blogs access');
                                     done();
                                 });
@@ -561,12 +561,12 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].needsReview).to.equal(true);
-                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /needsReview/}});
+                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /needsReview/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/needsReview/);
+                                    expect(foundAudit[0].change[0].action).to.match(/needsReview/);
                                     blogsToClear.push('test PUT /blogs needsReview');
                                     done();
                                 });
@@ -598,12 +598,12 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].allowComments).to.equal(false);
-                                    return Audit.findAudit('Blogs', found[0].title, {action: {$regex: /allowComments/}});
+                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /allowComments/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/allowComments/);
+                                    expect(foundAudit[0].change[0].action).to.match(/allowComments/);
                                     blogsToClear.push('test PUT /blogs allowComments');
                                     done();
                                 });
@@ -687,11 +687,11 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
-                                    return Audit.findAudit('Blogs', 'testPutSubscribeGroupAddUser', {action: {$regex: /add needsApproval/}});
+                                    return Audit.findAudit('Blogs', 'testPutSubscribeGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/add needsApproval/);
+                                    expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
                                     blogsToClear.push('testPutSubscribeGroupAddUser');
                                     done();
                                 });
@@ -729,11 +729,11 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
-                                    return Audit.findAudit('Blogs', 'testPutSubscribePublicGroupAddUser', {action: {$regex: /add subscriber/}});
+                                    return Audit.findAudit('Blogs', 'testPutSubscribePublicGroupAddUser', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/add subscriber/);
+                                    expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
                                     blogsToClear.push('testPutSubscribePublicGroupAddUser');
                                     done();
                                 });
@@ -819,11 +819,11 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
-                                    return Audit.findAudit('Blogs', 'testBlogPutApproveAddUser', {action: {$regex: /add subscriber/}});
+                                    return Audit.findAudit('Blogs', 'testBlogPutApproveAddUser', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/add subscriber/);
+                                    expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
                                     blogsToClear.push('testBlogPutApproveAddUser');
                                     done();
                                 });
@@ -868,7 +868,7 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.false();
-                                    return Audit.findAudit('Blogs', 'testPutApproveBlogNotOwner', {action: {$regex: /add subscriber/}});
+                                    return Audit.findAudit('Blogs', 'testPutApproveBlogNotOwner', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(0);
@@ -957,11 +957,11 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.false();
-                                    return Audit.findAudit('Blogs', 'testPutRejectBlogAddUser', {action: {$regex: /remove needsApproval/}});
+                                    return Audit.findAudit('Blogs', 'testPutRejectBlogAddUser', {'change.action': {$regex: /remove needsApproval/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].action).to.match(/remove needsApproval/);
+                                    expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
                                     blogsToClear.push('testPutRejectBlogAddUser');
                                     done();
                                 });
@@ -1133,7 +1133,7 @@ describe('Blogs', function () {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].description).to.equal('test post /blogs sucess');
                                     expect(found[0].title).to.equal('test post /blogs success');
-                                    return Audit.findAudit('Blogs', 'test post /blogs success', {action: 'create'});
+                                    return Audit.findAudit('Blogs', 'test post /blogs success', {'change.action': 'create'});
                                 })
                                 .then(function (fa) {
                                     expect(fa.length).to.equal(1);
@@ -1220,11 +1220,11 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (p) {
                                     expect(p[0].isActive).to.be.false;
-                                    return Audit.findAudit('Blogs', p[0].title, {action: 'isActive'});
+                                    return Audit.findAudit('Blogs', p[0].title, {'change.action': 'isActive'});
                                 })
                                 .then(function (a) {
                                     expect(a).to.exist();
-                                    expect(a[0].action).to.match(/isActive/);
+                                    expect(a[0].change[0].action).to.match(/isActive/);
                                     blogsToClear.push('test DELETE /blogs/id');
                                     done();
                                 });

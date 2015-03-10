@@ -96,7 +96,7 @@ describe('Session', function () {
                         .then(function (aa) {
                             expect(aa).to.exist();
                             expect(aa.length).to.equal(1);
-                            return Audit.findAudit('Users', 'test.users@test.api', {action: 'login fail'});
+                            return Audit.findAudit('Users', 'test.users@test.api', {'change.action': 'login fail'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -141,7 +141,7 @@ describe('Session', function () {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.exist();
                     expect(response.payload).to.contain('test.users@test.api');
-                    Audit.findAudit('Users', 'test.users@test.api', {action: 'login success'})
+                    Audit.findAudit('Users', 'test.users@test.api', {'change.action': 'login success'})
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
                             done();

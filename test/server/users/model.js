@@ -265,11 +265,11 @@ describe('Users Model', function () {
                     return user.loginSuccess('test', 'test').save();
                 }).then(function (user) {
                     expect(user.session).to.exist();
-                    return Audit.findAudit('Users',  user.email, {action: 'login success'});
+                    return Audit.findAudit('Users',  user.email, {'change.action': 'login success'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].newValues).to.equal('test');
+                    expect(userAudit[0].change[0].newValues).to.equal('test');
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -290,11 +290,11 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
-                    return Audit.findAudit('Users',  user.email, {action: 'logout'});
+                    return Audit.findAudit('Users',  user.email, {'change.action': 'logout'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].newValues).to.equal('test');
+                    expect(userAudit[0].change[0].newValues).to.equal('test');
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -315,11 +315,11 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
-                    return Audit.findAudit('Users',  user.email, {action: 'login fail'});
+                    return Audit.findAudit('Users',  user.email, {'change.action': 'login fail'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].newValues).to.equal('test');
+                    expect(userAudit[0].change[0].newValues).to.equal('test');
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -339,7 +339,7 @@ describe('Users Model', function () {
                     return user.resetPasswordSent('test').save();
                 })
                 .then(function (user) {
-                    return Audit.findAudit('Users',  user.email, {action: 'reset password sent'});
+                    return Audit.findAudit('Users',  user.email, {'change.action': 'reset password sent'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -360,7 +360,7 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
-                    return Audit.findAudit('Users',  user.email, {action: 'reset password'});
+                    return Audit.findAudit('Users',  user.email, {'change.action': 'reset password'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -384,11 +384,11 @@ describe('Users Model', function () {
                 }).then(function (user) {
                     expect(user.session).to.not.exist();
                     expect(user.roles).to.include(['root']);
-                    return Audit.findAudit('Users',  user.email, {action: 'roles'});
+                    return Audit.findAudit('Users',  user.email, {'change.action': 'roles'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].origValues).to.include(['readonly']);
+                    expect(userAudit[0].change[0].origValues).to.include(['readonly']);
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -409,11 +409,11 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.false();
-                    return Audit.findAudit('Users',  user.email, {action: 'isActive'});
+                    return Audit.findAudit('Users',  user.email, {'change.action': 'isActive'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].origValues).to.be.true();
+                    expect(userAudit[0].change[0].origValues).to.be.true();
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -431,7 +431,7 @@ describe('Users Model', function () {
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.true();
-                    return Audit.findAudit('Users',  user.email, {action: 'isActive'});
+                    return Audit.findAudit('Users',  user.email, {'change.action': 'isActive'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit.length).to.equal(2);

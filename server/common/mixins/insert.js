@@ -14,12 +14,14 @@ module.exports = function InsertAndAudit (idToUse, action) {
                         var audit = {
                             objectChangedType: _.capitalize(self._collection),
                             objectChangedId: obj[0][idToUse],
-                            action: action,
-                            origValues: null,
-                            newValues: doc,
                             organisation: obj[0].organisation,
                             by: obj[0].createdBy,
-                            timestamp: new Date()
+                            on: new Date(),
+                            change: [{
+                                action: action,
+                                origValues: null,
+                                newValues: doc
+                            }]
                         };
                         insertAudit(audit);
                     }

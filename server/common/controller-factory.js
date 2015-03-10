@@ -1,12 +1,13 @@
 'use strict';
 var Joi = require('joi');
 var Boom = require('boom');
+var Promise = require('bluebird');
 var _ = require('lodash');
-var validAndPermitted = require('./prereqs/valid-permitted');
 var ensurePermissions = require('./prereqs/ensure-permissions');
+var validAndPermitted = require('./prereqs/valid-permitted');
 var isUnique = require('./prereqs/is-unique');
 var areValid = require('./prereqs/are-valid');
-
+var prePopulate = require('./prereqs/pre-populate');
 var utils = require('./utils');
 
 var ControllerFactory = function ControllerFactory (component, model, notify) {
@@ -52,21 +53,24 @@ ControllerFactory.prototype.doneConfiguring = function doneConfiguring () {
 };
 ControllerFactory.prototype.newHandler = function createNewHandler (newCb) {
     var self = this;
+    var newObjHook = function newObjCb (request, by) {
+        return Promise.resolve(newCb ? newCb(request, by) : self.model.newObject(request, by));
+    };
     return function createHandler (request, reply) {
         var by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
-        var newObj = newCb ? newCb(request, by) : self.model.newObject(request, by);
-        newObj.then(function (n) {
-            if (!n) {
-                reply(Boom.notFound(self.component + ' could not be created.'));
-            } else {
-                if (self.notify) {
-                    self.notify.emit('new ' + self.component, {object: n, request: request});
+        newObjHook(request, by)
+            .then(function (n) {
+                if (!n) {
+                    reply(Boom.notFound(self.component + ' could not be created.'));
+                } else {
+                    if (self.notify) {
+                        self.notify.emit('new ' + self.component, {object: n, request: request});
+                    }
+                    reply(n).code(201);
                 }
-                reply(n).code(201);
-            }
-        }).catch(function (err) {
-            utils.logAndBoom(err, reply);
-        });
+            }).catch(function (err) {
+                utils.logAndBoom(err, reply);
+            });
     };
 };
 ControllerFactory.prototype.newController = function newController (validator, prereqs, uniqueCheck, newCb) {
@@ -88,6 +92,9 @@ ControllerFactory.prototype.customNewController = function customNewController (
 };
 ControllerFactory.prototype.findHandler = function createFindHandler (queryBuilder, findCb) {
     var self = this;
+    var findHook = function findObjsCb(output) {
+        return Promise.resolve(findCb ? findCb(output): output);
+    };
     return function findHandler (request, reply) {
         var query = queryBuilder(request);
         query.organisation = query.organisation || {$regex: new RegExp('^.*?' + request.auth.credentials.user.organisation + '.*$', 'i')};
@@ -99,12 +106,8 @@ ControllerFactory.prototype.findHandler = function createFindHandler (queryBuild
         var limit = request.query.limit;
         var page = request.query.page;
         self.model._pagedFind(query, fields, sort, limit, page)
-            .then(function (output) {
-                return findCb ? findCb(output) : output;
-            })
-            .then(function (output) {
-                reply(output);
-            })
+            .then(findHook)
+            .then(reply)
             .catch(function (err) {
                 utils.logAndBoom(err, reply);
             });
@@ -124,19 +127,13 @@ ControllerFactory.prototype.findController = function findController (validator,
 };
 ControllerFactory.prototype.findOneHandler = function createFindOneHandler (findOneCb) {
     var self = this;
+    var findOneHook = function findOneCB(output) {
+        return Promise.resolve(findOneCb ? findOneCb(output) : output);
+    };
     return function findOneHandler (request, reply) {
-        var id = self.model.ObjectID(request.params.id);
-        self.model._findOne({_id: id})
-            .then(function (f) {
-                if (!f) {
-                    return Boom.notFound(self.component + ' (' + id.toString() + ' ) not found');
-                } else {
-                    return findOneCb ? findOneCb(f) : f;
-                }
-            })
-            .then(function (f) {
-                reply(f);
-            })
+        var f = request.pre[self.model._collection];
+        findOneHook(f)
+            .then(reply)
             .catch(function (err) {
                 utils.logAndBoom(err, reply);
             });
@@ -145,30 +142,23 @@ ControllerFactory.prototype.findOneHandler = function createFindOneHandler (find
 ControllerFactory.prototype.findOneController = function findOneController (findOneCb) {
     var self = this;
     self.forMethod('findOne')
-        .preProcessWith(ensurePermissions('view', self.component))
+        .preProcessWith([ensurePermissions('view', self.component), prePopulate(self.model, 'id')])
         .handleUsing(self.findOneHandler(findOneCb));
     return self;
 };
 ControllerFactory.prototype.updateHandler = function createUpdateHandler (updateCb, methodName) {
     var self = this;
+    var updateOneHook = function updateCB(u ,request, by) {
+        u = _.isFunction(updateCb) ? updateCb(u, request, by) : u[updateCb](request, by);
+        return u.save();
+    };
     return function updateHandler (request, reply) {
-        var id = self.model.ObjectID(request.params.id);
-        self.model._findOne({_id: id})
+        var u = request.pre[self.model._collection];
+        var by = request.auth.credentials.user.email;
+        updateOneHook(u, request, by)
             .then(function (u) {
-                if (!u) {
-                    return Boom.notFound(self.component + ' (' + id.toString() + ' ) not found');
-                } else {
-                    var by = request.auth.credentials.user.email;
-                    if (_.isFunction(updateCb)) {
-                        return updateCb(u, request, by).save();
-                    } else {
-                        return u[updateCb](request, by).save();
-                    }
-                }
-            })
-            .then(function (u) {
-                if (!u.isBoom && self.notify) {
-                    self.notify.emit(methodName  + ' ' + self.component, {object: u, request: request});
+                if (self.notify) {
+                    self.notify.emit(methodName + ' ' + self.component, {object: u, request: request});
                 }
                 reply(u);
             })
@@ -182,7 +172,7 @@ ControllerFactory.prototype.updateController = function updateController (valida
     var perms = _.find(prereqs, function (prereq) {
         return prereq.assign === 'ensurePermissions';
     });
-    var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prereqs]);
+    var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prereqs, prePopulate(self.model, 'id')]);
     self.forMethod(methodName)
         .preProcessWith(pre)
         .handleUsing(self.updateHandler(updateCb, methodName));
@@ -198,18 +188,27 @@ ControllerFactory.prototype.joinApproveRejectController = function joinApproveRe
         payload: {}
     };
     validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
-    self.updateController(validator, [
-        ensurePermissions('view', self.component),
-        areValid.users([toAdd])
-    ], actions[0], 'join');
-    self.updateController(validator, [
-        validAndPermitted(self.model, 'id', [approvers]),
-        areValid.users([toAdd])
-    ], actions[1], 'approve');
-    self.updateController(validator, [
-        validAndPermitted(self.model, 'id', [approvers]),
-        areValid.users([toAdd])
-    ], actions[2], 'reject');
+    self.updateController(validator,
+        [
+            ensurePermissions('view', self.component),
+            areValid.users([toAdd])
+        ],
+        actions[0],
+        'join');
+    self.updateController(validator,
+        [
+            validAndPermitted(self.model, 'id', [approvers]),
+            areValid.users([toAdd])
+        ],
+        actions[1],
+        'approve');
+    self.updateController(validator,
+        [
+            validAndPermitted(self.model, 'id', [approvers]),
+            areValid.users([toAdd])
+        ],
+        actions[2],
+        'reject');
     return self;
 };
 

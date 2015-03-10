@@ -6,19 +6,8 @@ var Posts = require('./model');
 var Blogs = require('./../model');
 var ControllerFactory = require('./../../common/controller-factory');
 var validAndPermitted = require('./../../common/prereqs/valid-permitted');
+var prePopulate = require('./../../common/prereqs/pre-populate');
 var PostContent = require('./post-content');
-var utils = require('./../../common/utils');
-
-var prePopulateBlog = function prePopulateBlog (request, reply) {
-    var blogId = request.params.blogId; //TODO: look at query too, but right now that doesnt seem to be working
-    Blogs._findOne({_id: Blogs.ObjectID(blogId)})
-        .then(function (blog) {
-            reply(blog);
-        })
-        .catch(function (err) {
-            utils.logAndBoom(err, reply);
-        });
-};
 
 var Controller = new ControllerFactory('posts', Posts)
     .newController({
@@ -36,7 +25,7 @@ var Controller = new ControllerFactory('posts', Posts)
         }
     }, [
         validAndPermitted(Blogs, 'blogId', ['contributors', 'owners']),
-        {assign: 'blog', method: prePopulateBlog}
+        prePopulate(Blogs, 'blogId')
     ], function uniqueCheckQuery (request) {
         return {
             blogId: request.params.blogId, //TODO: look at query as well, but that doesnt seem to be working right now
@@ -45,7 +34,7 @@ var Controller = new ControllerFactory('posts', Posts)
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
         };
     }, function newPost (request, by) {
-        var blog = request.pre.blog;
+        var blog = request.pre.blogs;
         request.payload.access = _.isUndefined(request.payload.access) ?
             blog.access :
             request.payload.access;
@@ -144,12 +133,12 @@ var Controller = new ControllerFactory('posts', Posts)
         }
     }, [
         validAndPermitted(Blogs, 'blogId', ['owners', 'contributors']),
-        {assign: 'blog', method: prePopulateBlog}
+        prePopulate(Blogs, 'blogId')
     ],
     'publish',
     function publish (post, request, by) {
         if (post.state === 'draft' || post.state === 'pending review') {
-            var blog = request.pre.blog;
+            var blog = request.pre.blogs;
             if ((_.findWhere(blog.owners, by) || by === 'root') || (!post.needsReview)) {
                 request.payload.state = 'published';
                 post.reviewedBy = by;
@@ -181,7 +170,9 @@ var Controller = new ControllerFactory('posts', Posts)
         }
         return post;
     })
-    .deleteController(validAndPermitted(Blogs, 'blogId', ['owners']))
+    .deleteController([
+        validAndPermitted(Blogs, 'blogId', ['owners'])
+    ])
     .doneConfiguring();
 
 module.exports = Controller;

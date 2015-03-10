@@ -1,7 +1,6 @@
 'use strict';
-var BaseModel = require('hapi-mongo-models').BaseModel;
 var _ = require('lodash');
-var logger = require('./../../../config').logger;
+var insertAudit = require('./insert-audit');
 
 module.exports = function InsertAndAudit (idToUse, action) {
     return {
@@ -22,14 +21,7 @@ module.exports = function InsertAndAudit (idToUse, action) {
                             by: obj[0].createdBy,
                             timestamp: new Date()
                         };
-                        var collection = BaseModel.db.collection('audit');
-                        /*jshint unused:false*/
-                        collection.insert(audit, function (err, doc) {
-                            if (err) {
-                                logger.error({error: err, stack: err.stack});
-                            }
-                        });
-                        /*jshint unused:true*/
+                        insertAudit(audit);
                     }
                     return obj[0];
                 });

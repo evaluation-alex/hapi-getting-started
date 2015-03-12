@@ -29,3 +29,10 @@ module.exports.defaultcb = function defaultcb(bucket, resolve, reject) {
         statsd.timing(bucket, Date.now() - start);
     };
 };
+
+/*jshint unused:false*/
+module.exports.locale = function (request) {
+    //TODO: hardcoded for now, to figure out from headers / user preferences later
+    return 'en';
+};
+/*jshint unused:true*/

@@ -8,8 +8,10 @@ var ControllerFactory = require('./../../common/controller-factory');
 var validAndPermitted = require('./../../common/prereqs/valid-permitted');
 var prePopulate = require('./../../common/prereqs/pre-populate');
 var PostContent = require('./post-content');
+var Notifications = require('./notifications');
 
 var Controller = new ControllerFactory(Posts)
+    .sendNotificationsTo(Notifications)
     .newController({
         payload: {
             blogId: Joi.string(),
@@ -53,6 +55,7 @@ var Controller = new ControllerFactory(Posts)
             .then(function (post) {
                 if (post) {
                     PostContent.writeContent(post, request.payload.content);
+                    post.content = request.payload.content;
                 }
                 return post;
             });
@@ -123,8 +126,12 @@ var Controller = new ControllerFactory(Posts)
     ],
     'update',
     function update (post, request, by) {
-        PostContent.writeContent(post, request.payload.content);
-        return post.update(request, by);
+        if (post.state !== 'archived') {
+            PostContent.writeContent(post, request.payload.content);
+            return post.update(request, by);
+        } else {
+            throw new Error('Cannot update archived posts');
+        }
     })
     .updateController({
         payload: {

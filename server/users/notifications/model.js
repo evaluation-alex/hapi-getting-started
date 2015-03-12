@@ -9,6 +9,7 @@ var Update = require('./../../common/mixins/update');
 var IsActive = require('./../../common/mixins/is-active');
 var Save = require('./../../common/mixins/save');
 var CAudit = require('./../../common/mixins/audit');
+var I18N = require('./../../common/mixins/i18n');
 var _ = require('lodash');
 var EventEmitter = require('events');
 var Promise = require('bluebird');
@@ -36,6 +37,7 @@ _.extend(Notifications.prototype, new Update({
 }, {}));
 _.extend(Notifications.prototype, new Save(Notifications));
 _.extend(Notifications.prototype, new CAudit('Notifications', '_id'));
+_.extend(Notifications.prototype, new I18N(['title', 'content']));
 
 Notifications._collection = 'notifications';
 
@@ -45,11 +47,11 @@ Notifications.schema = Joi.object().keys({
     organisation: Joi.string().required(),
     objectType: Joi.string().only(['UserGroups', 'Posts', 'Blogs', 'Comments']).required(),
     objectId: Joi.object().required(),
-    title: Joi.string(),
+    title: Joi.array().items(Joi.string()),
     state: Joi.string().only(['unread', 'starred', 'read', 'cancelled']).default('unread').required(),
     action: Joi.string(),
     priority: Joi.string().only(['critical', 'medium', 'low']),
-    content: Joi.string(),
+    content: Joi.object(),
     isActive: Joi.boolean().default(true),
     createdBy: Joi.string(),
     createdOn: Joi.date(),
@@ -58,8 +60,8 @@ Notifications.schema = Joi.object().keys({
 });
 
 Notifications.indexes = [
-    [{email: 1, objectType: 1, objectId: 1, action: 1, createdOn: 1}],
-    [{email: 1, objectType: 1, objectId: 1, title: 1}],
+    [{objectType: 1, objectId: 1, state: 1, action: 1}],
+    [{email: 1, objectType: 1, objectId: 1, createdOn: 1}]
 ];
 
 Notifications.create = function create (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
@@ -87,21 +89,6 @@ Notifications.create = function create (email, organisation, objectType, objectI
         };
         return self._insertAndAudit(document);
     }
-};
-
-Notifications.cancel = function cancel (userids, objectType, objectId, title, by) {
-    return Notifications._find({
-        email: {$in: userids},
-        objectType: objectType,
-        objectId: objectId,
-        title: title,
-        state: 'unread'
-    })
-        .then(function (notifications) {
-            return Promise.join(_.map(notifications, function (notification) {
-                return notification.setState('cancelled', by).save();
-            }));
-        });
 };
 
 module.exports = Notifications;

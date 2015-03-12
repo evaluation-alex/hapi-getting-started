@@ -6,6 +6,7 @@ var Notifications = require('./model');
 var ControllerFactory = require('./../../common/controller-factory');
 
 var Controller = new ControllerFactory(Notifications)
+    .needsI18N()
     .findController({
         query: {
             title: Joi.string(),

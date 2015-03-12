@@ -3,6 +3,7 @@ var Fs = require('fs');
 var devnull = require('dev-null');
 var Bunyan = require('bunyan');
 var StatsD = require('node-statsd');
+var i18n = require('i18n');
 
 if (!Fs.existsSync('.opts')) {
     console.log('.opts file missing. will exit');
@@ -53,6 +54,14 @@ var statsdOptions = {
     mock: !args.statsd.logmetrics
 };
 
+var i18nOptions = {
+    locales: ['en'],
+    defaultLocale: 'en',
+    directory: './i18n'
+};
+
+i18n.configure(i18nOptions);
+
 var config = {
     projectName: args.project,
     port: args.port,
@@ -84,7 +93,8 @@ var config = {
     storage: {
         diskPath: args.storage.diskPath
     },
-    statsd: new StatsD(statsdOptions)
+    statsd: new StatsD(statsdOptions),
+    i18n: i18n
 };
 if (args.https.tls.key.length > 0 && args.https.tls.cert.length > 0 && Fs.existsSync(args.https.tls.key) && Fs.existsSync(args.https.tls.cert)) {
     config.tls = {

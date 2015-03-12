@@ -5,8 +5,10 @@ var UserGroups = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
 var areValid = require('./../common/prereqs/are-valid');
 var validAndPermitted = require('./../common/prereqs/valid-permitted');
+var Notifications = require('./notifications');
 
 var Controller = new ControllerFactory(UserGroups)
+    .sendNotificationsTo(Notifications)
     .newController({
         payload: {
             name: Joi.string().required(),

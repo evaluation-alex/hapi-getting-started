@@ -11,16 +11,23 @@ var createFindHandler = require('./handlers/find');
 var createFindOneHandler = require('./handlers/find-one');
 var createUpdateHandler = require('./handlers/update');
 
-var ControllerFactory = function ControllerFactory (model, notify) {
+var ControllerFactory = function ControllerFactory (model) {
     var self = this;
     self.controller = {};
     if (model) {
         self.model = model;
         self.component = model._collection;
     }
-    if (notify) {
-        self.notify = notify;
-    }
+    return self;
+};
+ControllerFactory.prototype.sendNotificationsTo = function sendNotifications (notify) {
+    var self = this;
+    self.notify = notify;
+    return self;
+};
+ControllerFactory.prototype.needsI18N = function needsI18N() {
+    var self = this;
+    self.i18nEnabled = true;
     return self;
 };
 ControllerFactory.prototype.forMethod = function forMethod (method) {
@@ -63,14 +70,14 @@ ControllerFactory.prototype.newController = function newController (validator, p
         prereqs]);
     self.forMethod('new')
         .preProcessWith(pre)
-        .handleUsing(createNewHandler(self.model, self.notify, newCb));
+        .handleUsing(createNewHandler(self.model, self.notify, self.i18nEnabled, newCb));
     return self;
 };
 ControllerFactory.prototype.customNewController = function customNewController (method, validator, uniqueCheck, newCb) {
     var self = this;
     self.forMethod(method)
         .preProcessWith([isUnique(self.model, uniqueCheck)])
-        .handleUsing(createNewHandler(self.model, self.notify, newCb));
+        .handleUsing(createNewHandler(self.model, self.notify, self.i18nEnabled, newCb));
     return self;
 };
 ControllerFactory.prototype.findController = function findController (validator, queryBuilder, findCb) {
@@ -82,14 +89,14 @@ ControllerFactory.prototype.findController = function findController (validator,
     self.forMethod('find')
         .withValidation(validator)
         .preProcessWith(ensurePermissions('view', self.component))
-        .handleUsing(createFindHandler(self.model, queryBuilder, findCb));
+        .handleUsing(createFindHandler(self.model, queryBuilder, self.i18nEnabled, findCb));
     return self;
 };
 ControllerFactory.prototype.findOneController = function findOneController (findOneCb) {
     var self = this;
     self.forMethod('findOne')
         .preProcessWith([ensurePermissions('view', self.component), prePopulate(self.model, 'id')])
-        .handleUsing(createFindOneHandler(self.model, findOneCb));
+        .handleUsing(createFindOneHandler(self.model, self.i18nEnabled, findOneCb));
     return self;
 };
 ControllerFactory.prototype.updateController = function updateController (validator, prereqs, methodName, updateCb) {
@@ -100,7 +107,7 @@ ControllerFactory.prototype.updateController = function updateController (valida
     var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prereqs, prePopulate(self.model, 'id')]);
     self.forMethod(methodName)
         .preProcessWith(pre)
-        .handleUsing(createUpdateHandler(self.model, self.notify, methodName, updateCb));
+        .handleUsing(createUpdateHandler(self.model, self.notify, self.i18nEnabled, methodName, updateCb));
     return self;
 };
 ControllerFactory.prototype.deleteController = function deleteController (pre) {

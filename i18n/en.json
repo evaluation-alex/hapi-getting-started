@@ -1,0 +1,22 @@
+{
+    "Blog {{title}} created.": "Blog {{title}} created.",
+    "Blog {{title}} created and you have been designated owner by {{createdBy}}": "Blog {{title}} created and you have been designated owner by {{createdBy}}",
+    "Blog {{title}} deleted.": "Blog {{title}} deleted.",
+    "Blog {{title}} deleted by {{updatedBy}}": "Blog {{title}} deleted by {{updatedBy}}",
+    "Blog {{title}} updated by {{updatedBy}}": "Blog {{title}} updated by {{updatedBy}}",
+    "{{title}} has new subscribers that need approval": "{{title}} has new subscribers that need approval",
+    "{{title}} has new approved subscribers": "{{title}} has new approved subscribers",
+    "New Post {{postTitle}} needs your approval to be published.": "New Post {{postTitle}} needs your approval to be published.",
+    "New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}} needs your approval to be published": "New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}} needs your approval to be published",
+    "New Post {{postTitle}} created.": "New Post {{postTitle}} created.",
+    "New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}}": "New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}}",
+    "Post {{postTitle}} not approved for publication.": "Post {{postTitle}} not approved for publication.",
+    "Post {{postTitle}} in Blog {{blogTitle}} not allowed by {{reviewedBy}}": "Post {{postTitle}} in Blog {{blogTitle}} not allowed by {{reviewedBy}}",
+    "UserGroup {{name}} created.": "UserGroup {{name}} created.",
+    "UserGroup {{name}} created and you have been designated owner by {{createdBy}}": "UserGroup {{name}} created and you have been designated owner by {{createdBy}}",
+    "UserGroup {{name}} deleted.": "UserGroup {{name}} deleted.",
+    "UserGroup {{name}} deleted by {{updatedBy}}": "UserGroup {{name}} deleted by {{updatedBy}}",
+    "UserGroup {{name}} updated by {{updatedBy}}": "UserGroup {{name}} updated by {{updatedBy}}",
+    "{{name}} has new subscribers that need approval": "{{name}} has new subscribers that need approval",
+    "{{name}} has new approved subscribers": "{{name}} has new approved subscribers"
+}

@@ -238,9 +238,17 @@ function cleanupNotifications (toClear) {
                 return new RegExp(i, 'g');
             });
         }));
-        Notifications.remove({'title.1.title': {$in: notificationsToCleanup}}, function (err) {
-            err ? reject(err) : resolve(true);
-        });
+        if (notificationsToCleanup.length > 0) {
+            Notifications.remove({$or: [
+                {'title.1.title': {$in: notificationsToCleanup}},
+                {'title.1.postTitle' : {$in: notificationsToCleanup}},
+                {'title.1.name': {$in: notificationsToCleanup}}
+            ]}, function (err, count) {
+                err ? reject(err) : resolve(true);
+            });
+        } else {
+            resolve(true);
+        }
     });
 }
 

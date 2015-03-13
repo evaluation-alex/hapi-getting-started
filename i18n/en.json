@@ -6,8 +6,10 @@
     "Blog {{title}} updated by {{updatedBy}}": "Blog {{title}} updated by {{updatedBy}}",
     "{{title}} has new subscribers that need approval": "{{title}} has new subscribers that need approval",
     "{{title}} has new approved subscribers": "{{title}} has new approved subscribers",
+    "Your request to follow {{title}} was denied": "Your request to follow {{title}} was denied",
+    "Your request to follow {{title}} was denied by {{updatedBy}}": "Your request to follow {{title}} was denied by {{updatedBy}}",
     "New Post {{postTitle}} needs your approval to be published.": "New Post {{postTitle}} needs your approval to be published.",
-    "New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}} needs your approval to be published": "New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}} needs your approval to be published",
+    "New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}} needs your approval to be published": "New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}} needs your approval to be published",
     "New Post {{postTitle}} created.": "New Post {{postTitle}} created.",
     "New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}": "New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}",
     "Post {{postTitle}} not approved for publication.": "Post {{postTitle}} not approved for publication.",
@@ -16,7 +18,5 @@
     "UserGroup {{name}} created and you have been designated owner by {{createdBy}}": "UserGroup {{name}} created and you have been designated owner by {{createdBy}}",
     "UserGroup {{name}} deleted.": "UserGroup {{name}} deleted.",
     "UserGroup {{name}} deleted by {{updatedBy}}": "UserGroup {{name}} deleted by {{updatedBy}}",
-    "UserGroup {{name}} updated by {{updatedBy}}": "UserGroup {{name}} updated by {{updatedBy}}",
-    "{{name}} has new subscribers that need approval": "{{name}} has new subscribers that need approval",
-    "{{name}} has new approved subscribers": "{{name}} has new approved subscribers"
+    "UserGroup {{name}} updated by {{updatedBy}}": "UserGroup {{name}} updated by {{updatedBy}}"
 }

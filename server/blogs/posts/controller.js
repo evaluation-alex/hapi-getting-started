@@ -33,7 +33,7 @@ var stateBasedNotificationSend = {
         return {
             to: blog.owners,
             title: ['New Post {{postTitle}} needs your approval to be published.', {postTitle: post.title}],
-            description: ['New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}} needs your approval to be published',
+            description: ['New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}} needs your approval to be published',
                 {postTitle: post.title, blogTitle: blog.title, publishedBy: post.publishedBy}]
         };
     },

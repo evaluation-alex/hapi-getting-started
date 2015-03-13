@@ -9,7 +9,7 @@
     "New Post {{postTitle}} needs your approval to be published.": "New Post {{postTitle}} needs your approval to be published.",
     "New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}} needs your approval to be published": "New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}} needs your approval to be published",
     "New Post {{postTitle}} created.": "New Post {{postTitle}} created.",
-    "New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}}": "New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}}",
+    "New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}": "New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}",
     "Post {{postTitle}} not approved for publication.": "Post {{postTitle}} not approved for publication.",
     "Post {{postTitle}} in Blog {{blogTitle}} not allowed by {{reviewedBy}}": "Post {{postTitle}} in Blog {{blogTitle}} not allowed by {{reviewedBy}}",
     "UserGroup {{name}} created.": "UserGroup {{name}} created.",

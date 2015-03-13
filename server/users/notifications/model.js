@@ -3,7 +3,6 @@ var BaseModel = require('hapi-mongo-models').BaseModel;
 var Joi = require('joi');
 var ObjectAssign = require('object-assign');
 var Promisify = require('./../../common/mixins/promisify');
-var Insert = require('./../../common/mixins/insert');
 var Properties = require('./../../common/mixins/properties');
 var Update = require('./../../common/mixins/update');
 var IsActive = require('./../../common/mixins/is-active');
@@ -28,9 +27,8 @@ var Notifications = BaseModel.extend({
 Notifications._collection = 'notifications';
 
 Promisify(Notifications, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
-_.extend(Notifications, new Insert('_id', 'create'));
 _.extend(Notifications.prototype, new IsActive());
-_.extend(Notifications.prototype, new Properties(['title', 'state', 'category', 'action', 'isActive']));
+_.extend(Notifications.prototype, new Properties(['state', 'isActive']));
 _.extend(Notifications.prototype, new Update({
     state: 'state',
     isActive: 'isActive'
@@ -65,9 +63,12 @@ Notifications.indexes = [
 Notifications.create = function create (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
     var self = this;
     if (_.isArray(email)) {
-        return Promise.join(_.map(email, function (e) {
+        return Promise.all(_.map(email, function (e) {
             return self.create(e, organisation, objectType, objectId, title, state, action, priority, content, by);
-        }));
+        }))
+            .then(function (notifications) {
+                return _.flatten(notifications);
+            });
     } else {
         var document = {
             email: email,
@@ -85,7 +86,10 @@ Notifications.create = function create (email, organisation, objectType, objectI
             updatedBy: by,
             updatedOn: new Date()
         };
-        return self._insertAndAudit(document);
+        return self._insert(document)
+            .then(function (doc) {
+                return doc[0];
+            });
     }
 };
 

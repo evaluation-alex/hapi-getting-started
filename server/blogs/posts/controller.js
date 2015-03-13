@@ -12,7 +12,7 @@ var PostContent = require('./post-content');
 
 /*jshint unused:false*/
 var stateBasedNotificationSend = {
-    published: function onPostPublished (post, request) {
+    'published': function onPostPublished (post, request) {
         var blog = request.pre.blogs;
         return UserGroups._find({name: {$in: blog.subscriberGroups}, organisation: post.organisation})
             .then(function (groups) {
@@ -23,7 +23,7 @@ var stateBasedNotificationSend = {
                 return {
                     to: to,
                     title: ['New Post {{postTitle}} created.', {postTitle: post.title}],
-                    description: ['New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}}',
+                    description: ['New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}',
                         {postTitle: post.title, publishedBy: post.publishedBy, blogTitle: blog.title}]
                 };
             });

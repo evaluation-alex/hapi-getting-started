@@ -18,7 +18,7 @@ var Controller = new ControllerFactory(Notifications)
         }
     }, function buildFindQuery (request) {
         var query = {};
-        var fields = [['title', 'title'], ['state', 'state'], ['objectType', 'objectType']];
+        var fields = [['state', 'state'], ['objectType', 'objectType']];
         _.forEach(fields, function (pair) {
             if (request.query[pair[0]]) {
                 query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
@@ -37,7 +37,8 @@ var Controller = new ControllerFactory(Notifications)
     })
     .updateController({
         payload: {
-            state: Joi.string().only(['read', 'starred'])
+            state: Joi.string().only(['read', 'starred']),
+            isActive: Joi.boolean()
         }
     }, [], 'update', 'update')
     .doneConfiguring();

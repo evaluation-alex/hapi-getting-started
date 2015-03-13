@@ -1,5 +1,4 @@
 'use strict';
-var _ = require('lodash');
 var insertAudit = require('./insert-audit');
 
 module.exports = function InsertAndAudit (idToUse, action) {

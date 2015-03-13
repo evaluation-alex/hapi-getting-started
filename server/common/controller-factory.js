@@ -1,15 +1,19 @@
 'use strict';
 var Joi = require('joi');
 var _ = require('lodash');
+var Promise = require('bluebird');
+var logger = require('./../../config').logger;
+var EventEmitter = require('events');
 var ensurePermissions = require('./prereqs/ensure-permissions');
 var validAndPermitted = require('./prereqs/valid-permitted');
 var isUnique = require('./prereqs/is-unique');
 var areValid = require('./prereqs/are-valid');
 var prePopulate = require('./prereqs/pre-populate');
-var createNewHandler = require('./handlers/create');
-var createFindHandler = require('./handlers/find');
-var createFindOneHandler = require('./handlers/find-one');
-var createUpdateHandler = require('./handlers/update');
+var NewHandler = require('./handlers/create');
+var FindHandler = require('./handlers/find');
+var FindOneHandler = require('./handlers/find-one');
+var UpdateHandler = require('./handlers/update');
+var Notifications = require('./../users/notifications/model');
 
 var ControllerFactory = function ControllerFactory (model) {
     var self = this;
@@ -20,29 +24,37 @@ var ControllerFactory = function ControllerFactory (model) {
     }
     return self;
 };
-ControllerFactory.prototype.sendNotificationsTo = function sendNotifications (notify) {
-    var self = this;
-    self.notify = notify;
-    return self;
-};
-ControllerFactory.prototype.needsI18N = function needsI18N() {
+
+ControllerFactory.prototype.needsI18N = function needsI18N () {
     var self = this;
     self.i18nEnabled = true;
     return self;
 };
+
+ControllerFactory.prototype.enableNotifications = function enableNotifications () {
+    var self = this;
+    self.notify = true;
+    return self;
+};
+
 ControllerFactory.prototype.forMethod = function forMethod (method) {
     var self = this;
     self.method = method;
     self.controller[self.method] = {
         pre: []
     };
+    if (self.notify) {
+        _.extend(self.controller[self.method], EventEmitter.prototype);
+    }
     return self;
 };
+
 ControllerFactory.prototype.withValidation = function withValidation (validator) {
     var self = this;
     self.controller[self.method].validate = validator;
     return self;
 };
+
 ControllerFactory.prototype.preProcessWith = function preProcessWith (preProcess) {
     var self = this;
     if (_.isArray(preProcess)) {
@@ -54,15 +66,79 @@ ControllerFactory.prototype.preProcessWith = function preProcessWith (preProcess
     }
     return self;
 };
+
 ControllerFactory.prototype.handleUsing = function handleUsing (handler) {
     var self = this;
     self.controller[self.method].handler = handler;
     return self;
 };
+
+ControllerFactory.prototype.sendNotifications = function sendNotifications (notifyCb) {
+    var self = this;
+    var notifyHook = function notifyCbHook (target, request) {
+        return Promise.resolve(notifyCb(target, request));
+    };
+    self.controller[self.method].on('invoked', function (target, request) {
+        notifyHook(target, request)
+            .then(function (args) {
+                if (args.to && args.to.length > 0) {
+                    return Notifications.create(_.flatten(args.to),
+                        target.organisation,
+                        self.model._collection,
+                        target._id,
+                        args.title,
+                        'unread',
+                        args.action ? args.action : 'fyi',
+                        args.priority ? args.priority : 'low',
+                        args.description,
+                        request.auth.credentials.user.email);
+                }
+            })
+            .catch(function (err) {
+                if (err) {
+                    logger.error({error: err});
+                }
+            });
+    });
+    return self;
+};
+
+ControllerFactory.prototype.cancelNotifications = function cancelNotifications (cancelAction, cancelNotificationsCb) {
+    var self = this;
+    var cancelHook = function cancelCbHook (target, request, notification) {
+        if (cancelNotificationsCb) {
+            return Promise.resolve(cancelNotificationsCb(target, request, notification));
+        } else {
+            notification.setState('cancelled', request.auth.credentials.user.email);
+            return notification.save();
+        }
+    };
+    self.controller[self.method].on('invoked', function (target, request) {
+        if (cancelAction) {
+            Notifications._find({
+                objectType: self.model._collection,
+                objectId: target._id,
+                state: 'unread',
+                action: cancelAction
+            })
+                .map(function (notification) {
+                    cancelHook(target, request, notification);
+                })
+                .catch(function (err) {
+                    if (err) {
+                        logger.error({error: err});
+                    }
+                });
+        }
+    });
+    return self;
+};
+
 ControllerFactory.prototype.doneConfiguring = function doneConfiguring () {
     var self = this;
     return self.controller;
 };
+
 ControllerFactory.prototype.newController = function newController (validator, prereqs, uniqueCheck, newCb) {
     var self = this;
     var pre = _.flatten([ensurePermissions('update', self.component),
@@ -70,16 +146,18 @@ ControllerFactory.prototype.newController = function newController (validator, p
         prereqs]);
     self.forMethod('new')
         .preProcessWith(pre)
-        .handleUsing(createNewHandler(self.model, self.notify, self.i18nEnabled, newCb));
+        .handleUsing(new NewHandler(self.model, self.controller, self.i18nEnabled, newCb));
     return self;
 };
+
 ControllerFactory.prototype.customNewController = function customNewController (method, validator, uniqueCheck, newCb) {
     var self = this;
     self.forMethod(method)
         .preProcessWith([isUnique(self.model, uniqueCheck)])
-        .handleUsing(createNewHandler(self.model, self.notify, self.i18nEnabled, newCb));
+        .handleUsing(new NewHandler(self.model, self.controller, self.i18nEnabled, newCb));
     return self;
 };
+
 ControllerFactory.prototype.findController = function findController (validator, queryBuilder, findCb) {
     var self = this;
     validator.query.fields = Joi.string();
@@ -89,16 +167,18 @@ ControllerFactory.prototype.findController = function findController (validator,
     self.forMethod('find')
         .withValidation(validator)
         .preProcessWith(ensurePermissions('view', self.component))
-        .handleUsing(createFindHandler(self.model, queryBuilder, self.i18nEnabled, findCb));
+        .handleUsing(new FindHandler(self.model, queryBuilder, self.i18nEnabled, findCb));
     return self;
 };
+
 ControllerFactory.prototype.findOneController = function findOneController (findOneCb) {
     var self = this;
     self.forMethod('findOne')
         .preProcessWith([ensurePermissions('view', self.component), prePopulate(self.model, 'id')])
-        .handleUsing(createFindOneHandler(self.model, self.i18nEnabled, findOneCb));
+        .handleUsing(new FindOneHandler(self.model, self.i18nEnabled, findOneCb));
     return self;
 };
+
 ControllerFactory.prototype.updateController = function updateController (validator, prereqs, methodName, updateCb) {
     var self = this;
     var perms = _.find(prereqs, function (prereq) {
@@ -107,19 +187,22 @@ ControllerFactory.prototype.updateController = function updateController (valida
     var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prereqs, prePopulate(self.model, 'id')]);
     self.forMethod(methodName)
         .preProcessWith(pre)
-        .handleUsing(createUpdateHandler(self.model, self.notify, self.i18nEnabled, methodName, updateCb));
+        .handleUsing(new UpdateHandler(self.model, self.controller, self.i18nEnabled, methodName, updateCb));
     return self;
 };
+
 ControllerFactory.prototype.deleteController = function deleteController (pre) {
     var self = this;
     return self.updateController(undefined, pre ? pre : [], 'delete', 'del');
 };
-ControllerFactory.prototype.joinApproveRejectController = function joinApproveRejectController (actions, toAdd, approvers) {
+
+ControllerFactory.prototype.joinApproveRejectController = function joinApproveRejectController (actions, toAdd, approvers, idForNotifications) {
     var self = this;
     var validator = {
         payload: {}
     };
     validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
+
     self.updateController(validator,
         [
             ensurePermissions('view', self.component),
@@ -127,6 +210,30 @@ ControllerFactory.prototype.joinApproveRejectController = function joinApproveRe
         ],
         actions[0],
         'join');
+    self.sendNotifications(function joinNotificationBuilder (obj, request) {
+        var ret = {
+            to: [],
+            title: ['{{title}} has new subscribers that need approval', {title: obj[idForNotifications]}],
+            description: {}
+        };
+        if (request.payload[toAdd] && request.payload[toAdd].length > 0) {
+            ret.to = obj[approvers];
+            ret.description = {added: request.payload[toAdd]};
+            if (obj.access === 'restricted') {
+                ret.priority = 'medium';
+                ret.action = 'approve';
+            }
+        }
+        return ret;
+    });
+
+    var cancelJoinNotifications = function cancelJoinNotifications (obj, request, notification) {
+        _.remove(notification.description.added, request.payload[toAdd]);
+        if (notification.description.added.length === 0) {
+            notification.setState('cancelled', request.auth.credentials.user.email);
+        }
+        return notification.save();
+    };
     self.updateController(validator,
         [
             validAndPermitted(self.model, 'id', [approvers]),
@@ -134,6 +241,23 @@ ControllerFactory.prototype.joinApproveRejectController = function joinApproveRe
         ],
         actions[1],
         'approve');
+    self.sendNotifications(function approveNotificationBuilder (obj, request) {
+        var ret = {
+            to: [],
+            title: ['{{title}} has new approved subscribers', {title: obj[idForNotifications]}],
+            description: {}
+        };
+        if (request.payload[toAdd] && request.payload[toAdd].length > 0) {
+            ret.to = obj[approvers];
+            ret.description = {added: request.payload[toAdd]};
+            if (obj.access === 'restricted') {
+                ret.priority = 'medium';
+            }
+        }
+        return ret;
+    });
+    self.cancelNotifications('approve', cancelJoinNotifications);
+
     self.updateController(validator,
         [
             validAndPermitted(self.model, 'id', [approvers]),
@@ -141,6 +265,22 @@ ControllerFactory.prototype.joinApproveRejectController = function joinApproveRe
         ],
         actions[2],
         'reject');
+    self.sendNotifications(function rejectNotificationBuilder (obj, request) {
+        var ret = {
+            to: [],
+            title: ['Your request to follow {{title}} was denied', {title: obj[idForNotifications]}],
+            description: ['Your request to follow {{title}} was denied by {{updatedBy}}', {
+                title: obj[idForNotifications],
+                updatedBy: request.auth.credentials.user.email
+            }]
+        };
+        if (request.payload[toAdd] && request.payload[toAdd].length > 0) {
+            ret.to = request.payload[toAdd];
+        }
+        return ret;
+    });
+    self.cancelNotifications('approve', cancelJoinNotifications);
+
     return self;
 };
 

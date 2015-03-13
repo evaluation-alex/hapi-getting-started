@@ -5,10 +5,9 @@ var Blogs = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
 var areValid = require('./../common/prereqs/are-valid');
 var validAndPermitted = require('./../common/prereqs/valid-permitted');
-var Notifications = require('./notifications');
 
 var Controller = new ControllerFactory(Blogs)
-    .sendNotificationsTo(Notifications)
+    .enableNotifications()
     .newController({
         payload: {
             title: Joi.string(),
@@ -28,6 +27,16 @@ var Controller = new ControllerFactory(Blogs)
         return {
             title: request.payload.title,
             organisation: request.auth.credentials.user.organisation
+        };
+    })
+    .sendNotifications(function newNotificationBuilder (blog, request) {
+        return {
+            to: blog.owners,
+            title: ['Blog {{title}} created.', {title: blog.title}],
+            description: ['Blog {{title}} created and you have been designated owner by {{createdBy}}', {
+                title: blog.title,
+                createdBy: request.auth.credentials.user.email
+            }]
         };
     })
     .findController({
@@ -71,8 +80,40 @@ var Controller = new ControllerFactory(Blogs)
         areValid.groups(['addedSubscriberGroups']),
         validAndPermitted(Blogs, 'id', ['owners'])
     ], 'update', 'update')
+    .sendNotifications(function updateNotificationBuilder (blog, request) {
+        var description = {};
+        var shouldNotify = false;
+        _.forEach(['subscribers', 'subscriberGroups', 'contributors', 'owners'], function (toInspect) {
+            _.forEach(['added', 'removed'], function (t) {
+                var p = t + _.capitalize(toInspect);
+                if (request.payload[p] && request.payload[p].length > 0) {
+                    shouldNotify = true;
+                    description[toInspect] = description[toInspect] || {};
+                    description[toInspect][t] = request.payload[p];
+                }
+            });
+        });
+        return {
+            to: shouldNotify ? blog.owners : [],
+            title: ['Blog {{title}} updated by {{updatedBy}}', {
+                title: blog.title,
+                updatedBy: request.auth.credentials.user.email
+            }],
+            description: description
+        };
+    })
     .deleteController(validAndPermitted(Blogs, 'id', ['owners']))
-    .joinApproveRejectController(['subscribe', 'approve', 'reject'], 'addedSubscribers', 'owners')
+    .sendNotifications(function deleteNotificationBuilder (blog, request) {
+        return {
+            to: blog.owners,
+            title: ['Blog {{title}} deleted.', {title: blog.title}],
+            description: ['Blog {{title}} deleted by {{updatedBy}}', {
+                title: blog.title,
+                updatedBy: request.auth.credentials.user.email
+            }]
+        };
+    })
+    .joinApproveRejectController(['subscribe', 'approve', 'reject'], 'addedSubscribers', 'owners', 'title')
     .doneConfiguring();
 
 module.exports = Controller;

@@ -2,7 +2,7 @@
 var Promise = require('bluebird');
 var utils = require('./../utils');
 
-module.exports = function createFindOneHandler (Model, i18nEnabled, findOneCb) {
+module.exports = function FindOneHandler (Model, i18nEnabled, findOneCb) {
     var findOne = function findOneCB(output) {
         return Promise.resolve(findOneCb ? findOneCb(output) : output);
     };

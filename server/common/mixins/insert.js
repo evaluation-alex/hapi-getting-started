@@ -12,7 +12,7 @@ module.exports = function InsertAndAudit (idToUse, action) {
                         return false;
                     } else {
                         var audit = {
-                            objectChangedType: _.capitalize(self._collection),
+                            objectChangedType: self._collection,
                             objectChangedId: obj[0][idToUse],
                             organisation: obj[0].organisation,
                             by: obj[0].createdBy,

@@ -3,7 +3,7 @@ var Promise = require('bluebird');
 var utils = require('./../utils');
 var _ = require('lodash');
 
-module.exports = function createFindHandler (Model, queryBuilder, i18nEnabled, findCb) {
+module.exports = function FindHandler (Model, queryBuilder, i18nEnabled, findCb) {
     var findHook = function findObjsCb(output) {
         return Promise.resolve(findCb ? findCb(output): output);
     };

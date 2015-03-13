@@ -11,7 +11,6 @@ var Save = require('./../../common/mixins/save');
 var CAudit = require('./../../common/mixins/audit');
 var I18N = require('./../../common/mixins/i18n');
 var _ = require('lodash');
-var EventEmitter = require('events');
 var Promise = require('bluebird');
 
 var Notifications = BaseModel.extend({
@@ -26,9 +25,10 @@ var Notifications = BaseModel.extend({
     /* jshint +W064 */
 });
 
+Notifications._collection = 'notifications';
+
 Promisify(Notifications, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
 _.extend(Notifications, new Insert('_id', 'create'));
-_.extend(Notifications, EventEmitter.prototype);
 _.extend(Notifications.prototype, new IsActive());
 _.extend(Notifications.prototype, new Properties(['title', 'state', 'category', 'action', 'isActive']));
 _.extend(Notifications.prototype, new Update({
@@ -36,16 +36,14 @@ _.extend(Notifications.prototype, new Update({
     isActive: 'isActive'
 }, {}));
 _.extend(Notifications.prototype, new Save(Notifications));
-_.extend(Notifications.prototype, new CAudit('Notifications', '_id'));
+_.extend(Notifications.prototype, new CAudit(Notifications._collection, '_id'));
 _.extend(Notifications.prototype, new I18N(['title', 'content']));
-
-Notifications._collection = 'notifications';
 
 Notifications.schema = Joi.object().keys({
     _id: Joi.object(),
     email: Joi.string().email().required(),
     organisation: Joi.string().required(),
-    objectType: Joi.string().only(['UserGroups', 'Posts', 'Blogs', 'Comments']).required(),
+    objectType: Joi.string().only(['user-groups', 'posts', 'blogs', 'comments']).required(),
     objectId: Joi.object().required(),
     title: Joi.array().items(Joi.string()),
     state: Joi.string().only(['unread', 'starred', 'read', 'cancelled']).default('unread').required(),

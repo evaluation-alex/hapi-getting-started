@@ -27,6 +27,8 @@ var UserGroups = BaseModel.extend({
     /* jshint +W064 */
 });
 
+UserGroups._collection = 'user-groups';
+
 Promisify(UserGroups,['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
 _.extend(UserGroups, new Insert('name', 'create'));
 _.extend(UserGroups, new AreValid('name'));
@@ -49,9 +51,7 @@ _.extend(UserGroups.prototype, new Update({
     needsApproval: 'needsApproval'
 }));
 _.extend(UserGroups.prototype, new Save(UserGroups));
-_.extend(UserGroups.prototype, new CAudit('UserGroups', 'name'));
-
-UserGroups._collection = 'userGroups';
+_.extend(UserGroups.prototype, new CAudit(UserGroups._collection, 'name'));
 
 UserGroups.schema = Joi.object().keys({
     _id: Joi.object(),

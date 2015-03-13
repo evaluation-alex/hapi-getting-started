@@ -326,7 +326,7 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].isActive).to.be.true();
-                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': 'isActive'});
+                                    return Audit.findAudit('blogs', found[0].title, {'change.action': 'isActive'});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
@@ -363,7 +363,7 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].isActive).to.be.false();
-                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': 'isActive'});
+                                    return Audit.findAudit('blogs', found[0].title, {'change.action': 'isActive'});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
@@ -405,7 +405,7 @@ describe('Blogs', function () {
                                 .then(function (found) {
                                     expect(found[0].subscribers[1]).to.equal('one@first.com');
                                     expect(found[0].subscriberGroups[0]).to.equal('testBlogsAddGroup');
-                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /add/}});
+                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /add/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
@@ -447,7 +447,7 @@ describe('Blogs', function () {
                                 .then(function (found) {
                                     expect(found[0].subscribers.length).to.equal(0);
                                     expect(found[0].subscriberGroups.length).to.equal(0);
-                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /remove/}});
+                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /remove/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
@@ -485,7 +485,7 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].description).to.equal('updated');
-                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /description/}});
+                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /description/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
@@ -524,7 +524,7 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].access).to.equal('restricted');
-                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /access/}});
+                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /access/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
@@ -561,7 +561,7 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].needsReview).to.equal(true);
-                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /needsReview/}});
+                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /needsReview/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
@@ -598,7 +598,7 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].allowComments).to.equal(false);
-                                    return Audit.findAudit('Blogs', found[0].title, {'change.action': {$regex: /allowComments/}});
+                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /allowComments/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
@@ -687,7 +687,7 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
-                                    return Audit.findAudit('Blogs', 'testPutSubscribeGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
+                                    return Audit.findAudit('blogs', 'testPutSubscribeGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
@@ -729,7 +729,7 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
-                                    return Audit.findAudit('Blogs', 'testPutSubscribePublicGroupAddUser', {'change.action': {$regex: /add subscriber/}});
+                                    return Audit.findAudit('blogs', 'testPutSubscribePublicGroupAddUser', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
@@ -819,7 +819,7 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
-                                    return Audit.findAudit('Blogs', 'testBlogPutApproveAddUser', {'change.action': {$regex: /add subscriber/}});
+                                    return Audit.findAudit('blogs', 'testBlogPutApproveAddUser', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
@@ -868,7 +868,7 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.false();
-                                    return Audit.findAudit('Blogs', 'testPutApproveBlogNotOwner', {'change.action': {$regex: /add subscriber/}});
+                                    return Audit.findAudit('blogs', 'testPutApproveBlogNotOwner', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(0);
@@ -957,7 +957,7 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.false();
-                                    return Audit.findAudit('Blogs', 'testPutRejectBlogAddUser', {'change.action': {$regex: /remove needsApproval/}});
+                                    return Audit.findAudit('blogs', 'testPutRejectBlogAddUser', {'change.action': {$regex: /remove needsApproval/}});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
@@ -1133,7 +1133,7 @@ describe('Blogs', function () {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].description).to.equal('test post /blogs sucess');
                                     expect(found[0].title).to.equal('test post /blogs success');
-                                    return Audit.findAudit('Blogs', 'test post /blogs success', {'change.action': 'create'});
+                                    return Audit.findAudit('blogs', 'test post /blogs success', {'change.action': 'create'});
                                 })
                                 .then(function (fa) {
                                     expect(fa.length).to.equal(1);
@@ -1220,7 +1220,7 @@ describe('Blogs', function () {
                             Blogs._find({_id: BaseModel.ObjectID(id)})
                                 .then(function (p) {
                                     expect(p[0].isActive).to.be.false;
-                                    return Audit.findAudit('Blogs', p[0].title, {'change.action': 'isActive'});
+                                    return Audit.findAudit('blogs', p[0].title, {'change.action': 'isActive'});
                                 })
                                 .then(function (a) {
                                     expect(a).to.exist();

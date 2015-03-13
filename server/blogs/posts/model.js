@@ -24,6 +24,8 @@ var Posts = BaseModel.extend({
     /* jshint +W064 */
 });
 
+Posts._collection = 'posts';
+
 Promisify(Posts, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
 _.extend(Posts, new Insert('_id', 'create'));
 _.extend(Posts.prototype, new IsActive());
@@ -45,9 +47,7 @@ _.extend(Posts.prototype, new Update({
     attachments: 'attachments'
 }));
 _.extend(Posts.prototype, new Save(Posts));
-_.extend(Posts.prototype, new CAudit('Posts', '_id'));
-
-Posts._collection = 'posts';
+_.extend(Posts.prototype, new CAudit(Posts._collection, '_id'));
 
 Posts.schema = Joi.object().keys({
     _id: Joi.object(),

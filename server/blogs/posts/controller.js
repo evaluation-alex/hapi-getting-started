@@ -4,14 +4,63 @@ var _ = require('lodash');
 var moment = require('moment');
 var Posts = require('./model');
 var Blogs = require('./../model');
+var UserGroups = require('./../../user-groups/model');
 var ControllerFactory = require('./../../common/controller-factory');
 var validAndPermitted = require('./../../common/prereqs/valid-permitted');
 var prePopulate = require('./../../common/prereqs/pre-populate');
 var PostContent = require('./post-content');
-var Notifications = require('./notifications');
+
+/*jshint unused:false*/
+var stateBasedNotificationSend = {
+    published: function onPostPublished (post, request) {
+        var blog = request.pre.blogs;
+        return UserGroups._find({name: {$in: blog.subscriberGroups}, organisation: post.organisation})
+            .then(function (groups) {
+                var to = [blog.owners, blog.subscribers];
+                _.forEach(groups, function (group) {
+                    to.push(group.members);
+                });
+                return {
+                    to: to,
+                    title: ['New Post {{postTitle}} created.', {postTitle: post.title}],
+                    description: ['New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}}',
+                        {postTitle: post.title, publishedBy: post.publishedBy, blogTitle: blog.title}]
+                };
+            });
+    },
+    'pending review': function onNeedsApproval (post, request) {
+        var blog = request.pre.blogs;
+        return {
+            to: blog.owners,
+            title: ['New Post {{postTitle}} needs your approval to be published.', {postTitle: post.title}],
+            description: ['New Post {{postTitle}} in Blog {{blogTitle}} publishedBy {{publishedBy}} needs your approval to be published',
+                {postTitle: post.title, blogTitle: blog.title, publishedBy: post.publishedBy}]
+        };
+    },
+    'do not publish': function onReject (post, request) {
+        var blog = request.pre.blogs;
+        return {
+            to: post.publishedBy,
+            title: ['Post {{postTitle}} not approved for publication.', {postTitle: post.title}],
+            description: ['Post {{postTitle}} in Blog {{blogTitle}} not allowed by {{reviewedBy}}',
+                {postTitle: post.title, reviewedBy: post.reviewedBy, blogTitle: blog.title}]
+        };
+    },
+    'draft': function onDraft (post, request) {
+        return {
+            to: []
+        };
+    },
+    'archived': function onArchived (post, request) {
+        return {
+            to: []
+        };
+    }
+};
+/*jshint unused:true*/
 
 var Controller = new ControllerFactory(Posts)
-    .sendNotificationsTo(Notifications)
+    .enableNotifications()
     .newController({
         payload: {
             blogId: Joi.string(),
@@ -59,6 +108,9 @@ var Controller = new ControllerFactory(Posts)
                 }
                 return post;
             });
+    })
+    .sendNotifications(function onNewPost (post, request) {
+        return stateBasedNotificationSend[post.state](post, request);
     })
     .findController({
         query: {
@@ -158,6 +210,9 @@ var Controller = new ControllerFactory(Posts)
         }
         return post;
     })
+    .sendNotifications(function onPublish (post, request) {
+        return stateBasedNotificationSend[post.state](post, request);
+    })
     .updateController({
         payload: {
             blogId: Joi.string(),
@@ -165,7 +220,8 @@ var Controller = new ControllerFactory(Posts)
             access: Joi.string().only(['public', 'restricted'])
         }
     }, [
-        validAndPermitted(Blogs, 'blogId', ['owners', 'contributors'])
+        validAndPermitted(Blogs, 'blogId', ['owners', 'contributors']),
+        prePopulate(Blogs, 'blogId')
     ],
     'reject',
     function reject (post, request, by) {
@@ -177,6 +233,10 @@ var Controller = new ControllerFactory(Posts)
         }
         return post;
     })
+    .sendNotifications(function onReject (post, request) {
+        return stateBasedNotificationSend[post.state](post, request);
+    })
+    .cancelNotifications('approve')
     .deleteController([
         validAndPermitted(Blogs, 'blogId', ['owners'])
     ])

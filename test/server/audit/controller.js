@@ -59,7 +59,7 @@ describe('Audit', function () {
             it('should give audit of only the user whose email is sent in the parameter', function (done) {
                 var request = {
                     method: 'GET',
-                    url: '/audit?objectChangedId=test.users2@test.api&objectType=Users',
+                    url: '/audit?objectChangedId=test.users2@test.api&objectType=users',
                     headers: {
                         Authorization: authheader
                     }
@@ -79,7 +79,7 @@ describe('Audit', function () {
             it('should give audit of all changes done by user', function (done) {
                 var request = {
                     method: 'GET',
-                    url: '/audit?by=test&objectType=Users',
+                    url: '/audit?by=test&objectType=users',
                     headers: {
                         Authorization: authheader
                     }

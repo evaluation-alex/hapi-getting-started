@@ -482,7 +482,7 @@ describe('Posts', function () {
                     Posts._find({_id: BaseModel.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].isActive).to.be.false();
-                            return Audit.findAudit('Posts', found[0]._id, {'change.action': 'isActive'});
+                            return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -513,7 +513,7 @@ describe('Posts', function () {
                     Posts._find({_id: BaseModel.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].isActive).to.be.true();
-                            return Audit.findAudit('Posts', found[0]._id, {'change.action': 'isActive'});
+                            return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -545,7 +545,7 @@ describe('Posts', function () {
                     Posts._find({_id: BaseModel.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].tags[0]).to.equal('add some');
-                            return Audit.findAudit('Posts', found[0]._id, {'change.action': {$regex: /tag/}});
+                            return Audit.findAudit('posts', found[0]._id, {'change.action': {$regex: /tag/}});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -611,7 +611,7 @@ describe('Posts', function () {
                             expect(found[0].access).to.equal('restricted');
                             expect(found[0].allowComments).to.equal(false);
                             expect(found[0].needsReview).to.equal(false);
-                            return Audit.findAudit('Posts', found[0]._id, {by: 'root'});
+                            return Audit.findAudit('posts', found[0]._id, {by: 'root'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -680,7 +680,7 @@ describe('Posts', function () {
                                 .then(function (found) {
                                     expect(found[0].access).to.equal('restricted');
                                     expect(found[0].state).to.equal('published');
-                                    return Audit.findAudit('Posts', found[0]._id, {by: 'one@first.com'});
+                                    return Audit.findAudit('posts', found[0]._id, {by: 'one@first.com'});
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
@@ -1420,7 +1420,7 @@ describe('Posts', function () {
                             Posts._find({_id: BaseModel.ObjectID(postId)})
                                 .then(function (p) {
                                     expect(p[0].isActive).to.be.false;
-                                    return Audit.findAudit('Posts', p[0]._id, {by: 'one@first.com'});
+                                    return Audit.findAudit('posts', p[0]._id, {by: 'one@first.com'});
                                 })
                                 .then(function (a) {
                                     expect(a).to.exist();

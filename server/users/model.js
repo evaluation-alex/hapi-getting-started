@@ -30,13 +30,16 @@ var Users = BaseModel.extend({
     }
     /* jshint +W064 */
 });
+
+Users._collection = 'users';
+
 Promisify(Users, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
 _.extend(Users, new Insert('email', 'signup'));
 _.extend(Users, new AreValid('email'));
 _.extend(Users.prototype, new IsActive());
 _.extend(Users.prototype, new Properties(['isActive', 'roles']));
 _.extend(Users.prototype, new Save(Users));
-_.extend(Users.prototype, new CAudit('Users', 'email'));
+_.extend(Users.prototype, new CAudit(Users._collection, 'email'));
 
 Users.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
     var self = this;
@@ -113,8 +116,6 @@ Users.prototype.update = function update (doc, by) {
         .setRoles(doc.payload.roles, by)
         .resetPassword(doc.payload.password, by);
 };
-
-Users._collection = 'users';
 
 Users.schema = Joi.object().keys({
     _id: Joi.object(),

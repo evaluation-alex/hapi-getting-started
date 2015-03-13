@@ -5,10 +5,9 @@ var UserGroups = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
 var areValid = require('./../common/prereqs/are-valid');
 var validAndPermitted = require('./../common/prereqs/valid-permitted');
-var Notifications = require('./notifications');
 
 var Controller = new ControllerFactory(UserGroups)
-    .sendNotificationsTo(Notifications)
+    .enableNotifications()
     .newController({
         payload: {
             name: Joi.string().required(),
@@ -23,6 +22,16 @@ var Controller = new ControllerFactory(UserGroups)
         return {
             name: request.payload.name,
             organisation: request.auth.credentials.user.organisation
+        };
+    })
+    .sendNotifications(function newNotificationBuilder (ug, request) {
+        return {
+            to: ug.owners,
+            title: ['UserGroup {{name}} created.', {title: ug.name}],
+            description: ['UserGroup {{name}} created and you have been designated owner by {{createdBy}}', {
+                title: ug.name,
+                createdBy: request.auth.credentials.user.email
+            }]
         };
     })
     .findController({
@@ -55,8 +64,40 @@ var Controller = new ControllerFactory(UserGroups)
     }, [validAndPermitted(UserGroups, 'id', ['owners']),
         areValid.users(['addedMembers', 'addedOwners'])
     ], 'update', 'update')
+    .sendNotifications(function updateNotificationBuilder (ug, request) {
+        var description = {};
+        var shouldNotify = false;
+        _.forEach(['members', 'owners'], function (toInspect) {
+            _.forEach(['added', 'removed'], function (t) {
+                var p = t + _.capitalize(toInspect);
+                if (request.payload[p] && request.payload[p].length > 0) {
+                    shouldNotify = true;
+                    description[toInspect] = description[toInspect] || {};
+                    description[toInspect][t] = request.payload[p];
+                }
+            });
+        });
+        return {
+            to: shouldNotify ? ug.owners : [],
+            title: ['UserGroup {{name}} updated by {{updatedBy}}', {
+                title: ug.name,
+                updatedBy: request.auth.credentials.user.email
+            }],
+            description: description
+        };
+    })
     .deleteController(validAndPermitted(UserGroups, 'id', ['owners']))
-    .joinApproveRejectController(['join', 'approve', 'reject'], 'addedMembers', 'owners')
+    .sendNotifications(function deleteNotificationBuilder (ug, request) {
+        return {
+            to: ug.owners,
+            title: ['UserGroup {{name}} deleted.', {title: ug.name}],
+            description: ['UserGroup {{name}} deleted by {{updatedBy}}', {
+                title: ug.name,
+                updatedBy: request.auth.credentials.user.email
+            }]
+        };
+    })
+    .joinApproveRejectController(['join', 'approve', 'reject'], 'addedMembers', 'owners', 'name')
     .doneConfiguring();
 
 module.exports = Controller;

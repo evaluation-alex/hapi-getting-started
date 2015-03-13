@@ -29,6 +29,8 @@ var Blogs = BaseModel.extend({
     /* jshint +W064 */
 });
 
+Blogs._collection = 'blogs';
+
 Promisify(Blogs, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
 _.extend(Blogs, new Insert('title', 'create'));
 _.extend(Blogs, new IsValid());
@@ -56,9 +58,7 @@ _.extend(Blogs.prototype, new Update({
     needsApproval: 'needsApproval'
 }));
 _.extend(Blogs.prototype, new Save(Blogs));
-_.extend(Blogs.prototype, new CAudit('Blogs', 'title'));
-
-Blogs._collection = 'blogs';
+_.extend(Blogs.prototype, new CAudit(Blogs._collection, 'title'));
 
 Blogs.schema = Joi.object().keys({
     _id: Joi.object(),

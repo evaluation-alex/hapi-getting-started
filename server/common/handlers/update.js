@@ -2,7 +2,7 @@
 var _ = require('lodash');
 var utils = require('./../utils');
 
-module.exports = function createUpdateHandler (Model, notify, i18nEnabled, methodName, updateCb) {
+module.exports = function UpdateHandler (Model, notify, i18nEnabled, method, updateCb) {
     var updateOneHook = function updateCB(u ,request, by) {
         u = _.isFunction(updateCb) ? updateCb(u, request, by) : u[updateCb](request, by);
         return u.save();
@@ -12,8 +12,8 @@ module.exports = function createUpdateHandler (Model, notify, i18nEnabled, metho
         var by = request.auth.credentials.user.email;
         updateOneHook(u, request, by)
             .then(function (u) {
-                if (notify) {
-                    notify.emit(methodName + ' ' + Model._collection, {object: u, request: request});
+                if (notify[method].emit) {
+                    notify[method].emit('invoked', u, request);
                 }
                 reply(i18nEnabled ? u.i18n(utils.locale(request)) : u);
             })

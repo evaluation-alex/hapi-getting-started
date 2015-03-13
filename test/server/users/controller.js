@@ -331,7 +331,7 @@ describe('Users', function () {
                         .then(function (foundUser) {
                             expect(foundUser.isActive).to.be.false();
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findAudit('Users', foundUser.email, {'change.audit': 'isActive'});
+                            return Audit.findAudit('users', foundUser.email, {'change.audit': 'isActive'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -362,7 +362,7 @@ describe('Users', function () {
                         .then(function (foundUser) {
                             expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findAudit('Users', foundUser.email, {'change.audit': 'update roles'});
+                            return Audit.findAudit('users', foundUser.email, {'change.audit': 'update roles'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -392,7 +392,7 @@ describe('Users', function () {
                     Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.session).to.not.exist();
-                            return Audit.findAudit('Users', foundUser.email, {'change.audit': 'reset password'});
+                            return Audit.findAudit('users', foundUser.email, {'change.audit': 'reset password'});
                         })
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
@@ -498,11 +498,11 @@ describe('Users', function () {
                         .then(function (foundUser) {
                             expect(foundUser).to.exist();
                             expect(foundUser.session).to.exist();
-                            return Audit.findAudit('Users', 'test.signup2@signup.api', {'change.audit': 'signup'});
+                            return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'signup'});
                         })
                         .then(function (foundSignup) {
                             expect(foundSignup).to.exist();
-                            return Audit.findAudit('Users', 'test.signup2@signup.api', {'change.audit': 'login success'});
+                            return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'login success'});
                         })
                         .then(function (foundLogin) {
                             expect(foundLogin).to.exist();
@@ -549,7 +549,7 @@ describe('Users', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.contain('Success');
-                    Audit.findAudit('Users', 'test.users@test.api', {'change.audit': 'reset password sent'})
+                    Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password sent'})
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
                             return Users._findOne({email: 'test.users@test.api'});
@@ -635,7 +635,7 @@ describe('Users', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             expect(response.payload).to.contain('Success');
-                            Audit.findAudit('Users', 'test.users@test.api', {'change.audit': 'reset password'})
+                            Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password'})
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
                                     return Users._findOne({email: 'test.users@test.api'});

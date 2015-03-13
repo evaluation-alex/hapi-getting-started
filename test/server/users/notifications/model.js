@@ -188,7 +188,7 @@ describe('Notifications Model', function () {
             Notifications.create('i18n', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', ['New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}', {postTitle: 'test post', blogTitle: 'test blog', publishedBy: 'test author'}], 'test')
                 .then(function (notification) {
                     var localised = notification.i18n('en');
-                    expect(localised.description).to.equal('New Post test post in Blog test blog published by test author');
+                    expect(localised.content).to.equal('New Post test post in Blog test blog published by test author');
                     expect(localised.title).to.equal('titles dont matter');
                 })
                 .catch(function (err) {

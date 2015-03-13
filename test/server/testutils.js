@@ -238,7 +238,7 @@ function cleanupNotifications (toClear) {
                 return new RegExp(i, 'g');
             });
         }));
-        Notifications.remove({title: {$in: notificationsToCleanup}}, function (err) {
+        Notifications.remove({'title.1.title': {$in: notificationsToCleanup}}, function (err) {
             err ? reject(err) : resolve(true);
         });
     });

@@ -1,6 +1,8 @@
 'use strict';
 var relativeToServer = './../../../../server/';
 
+var _ = require('lodash');
+var moment = require('moment');
 var Notifications = require(relativeToServer + 'users/notifications/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Promise = require('bluebird');
@@ -42,12 +44,13 @@ describe('Notifications', function () {
             var n3 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abcd1234', 'titles dont matter', 'cancelled', 'fyi', 'low', 'content is useful', 'root');
             Promise.join(n1, n2, n3, function (n11, n21, n31) {
                 n31[0].deactivate('test').save();
+                n21[0].createdOn.setFullYear(2015,1,14);
+                n21[0].save();
             })
                 .then(function () {
                     done();
                 }).
                 catch(function (err) {
-                    console.log(err.stack);
                     done(err);
                 });
             /*jshint unused:true*/
@@ -135,6 +138,51 @@ describe('Notifications', function () {
                 }
             });
         });
+
+        it('should give all notifications in a given time period', function (done) {
+            var request = {
+                method: 'GET',
+                url: '/notifications?createdOnBefore=2015-02-15&createdOnAfter=2015-02-13',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var p = JSON.parse(response.payload);
+                    _.forEach(p.data, function (d) {
+                        expect(moment(d.publishedOn).format('YYYYMMDD')).to.equal('20150214');
+                    });
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+
+        it('should give all posts in a given time period2', function (done) {
+            var request = {
+                method: 'GET',
+                url: '/notifications?createdOnAfter=2015-02-13',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(200);
+                    var p = JSON.parse(response.payload);
+                    _.forEach(p.data, function (d) {
+                        expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true();
+                    });
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+
     });
 
     describe('PUT /notifications/{id}', function () {

@@ -1,6 +1,6 @@
 {
     "name": "hapi-getting-started",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "User management, authentication and authorization api for Node.js using hapi",
     "main": "index.js",
     "scripts": {
@@ -32,7 +32,7 @@
     },
     "homepage": "https://github.com/k-sheth/hapi-getting-started",
     "engines": {
-        "node": ">= 0.12.x"
+        "node": ">= 0.10.x"
     },
     "dependencies": {
         "bcrypt": "0.8.x",

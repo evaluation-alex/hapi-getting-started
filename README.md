@@ -4,17 +4,17 @@ A user system API for Node.js. Bring your own front-end.
 
 [![Dependency Status](https://david-dm.org/k-sheth/hapi-getting-started.svg?style=flat)](https://david-dm.org/k-sheth/hapi-getting-started)
 [![devDependency Status](https://david-dm.org/k-sheth/hapi-getting-started/dev-status.svg?style=flat)](https://david-dm.org/k-sheth/hapi-getting-started#info=devDependencies)
-[![Travis Build Status](https://img.shields.io/travis/k-sheth/hapi-getting-started/master.svg)](https://travis-ci.org/k-sheth/hapi-getting-started)
+[![Travis Build Status](https://img.shields.io/travis/k-sheth/hapi-getting-started/master.svg?style=flat)](https://travis-ci.org/k-sheth/hapi-getting-started)
 [![Coverage Status](https://coveralls.io/repos/k-sheth/hapi-getting-started/badge.svg)](https://coveralls.io/r/k-sheth/hapi-getting-started)
 [![Code Climate](https://codeclimate.com/github/k-sheth/hapi-getting-started/badges/gpa.svg)](https://codeclimate.com/github/k-sheth/hapi-getting-started)
 [![Test Coverage](https://codeclimate.com/github/k-sheth/hapi-getting-started/badges/coverage.svg)](https://codeclimate.com/github/k-sheth/hapi-getting-started)
- [![Issues](http://img.shields.io/github/issues/k-sheth/hapi-getting-started.svg)](https://github.com/k-sheth/hapi-getting-started/issues)
+ [![Issues](http://img.shields.io/github/issues/k-sheth/hapi-getting-started.svg?style=flat)](https://github.com/k-sheth/hapi-getting-started/issues)
 
 Inspired by [frame](https://github.com/jedireza/frame)
 
 ## Technology
 
-__Primary goal:__ include as few dependencies as possible
+__Primary goal:__ get a project with up to date dependencies and obvious things out of the box.
 
 hapi-getting-started is built with the [hapi.js framework](https://github.com/hapijs/hapi) and
 [toolset](https://github.com/hapijs). We're using
@@ -85,7 +85,9 @@ $ npm start
  - Login system with forgot password and reset password
  - Abusive login attempt detection
  - User roles and permissions
-
+ - User groups with ownership, access control
+ - Simple blogging platform with separate ownership, contributors and subscribers
+ - Simple notifications
 
 ## Questions and contributing
 
@@ -112,14 +114,12 @@ Contributions welcome. Your code should:
 
  - include 100% test coverage
 
-If you're changing something non-trivial, you may want to submit an issue
-first.
+If you're changing something non-trivial, you may want to submit an issue first.
 
 
 ## Running tests
 
-[Lab](https://github.com/hapijs/lab) is part of the hapi.js toolset and what we
-use to write all of our tests.
+[Lab](https://github.com/hapijs/lab) is part of the hapi.js toolset and what we use to write all of our tests.
 
 For command line output:
 

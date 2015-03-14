@@ -13,17 +13,28 @@ var normalizePath = function normalizePath (request) {
     }
 };
 
-module.exports.register = function register (server, options, next) {
-    server.on('tail', function gatherPerfStats (request) {
-        var ua = UserAgent.lookup(request.headers['user-agent']);
-        utils.toStatsD(normalizePath(request) + '.' + request.method.toUpperCase(),
-            '.' + request.response.statusCode,
-            request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin',
-            ua.device.toString(),
-            ua.toString(),
-            request.info.received,
-            request.info.responded);
+var gatherPerfStats = function gatherPerfStats (request) {
+    var ua = UserAgent.lookup(request.headers['user-agent']);
+    var path = normalizePath(request) + '.' + request.method.toUpperCase();
+    var statusCode = '.' + request.response.statusCode;
+    var user = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
+    var device = ua.device.toString();
+    var browser = ua.toString();
+    var start = request.info.received;
+    var end = request.info.responded;
+    process.nextTick(function() {
+        utils.toStatsD(path,
+            statusCode,
+            user,
+            device,
+            browser,
+            start,
+            end);
     });
+};
+
+module.exports.register = function register (server, options, next) {
+    server.on('tail', gatherPerfStats);
     next();
 };
 

@@ -82,7 +82,7 @@ ControllerFactory.prototype.sendNotifications = function sendNotifications (noti
         notifyHook(target, request)
             .then(function (args) {
                 if (args.to && args.to.length > 0) {
-                    return Notifications.create(_.flatten(args.to),
+                    return Notifications.create(_.unique(_.flatten(args.to)),
                         target.organisation,
                         self.model._collection,
                         target._id,
@@ -146,7 +146,7 @@ ControllerFactory.prototype.newController = function newController (validator, p
         prereqs]);
     self.forMethod('new')
         .preProcessWith(pre)
-        .handleUsing(new NewHandler(self.model, self.controller, self.i18nEnabled, newCb));
+        .handleUsing(new NewHandler(self.model, self.controller.new, self.i18nEnabled, newCb));
     return self;
 };
 
@@ -154,7 +154,7 @@ ControllerFactory.prototype.customNewController = function customNewController (
     var self = this;
     self.forMethod(method)
         .preProcessWith([isUnique(self.model, uniqueCheck)])
-        .handleUsing(new NewHandler(self.model, self.controller, self.i18nEnabled, newCb));
+        .handleUsing(new NewHandler(self.model, self.controller[method], self.i18nEnabled, newCb));
     return self;
 };
 
@@ -187,7 +187,7 @@ ControllerFactory.prototype.updateController = function updateController (valida
     var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prereqs, prePopulate(self.model, 'id')]);
     self.forMethod(methodName)
         .preProcessWith(pre)
-        .handleUsing(new UpdateHandler(self.model, self.controller, self.i18nEnabled, methodName, updateCb));
+        .handleUsing(new UpdateHandler(self.model, self.controller[methodName], self.i18nEnabled, updateCb));
     return self;
 };
 

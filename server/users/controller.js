@@ -33,7 +33,7 @@ var Controller = new ControllerFactory(Users)
                     var options = {
                         subject: 'Your ' + Config.projectName + ' account',
                         to: {
-                            name: request.payload.name,
+                            name: request.payload.email,
                             address: email
                         }
                     };
@@ -42,11 +42,7 @@ var Controller = new ControllerFactory(Users)
                 return user;
             })
             .then(function (user) {
-                return user ? {
-                    user: user.email,
-                    session: user.session,
-                    authHeader: 'Basic ' + new Buffer(user.email + ':' + user.session.key).toString('base64')
-                } : user;
+                return user ? user.afterLogin() : user;
             });
     })
     .findController({
@@ -63,18 +59,12 @@ var Controller = new ControllerFactory(Users)
     },
     function stripPrivateData (output) {
         output.data = _.map(output.data, function (user) {
-            return {
-                email: user.email,
-                isLoggedIn: user.session.key ? true : false
-            };
+            return user.stripPrivateData();
         });
         return output;
     })
     .findOneController(function stripPrivateData (user) {
-        return {
-            email: user.email,
-            isLoggedIn: user.session.key ? true: false
-        };
+        return user.stripPrivateData();
     })
     .updateController({
         payload: {

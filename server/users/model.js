@@ -109,6 +109,21 @@ Users.prototype.resetPassword = function resetPassword (newPassword, by) {
     }
     return self;
 };
+Users.prototype.stripPrivateData = function stripData() {
+    var self = this;
+    return {
+        email: self.email,
+        isLoggedIn: self.session.key ? true: false
+    };
+};
+Users.prototype.afterLogin = function afterLogin() {
+    var self = this;
+    return {
+        user: self.email,
+        session: self.session,
+        authHeader: 'Basic ' + new Buffer(self.email + ':' + self.session.key).toString('base64')
+    };
+};
 Users.prototype.update = function update (doc, by) {
     var self = this;
     return self._invalidateSession()

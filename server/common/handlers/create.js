@@ -14,8 +14,8 @@ module.exports = function NewHandler (Model, notify, i18nEnabled, newCb) {
                 if (!n) {
                     reply(Boom.notFound(Model._collection + ' object could not be created.'));
                 } else {
-                    if (notify.new && notify.new.emit) {
-                        notify.new.emit('invoked', n, request);
+                    if (notify.emit) {
+                        notify.emit('invoked', n, request);
                     }
                     reply(i18nEnabled ? n.i18n(utils.locale(request)) : n).code(201);
                 }

@@ -40,11 +40,7 @@ var Controller = new ControllerFactory()
                 return user.loginSuccess(ip, user.email).save();
             })
             .then(function (user) {
-                reply({
-                    user: user.email,
-                    session: user.session,
-                    authHeader: 'Basic ' + new Buffer(user.email + ':' + user.session.key).toString('base64')
-                });
+                reply(user.afterLogin());
             })
             .catch(function (err) {
                 AuthAttempts.create(ip, email);

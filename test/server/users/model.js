@@ -178,7 +178,7 @@ describe('Users Model', function () {
                     return user.save();
                 })
                 .then(function(user) {
-                    Users.findBySessionCredentials(secondEmail, user.session.key);
+                    return Users.findBySessionCredentials(secondEmail, user.session.key);
                 })
                 .then(function (foundUser) {
                     error = foundUser;
@@ -199,7 +199,7 @@ describe('Users Model', function () {
                     return user.logout('tests').save();
                 })
                 .then(function() {
-                    Users.findBySessionCredentials(secondEmail, 'something');
+                    return Users.findBySessionCredentials(secondEmail, 'something');
                 })
                 .then(function (foundUser) {
                     error = foundUser;

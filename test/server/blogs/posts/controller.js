@@ -627,6 +627,34 @@ describe('Posts', function () {
             });
         });
 
+        it('should give an error if you try to update archived posts', function (done) {
+            Posts._findOne({_id: Posts.ObjectID(postId)})
+                .then(function (post) {
+                    post.state = 'archived';
+                    return post.save();
+                })
+                .then(function () {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId,
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            content: 'if its archived, its done'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(500);
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
         after(function (done) {
             blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}');
             postsToClear.push('test PUT');

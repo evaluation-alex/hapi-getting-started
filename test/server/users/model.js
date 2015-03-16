@@ -91,7 +91,7 @@ describe('Users Model', function () {
                     expect(foundUser).to.not.exist();
                 })
                 .catch(function (err) {
-                    expect(err.type).to.equal('IncorrectPassword');
+                    expect(err.name).to.equal('IncorrectPasswordError');
                     expect(err.user.email).to.equal(secondEmail);
                 })
                 .finally(function () {
@@ -107,7 +107,7 @@ describe('Users Model', function () {
                     expect(foundUser).to.not.exist();
                 })
                 .catch(function (err) {
-                    expect(err.type).to.equal('UserNotFound');
+                    expect(err.name).to.equal('UserNotFoundError');
                 })
                 .finally(function () {
                     tu.testComplete(done, error);
@@ -148,7 +148,7 @@ describe('Users Model', function () {
                     expect(foundUser).to.not.exist();
                 })
                 .catch(function (err) {
-                    expect(err.type).to.equal('SessionCredentialsNotMaching');
+                    expect(err.name).to.equal('SessionCredentialsNotMatchingError');
                 })
                 .finally(function () {
                     tu.testComplete(done, error);
@@ -163,7 +163,7 @@ describe('Users Model', function () {
                     expect(foundUser).to.not.exist();
                 })
                 .catch(function (err) {
-                    expect(err.type).to.equal('UserNotFound');
+                    expect(err.name).to.equal('UserNotFoundError');
                 })
                 .finally(function () {
                     tu.testComplete(done, error);
@@ -185,7 +185,7 @@ describe('Users Model', function () {
                     expect(foundUser).to.not.exist();
                 })
                 .catch(function (err) {
-                    expect(err.type).to.equal('SessionExpired');
+                    expect(err.name).to.equal('SessionExpiredError');
                 })
                 .finally(function () {
                     tu.testComplete(done, error);
@@ -206,7 +206,7 @@ describe('Users Model', function () {
                     expect(foundUser).to.not.exist();
                 })
                 .catch(function (err) {
-                    expect(err.type).to.equal('UserNotLoggedIn');
+                    expect(err.name).to.equal('UserNotLoggedInError');
                 })
                 .finally(function () {
                     tu.testComplete(done, error);

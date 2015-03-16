@@ -5,7 +5,11 @@ var Promise = require('bluebird');
 
 module.exports = function NewHandler (Model, notify, i18nEnabled, newCb) {
     var newObjHook = function newObjCb (request, by) {
-        return Promise.resolve(newCb ? newCb(request, by) : Model.newObject(request, by));
+        /*jshint unused:false*/
+        return new Promise(function (resolve, reject) {
+            resolve(newCb ? newCb(request, by) : Model.newObject(request, by));
+        });
+        /*jshint unused:true*/
     };
     return function createHandler (request, reply) {
         var by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';

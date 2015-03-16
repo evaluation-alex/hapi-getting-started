@@ -6,7 +6,11 @@ var Notifications = require('./../../users/notifications/model');
 module.exports = function CancelNotification (model, cancelAction, cancelNotificationsCb) {
     var cancelHook = function cancelCbHook (target, request, notification) {
         if (cancelNotificationsCb) {
-            return Promise.resolve(cancelNotificationsCb(target, request, notification));
+            /*jshint unused:false*/
+            return new Promise (function (resolve, reject) {
+                resolve(cancelNotificationsCb(target, request, notification));
+            });
+            /*jshint unused:true*/
         } else {
             notification.setState('cancelled', request.auth.credentials.user.email);
             return notification.save();

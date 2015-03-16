@@ -4,8 +4,13 @@ var logger = require('./../../config').logger;
 var statsd = require('./../../config').statsd;
 
 module.exports.logAndBoom = function logAndBoom (err, reply) {
-    logger.error({error: err});
-    reply(Boom.badImplementation(err));
+    logger.error({error: err, stack: err.stack});
+    if (err.getBoomError) {
+        //TODO: figure out locales
+        reply(err.getBoomError('en'));
+    } else {
+        reply(Boom.badImplementation(err.message));
+    }
 };
 
 module.exports.toStatsD = function toStatsD (route, statusCode, user, device, browser, start, finish) {

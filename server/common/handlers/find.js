@@ -5,7 +5,11 @@ var _ = require('lodash');
 
 module.exports = function FindHandler (Model, queryBuilder, i18nEnabled, findCb) {
     var findHook = function findObjsCb(output) {
-        return Promise.resolve(findCb ? findCb(output): output);
+        /*jshint unused:false*/
+        return new Promise(function (resolve, reject) {
+            resolve(findCb ? findCb(output): output);
+        });
+        /*jshint unused:true*/
     };
     return function findHandler (request, reply) {
         var query = queryBuilder(request);

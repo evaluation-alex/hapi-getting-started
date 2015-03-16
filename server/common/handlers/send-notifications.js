@@ -6,7 +6,11 @@ var Notifications = require('./../../users/notifications/model');
 
 module.exports = function SendNotifications (model, notifyCb) {
     var notifyHook = function notifyCbHook (target, request) {
-        return Promise.resolve(notifyCb(target, request));
+        /*jshint unused:false*/
+        return new Promise(function (resolve, reject) {
+            resolve(notifyCb(target, request));
+        });
+        /*jshint unused:true*/
     };
     return function onNotify(target, request) {
         notifyHook(target, request)

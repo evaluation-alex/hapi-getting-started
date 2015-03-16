@@ -15,6 +15,7 @@ var CAudit = require('./../common/mixins/audit');
 var Roles = require('./../roles/model');
 var _ = require('lodash');
 var moment = require('moment');
+var errors = require('./../common/errors');
 
 var Users = BaseModel.extend({
     /* jshint -W064 */
@@ -177,22 +178,16 @@ Users.create = function create (email, password, organisation) {
     return self._insertAndAudit(document);
 };
 
-var newErrorOfType = function newErrorOfType (type) {
-    var ret = new Error(type);
-    ret.type = type;
-    return ret;
-};
-
 Users.findByCredentials = function findByCredentials (email, password) {
     var self = this;
     return self._findOne({email: email, isActive: true})
         .then(function (user) {
             if (!user) {
-                throw newErrorOfType('UserNotFound');
+                throw new errors.UserNotFoundError(email);
             }
             var passwordMatch = Bcrypt.compareSync(password, user.password);
             if (!passwordMatch) {
-                var err2 = newErrorOfType('IncorrectPassword');
+                var err2 = new errors.IncorrectPasswordError(email);
                 err2.user = user;
                 throw err2;
             }
@@ -205,17 +200,17 @@ Users.findBySessionCredentials = function findBySessionCredentials (email, key) 
     return self._findOne({email: email, isActive: true})
         .then(function (user) {
             if (!user) {
-                throw newErrorOfType('UserNotFound');
+                throw new errors.UserNotFoundError(email);
             }
             if (!user.session || !user.session.key) {
-                throw newErrorOfType('UserNotLoggedIn');
+                throw new errors.UserNotLoggedInError(email);
             }
             if (moment().isAfter(user.session.expires)) {
-                throw newErrorOfType('SessionExpired');
+                throw new errors.SessionExpiredError(email);
             }
             var keyMatch = Bcrypt.compareSync(key, user.session.key) || key === user.session.key;
             if (!keyMatch) {
-                throw newErrorOfType('SessionCredentialsNotMaching');
+                throw new errors.SessionCredentialsNotMatchingError(email);
             }
             return user.hydrateRoles();
         });

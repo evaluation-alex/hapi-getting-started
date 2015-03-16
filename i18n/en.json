@@ -29,7 +29,7 @@
 	"Only members of {{owners}} group are permitted to perform this action": "Only members of {{owners}} group are permitted to perform this action",
 	"Maximum number of auth attempts reached. Please try again later.": "Maximum number of auth attempts reached. Please try again later.",
 	"Invalid email or key.": "Invalid email or key.",
-	"Invalid password": "Invalid password",
+	"Invalid password for {{email}}": "Invalid password for {{email}}",
     "User not found or not logged in": "User not found or not logged in",
     "{{email}} not found": "{{email}} not found",
     "{{email}} not logged in": "{{email}} not logged in",

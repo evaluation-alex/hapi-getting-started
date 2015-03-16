@@ -14,10 +14,11 @@ var Save = require('./../common/mixins/save');
 var CAudit = require('./../common/mixins/audit');
 var Roles = require('./../roles/model');
 var _ = require('lodash');
+var moment = require('moment');
 
 var Users = BaseModel.extend({
     /* jshint -W064 */
-    constructor: function (attrs) {
+    constructor: function user (attrs) {
         ObjectAssign(this, attrs);
         Object.defineProperty(this, '_roles', {
             writable: true,
@@ -70,7 +71,7 @@ Users.prototype._newSession = function newSession () {
     var self = this;
     self.session = {
         key: Bcrypt.hashSync(Uuid.v4().toString(), 10),
-        timestamp: new Date()
+        expires: moment().add(1, 'month').toDate()
     };
     return self;
 };
@@ -109,14 +110,14 @@ Users.prototype.resetPassword = function resetPassword (newPassword, by) {
     }
     return self;
 };
-Users.prototype.stripPrivateData = function stripData() {
+Users.prototype.stripPrivateData = function stripData () {
     var self = this;
     return {
         email: self.email,
-        isLoggedIn: self.session.key ? true: false
+        isLoggedIn: self.session.key ? true : false
     };
 };
-Users.prototype.afterLogin = function afterLogin() {
+Users.prototype.afterLogin = function afterLogin () {
     var self = this;
     return {
         user: self.email,
@@ -144,7 +145,7 @@ Users.schema = Joi.object().keys({
     }),
     session: Joi.object().keys({
         key: Joi.object(),
-        timestamp: Joi.date()
+        expires: Joi.date()
     }),
     isActive: Joi.boolean().default(true),
     createdBy: Joi.string(),
@@ -176,25 +177,26 @@ Users.create = function create (email, password, organisation) {
     return self._insertAndAudit(document);
 };
 
+var newErrorOfType = function newErrorOfType (type) {
+    var ret = new Error(type);
+    ret.type = type;
+    return ret;
+};
+
 Users.findByCredentials = function findByCredentials (email, password) {
     var self = this;
     return self._findOne({email: email, isActive: true})
         .then(function (user) {
             if (!user) {
-                var err = new Error('User Not Found');
-                err.type = 'UserNotFoundError';
-                throw err;
-            } else {
-                var passwordMatch = Bcrypt.compareSync(password, user.password);
-                if (passwordMatch) {
-                    return user;
-                } else {
-                    var err2 = new Error('IncorrectPasswordError');
-                    err2.type = 'IncorrectPasswordError';
-                    err2.user = user;
-                    throw err2;
-                }
+                throw newErrorOfType('UserNotFound');
             }
+            var passwordMatch = Bcrypt.compareSync(password, user.password);
+            if (!passwordMatch) {
+                var err2 = newErrorOfType('IncorrectPassword');
+                err2.user = user;
+                throw err2;
+            }
+            return user;
         });
 };
 
@@ -202,16 +204,20 @@ Users.findBySessionCredentials = function findBySessionCredentials (email, key) 
     var self = this;
     return self._findOne({email: email, isActive: true})
         .then(function (user) {
-            if (!user || !user.session || !user.session.key) {
-                throw new Error('User not found or not logged in');
-            } else {
-                var keyMatch = Bcrypt.compareSync(key, user.session.key) || key === user.session.key;
-                if (keyMatch) {
-                    return user.hydrateRoles();
-                } else {
-                    throw new Error('Session credentials do not match');
-                }
+            if (!user) {
+                throw newErrorOfType('UserNotFound');
             }
+            if (!user.session || !user.session.key) {
+                throw newErrorOfType('UserNotLoggedIn');
+            }
+            if (moment().isAfter(user.session.expires)) {
+                throw newErrorOfType('SessionExpired');
+            }
+            var keyMatch = Bcrypt.compareSync(key, user.session.key) || key === user.session.key;
+            if (!keyMatch) {
+                throw newErrorOfType('SessionCredentialsNotMaching');
+            }
+            return user.hydrateRoles();
         });
 };
 

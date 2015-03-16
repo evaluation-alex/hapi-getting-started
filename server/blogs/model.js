@@ -19,7 +19,7 @@ var Config = require('./../../config');
 
 var Blogs = BaseModel.extend({
     /* jshint -W064 */
-    constructor: function (attrs) {
+    constructor: function blog (attrs) {
         ObjectAssign(this, attrs);
         Object.defineProperty(this, 'audit', {
             writable: true,

@@ -14,7 +14,7 @@ var _ = require('lodash');
 
 var Posts = BaseModel.extend({
     /* jshint -W064 */
-    constructor: function (attrs) {
+    constructor: function post (attrs) {
         ObjectAssign(this, attrs);
         Object.defineProperty(this, 'audit', {
             writable: true,

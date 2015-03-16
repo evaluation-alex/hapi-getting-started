@@ -48,9 +48,9 @@ var Controller = new ControllerFactory()
             })
             .catch(function (err) {
                 AuthAttempts.create(ip, email);
-                if (err.type === 'UserNotFoundError') {
+                if (err.type === 'UserNotFound') {
                     reply(Boom.notFound(i18n.__({phrase: 'User {{email}} not found', locale: utils.locale(request)}, {email: email})));
-                } else if (err.type === 'IncorrectPasswordError') {
+                } else if (err.type === 'IncorrectPassword') {
                     err.user.loginFail(ip, ip).save();
                     reply(Boom.unauthorized(i18n.__({phrase: 'Invalid password', locale: utils.locale(request)})));
                 } else {

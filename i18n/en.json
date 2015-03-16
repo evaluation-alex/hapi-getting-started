@@ -29,5 +29,10 @@
 	"Only members of {{owners}} group are permitted to perform this action": "Only members of {{owners}} group are permitted to perform this action",
 	"Maximum number of auth attempts reached. Please try again later.": "Maximum number of auth attempts reached. Please try again later.",
 	"Invalid email or key.": "Invalid email or key.",
-	"Invalid password": "Invalid password"
+	"Invalid password": "Invalid password",
+    "User not found or not logged in": "User not found or not logged in",
+    "{{email}} not found": "{{email}} not found",
+    "{{email}} not logged in": "{{email}} not logged in",
+    "{{email}} does not have the right credentials, login again": "{{email}} does not have the right credentials, login again",
+    "Your session has expired, login again": "Your session has expired, login again"
 }

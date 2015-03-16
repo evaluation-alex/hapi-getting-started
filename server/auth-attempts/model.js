@@ -10,7 +10,7 @@ var authAttemptsConfig = Config.authAttempts;
 
 var AuthAttempts = BaseModel.extend({
     /* jshint -W064 */
-    constructor: function (attrs) {
+    constructor: function authAttempts (attrs) {
         ObjectAssign(this, attrs);
     }
     /* jshint +W064 */

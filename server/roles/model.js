@@ -7,7 +7,7 @@ var _ = require('lodash');
 
 var Roles = BaseModel.extend({
     /* jshint -W064 */
-    constructor: function (attrs) {
+    constructor: function role (attrs) {
         ObjectAssign(this, attrs);
     }
     /* jshint +W064 */

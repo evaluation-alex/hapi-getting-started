@@ -6,7 +6,7 @@ var Promisify = require('./../common/mixins/promisify');
 
 var Audit = BaseModel.extend({
     /* jshint -W064 */
-    constructor: function (attrs) {
+    constructor: function audit (attrs) {
         ObjectAssign(this, attrs);
     }
     /* jshint +W064 */

@@ -4,6 +4,7 @@ var relativeToServer = './../../../server/';
 var Users = require(relativeToServer+'users/model');
 var Audit = require(relativeToServer+'audit/model');
 var Roles = require(relativeToServer+'roles/model');
+var moment = require('moment');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -90,7 +91,7 @@ describe('Users Model', function () {
                     expect(foundUser).to.not.exist();
                 })
                 .catch(function (err) {
-                    expect(err.type).to.equal('IncorrectPasswordError');
+                    expect(err.type).to.equal('IncorrectPassword');
                     expect(err.user.email).to.equal(secondEmail);
                 })
                 .finally(function () {
@@ -106,7 +107,106 @@ describe('Users Model', function () {
                     expect(foundUser).to.not.exist();
                 })
                 .catch(function (err) {
-                    expect(err.type).to.equal('UserNotFoundError');
+                    expect(err.type).to.equal('UserNotFound');
+                })
+                .finally(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+
+    });
+
+    describe('Users.findBySessionCredentials', function () {
+        it('should returns a result when finding by login and by credentials correctly', function (done) {
+            var error = null;
+            Users._findOne({email: secondEmail})
+                .then(function (user) {
+                    return user.loginSuccess('test').save();
+                })
+                .then(function (user) {
+                    var a = user.afterLogin();
+                    return Users.findBySessionCredentials(secondEmail, a.session.key);
+                })
+                .then(function (foundUser2) {
+                    expect(foundUser2.email).to.equal(secondEmail);
+                    expect(foundUser2._roles).to.exist();
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .finally(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+
+        it('should returns error and user for find by session credentials when password match fails', function (done) {
+            var error = null;
+            Users.findBySessionCredentials(secondEmail, 'wrongpassword')
+                .then(function (foundUser) {
+                    error = foundUser;
+                    expect(foundUser).to.not.exist();
+                })
+                .catch(function (err) {
+                    expect(err.type).to.equal('SessionCredentialsNotMaching');
+                })
+                .finally(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+
+        it('should returns error for find by session credentials when user does not exist', function (done) {
+            var error = null;
+            Users.findBySessionCredentials('test.search.fail@users.module', 'unknownuser')
+                .then(function (foundUser) {
+                    error = foundUser;
+                    expect(foundUser).to.not.exist();
+                })
+                .catch(function (err) {
+                    expect(err.type).to.equal('UserNotFound');
+                })
+                .finally(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+
+        it('should returns error for find by session credentials when user session has expired', function (done) {
+            var error = null;
+            Users._findOne({email: secondEmail})
+                .then(function (user) {
+                    user.session.expires = moment().subtract(5, 'days').toDate();
+                    return user.save();
+                })
+                .then(function(user) {
+                    Users.findBySessionCredentials(secondEmail, user.session.key);
+                })
+                .then(function (foundUser) {
+                    error = foundUser;
+                    expect(foundUser).to.not.exist();
+                })
+                .catch(function (err) {
+                    expect(err.type).to.equal('SessionExpired');
+                })
+                .finally(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+
+        it('should returns error for find by session credentials when user is not logged in', function (done) {
+            var error = null;
+            Users._findOne({email: secondEmail})
+                .then(function (user) {
+                    return user.logout('tests').save();
+                })
+                .then(function() {
+                    Users.findBySessionCredentials(secondEmail, 'something');
+                })
+                .then(function (foundUser) {
+                    error = foundUser;
+                    expect(foundUser).to.not.exist();
+                })
+                .catch(function (err) {
+                    expect(err.type).to.equal('UserNotLoggedIn');
                 })
                 .finally(function () {
                     tu.testComplete(done, error);

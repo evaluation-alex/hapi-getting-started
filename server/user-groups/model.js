@@ -17,7 +17,7 @@ var _ = require('lodash');
 
 var UserGroups = BaseModel.extend({
     /* jshint -W064 */
-    constructor: function (attrs) {
+    constructor: function userGroup (attrs) {
         ObjectAssign(this, attrs);
         Object.defineProperty(this, 'audit', {
             writable: true,

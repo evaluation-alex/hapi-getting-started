@@ -14,7 +14,7 @@ var Promise = require('bluebird');
 
 var Notifications = BaseModel.extend({
     /* jshint -W064 */
-    constructor: function (attrs) {
+    constructor: function notification (attrs) {
         ObjectAssign(this, attrs);
         Object.defineProperty(this, 'audit', {
             writable: true,

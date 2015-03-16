@@ -179,7 +179,7 @@ describe('Session', function () {
             };
             server.inject(request, function (response) {
                 try {
-                    expect(response.statusCode).to.equal(401);
+                    expect(response.statusCode).to.equal(404);
                     emails.push('test.not.created@logout.api');
                     done();
                 } catch (err) {

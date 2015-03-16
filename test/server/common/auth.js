@@ -3,6 +3,7 @@ var relativeToServer = './../../../server/';
 
 var Users = require(relativeToServer + 'users/model');
 var ensurePermissions = require(relativeToServer + 'common/prereqs/ensure-permissions');
+var moment = require('moment');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -249,6 +250,43 @@ describe('Auth', function () {
                 done(err);
             }
         });
+    });
+
+    it ('returns a session expired when the session has expired', function (done) {
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+                server.auth.test('simple', request, function (err, credentials) {
+                    expect(err).to.be.an.instanceof(Error);
+                    expect(credentials).to.not.exist();
+                    reply('ok');
+                });
+            }
+        });
+
+        Users._findOne({email: email})
+            .then(function (user) {
+                user.session.expires = moment().subtract(15, 'days').toDate();
+                return user.save();
+            })
+            .then(function () {
+                var request = {
+                    method: 'GET',
+                    url: '/',
+                    headers: {
+                        Authorization: authheader
+                    }
+                };
+                server.inject(request, function () {
+                    try {
+                        done();
+                    } catch (err) {
+                        done(err);
+                    }
+                });
+            })
+            .done();
     });
 
     afterEach(function (done) {

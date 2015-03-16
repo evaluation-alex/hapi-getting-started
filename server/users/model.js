@@ -181,7 +181,7 @@ Users.findByCredentials = function findByCredentials (email, password) {
     return self._findOne({email: email, isActive: true})
         .then(function (user) {
             if (!user) {
-                var err = new Error('User ' + email + ' NotFound');
+                var err = new Error('User Not Found');
                 err.type = 'UserNotFoundError';
                 throw err;
             } else {

@@ -12,7 +12,7 @@ module.exports = function NewHandler (Model, notify, i18nEnabled, newCb) {
         newObjHook(request, by)
             .then(function (n) {
                 if (!n) {
-                    reply(Boom.notFound(Model._collection + ' object could not be created.'));
+                    reply(Boom.notFound({phrase: '{{collection}} object could not be created.', locale: utils.locale(request)}, {collection: Model._collection}));
                 } else {
                     if (notify.emit) {
                         notify.emit('invoked', n, request);

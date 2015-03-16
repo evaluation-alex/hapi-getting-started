@@ -29,8 +29,7 @@ var Controller = new ControllerFactory()
             })
             .catch(function (err) {
                 utils.logAndBoom(err, reply);
-            })
-            .done();
+            });
     })
     .doneConfiguring();
 

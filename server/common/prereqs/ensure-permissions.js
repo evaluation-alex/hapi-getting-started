@@ -1,5 +1,7 @@
 'use strict';
 var Boom = require('boom');
+var i18n = require('./../../../config').i18n;
+var utils = require('./../utils');
 
 module.exports = function ensurePermissions (forAction, onObject) {
     return {
@@ -7,7 +9,13 @@ module.exports = function ensurePermissions (forAction, onObject) {
         method: function userRoleHasPerms (request, reply) {
             var ret = request.auth.credentials.user.hasPermissionsTo(forAction, onObject);
             if (!ret) {
-                return reply(Boom.forbidden('Permission denied ' + forAction + ' on ' + onObject + ' for user ' + request.auth.credentials.user.email));
+                return reply(Boom.forbidden(i18n.__({
+                    phrase: 'Permission denied {{action}} on {{object}} for user {{user}}',
+                    locale: utils.locale(request)
+                }, {action: forAction,
+                    object: onObject,
+                    user: request.auth.credentials.user.email
+                })));
             }
             reply();
         }

@@ -5,12 +5,16 @@ var Users = require('./../users/model');
 var AuthAttempts = require('./../auth-attempts/model');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
+var i18n = require('./../../config').i18n;
 
 var abuseDetected = function abuseDetected (request, reply) {
     AuthAttempts.abuseDetected(request.info.remoteAddress, request.payload.email)
         .then(function (detected) {
             if (detected) {
-                reply(Boom.tooManyRequests('Maximum number of auth attempts reached. Please try again later.'));
+                reply(Boom.tooManyRequests(i18n.__({
+                    phrase: 'Maximum number of auth attempts reached. Please try again later.',
+                    locale: utils.locale(request)
+                })));
             } else {
                 reply();
             }
@@ -45,10 +49,10 @@ var Controller = new ControllerFactory()
             .catch(function (err) {
                 AuthAttempts.create(ip, email);
                 if (err.type === 'UserNotFoundError') {
-                    reply(Boom.notFound('user ' + email + ' not found'));
+                    reply(Boom.notFound(i18n.__({phrase: 'User {{email}} not found', locale: utils.locale(request)}, {email: email})));
                 } else if (err.type === 'IncorrectPasswordError') {
                     err.user.loginFail(ip, ip).save();
-                    reply(Boom.unauthorized('Invalid password'));
+                    reply(Boom.unauthorized(i18n.__({phrase: 'Invalid password', locale: utils.locale(request)})));
                 } else {
                     utils.logAndBoom(err, reply);
                 }

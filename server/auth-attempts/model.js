@@ -18,7 +18,7 @@ var AuthAttempts = BaseModel.extend({
 
 Promisify(AuthAttempts, ['pagedFind', 'find', 'count', 'insert']);
 
-AuthAttempts._collection = 'authAttempts';
+AuthAttempts._collection = 'auth-attempts';
 
 AuthAttempts.schema = Joi.object().keys({
     _id: Joi.object(),

@@ -1,5 +1,7 @@
 'use strict';
 var Joi = require('joi');
+var i18n = require('./../../../config').i18n;
+var utils = require('./../../common/utils');
 var _ = require('lodash');
 var moment = require('moment');
 var Posts = require('./model');
@@ -182,7 +184,7 @@ var Controller = new ControllerFactory(Posts)
             PostContent.writeContent(post, request.payload.content);
             return post.update(request, by);
         } else {
-            throw new Error('Cannot update archived posts');
+            throw new Error(i18n.__({phrase: 'Cannot update archived posts', locale: utils.locale(request)}));
         }
     })
     .updateController({

@@ -1,6 +1,7 @@
 'use strict';
 var Boom = require('boom');
 var _ = require('lodash');
+var i18n = require('./../../../config').i18n;
 var utils = require('./../utils');
 
 module.exports = function (Model, idToUse) {
@@ -14,7 +15,17 @@ module.exports = function (Model, idToUse) {
                 var id = request.params[idToUse] ? request.params[idToUse] : request.payload[idToUse];
                 Model._findOne({_id: Model.ObjectID(id)})
                     .then(function (obj) {
-                        reply(obj ? obj : Boom.notFound(type + ' (' + id.toString() + ') not found'));
+                        if (obj) {
+                            reply(obj);
+                        } else {
+                            reply(Boom.notFound(i18n.__({
+                                phrase: '{{type}} ({{idstr}}) not found',
+                                locale: utils.locale(request)
+                            }, {
+                                type: type,
+                                idstr: id.toString()
+                            })));
+                        }
                     })
                     .catch(function (err) {
                         utils.logAndBoom(err, reply);

@@ -1,8 +1,6 @@
 'use strict';
 var Joi = require('joi');
 var _ = require('lodash');
-var Promise = require('bluebird');
-var logger = require('./../../config').logger;
 var EventEmitter = require('events');
 var ensurePermissions = require('./prereqs/ensure-permissions');
 var validAndPermitted = require('./prereqs/valid-permitted');
@@ -13,7 +11,8 @@ var NewHandler = require('./handlers/create');
 var FindHandler = require('./handlers/find');
 var FindOneHandler = require('./handlers/find-one');
 var UpdateHandler = require('./handlers/update');
-var Notifications = require('./../users/notifications/model');
+var SendNotifications = require('./handlers/send-notifications');
+var CancelNotifications = require('./handlers/cancel-notifications');
 
 var ControllerFactory = function ControllerFactory (model) {
     var self = this;
@@ -75,62 +74,13 @@ ControllerFactory.prototype.handleUsing = function handleUsing (handler) {
 
 ControllerFactory.prototype.sendNotifications = function sendNotifications (notifyCb) {
     var self = this;
-    var notifyHook = function notifyCbHook (target, request) {
-        return Promise.resolve(notifyCb(target, request));
-    };
-    self.controller[self.method].on('invoked', function (target, request) {
-        notifyHook(target, request)
-            .then(function (args) {
-                if (args.to && args.to.length > 0) {
-                    return Notifications.create(_.unique(_.flatten(args.to)),
-                        target.organisation,
-                        self.model._collection,
-                        target._id,
-                        args.title,
-                        'unread',
-                        args.action ? args.action : 'fyi',
-                        args.priority ? args.priority : 'low',
-                        args.description,
-                        request.auth.credentials.user.email);
-                }
-            })
-            .catch(function (err) {
-                if (err) {
-                    logger.error({error: err});
-                }
-            });
-    });
+    self.controller[self.method].on('invoked', new SendNotifications(self.model, notifyCb));
     return self;
 };
 
 ControllerFactory.prototype.cancelNotifications = function cancelNotifications (cancelAction, cancelNotificationsCb) {
     var self = this;
-    var cancelHook = function cancelCbHook (target, request, notification) {
-        if (cancelNotificationsCb) {
-            return Promise.resolve(cancelNotificationsCb(target, request, notification));
-        } else {
-            notification.setState('cancelled', request.auth.credentials.user.email);
-            return notification.save();
-        }
-    };
-    self.controller[self.method].on('invoked', function (target, request) {
-        if (cancelAction) {
-            Notifications._find({
-                objectType: self.model._collection,
-                objectId: target._id,
-                state: 'unread',
-                action: cancelAction
-            })
-                .map(function (notification) {
-                    cancelHook(target, request, notification);
-                })
-                .catch(function (err) {
-                    if (err) {
-                        logger.error({error: err});
-                    }
-                });
-        }
-    });
+    self.controller[self.method].on('invoked', new CancelNotifications(self.model, cancelAction, cancelNotificationsCb));
     return self;
 };
 
@@ -193,7 +143,7 @@ ControllerFactory.prototype.updateController = function updateController (valida
 
 ControllerFactory.prototype.deleteController = function deleteController (pre) {
     var self = this;
-    return self.updateController(undefined, pre ? pre : [], 'delete', 'del');
+    return self.updateController(undefined, pre, 'delete', 'del');
 };
 
 ControllerFactory.prototype.joinApproveRejectController = function joinApproveRejectController (actions, toAdd, approvers, idForNotifications) {

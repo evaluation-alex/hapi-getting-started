@@ -17,7 +17,7 @@ module.exports = function ValidAndPermitted () {
                         ) {
                             return {message: 'valid', obj: g};
                         }
-                        return {message: 'not a member of ' + JSON.stringify(roles) + ' list'};
+                        return {message: 'not a member of list'};
                     }
                 });
         }

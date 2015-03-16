@@ -11,8 +11,7 @@ var loginValidation = function loginValidation (email, sessionkey, callback) {
         .catch(function (err) {
             logger.info(['auth', 'error'], {user: email, success: false, error: JSON.stringify(err)});
             callback(null, false);
-        })
-        .done();
+        });
 };
 
 module.exports.register = function register (server, options, next) {

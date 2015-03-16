@@ -3,6 +3,7 @@ var Joi = require('joi');
 var _ = require('lodash');
 var Boom = require('boom');
 var Config = require('./../../config');
+var i18n = Config.i18n;
 var Users = require('./model');
 var Mailer = require('./../common/plugins/mailer');
 var ControllerFactory = require('./../common/controller-factory');
@@ -116,7 +117,7 @@ var Controller = new ControllerFactory(Users)
         Users._findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
             .then(function (user) {
                 if (!user || (request.payload.key !== user.resetPwd.token)) {
-                    reply(Boom.badRequest('Invalid email or key.'));
+                    reply(Boom.badRequest(i18n.__({phrase: 'Invalid email or key.', locale: utils.locale(request)})));
                 } else {
                     user._invalidateSession().resetPassword(request.payload.password, user.email).save()
                         .then(function () {

@@ -3,6 +3,7 @@ var relativeToServer = './../../../../server/';
 
 var _ = require('lodash');
 var moment = require('moment');
+var Users = require(relativeToServer + 'users/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Promise = require('bluebird');
@@ -44,7 +45,7 @@ describe('Notifications', function () {
             var n3 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abcd1234', 'titles dont matter', 'cancelled', 'fyi', 'low', 'content is useful', 'root');
             Promise.join(n1, n2, n3, function (n11, n21, n31) {
                 n31[0].deactivate('test').save();
-                n21[0].createdOn.setFullYear(2015,1,14);
+                n21[0].createdOn.setFullYear(2015, 1, 14);
                 n21[0].save();
             })
                 .then(function () {
@@ -203,6 +204,37 @@ describe('Notifications', function () {
                 }
             });
         });
+        it('should return unauthorized if someone other than the owner of the notification tries to change it', function (done) {
+            var id = null;
+            Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
+                .then(function (n) {
+                    id = n._id.toString();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test').save();
+                })
+                .then(function (user) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/notifications/' + id,
+                        headers: {
+                            Authorization: tu.authorizationHeader(user)
+                        },
+                        payload: {
+                            isActive: false
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
         it('should deactivate notification and have changes audited', function (done) {
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
                 .then(function (n) {
@@ -225,7 +257,7 @@ describe('Notifications', function () {
                                     expect(found.isActive).to.be.false();
                                     return Audit.findAudit('notifications', n._id, {'change.action': /isActive/});
                                 })
-                                .then(function(audit) {
+                                .then(function (audit) {
                                     expect(audit.length).to.equal(1);
                                     done();
                                 });
@@ -257,7 +289,7 @@ describe('Notifications', function () {
                                     expect(found.state).to.equal('starred');
                                     return Audit.findAudit('notifications', n._id, {'change.action': /state/});
                                 })
-                                .then(function(audit) {
+                                .then(function (audit) {
                                     expect(audit.length).to.equal(1);
                                     done();
                                 });
@@ -267,7 +299,8 @@ describe('Notifications', function () {
                     });
                 });
         });
-    });
+    })
+    ;
 
     afterEach(function (done) {
         /*jshint unused:false*/
@@ -281,6 +314,5 @@ describe('Notifications', function () {
         });
         /*jshint unused:true*/
     });
-
 });
 

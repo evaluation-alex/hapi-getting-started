@@ -1,7 +1,7 @@
 'use strict';
-var Boom = require('boom');
+var Promise = require('bluebird');
 var utils = require('./../utils');
-var i18n = require('./../../../config').i18n;
+var errors = require('./../errors');
 
 module.exports = function isUnique (Model, queryBuilder) {
     return {
@@ -11,10 +11,9 @@ module.exports = function isUnique (Model, queryBuilder) {
             Model._findOne(query)
                 .then(function (f) {
                     if (f) {
-                        reply(Boom.conflict(i18n.__({phrase: 'Object already exists', locale: utils.locale(request)})));
-                    } else {
-                        reply(true);
+                        return Promise.reject(new errors.ObjectAlreadyExistsError());
                     }
+                    reply(true);
                 })
                 .catch(function (err) {
                     utils.logAndBoom(err, utils.locale(request), reply);

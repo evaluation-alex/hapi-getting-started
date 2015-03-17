@@ -1,92 +1,80 @@
 'use strict';
 
-function UserNotFoundError (email) {
-    this.message = 'UserNotFound';
-    this.name = 'UserNotFoundError';
-    this.errorType = 'notFound';
-    this.phrase = '{{email}} not found';
-    this.data = {email: email};
-    Error.captureStackTrace(this, UserNotFoundError);
-}
+var CustomErrorFactory = function CustomErrorFactory (message, name, errorType, phrase) {
+    var CustomError = function CustomError (data) {
+        this.message = message;
+        this.name = name;
+        this.errorType = errorType;
+        this.phrase = phrase;
+        this.data = data || {};
+        Error.captureStackTrace(this, CustomError);
+    };
+    CustomError.prototype = Object.create(Error.prototype);
+    CustomError.constructor = CustomError;
+    return CustomError;
+};
 
-UserNotFoundError.prototype = Object.create(Error.prototype);
+module.exports.UserNotFoundError = new CustomErrorFactory('UserNotFound',
+    'UserNotFoundError',
+    'notFound',
+    '{{email}} not found');
 
-UserNotFoundError.prototype.constructor = UserNotFoundError;
+module.exports.UserNotLoggedInError = new CustomErrorFactory('UserNotLoggedIn',
+    'UserNotLoggedInError',
+    'unauthorized',
+    '{{email}} not logged in');
 
-module.exports.UserNotFoundError = UserNotFoundError;
+module.exports.SessionExpiredError = new CustomErrorFactory('SessionExpired',
+    'SessionExpiredError',
+    'unauthorized',
+    'Your ({{email}}) session has expired, login again');
 
-function UserNotLoggedInError (email) {
-    this.message = 'UserNotLoggedIn';
-    this.name = 'UserNotLoggedInError';
-    this.errorType = 'unauthorized';
-    this.phrase = '{{email}} not logged in';
-    this.data = {email: email};
-    Error.captureStackTrace(this, UserNotLoggedInError);
-}
+module.exports.SessionCredentialsNotMatchingError = new CustomErrorFactory('SessionCredentialsNotMatching',
+    'SessionCredentialsNotMatchingError',
+    'unauthorized',
+    '{{email}} does not have the right credentials, login again');
 
-UserNotLoggedInError.prototype = Object.create(Error.prototype);
+module.exports.IncorrectPasswordError = new CustomErrorFactory('IncorrectPassword',
+    'IncorrectPasswordError',
+    'unauthorized',
+    'Invalid password for {{email}}');
 
-UserNotLoggedInError.prototype.constructor = UserNotLoggedInError;
+module.exports.ArchivedPostUpdateError = new CustomErrorFactory('ArchivedPostUpdate',
+    'ArchivedPostUpdateError',
+    'badImplementation',
+    'Cannot update archived posts');
 
-module.exports.UserNotLoggedInError = UserNotLoggedInError;
+module.exports.ObjectNotCreatedError = new CustomErrorFactory('ObjectNotCreated',
+    'ObjectNotCreatedError',
+    'notFound',
+    '{{collection}} object could not be created.');
 
-function SessionExpiredError (email) {
-    this.message = 'SessionExpired';
-    this.name = 'SessionExpiredError';
-    this.errorType = 'unauthorized';
-    this.phrase = 'Your ({{email}}) session has expired, login again';
-    this.data = {email: email};
-    Error.captureStackTrace(this, SessionExpiredError);
-}
+module.exports.ObjectAlreadyExistsError = new CustomErrorFactory('ObjectAlreadyExists',
+    'ObjectAlreadyExistsError',
+    'conflict',
+    'Object already exists');
 
-SessionExpiredError.prototype = Object.create(Error.prototype);
+module.exports.ObjectNotFoundError = new CustomErrorFactory('ObjectNotFound',
+    'ObjectNotFoundError',
+    'notFound',
+    '{{type}} ({{idstr}}) not found');
 
-SessionExpiredError.prototype.constructor = SessionExpiredError;
+module.exports.NotAMemberOfValidGroupError = new CustomErrorFactory('NotAMemberOfValidGroup',
+    'NotAMemberOfValidGroup',
+    'unauthorized',
+    'Only members of {{owners}} group are permitted to perform this action');
 
-module.exports.SessionExpiredError = SessionExpiredError;
+module.exports.NotValidUsersOrGroupsError = new CustomErrorFactory('NotValidUsersOrGroups',
+    'NotValidUsersOrGroupsError',
+    'badData',
+    'Bad user / groups : {{msg}}');
 
-function SessionCredentialsNotMatchingError (email) {
-    this.message = 'SessionCredentialsNotMatching';
-    this.name = 'SessionCredentialsNotMatchingError';
-    this.errorType = 'unauthorized';
-    this.phrase = '{{email}} does not have the right credentials, login again';
-    this.data = {email: email};
-    Error.captureStackTrace(this, SessionCredentialsNotMatchingError);
-}
+module.exports.AbusiveLoginAttemptsError = new CustomErrorFactory('AbusiveLoginAttempts',
+    'AbusiveLoginAttemptsError',
+    'tooManyRequests',
+    'Maximum number of auth attempts reached. Please try again later.');
 
-SessionCredentialsNotMatchingError.prototype = Object.create(Error.prototype);
-
-SessionCredentialsNotMatchingError.prototype.constructor = SessionCredentialsNotMatchingError;
-
-module.exports.SessionCredentialsNotMatchingError = SessionCredentialsNotMatchingError;
-
-function IncorrectPasswordError (email) {
-    this.message = 'IncorrectPassword';
-    this.name = 'IncorrectPasswordError';
-    this.errorType = 'unauthorized';
-    this.phrase = 'Invalid password for {{email}}';
-    this.data = {email: email};
-    Error.captureStackTrace(this, IncorrectPasswordError);
-}
-
-IncorrectPasswordError.prototype = Object.create(Error.prototype);
-
-IncorrectPasswordError.prototype.constructor = IncorrectPasswordError;
-
-module.exports.IncorrectPasswordError = IncorrectPasswordError;
-
-
-function ArchivedPostUpdateError () {
-    this.message = 'ArchivedPostUpdateNotAllowed';
-    this.name = 'ArchivedPostUpdateError';
-    this.errorType = 'badImplementation';
-    this.phrase = 'Cannot update archived posts';
-    this.data = {};
-    Error.captureStackTrace(this, ArchivedPostUpdateError);
-}
-
-ArchivedPostUpdateError.prototype = Object.create(Error.prototype);
-
-ArchivedPostUpdateError.prototype.constructor = ArchivedPostUpdateError;
-
-module.exports.ArchivedPostUpdateError = ArchivedPostUpdateError;
+module.exports.PasswordResetError = new CustomErrorFactory('PasswordResetFailed',
+    'PasswordResetError',
+    'badRequest',
+    'Invalid email or key.');

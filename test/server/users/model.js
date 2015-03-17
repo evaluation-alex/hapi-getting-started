@@ -92,7 +92,6 @@ describe('Users Model', function () {
                 })
                 .catch(function (err) {
                     expect(err.name).to.equal('IncorrectPasswordError');
-                    expect(err.user.email).to.equal(secondEmail);
                 })
                 .finally(function () {
                     tu.testComplete(done, error);

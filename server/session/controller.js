@@ -1,23 +1,19 @@
 'use strict';
 var Joi = require('joi');
-var Boom = require('boom');
 var Users = require('./../users/model');
 var AuthAttempts = require('./../auth-attempts/model');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
-var i18n = require('./../../config').i18n;
+var errors = require('./../common/errors');
+var Promise = require('bluebird');
 
 var abuseDetected = function abuseDetected (request, reply) {
     AuthAttempts.abuseDetected(request.info.remoteAddress, request.payload.email)
         .then(function (detected) {
             if (detected) {
-                reply(Boom.tooManyRequests(i18n.__({
-                    phrase: 'Maximum number of auth attempts reached. Please try again later.',
-                    locale: utils.locale(request)
-                })));
-            } else {
-                reply();
+                return Promise.reject(new errors.AbusiveLoginAttemptsError());
             }
+            reply();
         })
         .catch(function (err) {
             utils.logAndBoom(err, utils.locale(request), reply);

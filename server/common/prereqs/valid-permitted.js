@@ -3,6 +3,8 @@ var Boom = require('boom');
 var _ = require('lodash');
 var utils = require('./../utils');
 var i18n = require('./../../../config').i18n;
+var Promise = require('bluebird');
+var errors = require('./../errors');
 
 module.exports = function validAndPermitted (Model, idProperty, groups) {
     return {
@@ -22,24 +24,13 @@ module.exports = function validAndPermitted (Model, idProperty, groups) {
                                 reply(m.obj);
                             },
                             'not found': function () {
-                                reply(Boom.notFound(i18n.__({
-                                    phrase: '{{type}} ({{idstr}}) not found',
-                                    locale: utils.locale(request)
-                                }, {
-                                    type: Model._collection,
-                                    idstr: id.toString()
-                                })));
+                                return Promise.reject(new errors.ObjectNotFoundError({type: Model._collection, idstr: id.toString()}));
+                            },
+                            'not a member of list': function () {
+                                return Promise.reject(new errors.NotAMemberOfValidGroupError({owners: JSON.stringify(groups)}));
                             }
                         };
-                        cases['not a member of list'] = function () {
-                            reply(Boom.unauthorized(i18n.__({
-                                phrase: 'Only members of {{owners}} group are permitted to perform this action',
-                                locale: utils.locale(request)
-                            }, {
-                                owners: JSON.stringify(groups)
-                            })));
-                        };
-                        cases[m.message]();
+                        return cases[m.message]();
                     })
                     .catch(function (err) {
                         utils.logAndBoom(err, utils.locale(request), reply);

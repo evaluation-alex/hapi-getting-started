@@ -10,6 +10,7 @@ var validAndPermitted = require('./../../common/prereqs/valid-permitted');
 var prePopulate = require('./../../common/prereqs/pre-populate');
 var PostContent = require('./post-content');
 var errors = require('./../../common/errors');
+var Promise = require('bluebird');
 
 /*jshint unused:false*/
 var stateBasedNotificationSend = {
@@ -183,7 +184,7 @@ var Controller = new ControllerFactory(Posts)
             PostContent.writeContent(post, request.payload.content);
             return post.update(request, by);
         } else {
-            throw new errors.ArchivedPostUpdateError();
+            return Promise.reject(new errors.ArchivedPostUpdateError());
         }
     })
     .updateController({

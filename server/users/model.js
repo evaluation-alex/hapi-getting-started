@@ -183,13 +183,11 @@ Users.findByCredentials = function findByCredentials (email, password) {
     return self._findOne({email: email, isActive: true})
         .then(function (user) {
             if (!user) {
-                throw new errors.UserNotFoundError(email);
+                return Promise.reject(new errors.UserNotFoundError({email: email}));
             }
             var passwordMatch = Bcrypt.compareSync(password, user.password);
             if (!passwordMatch) {
-                var err2 = new errors.IncorrectPasswordError(email);
-                err2.user = user;
-                throw err2;
+                return Promise.reject(new errors.IncorrectPasswordError({email: email}));
             }
             return user;
         });
@@ -200,17 +198,17 @@ Users.findBySessionCredentials = function findBySessionCredentials (email, key) 
     return self._findOne({email: email, isActive: true})
         .then(function (user) {
             if (!user) {
-                throw new errors.UserNotFoundError(email);
+                return Promise.reject(new errors.UserNotFoundError({email: email}));
             }
             if (!user.session || !user.session.key) {
-                throw new errors.UserNotLoggedInError(email);
+                return Promise.reject(new errors.UserNotLoggedInError({email: email}));
             }
             if (moment().isAfter(user.session.expires)) {
-                throw new errors.SessionExpiredError(email);
+                return Promise.reject(new errors.SessionExpiredError({email: email}));
             }
             var keyMatch = Bcrypt.compareSync(key, user.session.key) || key === user.session.key;
             if (!keyMatch) {
-                throw new errors.SessionCredentialsNotMatchingError(email);
+                return Promise.reject(new errors.SessionCredentialsNotMatchingError({email: email}));
             }
             return user.hydrateRoles();
         });

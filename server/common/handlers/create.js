@@ -1,7 +1,7 @@
 'use strict';
-var Boom = require('boom');
 var utils = require('./../utils');
 var Promise = require('bluebird');
+var errors = require('./../errors');
 
 module.exports = function NewHandler (Model, notify, i18nEnabled, newCb) {
     var newObjHook = function newObjCb (request, by) {
@@ -16,13 +16,12 @@ module.exports = function NewHandler (Model, notify, i18nEnabled, newCb) {
         newObjHook(request, by)
             .then(function (n) {
                 if (!n) {
-                    reply(Boom.notFound({phrase: '{{collection}} object could not be created.', locale: utils.locale(request)}, {collection: Model._collection}));
-                } else {
-                    if (notify.emit) {
-                        notify.emit('invoked', n, request);
-                    }
-                    reply(i18nEnabled ? n.i18n(utils.locale(request)) : n).code(201);
+                    return Promise.reject(new errors.ObjectNotCreatedError({collection: Model._collection}));
                 }
+                if (notify.emit) {
+                    notify.emit('invoked', n, request);
+                }
+                reply(i18nEnabled ? n.i18n(utils.locale(request)) : n).code(201);
             }).catch(function (err) {
                 utils.logAndBoom(err, utils.locale(request), reply);
             });

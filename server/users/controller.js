@@ -1,13 +1,13 @@
 'use strict';
 var Joi = require('joi');
 var _ = require('lodash');
-var Boom = require('boom');
 var Config = require('./../../config');
-var i18n = Config.i18n;
 var Users = require('./model');
 var Mailer = require('./../common/plugins/mailer');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
+var errors = require('./../common/errors');
+var Promise = require('bluebird');
 
 var Controller = new ControllerFactory(Users)
     .customNewController('signup', {
@@ -85,7 +85,7 @@ var Controller = new ControllerFactory(Users)
     })
     .handleUsing(function loginForgotHandler (request, reply) {
         Users._findOne({email: request.payload.email})
-            .then(function(user) {
+            .then(function (user) {
                 return user ? user.resetPasswordSent(user.email).save() : user;
             })
             .then(function (user) {
@@ -117,13 +117,12 @@ var Controller = new ControllerFactory(Users)
         Users._findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
             .then(function (user) {
                 if (!user || (request.payload.key !== user.resetPwd.token)) {
-                    reply(Boom.badRequest(i18n.__({phrase: 'Invalid email or key.', locale: utils.locale(request)})));
-                } else {
-                    user._invalidateSession().resetPassword(request.payload.password, user.email).save()
-                        .then(function () {
-                            reply({message: 'Success.'});
-                        });
+                    return Promise.reject(new errors.PasswordResetError());
                 }
+                return user._invalidateSession().resetPassword(request.payload.password, user.email).save();
+            })
+            .then(function () {
+                reply({message: 'Success.'});
             })
             .catch(function (err) {
                 utils.logAndBoom(err, utils.locale(request), reply);

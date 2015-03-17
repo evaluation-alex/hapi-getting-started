@@ -24,7 +24,7 @@ module.exports = function NewHandler (Model, notify, i18nEnabled, newCb) {
                     reply(i18nEnabled ? n.i18n(utils.locale(request)) : n).code(201);
                 }
             }).catch(function (err) {
-                utils.logAndBoom(err, reply);
+                utils.logAndBoom(err, utils.locale(request), reply);
             });
     };
 };

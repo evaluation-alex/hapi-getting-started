@@ -32,7 +32,7 @@ module.exports = function FindHandler (Model, queryBuilder, i18nEnabled, findCb)
                 reply(output);
             })
             .catch(function (err) {
-                utils.logAndBoom(err, reply);
+                utils.logAndBoom(err, utils.locale(request), reply);
             });
     };
 };

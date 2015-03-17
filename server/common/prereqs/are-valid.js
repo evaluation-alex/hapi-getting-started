@@ -32,7 +32,7 @@ var areValid = function areValid (Model, payloadPropertiesToLookup) {
                     }
                 })
                 .catch(function (err) {
-                    utils.logAndBoom(err, reply);
+                    utils.logAndBoom(err, utils.locale(request), reply);
                 });
         } else {
             reply();

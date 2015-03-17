@@ -16,7 +16,7 @@ module.exports = function FindOneHandler (Model, i18nEnabled, findOneCb) {
                 reply(i18nEnabled ? o.i18n(utils.locale(request)) : o);
             })
             .catch(function (err) {
-                utils.logAndBoom(err, reply);
+                utils.logAndBoom(err, utils.locale(request), reply);
             });
     };
 };

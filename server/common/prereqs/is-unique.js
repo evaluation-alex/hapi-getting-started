@@ -17,7 +17,7 @@ module.exports = function isUnique (Model, queryBuilder) {
                     }
                 })
                 .catch(function (err) {
-                    utils.logAndBoom(err, reply);
+                    utils.logAndBoom(err, utils.locale(request), reply);
                 });
         }
     };

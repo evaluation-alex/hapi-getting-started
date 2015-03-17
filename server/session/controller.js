@@ -6,7 +6,6 @@ var AuthAttempts = require('./../auth-attempts/model');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
 var i18n = require('./../../config').i18n;
-var errors = require('./../common/errors');
 
 var abuseDetected = function abuseDetected (request, reply) {
     AuthAttempts.abuseDetected(request.info.remoteAddress, request.payload.email)
@@ -21,7 +20,7 @@ var abuseDetected = function abuseDetected (request, reply) {
             }
         })
         .catch(function (err) {
-            utils.logAndBoom(err, reply);
+            utils.logAndBoom(err, utils.locale(request), reply);
         });
 };
 
@@ -47,12 +46,9 @@ var Controller = new ControllerFactory()
             .then(function (user) {
                 reply(user.afterLogin());
             })
-            .catch(errors.UserNotFoundError, errors.IncorrectPasswordError, function (err) {
-                AuthAttempts.create(ip, email);
-                reply(err.getBoomError(utils.locale(request)));
-            })
             .catch(function (err) {
-                utils.logAndBoom(err, reply);
+                AuthAttempts.create(ip, email);
+                utils.logAndBoom(err, utils.locale(request), reply);
             });
     })
     .forMethod('logout')

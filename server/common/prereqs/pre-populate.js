@@ -28,7 +28,7 @@ module.exports = function (Model, idToUse) {
                         }
                     })
                     .catch(function (err) {
-                        utils.logAndBoom(err, reply);
+                        utils.logAndBoom(err, utils.locale(request), reply);
                     });
             }
         }

@@ -25,7 +25,7 @@ module.exports = function UpdateHandler (Model, notify, i18nEnabled, updateCb) {
                 reply(i18nEnabled ? u.i18n(utils.locale(request)) : u);
             })
             .catch(function (err) {
-                utils.logAndBoom(err, reply);
+                utils.logAndBoom(err, utils.locale(request), reply);
             });
     };
 };

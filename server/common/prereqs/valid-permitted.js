@@ -26,7 +26,7 @@ module.exports = function validAndPermitted (Model, idProperty, groups) {
                             'not found': function () {
                                 return Promise.reject(new errors.ObjectNotFoundError({type: Model._collection, idstr: id.toString()}));
                             },
-                            'not a member of list': function () {
+                            'not permitted': function () {
                                 return Promise.reject(new errors.NotAMemberOfValidGroupError({owners: JSON.stringify(groups)}));
                             }
                         };

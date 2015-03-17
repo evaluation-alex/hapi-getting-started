@@ -4,6 +4,7 @@ var _ = require('lodash');
 var moment = require('moment');
 var Notifications = require('./model');
 var ControllerFactory = require('./../../common/controller-factory');
+var onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
 
 var Controller = new ControllerFactory(Notifications)
     .needsI18N()
@@ -40,7 +41,7 @@ var Controller = new ControllerFactory(Notifications)
             state: Joi.string().only(['read', 'starred']),
             isActive: Joi.boolean()
         }
-    }, [], 'update', 'update')
+    }, [onlyOwnerAllowed(Notifications, 'email')], 'update', 'update')
     .doneConfiguring();
 
 module.exports = Controller;

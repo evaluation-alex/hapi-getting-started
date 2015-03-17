@@ -36,5 +36,6 @@
 	"{{email}} does not have the right credentials, login again": "{{email}} does not have the right credentials, login again",
 	"Your session has expired, login again": "Your session has expired, login again",
 	"Your ({{email}}) session has expired, login again": "Your ({{email}}) session has expired, login again",
-    "Bad user / groups : {{msg}}": "Bad user / groups : {{msg}}"
+    "Bad user / groups : {{msg}}": "Bad user / groups : {{msg}}",
+    "{{email}} does not have permission to modify": "{{email}} does not have permission to modify"
 }

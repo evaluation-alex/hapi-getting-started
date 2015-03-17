@@ -103,7 +103,7 @@ describe('Blogs Model', function () {
                 })
                 .then(function (m) {
                     expect(m).to.exist();
-                    expect(m.message).to.match(/not a member/);
+                    expect(m.message).to.match(/not permitted/);
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();

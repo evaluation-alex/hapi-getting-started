@@ -4,10 +4,10 @@ var utils = require('./../utils');
 var errors = require('./../errors');
 var Promise = require('bluebird');
 
-module.exports = function (Model, idToUse) {
+module.exports = function prePopulate (Model, idToUse) {
     return {
         assign: Model._collection,
-        method: function prePopulate (request, reply) {
+        method: function prePopulateObject (request, reply) {
             var type = _.capitalize(Model._collection);
             if (request.pre['validAndPermitted' + type]) {
                 reply(request.pre['validAndPermitted' + type]);

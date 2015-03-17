@@ -17,7 +17,7 @@ module.exports = function ValidAndPermitted () {
                         ) {
                             return {message: 'valid', obj: g};
                         }
-                        return {message: 'not a member of list'};
+                        return {message: 'not permitted'};
                     }
                 });
         }

@@ -646,7 +646,7 @@ describe('Posts', function () {
                     };
                     server.inject(request, function (response) {
                         try {
-                            expect(response.statusCode).to.equal(500);
+                            expect(response.statusCode).to.equal(409);
                             done();
                         } catch (err) {
                             done(err);

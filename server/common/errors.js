@@ -41,7 +41,7 @@ module.exports.IncorrectPasswordError = new CustomErrorFactory('IncorrectPasswor
 
 module.exports.ArchivedPostUpdateError = new CustomErrorFactory('ArchivedPostUpdate',
     'ArchivedPostUpdateError',
-    'badImplementation',
+    'conflict',
     'Cannot update archived posts');
 
 module.exports.ObjectNotCreatedError = new CustomErrorFactory('ObjectNotCreated',

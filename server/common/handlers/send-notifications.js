@@ -1,22 +1,21 @@
 'use strict';
-var _ = require('lodash');
 var logger = require('./../../../config').logger;
 var Promise = require('bluebird');
 var Notifications = require('./../../users/notifications/model');
 
 module.exports = function SendNotifications (model, notifyCb) {
-    var notifyHook = function notifyCbHook (target, request) {
-        /*jshint unused:false*/
-        return new Promise(function (resolve, reject) {
-            resolve(notifyCb(target, request));
-        });
-        /*jshint unused:true*/
-    };
-    return function onNotify(target, request) {
-        notifyHook(target, request)
+    return function onNotify (target, request) {
+        var notifyHook = function notifyCbHook (target, request) {
+            /*jshint unused:false*/
+            return new Promise(function (resolve, reject) {
+                resolve(notifyCb(target, request));
+            });
+            /*jshint unused:true*/
+        };
+        return notifyHook(target, request)
             .then(function (args) {
                 if (args.to && args.to.length > 0) {
-                    return Notifications.create(_.unique(_.flatten(args.to)),
+                    return Notifications.create(args.to,
                         target.organisation,
                         model._collection,
                         target._id,
@@ -27,11 +26,13 @@ module.exports = function SendNotifications (model, notifyCb) {
                         args.description,
                         request.auth.credentials.user.email);
                 }
+                return undefined;
             })
             .catch(function (err) {
                 if (err) {
                     logger.error({error: err});
                 }
-            });
+            })
+            .done();
     };
 };

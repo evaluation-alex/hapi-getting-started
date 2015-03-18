@@ -63,12 +63,9 @@ Notifications.indexes = [
 Notifications.create = function create (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
     var self = this;
     if (_.isArray(email)) {
-        return Promise.all(_.map(email, function (e) {
+        return Promise.all(_.map(_.unique(_.flatten(email)), function (e) {
             return self.create(e, organisation, objectType, objectId, title, state, action, priority, content, by);
-        }))
-            .then(function (notifications) {
-                return _.flatten(notifications);
-            });
+        }));
     } else {
         var document = {
             email: email,

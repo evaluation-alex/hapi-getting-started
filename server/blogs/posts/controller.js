@@ -36,7 +36,9 @@ var stateBasedNotificationSend = {
             to: blog.owners,
             title: ['New Post {{postTitle}} needs your approval to be published.', {postTitle: post.title}],
             description: ['New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}} needs your approval to be published',
-                {postTitle: post.title, blogTitle: blog.title, publishedBy: post.publishedBy}]
+                {postTitle: post.title, blogTitle: blog.title, publishedBy: post.publishedBy}],
+            action: 'review',
+            priority: 'medium'
         };
     },
     'do not publish': function onReject (post, request) {
@@ -215,6 +217,7 @@ var Controller = new ControllerFactory(Posts)
     .sendNotifications(function onPublish (post, request) {
         return stateBasedNotificationSend[post.state](post, request);
     })
+    .cancelNotifications('review')
     .updateController({
         payload: {
             blogId: Joi.string(),
@@ -238,7 +241,7 @@ var Controller = new ControllerFactory(Posts)
     .sendNotifications(function onReject (post, request) {
         return stateBasedNotificationSend[post.state](post, request);
     })
-    .cancelNotifications('approve')
+    .cancelNotifications('review')
     .deleteController([
         validAndPermitted(Blogs, 'blogId', ['owners'])
     ])

@@ -2,6 +2,7 @@
 var logger = require('./../../../config').logger;
 var Promise = require('bluebird');
 var Notifications = require('./../../users/notifications/model');
+var _ = require('lodash');
 
 module.exports = function CancelNotification (model, cancelAction, cancelNotificationsCb) {
     var cancelHook = function cancelCbHook (target, request, notification) {
@@ -24,8 +25,10 @@ module.exports = function CancelNotification (model, cancelAction, cancelNotific
                 state: 'unread',
                 action: cancelAction
             })
-                .map(function (notification) {
-                    cancelHook(target, request, notification);
+                .then(function (notifications) {
+                    return Promise.settle(_.map(notifications, function (notification) {
+                        return cancelHook(target, request, notification);
+                    }));
                 })
                 .catch(function (err) {
                     if (err) {

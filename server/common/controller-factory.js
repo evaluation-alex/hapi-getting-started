@@ -178,8 +178,10 @@ ControllerFactory.prototype.joinApproveRejectController = function joinApproveRe
     });
 
     var cancelJoinNotifications = function cancelJoinNotifications (obj, request, notification) {
-        _.remove(notification.description.added, request.payload[toAdd]);
-        if (notification.description.added.length === 0) {
+        _.forEach(request.payload[toAdd], function (a) {
+            _.pull(notification.content.added, a);
+        });
+        if (notification.content.added.length === 0) {
             notification.setState('cancelled', request.auth.credentials.user.email);
         }
         return notification.save();

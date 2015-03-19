@@ -113,7 +113,8 @@ var Controller = new ControllerFactory(Blogs)
             }]
         };
     })
-    .joinApproveRejectController(['subscribe', 'approve', 'reject'], 'addedSubscribers', 'owners', 'title')
+    .joinLeaveController(['subscribers'], 'owners', 'title')
+    .approveRejectController('addedSubscribers', 'owners', 'title')
     .doneConfiguring();
 
 module.exports = Controller;

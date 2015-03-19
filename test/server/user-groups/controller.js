@@ -44,13 +44,13 @@ describe('UserGroups', function () {
                     return UserGroups.create('GetUserGroupsTestMemberActive', 'silver lining', 'GET /user-groups', 'root');
                 })
                 .then(function (g2) {
-                    return g2.add(['user1', 'user2'], 'member', 'root').save();
+                    return g2.add(['user1', 'user2'], 'members', 'root').save();
                 })
                 .then(function () {
                     return UserGroups.create('GetUserGroupsTestMemberInactive', 'silver lining', 'GET /user-groups', 'root');
                 })
                 .then(function (g3) {
-                    return g3.add(['user4'], 'member', 'root').save();
+                    return g3.add(['user4'], 'members', 'root').save();
                 })
                 .then(function () {
                     return UserGroups.create('GetUserGroupsTestInactive', 'silver lining', 'GET /user-groups', 'root');
@@ -541,50 +541,27 @@ describe('UserGroups', function () {
                 }
             });
         });
-        it('should send back error if any of the users trying to join are not valid', function (done) {
-            var id = '';
-            UserGroups.create('testGroupUserExistPUTJoin', 'silver lining', 'test PUT /user-groups/join', 'test')
-                .then(function (ug) {
-                    id = ug._id.toString();
-                    var request = {
-                        method: 'PUT',
-                        url: '/user-groups/' + id + '/join',
-                        headers: {
-                            Authorization: rootAuthHeader
-                        },
-                        payload: {
-                            addedMembers: ['unknown']
-                        }
-                    };
-                    server.inject(request, function (response) {
-                        try {
-                            expect(response.statusCode).to.equal(422);
-                            groupsToClear.push('testGroupUserExistPUTJoin');
-                            done();
-                        } catch (err) {
-                            groupsToClear.push('testGroupUserExistPUTJoin');
-                            done(err);
-                        }
-                    });
-                });
-        });
-        it('should add users who have joined to the needsApproval list and notify the owners', function (done) {
+        it('should add user who has joined to the needsApproval list and notify the owners', function (done) {
             var request = {};
             var id = '';
             UserGroups.create('testPutJoinGroupAddUser', 'silver lining', 'test PUT /user-groups/join', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return ug.add(['owner1', 'owner2', 'owner3'], 'owner', 'test').remove(['test'], 'owner', 'test').save();
+                    return ug.add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
                 })
                 .then(function () {
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/join',
                         headers: {
-                            Authorization: rootAuthHeader
-                        },
-                        payload: {
-                            addedMembers: ['one@first.com']
+                            Authorization: authHeader
                         }
                     };
                     server.inject(request, function (response) {
@@ -599,16 +576,31 @@ describe('UserGroups', function () {
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
-                                    return Notifications._find({
-                                        objectType: 'user-groups',
-                                        objectId: UserGroups.ObjectID(id),
-                                        action: 'approve'
-                                    });
                                 })
-                                .then(function (notifications) {
-                                    expect(notifications.length).to.equal(3);
-                                    groupsToClear.push('testPutJoinGroupAddUser');
-                                    done();
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'user-groups',
+                                            objectId: UserGroups.ObjectID(id),
+                                            action: 'approve'
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(3);
+                                                Notifications.remove({
+                                                    objectType: 'user-groups',
+                                                    objectId: UserGroups.ObjectID(id)
+                                                }, function (err, count) {
+                                                    groupsToClear.push('testPutJoinGroupAddUser');
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        expect(count).to.equal(3);
+                                                        done();
+                                                    }
+                                                });
+                                                clearTimeout(ct);
+                                            });
+                                    } ,1000);
                                 });
                         } catch (err) {
                             groupsToClear.push('testPutJoinGroupAddUser');
@@ -623,17 +615,21 @@ describe('UserGroups', function () {
             UserGroups.create('testPutJoinPublicGroupAddUser', 'silver lining', 'test PUT /user-groups/join', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return ug.setAccess('public').add(['owner1', 'owner2', 'owner3'], 'owner', 'test').remove(['test'], 'owner', 'test').save();
+                    return ug.setAccess('public').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
                 })
                 .then(function () {
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/join',
                         headers: {
-                            Authorization: rootAuthHeader
-                        },
-                        payload: {
-                            addedMembers: ['one@first.com']
+                            Authorization: authHeader
                         }
                     };
                     server.inject(request, function (response) {
@@ -648,16 +644,31 @@ describe('UserGroups', function () {
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add member/);
-                                    return Notifications._find({
-                                        objectType: 'user-groups',
-                                        objectId: UserGroups.ObjectID(id),
-                                        action: 'fyi'
-                                    });
                                 })
-                                .then(function (notifications) {
-                                    expect(notifications.length).to.equal(3);
-                                    groupsToClear.push('testPutJoinPublicGroupAddUser');
-                                    done();
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'user-groups',
+                                            objectId: UserGroups.ObjectID(id),
+                                            action: 'fyi'
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(3);
+                                                Notifications.remove({
+                                                    objectType: 'user-groups',
+                                                    objectId: UserGroups.ObjectID(id)
+                                                }, function (err, count) {
+                                                    groupsToClear.push('testPutJoinPublicGroupAddUser');
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        expect(count).to.equal(3);
+                                                        done();
+                                                    }
+                                                });
+                                                clearTimeout(ct);
+                                            });
+                                    }, 1000);
                                 });
                         } catch (err) {
                             groupsToClear.push('testPutJoinPublicGroupAddUser');
@@ -721,11 +732,11 @@ describe('UserGroups', function () {
             UserGroups.create('testPutApproveGroupAddUser', 'silver lining', 'test PUT /user-groups/approve', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com'], 'needApprovals', 'test').add(['owner1', 'owner2', 'owner3'], 'owner', 'test').remove(['test'], 'owner', 'test').save();
+                    return ug.add(['one@first.com'], 'needApprovals', 'test').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
                 })
                 .then(function () {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {added: ['one@first.com']}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
                 .then(function() {
                     request = {
@@ -750,17 +761,32 @@ describe('UserGroups', function () {
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add member/);
-                                    return Notifications._find({
-                                        objectType: 'user-groups',
-                                        objectId: UserGroups.ObjectID(id),
-                                        state: 'cancelled',
-                                        action: 'approve'
-                                    });
                                 })
-                                .then(function (notifications) {
-                                    expect(notifications.length).to.equal(3);
-                                    groupsToClear.push('testPutApproveGroupAddUser');
-                                    done();
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'user-groups',
+                                            objectId: UserGroups.ObjectID(id),
+                                            state: 'cancelled',
+                                            action: 'approve'
+                                        }).then(function (notifications) {
+                                            expect(notifications.length).to.equal(3);
+                                            Notifications.remove({
+                                                objectType: 'user-groups',
+                                                objectId: UserGroups.ObjectID(id)
+                                            }, function (err, count) {
+                                                groupsToClear.push('testPutApproveGroupAddUser');
+                                                if (err) {
+                                                    done(err);
+                                                } else {
+                                                    //3 for cancel and 3 for the approval
+                                                    expect(count).to.equal(6);
+                                                    done();
+                                                }
+                                            });
+                                            clearTimeout(ct);
+                                        });
+                                    }, 1000);
                                 });
                         } catch (err) {
                             groupsToClear.push('testPutApproveGroupAddUser');
@@ -872,11 +898,11 @@ describe('UserGroups', function () {
             UserGroups.create('testPutRejectGroupAddUser', 'silver lining', 'test PUT /user-groups/reject', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com'], 'needsApproval', 'test').add(['owner1', 'owner2', 'owner3'], 'owner', 'test').remove(['test'], 'owner', 'test').save();
+                    return ug.add(['one@first.com'], 'needsApproval', 'test').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
                 })
                 .then(function () {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectGroupAddUser'}], 'unread', 'approve', 'medium', {added: ['one@first.com']}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
                 .then(function() {
                     request = {
@@ -901,18 +927,35 @@ describe('UserGroups', function () {
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
-                                    return Notifications._find({
-                                        objectType: 'user-groups',
-                                        objectId: UserGroups.ObjectID(id),
-                                        state: 'cancelled',
-                                        action: 'approve'
-                                    });
                                 })
-                                .then(function (notifications) {
-                                    expect(notifications.length).to.equal(3);
-                                    groupsToClear.push('testPutRejectGroupAddUser');
-                                    done();
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'user-groups',
+                                            objectId: UserGroups.ObjectID(id),
+                                            state: 'cancelled',
+                                            action: 'approve'
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(3);
+                                                Notifications.remove({
+                                                    objectType: 'user-groups',
+                                                    objectId: UserGroups.ObjectID(id)
+                                                }, function(err, count) {
+                                                    groupsToClear.push('testPutRejectGroupAddUser');
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        //3 for cancel and 1 for rejection to the user who applied
+                                                        expect(count).to.equal(4);
+                                                        done();
+                                                    }
+                                                });
+                                                clearTimeout(ct);
+                                            });
+                                    }, 1000);
                                 });
+
                         } catch (err) {
                             groupsToClear.push('testPutRejectGroupAddUser');
                             done(err);

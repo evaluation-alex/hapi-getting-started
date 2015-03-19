@@ -674,7 +674,7 @@ describe('Posts', function () {
                     return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/publish', 'silver lining', 'test notifications', 'test');
                 })
                 .then(function (ug) {
-                    return ug.remove(['test'], 'member', 'test').add(['subscriber1', 'subscriber2'], 'member', 'test').save();
+                    return ug.remove(['test'], 'members', 'test').add(['subscriber1', 'subscriber2'], 'members', 'test').save();
                 })
                 .then(function () {
                     done();
@@ -759,7 +759,7 @@ describe('Posts', function () {
                     return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
                 })
                 .then(function (blog) {
-                    blog.remove(['one@first.com'], 'owner', 'test').save();
+                    blog.remove(['one@first.com'], 'owners', 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -800,7 +800,7 @@ describe('Posts', function () {
                     return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
                 })
                 .then(function (blog) {
-                    blog.remove(['one@first.com'], 'owner', 'test').add(['one@first.com'], 'contributor', 'test').add(['owner1'], 'owner', 'test').save();
+                    blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').add(['owner1'], 'owners', 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -865,7 +865,7 @@ describe('Posts', function () {
                     return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
                 })
                 .then(function (blog) {
-                    blog.remove(['one@first.com'], 'owner', 'test').add(['one@first.com'], 'contributor', 'test').save();
+                    blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -931,7 +931,7 @@ describe('Posts', function () {
                     return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
                 })
                 .then(function (blog) {
-                    blog.add(['one@first.com'], 'owner', 'test').save();
+                    blog.add(['one@first.com'], 'owners', 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -981,7 +981,7 @@ describe('Posts', function () {
                     return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test notifications', 'test');
                 })
                 .then(function (ug) {
-                    return ug.remove(['test'], 'member', 'test').add(['subscriber1', 'subscriber2'], 'member', 'test').save();
+                    return ug.remove(['test'], 'members', 'test').add(['subscriber1', 'subscriber2'], 'members', 'test').save();
                 })
                 .then(function () {
                     done();
@@ -1060,7 +1060,7 @@ describe('Posts', function () {
                     return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
                 })
                 .then(function (blog) {
-                    blog.remove(['one@first.com'], 'owner', 'test').save();
+                    blog.remove(['one@first.com'], 'owners', 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -1100,7 +1100,7 @@ describe('Posts', function () {
                     return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
                 })
                 .then(function (blog) {
-                    blog.add(['one@first.com'], 'owner', 'test').save();
+                    blog.add(['one@first.com'], 'owners', 'test').save();
                     return Posts._findOne({_id: BaseModel.ObjectID(postId)});
                 })
                 .then(function (post) {
@@ -1193,7 +1193,7 @@ describe('Posts', function () {
         it('should not allow you to create a post if you are not an owner / contributor to the blog', function (done) {
             Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
                 .then(function (blog) {
-                    blog.remove(['one@first.com'], 'owner', 'test').remove(['one@first.com'], 'contributor', 'test').save();
+                    blog.remove(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -1235,7 +1235,7 @@ describe('Posts', function () {
         it('should create post successfully, and publish if blog doesnt have needsReview set', function (done) {
             Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
                 .then(function (blog) {
-                    blog.add(['one@first.com'], 'contributor', 'test').setNeedsReview(false, 'test').save();
+                    blog.add(['one@first.com'], 'contributors', 'test').setNeedsReview(false, 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -1285,7 +1285,7 @@ describe('Posts', function () {
         it('should create post successfully, and mark it as pending review if blog has needsReview set', function (done) {
             Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
                 .then(function (blog) {
-                    blog.remove(['one@first.com'], 'owner', 'test').add(['one@first.com'], 'contributor', 'test').setNeedsReview(true, 'test').save();
+                    blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -1329,7 +1329,7 @@ describe('Posts', function () {
         it('should create post successfully, and mark it as draft if user has marked it as draft irrespective of whether user is owner / needsReview setting', function (done) {
             Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
                 .then(function (blog) {
-                    blog.remove(['one@first.com'], 'owner', 'test').add(['one@first.com'], 'contributor', 'test').setNeedsReview(true, 'test').save();
+                    blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -1373,7 +1373,7 @@ describe('Posts', function () {
         it('should create post successfully, and mark it as published if creator is an owner of the blog', function (done) {
             Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
                 .then(function (blog) {
-                    blog.add(['one@first.com'], 'owner', 'test').remove(['one@first.com'], 'contributor', 'test').setNeedsReview(true, 'test').save();
+                    blog.add(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
@@ -1419,7 +1419,7 @@ describe('Posts', function () {
         it('should create post successfully, inherit needsReview, allowComments, access from blog if not passed', function (done) {
             Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
                 .then(function (blog) {
-                    blog.add(['one@first.com'], 'owner', 'test').add(['one@first.com'], 'contributor', 'test').setNeedsReview(true, 'test').setAccess('restricted', 'test').setAllowComments(false, 'test').save();
+                    blog.add(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').setAccess('restricted', 'test').setAllowComments(false, 'test').save();
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {

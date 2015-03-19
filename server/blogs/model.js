@@ -6,7 +6,7 @@ var Promisify = require('./../common/mixins/promisify');
 var Insert = require('./../common/mixins/insert');
 var IsValid = require('./../common/mixins/is-valid-role-in');
 var AddRemove = require('./../common/mixins/add-remove');
-var JoinApproveReject = require('./../common/mixins/join-approve-reject');
+var JoinApproveRejectLeave = require('./../common/mixins/join-approve-reject-leave');
 var Update = require('./../common/mixins/update');
 var Properties = require('./../common/mixins/properties');
 var IsActive = require('./../common/mixins/is-active');
@@ -36,14 +36,14 @@ _.extend(Blogs, new Insert('title', 'create'));
 _.extend(Blogs, new IsValid());
 _.extend(Blogs.prototype, new IsActive());
 _.extend(Blogs.prototype, new AddRemove({
-    owner: 'owners',
-    contributor: 'contributors',
-    subscriber: 'subscribers',
+    owners: 'owners',
+    contributors: 'contributors',
+    subscribers: 'subscribers',
     groups: 'subscriberGroups',
     needsApproval: 'needsApproval'
 }));
 _.extend(Blogs.prototype, new Properties(['description', 'isActive', 'needsReview', 'access', 'allowComments']));
-_.extend(Blogs.prototype, new JoinApproveReject('addedSubscribers', 'subscriber', 'needsApproval'));
+_.extend(Blogs.prototype, new JoinApproveRejectLeave('addedSubscribers', 'subscribers', 'needsApproval'));
 _.extend(Blogs.prototype, new Update({
     isActive: 'isActive',
     description: 'description',
@@ -51,9 +51,9 @@ _.extend(Blogs.prototype, new Update({
     access: 'access',
     allowComments: 'allowComments'
 }, {
-    owner: 'owners',
-    contributor: 'contributors',
-    subscriber: 'subscribers',
+    owners: 'owners',
+    contributors: 'contributors',
+    subscribers: 'subscribers',
     groups: 'subscriberGroups',
     needsApproval: 'needsApproval'
 }));

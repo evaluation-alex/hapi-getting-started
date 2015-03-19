@@ -7,7 +7,7 @@ var Insert = require('./../common/mixins/insert');
 var IsValid = require('./../common/mixins/is-valid-role-in');
 var AreValid = require('./../common/mixins/exist');
 var AddRemove = require('./../common/mixins/add-remove');
-var JoinApproveReject = require('./../common/mixins/join-approve-reject');
+var JoinApproveRejectLeave = require('./../common/mixins/join-approve-reject-leave');
 var Update = require('./../common/mixins/update');
 var Properties = require('./../common/mixins/properties');
 var IsActive = require('./../common/mixins/is-active');
@@ -35,19 +35,19 @@ _.extend(UserGroups, new AreValid('name'));
 _.extend(UserGroups, new IsValid());
 _.extend(UserGroups.prototype, new IsActive());
 _.extend(UserGroups.prototype, new AddRemove({
-    owner: 'owners',
-    member: 'members',
+    owners: 'owners',
+    members: 'members',
     needsApproval: 'needsApproval'
 }));
 _.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActive']));
-_.extend(UserGroups.prototype, new JoinApproveReject('addedMembers', 'member', 'needsApproval'));
+_.extend(UserGroups.prototype, new JoinApproveRejectLeave('addedMembers', 'members', 'needsApproval'));
 _.extend(UserGroups.prototype, new Update({
     isActive: 'isActive',
     description: 'description',
     access: 'access'
 }, {
-    owner: 'owners',
-    member: 'members',
+    owners: 'owners',
+    members: 'members',
     needsApproval: 'needsApproval'
 }));
 _.extend(UserGroups.prototype, new Save(UserGroups));
@@ -84,8 +84,8 @@ UserGroups.newObject = function newObject (doc, by) {
         .then(function (userGroup) {
             return userGroup ?
                 userGroup
-                    .add(doc.payload.members, 'member', by)
-                    .add(doc.payload.owners, 'owner', by)
+                    .add(doc.payload.members, 'members', by)
+                    .add(doc.payload.owners, 'owners', by)
                     .setAccess(doc.payload.access, by)
                     .save() :
                 userGroup;

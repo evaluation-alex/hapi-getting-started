@@ -117,5 +117,12 @@ RouteFactory.prototype.discoverDefaultRoutes = function discoverDefaultRoutes (c
     });
     return self;
 };
+RouteFactory.prototype.joinApproveRejectLeaveRoutes = function joinApproveRejectLeaveRoutes (component, controller, pathPrefix) {
+    var self = this;
+    _.forEach(['join', 'approve', 'reject', 'leave'], function (action) {
+        self._defaultRoute('PUT', pathWithId(pathPrefix, component) + '/' + action, controller[action]);
+    });
+    return self;
+};
 
 module.exports = RouteFactory;

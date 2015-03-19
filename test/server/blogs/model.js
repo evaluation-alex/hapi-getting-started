@@ -191,7 +191,7 @@ describe('Blogs Model', function () {
                     return Blogs._findOne({title: 'addUsers1', organisation: 'silver lining'});
                 })
                 .then(function (found) {
-                    return found.add(['newSubscriber'], 'subscriber', 'test').save();
+                    return found.add(['newSubscriber'], 'subscribers', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscribers, 'newSubscriber')).to.exist();
@@ -277,7 +277,7 @@ describe('Blogs Model', function () {
                     return Blogs._findOne({title: 'removeUsers1', organisation: 'silver lining'});
                 })
                 .then(function (found) {
-                    return found.remove(['unknownUser'], 'subscriber', 'test').save();
+                    return found.remove(['unknownUser'], 'subscribers', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscribers, 'unknownUser')).to.not.exist();
@@ -310,7 +310,7 @@ describe('Blogs Model', function () {
                     return Blogs._findOne({title:'removeUsers1', organisation:'silver lining'});
                 })
                 .then(function (found) {
-                    return found.remove(['directlyadded'], 'owner', 'test').save();
+                    return found.remove(['directlyadded'], 'owners', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.owners, 'directlyadded')).to.not.exist();

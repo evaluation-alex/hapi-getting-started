@@ -197,7 +197,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'alreadyMember')).to.be.true();
-                    return ug.add(['alreadyMember'], 'member', 'test3').save();
+                    return ug.add(['alreadyMember'], 'members', 'test3').save();
                 })
                 .then(function (ug) {
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add member/}});
@@ -223,7 +223,7 @@ describe('UserGroups Model', function () {
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('owners', 'alreadyOwner')).to.be.true();
-                    return ug.add(['alreadyOwner'], 'owner', 'test3').save();
+                    return ug.add(['alreadyOwner'], 'owners', 'test3').save();
                 })
                 .then(function (ug) {
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add owner/}});
@@ -270,7 +270,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest4', 'silver lining', 'UserGroups.this.addOwnerNotPresent', 'test3')
                 .then(function (ug) {
-                    return ug.add(['newOwner'], 'owner', 'test3').save();
+                    return ug.add(['newOwner'], 'owners', 'test3').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('owners', 'newOwner')).to.be.true();
@@ -294,7 +294,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest5', 'silver lining', 'UserGroups.this.addMemberNotPresent', 'test3')
                 .then(function (ug) {
-                    return ug.add(['newMember'], 'member', 'test3').save();
+                    return ug.add(['newMember'], 'members', 'test3').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'newMember')).to.be.true();
@@ -318,7 +318,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest6.0', 'silver lining', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
                 .then(function (ug) {
-                    return ug.add(['newMemberOwner'], 'owner', 'test3').add(['newMemberOwner'], 'member', 'test3').save();
+                    return ug.add(['newMemberOwner'], 'owners', 'test3').add(['newMemberOwner'], 'members', 'test3').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'newMemberOwner')).to.be.true();
@@ -334,7 +334,7 @@ describe('UserGroups Model', function () {
                     return UserGroups.create('addUsersTest6.1', 'silver lining', 'UserGroups.this.addBothNotPresent', 'test3');
                 })
                 .then(function (ug) {
-                    return ug.add(['newBoth'], 'owner', 'test3').add(['newBoth'], 'member', 'test3').save();
+                    return ug.add(['newBoth'], 'owners', 'test3').add(['newBoth'], 'members', 'test3').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'newBoth')).to.be.true();
@@ -369,7 +369,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'notMemberButOwner')).to.be.false();
                     expect(ug._isMemberOf('owners', 'notMemberButOwner')).to.be.true();
-                    return ug.remove(['notMemberButOwner'], 'member', 'test4').save();
+                    return ug.remove(['notMemberButOwner'], 'members', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'notMemberButOwner')).to.be.false();
@@ -398,7 +398,7 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'notOwnerButMember')).to.be.true();
                     expect(ug._isMemberOf('owners', 'notOwnerButMember')).to.be.false();
-                    return ug.remove(['notOwnerButMember'], 'owner', 'test4').save();
+                    return ug.remove(['notOwnerButMember'], 'owners', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'notOwnerButMember')).to.be.true();
@@ -423,12 +423,12 @@ describe('UserGroups Model', function () {
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'neither')).to.be.false();
                     expect(ug._isMemberOf('owners', 'neither')).to.be.false();
-                    return ug.remove(['neither'], 'owner', 'test4').save();
+                    return ug.remove(['neither'], 'owners', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'neither')).to.be.false();
                     expect(ug._isMemberOf('owners', 'neither')).to.be.false();
-                    return ug.remove(['neither'], 'member', 'test4').save();
+                    return ug.remove(['neither'], 'members', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('members', 'neither')).to.be.false();
@@ -456,17 +456,17 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('removeUsersTest4.0', 'silver lining', 'UserGroups.this.removeOwner', 'test4')
                 .then(function (ug) {
-                    ug.owners.push('owner');
+                    ug.owners.push('owners');
                     return ug.save();
                 })
                 .then(function (ug) {
-                    expect(ug._isMemberOf('members', 'owner')).to.be.false();
-                    expect(ug._isMemberOf('owners', 'owner')).to.be.true();
-                    return ug.remove(['owner'], 'owner', 'test4').save();
+                    expect(ug._isMemberOf('members', 'owners')).to.be.false();
+                    expect(ug._isMemberOf('owners', 'owners')).to.be.true();
+                    return ug.remove(['owners'], 'owners', 'test4').save();
                 })
                 .then(function (ug) {
-                    expect(ug._isMemberOf('members', 'owner')).to.be.false();
-                    expect(ug._isMemberOf('owners', 'owner')).to.be.false();
+                    expect(ug._isMemberOf('members', 'owners')).to.be.false();
+                    expect(ug._isMemberOf('owners', 'owners')).to.be.false();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove owner/}});
                 })
                 .then(function (ugaudit) {
@@ -487,17 +487,17 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('removeUsersTest5.0', 'silver lining', 'UserGroups.this.removeMember', 'test4')
                 .then(function (ug) {
-                    ug.members.push('member');
+                    ug.members.push('members');
                     return ug.save();
                 })
                 .then(function (ug) {
-                    expect(ug._isMemberOf('members', 'member')).to.be.true();
-                    expect(ug._isMemberOf('owners', 'member')).to.be.false();
-                    return ug.remove(['member'], 'member', 'test4').save();
+                    expect(ug._isMemberOf('members', 'members')).to.be.true();
+                    expect(ug._isMemberOf('owners', 'members')).to.be.false();
+                    return ug.remove(['members'], 'members', 'test4').save();
                 })
                 .then(function (ug) {
-                    expect(ug._isMemberOf('members', 'member')).to.be.false();
-                    expect(ug._isMemberOf('owners', 'member')).to.be.false();
+                    expect(ug._isMemberOf('members', 'members')).to.be.false();
+                    expect(ug._isMemberOf('owners', 'members')).to.be.false();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove member/}});
                 })
                 .then(function (ugaudit) {

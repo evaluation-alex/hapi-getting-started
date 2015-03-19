@@ -622,7 +622,7 @@ describe('Blogs', function () {
         it('should send back not found error when you try to join a non existent blog', function (done) {
             var request = {
                 method: 'PUT',
-                url: '/blogs/54c894fe1d1d4ab4032ed94e/subscribe',
+                url: '/blogs/54c894fe1d1d4ab4032ed94e/join',
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -638,47 +638,24 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should send back error if any of the users trying to join are not valid', function (done) {
-            var id = '';
-            Blogs.create('testBlogUserExistPUTSubscribe', 'silver lining', 'test PUT /blogs/subscribe', [], [], [], [], false, 'public', true, 'test')
-                .then(function (b) {
-                    id = b._id.toString();
-                    var request = {
-                        method: 'PUT',
-                        url: '/blogs/' + id + '/subscribe',
-                        headers: {
-                            Authorization: rootAuthHeader
-                        },
-                        payload: {
-                            addedSubscribers: ['unknown']
-                        }
-                    };
-                    server.inject(request, function (response) {
-                        try {
-                            expect(response.statusCode).to.equal(422);
-                            blogsToClear.push('testBlogUserExistPUTSubscribe');
-                            done();
-                        } catch (err) {
-                            blogsToClear.push('testBlogUserExistPUTSubscribe');
-                            done(err);
-                        }
-                    });
-                });
-        });
-        it('should add users who have joined to the needsApproval list and create notifications for all the owners to approve', function (done) {
+        it('should add user who has joined to the needsApproval list and create notifications for all the owners to approve', function (done) {
             var request = {};
             var id = '';
             Blogs.create('testPutSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
                     request = {
                         method: 'PUT',
-                        url: '/blogs/' + id + '/subscribe',
+                        url: '/blogs/' + id + '/join',
                         headers: {
-                            Authorization: rootAuthHeader
-                        },
-                        payload: {
-                            addedSubscribers: ['one@first.com']
+                            Authorization: authHeader
                         }
                     };
                     server.inject(request, function (response) {
@@ -693,16 +670,31 @@ describe('Blogs', function () {
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
-                                    return Notifications._find({
-                                        objectType: 'blogs',
-                                        objectId: Blogs.ObjectID(id),
-                                        action: 'approve'
-                                    });
                                 })
-                                .then(function (notifications) {
-                                    expect(notifications.length).to.equal(3);
-                                    blogsToClear.push('testPutSubscribeGroupAddUser');
-                                    done();
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'blogs',
+                                            objectId: Blogs.ObjectID(id),
+                                            action: 'approve'
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(3);
+                                                Notifications.remove({
+                                                    objectType: 'blogs',
+                                                    objectId: Blogs.ObjectID(id)
+                                                }, function (err, count) {
+                                                    blogsToClear.push('testPutSubscribeGroupAddUser');
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        expect(count).to.equal(3);
+                                                        done();
+                                                    }
+                                                });
+                                                clearTimeout(ct);
+                                            });
+                                    }, 1000);
                                 });
                         } catch (err) {
                             blogsToClear.push('testPutSubscribeGroupAddUser');
@@ -717,18 +709,18 @@ describe('Blogs', function () {
             Blogs.create('testPutSubscribePublicGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    b.setAccess('public');
-                    return b.save();
+                    return Users._findOne({email: 'one@first.com'});
                 })
-                .then(function () {
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
                     request = {
                         method: 'PUT',
-                        url: '/blogs/' + id + '/subscribe',
+                        url: '/blogs/' + id + '/join',
                         headers: {
-                            Authorization: rootAuthHeader
-                        },
-                        payload: {
-                            addedSubscribers: ['one@first.com']
+                            Authorization: authHeader
                         }
                     };
                     server.inject(request, function (response) {
@@ -743,16 +735,31 @@ describe('Blogs', function () {
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
-                                    return Notifications._find({
-                                        objectType: 'blogs',
-                                        objectId: Blogs.ObjectID(id),
-                                        action: 'fyi'
-                                    });
                                 })
-                                .then(function (notifications) {
-                                    expect(notifications.length).to.equal(3);
-                                    blogsToClear.push('testPutSubscribePublicGroupAddUser');
-                                    done();
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'blogs',
+                                            objectId: Blogs.ObjectID(id),
+                                            action: 'fyi'
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(3);
+                                                Notifications.remove({
+                                                    objectType: 'blogs',
+                                                    objectId: Blogs.ObjectID(id)
+                                                }, function (err, count) {
+                                                    blogsToClear.push('testPutSubscribePublicGroupAddUser');
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        expect(count).to.equal(3);
+                                                        done();
+                                                    }
+                                                });
+                                                clearTimeout(ct);
+                                            });
+                                    }, 1000);
                                 });
                         } catch (err) {
                             blogsToClear.push('testPutSubscribePublicGroupAddUser');
@@ -820,7 +827,7 @@ describe('Blogs', function () {
                 })
                 .then(function () {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {added: ['one@first.com']}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
                 .then(function () {
                     request = {
@@ -845,17 +852,32 @@ describe('Blogs', function () {
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
-                                    return Notifications._find({
-                                        objectType: 'blogs',
-                                        objectId: Blogs.ObjectID(id),
-                                        state: 'cancelled',
-                                        action: 'approve'
-                                    });
                                 })
-                                .then(function (notifications) {
-                                    expect(notifications.length).to.equal(3);
-                                    blogsToClear.push('testBlogPutApproveAddUser');
-                                    done();
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'blogs',
+                                            objectId: Blogs.ObjectID(id),
+                                            state: 'cancelled',
+                                            action: 'approve'
+                                        }).then(function (notifications) {
+                                            expect(notifications.length).to.equal(3);
+                                            Notifications.remove({
+                                                objectType: 'blogs',
+                                                objectId: Blogs.ObjectID(id)
+                                            }, function (err, count) {
+                                                blogsToClear.push('testBlogPutApproveAddUser');
+                                                if (err) {
+                                                    done(err);
+                                                } else {
+                                                    //3 cancellations and 3 approval
+                                                    expect(count).to.equal(6);
+                                                    done();
+                                                }
+                                            });
+                                            clearTimeout(ct);
+                                        });
+                                    }, 1000);
                                 });
                         } catch (err) {
                             blogsToClear.push('testBlogPutApproveAddUser');
@@ -971,7 +993,7 @@ describe('Blogs', function () {
                 })
                 .then(function () {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectBlogAddUser'}], 'unread', 'approve', 'medium', {added: ['one@first.com']}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectBlogAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
                 .then(function () {
                     request = {
@@ -996,17 +1018,33 @@ describe('Blogs', function () {
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
-                                    return Notifications._find({
-                                        objectType: 'blogs',
-                                        objectId: Blogs.ObjectID(id),
-                                        state: 'cancelled',
-                                        action: 'approve'
-                                    });
                                 })
-                                .then(function (notifications) {
-                                    expect(notifications.length).to.equal(3);
-                                    blogsToClear.push('testPutRejectBlogAddUser');
-                                    done();
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'blogs',
+                                            objectId: Blogs.ObjectID(id),
+                                            state: 'cancelled',
+                                            action: 'approve'
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(3);
+                                                Notifications.remove({
+                                                    objectType: 'blogs',
+                                                    objectId: Blogs.ObjectID(id)
+                                                }, function (err, count) {
+                                                    blogsToClear.push('testPutRejectBlogAddUser');
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        //3 cancellations and 1 to the user rejected
+                                                        expect(count).to.equal(4);
+                                                        done();
+                                                    }
+                                                });
+                                                clearTimeout(ct);
+                                            });
+                                    }, 1000);
                                 });
                         } catch (err) {
                             blogsToClear.push('testPutRejectBlogAddUser');

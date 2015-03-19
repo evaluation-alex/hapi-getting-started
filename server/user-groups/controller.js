@@ -97,7 +97,8 @@ var Controller = new ControllerFactory(UserGroups)
             }]
         };
     })
-    .joinApproveRejectController(['join', 'approve', 'reject'], 'addedMembers', 'owners', 'name')
+    .joinLeaveController(['members'], 'owners', 'name')
+    .approveRejectController('addedMembers', 'owners', 'name')
     .doneConfiguring();
 
 module.exports = Controller;

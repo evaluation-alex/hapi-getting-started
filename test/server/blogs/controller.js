@@ -770,6 +770,125 @@ describe('Blogs', function () {
         });
     });
 
+    describe('PUT /blogs/{id}/unsubscribe', function () {
+        it('should send back not found error when you try to leave a non existent blog', function (done) {
+            var request = {
+                method: 'PUT',
+                url: '/blogs/54c894fe1d1d4ab4032ed94e/leave',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    blogsToClear.push('testBlogsPutUnSubscribeNotFound');
+                    done();
+                } catch (err) {
+                    blogsToClear.push('testBlogsPutUnSubscribeNotFound');
+                    done(err);
+                }
+            });
+        });
+        it('should send an error when user leaving is not a subscriber', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('testPutUnSubscribeGroupNotPart', 'silver lining', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/leave',
+                        headers: {
+                            Authorization: authHeader
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            blogsToClear.push('testPutUnSubscribeGroupNotPart');
+                            done();
+                        } catch (err) {
+                            blogsToClear.push('testPutUnSubscribeGroupNotPart');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should remove user from subscribers list and create notifications for all the owners', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('testPutUnSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], ['one@first.com'], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/leave',
+                        headers: {
+                            Authorization: authHeader
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({title: 'testPutUnSubscribeGroupAddUser'})
+                                .then(function (b) {
+                                    expect(b).to.exist();
+                                    expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.false();
+                                    return Audit.findAudit('blogs', 'testPutUnSubscribeGroupAddUser', {'change.action': {$regex: /remove subscriber/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].change[0].action).to.match(/remove subscriber/);
+                                })
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'blogs',
+                                            objectId: Blogs.ObjectID(id),
+                                            action: 'fyi'
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(3);
+                                                Notifications.remove({
+                                                    objectType: 'blogs',
+                                                    objectId: Blogs.ObjectID(id)
+                                                }, function (err, count) {
+                                                    blogsToClear.push('testPutUnSubscribeGroupAddUser');
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        expect(count).to.equal(3);
+                                                        done();
+                                                    }
+                                                });
+                                                clearTimeout(ct);
+                                            });
+                                    }, 1000);
+                                });
+                        } catch (err) {
+                            blogsToClear.push('testPutUnSubscribeGroupAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+    });
+
     describe('PUT /blogs/{id}/approve', function () {
         it('should send back not found error when you try to approve a non existent blog', function (done) {
             var request = {

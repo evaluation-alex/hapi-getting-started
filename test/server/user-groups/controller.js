@@ -679,6 +679,132 @@ describe('UserGroups', function () {
         });
     });
 
+    describe('PUT /user-groups/{id}/leave', function () {
+        it('should send back not found error when you try to join a non existent group', function (done) {
+            var request = {
+                method: 'PUT',
+                url: '/user-groups/54c894fe1d1d4ab4032ed94e/leave',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(404);
+                    groupsToClear.push('testUserGroupPutLeaveNotFound');
+                    done();
+                } catch (err) {
+                    groupsToClear.push('testUserGroupPutLeaveNotFound');
+                    done(err);
+                }
+            });
+        });
+        it('should send error when you leave a group you are not part of', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutLeaveGroupNotPart', 'silver lining', 'test PUT /user-groups/leave', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    return ug.add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
+                })
+                .then(function () {
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/leave',
+                        headers: {
+                            Authorization: authHeader
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            groupsToClear.push('testPutLeaveGroupNotPart');
+                            done();
+                        } catch (err) {
+                            groupsToClear.push('testPutLeaveGroupNotPart');
+                            done(err);
+                        }
+                    });
+                });
+        });
+
+        it('should leave members list and notify the owners', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutLeaveGroupAddUser', 'silver lining', 'test PUT /user-groups/leave', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    return ug.add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').add(['one@first.com'], 'members', 'test').save();
+                })
+                .then(function () {
+                    return Users._findOne({email: 'one@first.com'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var authHeader = tu.authorizationHeader(u);
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/leave',
+                        headers: {
+                            Authorization: authHeader
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            UserGroups._find({name: 'testPutLeaveGroupAddUser'})
+                                .then(function (ug) {
+                                    expect(ug).to.exist();
+                                    expect(ug[0]._isMemberOf('members', 'one@first.com')).to.be.false();
+                                    return Audit.findAudit('user-groups', 'testPutLeaveGroupAddUser', {'change.action': {$regex: /remove member/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].change[0].action).to.match(/remove member/);
+                                })
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'user-groups',
+                                            objectId: UserGroups.ObjectID(id),
+                                            action: 'fyi'
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(3);
+                                                Notifications.remove({
+                                                    objectType: 'user-groups',
+                                                    objectId: UserGroups.ObjectID(id)
+                                                }, function (err, count) {
+                                                    groupsToClear.push('testPutLeaveGroupAddUser');
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        expect(count).to.equal(3);
+                                                        done();
+                                                    }
+                                                });
+                                                clearTimeout(ct);
+                                            });
+                                    } ,1000);
+                                });
+                        } catch (err) {
+                            groupsToClear.push('testPutLeaveGroupAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+    });
+
     describe('PUT /user-groups/{id}/approve', function () {
         it('should send back not found error when you try to approve a non existent group', function (done) {
             var request = {

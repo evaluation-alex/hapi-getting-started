@@ -45,7 +45,7 @@
         "handlebars": "3.0.x",
         "hapi": "8.4.x",
         "hapi-auth-basic": "2.0.x",
-        "hapi-bunyan": "0.5.x",
+        "hapi-bunyan": "0.6.x",
         "hapi-mongo-models": "1.1.x",
         "hapi-require-https": "2.0.x",
         "hoek": "2.11.x",

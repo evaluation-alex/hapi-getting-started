@@ -2,26 +2,10 @@
 var Boom = require('boom');
 var logger = require('./../../config').logger;
 var statsd = require('./../../config').statsd;
-var i18n = require('./../../config').i18n;
-
-var canMakeBoom = function canMakeBoom(err) {
-    return err.errorType && err.phrase && err.data;
-};
-
-var getBoomError = function getBoomError(err, locale) {
-    return Boom[err.errorType](i18n.__({phrase: err.phrase, locale: locale ? locale : 'en'}, err.data));
-};
-
-module.exports.getBoomError = getBoomError;
 
 module.exports.logAndBoom = function logAndBoom (err, locale, reply) {
     logger.error({error: err, stack: err.stack});
-    if (canMakeBoom(err)) {
-        //TODO: figure out locales
-        reply(getBoomError(err, locale));
-    } else {
-        reply(Boom.badImplementation(err));
-    }
+    reply (err.canMakeBoomError ? err.boomError(locale) : Boom.badImplementation(err));
 };
 
 module.exports.toStatsD = function toStatsD (route, statusCode, user, device, browser, start, finish) {

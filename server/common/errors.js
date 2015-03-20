@@ -1,4 +1,6 @@
 'use strict';
+var Boom = require('boom');
+var i18n = require('./../../config').i18n;
 
 var CustomErrorFactory = function CustomErrorFactory (message, name, errorType, phrase) {
     var CustomError = function CustomError (data) {
@@ -7,9 +9,13 @@ var CustomErrorFactory = function CustomErrorFactory (message, name, errorType, 
         this.errorType = errorType;
         this.phrase = phrase;
         this.data = data || {};
+        this.canMakeBoomError = true;
         Error.captureStackTrace(this, CustomError);
     };
     CustomError.prototype = Object.create(Error.prototype);
+    CustomError.prototype.boomError = function boomError (locale) {
+        return Boom[this.errorType](i18n.__({phrase: this.phrase, locale: locale ? locale : 'en'}, this.data));
+    };
     CustomError.constructor = CustomError;
     return CustomError;
 };

@@ -34,10 +34,7 @@ _.extend(Posts.prototype, new AddRemove({
     attachments: 'attachments'
 }));
 _.extend(Posts.prototype, new Properties(['title', 'state', 'category', 'access', 'allowComments', 'needsReview', 'isActive']));
-_.extend(Posts.prototype, new Update(['isActive', 'state', 'category', 'title', 'access', 'allowComments', 'needsReview'], {
-    tags: 'tags',
-    attachments: 'attachments'
-}));
+_.extend(Posts.prototype, new Update(['isActive', 'state', 'category', 'title', 'access', 'allowComments', 'needsReview'], ['tags', 'attachments']));
 _.extend(Posts.prototype, new Save(Posts));
 _.extend(Posts.prototype, new CAudit(Posts._collection, '_id'));
 

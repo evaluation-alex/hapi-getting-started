@@ -38,13 +38,7 @@ _.extend(Blogs.prototype, new IsActive());
 _.extend(Blogs.prototype, new AddRemove(['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));
 _.extend(Blogs.prototype, new Properties(['description', 'isActive', 'needsReview', 'access', 'allowComments']));
 _.extend(Blogs.prototype, new JoinApproveRejectLeave('addedSubscribers', 'subscribers', 'needsApproval'));
-_.extend(Blogs.prototype, new Update(['isActive', 'description', 'needsReview', 'access', 'allowComments'], {
-    owners: 'owners',
-    contributors: 'contributors',
-    subscribers: 'subscribers',
-    groups: 'subscriberGroups',
-    needsApproval: 'needsApproval'
-}));
+_.extend(Blogs.prototype, new Update(['isActive', 'description', 'needsReview', 'access', 'allowComments'], ['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));
 _.extend(Blogs.prototype, new Save(Blogs));
 _.extend(Blogs.prototype, new CAudit(Blogs._collection, 'title'));
 

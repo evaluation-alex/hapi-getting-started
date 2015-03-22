@@ -37,11 +37,7 @@ _.extend(UserGroups.prototype, new IsActive());
 _.extend(UserGroups.prototype, new AddRemove(['owners', 'members', 'needsApproval']));
 _.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActive']));
 _.extend(UserGroups.prototype, new JoinApproveRejectLeave('addedMembers', 'members', 'needsApproval'));
-_.extend(UserGroups.prototype, new Update(['isActive', 'description', 'access'], {
-    owners: 'owners',
-    members: 'members',
-    needsApproval: 'needsApproval'
-}));
+_.extend(UserGroups.prototype, new Update(['isActive', 'description', 'access'], ['owners', 'members', 'needsApproval']));
 _.extend(UserGroups.prototype, new Save(UserGroups));
 _.extend(UserGroups.prototype, new CAudit(UserGroups._collection, 'name'));
 

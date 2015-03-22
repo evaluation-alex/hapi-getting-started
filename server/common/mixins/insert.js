@@ -1,5 +1,7 @@
 'use strict';
 var insertAudit = require('./insert-audit');
+var errors = require('./../errors');
+var Promise = require('bluebird');
 
 module.exports = function InsertAndAudit (idToUse, action) {
     return {
@@ -8,7 +10,7 @@ module.exports = function InsertAndAudit (idToUse, action) {
             return self._insert(doc)
                 .then(function (obj) {
                     if (!obj) {
-                        return false;
+                        return Promise.reject(new errors.ObjectNotCreatedError({collection: self._collection}));
                     } else {
                         var audit = {
                             objectChangedType: self._collection,

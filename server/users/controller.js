@@ -27,23 +27,18 @@ var Controller = new ControllerFactory(Users)
         var organisation = request.payload.organisation;
         return Users.create(email, password, organisation)
             .then(function (user) {
-                return (user) ? user.loginSuccess(request.info.remoteAddress, user.email).save() : user;
+                return user.loginSuccess(request.info.remoteAddress, user.email).save();
             })
             .then(function (user) {
-                if (user) {
-                    var options = {
-                        subject: 'Your ' + Config.projectName + ' account',
-                        to: {
-                            name: request.payload.email,
-                            address: email
-                        }
-                    };
-                    Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload);
-                }
-                return user;
-            })
-            .then(function (user) {
-                return user ? user.afterLogin() : user;
+                var options = {
+                    subject: 'Your ' + Config.projectName + ' account',
+                    to: {
+                        name: request.payload.email,
+                        address: email
+                    }
+                };
+                Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload);
+                return user.afterLogin();
             });
     })
     .findController({

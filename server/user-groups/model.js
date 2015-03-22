@@ -74,13 +74,11 @@ UserGroups.newObject = function newObject (doc, by) {
         doc.payload.description,
         by)
         .then(function (userGroup) {
-            return userGroup ?
-                userGroup
+            return userGroup
                     .add(doc.payload.members, 'members', by)
                     .add(doc.payload.owners, 'owners', by)
                     .setAccess(doc.payload.access, by)
-                    .save() :
-                userGroup;
+                    .save();
         });
 };
 

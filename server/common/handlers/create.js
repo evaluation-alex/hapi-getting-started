@@ -15,9 +15,6 @@ module.exports = function NewHandler (Model, notify, i18nEnabled, newCb) {
         var by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
         newObjHook(request, by)
             .then(function (n) {
-                if (!n) {
-                    return Promise.reject(new errors.ObjectNotCreatedError({collection: Model._collection}));
-                }
                 if (notify.emit) {
                     notify.emit('invoked', n, request);
                 }

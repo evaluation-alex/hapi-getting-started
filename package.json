@@ -6,7 +6,7 @@
     "scripts": {
         "setup": "node ./setup.js",
         "start": "node ./index.js",
-        "test": "node ./node_modules/lab/bin/lab --coverage --verbose --reporter console --timeout 200000",
+        "test": "node ./node_modules/lab/bin/lab --verbose --reporter console --timeout 200000",
         "test-with-report": "node ./node_modules/lab/bin/lab --coverage  --timeout 200000 --reporter html --output ./test/artifacts/coverage.html",
         "test-coverage": "node ./node_modules/lab/bin/lab --coverage --reporter lcov --output ./test/artifacts/lcov.info  --timeout 200000",
         "coveralls": "cat ./test/artifacts/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
@@ -64,6 +64,7 @@
         "object-assign": "2.0.x",
         "poop": "1.2.x",
         "rimraf": "2.3.x",
+        "traverse": "^0.6.6",
         "tv": "4.1.x",
         "useragent": "2.1.x"
     },

@@ -41,7 +41,7 @@ RouteFactory.prototype.withValidation = function withValidation (validator) {
 };
 RouteFactory.prototype.preProcessWith = function preProcessWith (preProcess) {
     var self = this;
-    preProcess.forEach(function (pre) {
+    _.forEach(preProcess, function (pre) {
         self.routes[self.current].config.pre.push(pre);
     });
     return self;

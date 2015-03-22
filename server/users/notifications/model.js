@@ -29,10 +29,7 @@ Notifications._collection = 'notifications';
 Promisify(Notifications, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
 _.extend(Notifications.prototype, new IsActive());
 _.extend(Notifications.prototype, new Properties(['state', 'isActive']));
-_.extend(Notifications.prototype, new Update({
-    state: 'state',
-    isActive: 'isActive'
-}, {}));
+_.extend(Notifications.prototype, new Update(['state', 'isActive'], {}));
 _.extend(Notifications.prototype, new Save(Notifications));
 _.extend(Notifications.prototype, new CAudit(Notifications._collection, '_id'));
 _.extend(Notifications.prototype, new I18N(['title', 'content']));

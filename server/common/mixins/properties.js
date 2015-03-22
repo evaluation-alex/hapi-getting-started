@@ -1,17 +1,22 @@
 'use strict';
 var _ = require('lodash');
+var traverse = require('traverse');
 
 module.exports = function CommonMixinProperties (properties) {
     var ret = {};
     _.forEach(properties, function (property) {
-        ret['set' + _.capitalize(property)] = function (newValue, by) {
+        var path = property.split('.');
+        var name = path.map(_.capitalize).join('');
+        ret['set' + name] = function (newValue, by) {
             var self = this;
-            if (!_.isUndefined(newValue) && !_.isEqual(self[property], newValue)) {
-                self._audit(property, self[property], newValue, by);
-                self[property] = newValue;
+            var origval = traverse(self).get(path);
+            if (!_.isUndefined(newValue) && !_.isEqual(origval, newValue)) {
+                self._audit(property, origval, newValue, by);
+                traverse(self).set(path, newValue);
             }
             return self;
         };
+        ret['set' + name].name = 'set' + name;
     });
     return ret;
 };

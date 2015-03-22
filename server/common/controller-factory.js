@@ -57,7 +57,7 @@ ControllerFactory.prototype.withValidation = function withValidation (validator)
 ControllerFactory.prototype.preProcessWith = function preProcessWith (preProcess) {
     var self = this;
     if (_.isArray(preProcess)) {
-        preProcess.forEach(function (pre) {
+        _.forEach(preProcess, function (pre) {
             self.controller[self.method].pre.push(pre);
         });
     } else {
@@ -227,9 +227,7 @@ ControllerFactory.prototype.approveRejectController = function approveRejectCont
         if (request.payload[toAdd] && request.payload[toAdd].length > 0) {
             ret.to = obj[approvers];
             ret.description = {approved: request.payload[toAdd]};
-            if (obj.access === 'restricted') {
-                ret.priority = 'medium';
-            }
+            ret.priority = obj.access === 'restricted' ? 'medium' : 'low';
         }
         return ret;
     });

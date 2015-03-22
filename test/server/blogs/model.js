@@ -179,15 +179,15 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs._findOne({title: 'addUsers1', organisation: 'silver lining'})
                 .then(function (found) {
-                    return found.add(['newUserGroup'], 'groups', 'test').save();
+                    return found.add(['newUserGroup'], 'subscriberGroups', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscriberGroups, 'newUserGroup')).to.exist();
-                    return Audit.findAudit('blogs',  p.title, {'change.action': {$regex: /^add group/}});
+                    return Audit.findAudit('blogs',  p.title, {'change.action': {$regex: /^add subscriberGroup/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
-                    expect(paudit[0].change[0].action).to.match(/^add group/);
+                    expect(paudit[0].change[0].action).to.match(/^add subscriberGroup/);
                     return Blogs._findOne({title: 'addUsers1', organisation: 'silver lining'});
                 })
                 .then(function (found) {
@@ -195,11 +195,11 @@ describe('Blogs Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscribers, 'newSubscriber')).to.exist();
-                    return Audit.findAudit('blogs',  p.title, {'change.action': {$regex: /^add subscriber/}});
+                    return Audit.findAudit('blogs',  p.title, {'change.action': {$regex: /^add subscribers/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
-                    expect(paudit[0].change[0].action).to.match(/^add subscriber/);
+                    expect(paudit[0].change[0].action).to.match(/^add subscribers/);
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -213,11 +213,11 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs._findOne({title: 'addUsers2', organisation: 'silver lining'})
                 .then(function (found) {
-                    return found.add(['testBlogAddUsers'], 'groups', 'test').save();
+                    return found.add(['testBlogAddUsers'], 'subscriberGroups', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscriberGroups, 'testBlogAddUsers')).to.exist();
-                    return Audit.findAudit('blogs',  p.title, {'change.action': {$regex: /^add group/}});
+                    return Audit.findAudit('blogs',  p.title, {'change.action': {$regex: /^add subscriberGroup/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -266,11 +266,11 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs._findOne({title: 'removeUsers1', organisation: 'silver lining'})
                 .then(function (found) {
-                    return found.remove(['unknownGroup'], 'groups', 'test').save();
+                    return found.remove(['unknownGroup'], 'subscriberGroups', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscriberGroups, 'unknownGroup')).to.not.exist();
-                    return Audit.findAudit('blogs',  p.title, {'change.action': {$regex: /^remove group/}});
+                    return Audit.findAudit('blogs',  p.title, {'change.action': {$regex: /^remove subscriberGroup/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -298,15 +298,15 @@ describe('Blogs Model', function () {
             var error = null;
             Blogs._findOne({title: 'removeUsers1', organisation: 'silver lining'})
                 .then(function (found) {
-                    return found.remove(['testBlogsRemoveUsers'], 'groups', 'test').save();
+                    return found.remove(['testBlogsRemoveUsers'], 'subscriberGroups', 'test').save();
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.subscriberGroups, 'testBlogsRemoveUsers')).to.not.exist();
-                    return Audit.findAudit('blogs',  p.title, {'change.action': {$regex: /^remove group/}});
+                    return Audit.findAudit('blogs',  p.title, {'change.action': {$regex: /^remove subscriberGroups/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
-                    expect(paudit[0].change[0].action).to.match(/^remove group/);
+                    expect(paudit[0].change[0].action).to.match(/^remove subscriberGroup/);
                     return Blogs._findOne({title:'removeUsers1', organisation:'silver lining'});
                 })
                 .then(function (found) {

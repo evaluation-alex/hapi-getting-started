@@ -1,26 +1,26 @@
 'use strict';
 var _ = require('lodash');
+var traverse = require('traverse');
 
 module.exports = function CommonMixinAddRemove (roles) {
     return {
         _isMemberOf: function isMemberOf (role, email) {
             var self = this;
-            return !!_.findWhere(self[role], email);
+            return !!_.findWhere(traverse(self).get(role.split('.')), email);
         },
         _findRoles: function findRoles (role) {
-            return _.find(_.pairs(roles), function (pair) {
-                return role.indexOf(pair[0]) !== -1;
-            });
+            var ret = _.findWhere(roles, role);
+            return ret ? ret.split('.') : undefined;
         },
         add: function add (toAdd, role, by) {
             var self = this;
-            var rolePair = self._findRoles(role);
-            toAdd = toAdd || [];
-            if (rolePair) {
+            var path = self._findRoles(role);
+            if (path) {
+                var list = traverse(self).get(path);
                 _.forEach(toAdd, function (memberToAdd) {
-                    var found = _.findWhere(self[rolePair[1]], memberToAdd);
+                    var found = _.findWhere(list, memberToAdd);
                     if (!found) {
-                        self[rolePair[1]].push(memberToAdd);
+                        list.push(memberToAdd);
                         self._audit('add ' + role, null, memberToAdd, by);
                     }
                 });
@@ -29,14 +29,14 @@ module.exports = function CommonMixinAddRemove (roles) {
         },
         remove: function remove (toRemove, role, by) {
             var self = this;
-            var rolePair = self._findRoles(role);
-            toRemove = toRemove || [];
-            if (rolePair) {
+            var path = self._findRoles(role);
+            if (path) {
+                var list = traverse(self).get(path);
                 _.forEach(toRemove, function (memberToRemove) {
-                    var found = _.remove(self[rolePair[1]], function (m) {
+                    var found = _.remove(list, function (m) {
                         return m === memberToRemove;
                     });
-                    if (found && found.length > 0) {
+                    if (found.length > 0) {
                         self._audit('remove ' + role, memberToRemove, null, by);
                     }
                 });

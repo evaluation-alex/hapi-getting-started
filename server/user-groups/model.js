@@ -34,18 +34,10 @@ _.extend(UserGroups, new Insert('name', 'create'));
 _.extend(UserGroups, new AreValid('name'));
 _.extend(UserGroups, new IsValid());
 _.extend(UserGroups.prototype, new IsActive());
-_.extend(UserGroups.prototype, new AddRemove({
-    owners: 'owners',
-    members: 'members',
-    needsApproval: 'needsApproval'
-}));
+_.extend(UserGroups.prototype, new AddRemove(['owners', 'members', 'needsApproval']));
 _.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActive']));
 _.extend(UserGroups.prototype, new JoinApproveRejectLeave('addedMembers', 'members', 'needsApproval'));
-_.extend(UserGroups.prototype, new Update({
-    isActive: 'isActive',
-    description: 'description',
-    access: 'access'
-}, {
+_.extend(UserGroups.prototype, new Update(['isActive', 'description', 'access'], {
     owners: 'owners',
     members: 'members',
     needsApproval: 'needsApproval'

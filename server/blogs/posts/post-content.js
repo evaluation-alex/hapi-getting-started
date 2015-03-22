@@ -53,7 +53,7 @@ module.exports.readContent = function readContent (post) {
                 cache.set(filename, content);
                 return content;
             }, function (err) {
-                logger.error({error: err});
+                logger.error({error: err, stack: err.stack});
                 return JSON.stringify(err);
             });
     }

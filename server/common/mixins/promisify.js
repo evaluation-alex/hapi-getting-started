@@ -14,6 +14,5 @@ module.exports = function promisify (Model, toPromisify) {
                 self[method].apply(self, args);
             });
         };
-        Model['_' + method].name = '_' + method;
     }, Model);
 };

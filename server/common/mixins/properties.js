@@ -16,7 +16,6 @@ module.exports = function CommonMixinProperties (properties) {
             }
             return self;
         };
-        ret['set' + name].name = 'set' + name;
     });
     return ret;
 };

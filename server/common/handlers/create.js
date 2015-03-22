@@ -1,7 +1,6 @@
 'use strict';
 var utils = require('./../utils');
 var Promise = require('bluebird');
-var errors = require('./../errors');
 
 module.exports = function NewHandler (Model, notify, i18nEnabled, newCb) {
     var newObjHook = function newObjCb (request, by) {

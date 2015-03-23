@@ -2,6 +2,7 @@
 var relativeToServer = './../../../server/';
 
 var Users = require(relativeToServer + 'users/model');
+var Preferences = require(relativeToServer + 'users/preferences/model');
 var Audit = require(relativeToServer + 'audit/model');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
@@ -481,7 +482,7 @@ describe('Users', function () {
             });
         });
 
-        it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records', function (done) {
+        it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records and default preferences are setup', function (done) {
             var request = {
                 method: 'POST',
                 url: '/signup',
@@ -506,6 +507,10 @@ describe('Users', function () {
                         })
                         .then(function (foundLogin) {
                             expect(foundLogin).to.exist();
+                            return Preferences._findOne({email: 'test.signup2@signup.api'});
+                        })
+                        .then(function (pref) {
+                            expect(pref).to.exist();
                             emails.push(request.payload.email);
                             done();
                         });

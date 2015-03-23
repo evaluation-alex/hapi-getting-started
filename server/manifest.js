@@ -33,7 +33,8 @@ var plugins = {
             UserGroups: './server/user-groups/model',
             Blogs: './server/blogs/model',
             Posts: './server/blogs/posts/model',
-            Notifications: './server/users/notifications/model'
+            Notifications: './server/users/notifications/model',
+            Preferences: './server/users/preferences/model'
         },
         autoIndex: Config.hapiMongoModels.autoIndex
     },
@@ -52,7 +53,8 @@ var components = [
     './server/user-groups',
     './server/blogs',
     './server/blogs/posts',
-    './server/users/notifications'
+    './server/users/notifications',
+    './server/users/preferences'
 ];
 
 module.exports.components = components;

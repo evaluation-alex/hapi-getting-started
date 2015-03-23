@@ -41,7 +41,10 @@ var Controller = new ControllerFactory(Notifications)
             state: Joi.string().only(['read', 'starred']),
             isActive: Joi.boolean()
         }
-    }, [onlyOwnerAllowed(Notifications, 'email')], 'update', 'update')
+    }, [
+        onlyOwnerAllowed(Notifications, 'email')
+    ], 'update',
+    'update')
     .doneConfiguring();
 
 module.exports = Controller;

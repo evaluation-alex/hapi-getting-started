@@ -16,6 +16,7 @@ var Posts = require(relativeToServer + 'blogs/posts/model');
 var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
 var Roles = require(relativeToServer + 'roles/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
+var Preferences = require(relativeToServer + 'users/preferences/model');
 
 var _ = require('lodash');
 
@@ -148,7 +149,8 @@ var setupServer = function () {
                     '../../server/users',
                     '../../server/blogs',
                     '../../server/blogs/posts',
-                    '../../server/users/notifications'
+                    '../../server/users/notifications',
+                    '../../server/users/preferences'
                 ];
                 var ModelsPlugin = {
                     register: require('hapi-mongo-models'),
@@ -186,8 +188,10 @@ exports.setupServer = setupServer;
 function cleanupUsers (usersToCleanup) {
     return new Promise(function (resolve, reject) {
         if (usersToCleanup && usersToCleanup.length > 0) {
-            Users.remove({email: {$in: usersToCleanup}}, function (err) {
-                err ? reject(err) : resolve(true);
+            Users.remove({email: {$in: usersToCleanup}}, function (err1) {
+                Preferences.remove({email: {$in: usersToCleanup}}, function (err2) {
+                    err1 || err2 ? reject({err1: err1, err2: err2}) : resolve(true);
+                });
             });
         } else {
             resolve(true);

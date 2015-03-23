@@ -3,6 +3,7 @@ var Joi = require('joi');
 var _ = require('lodash');
 var Config = require('./../../config');
 var Users = require('./model');
+var Preferences = require('./preferences/model');
 var Mailer = require('./../common/plugins/mailer');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
@@ -37,8 +38,14 @@ var Controller = new ControllerFactory(Users)
                         address: email
                     }
                 };
-                Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload);
-                return user.afterLogin();
+                user = user.afterLogin();
+                var m = Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload);
+                var pref = Preferences.create(email, organisation, utils.locale(request), email);
+                /*jshint unused:false*/
+                return Promise.join(user, m, pref, function (user, m, pref) {
+                    return user;
+                });
+                /*jshint unused:true*/
             });
     })
     .findController({

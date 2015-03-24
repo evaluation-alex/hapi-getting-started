@@ -942,7 +942,7 @@ describe('Blogs', function () {
             Blogs.create('testBlogPutApproveAddUser', 'silver lining', 'test PUT /blogs/approve', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    return b.add(['one@first.com'], 'needApprovals', 'test').save();
+                    return b.add(['one@first.com'], 'needsApproval', 'test').save();
                 })
                 .then(function () {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
@@ -1011,7 +1011,7 @@ describe('Blogs', function () {
             Blogs.create('testPutApproveBlogNotOwner', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    return b.add(['one@first.com'], 'needApprovals', 'test').save();
+                    return b.add(['one@first.com'], 'needsApproval', 'test').save();
                 })
                 .then(function () {
                     return Users._findOne({email: 'one@first.com'});

@@ -4,9 +4,13 @@ var Preferences = require('./model');
 var ControllerFactory = require('./../../common/controller-factory');
 var onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
 
+var channelSchema = Joi.object().keys({
+    frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly')
+});
+
 var notificationUpdatePrefSchema = Joi.object().keys({
-    frequency: Joi.string().only('immediate', 'daily', 'weekly'),
-    deliveryChannel: Joi.string().only('inapp', 'whatsapp', 'sms', 'imessage', 'email'),
+    inapp: channelSchema,
+    email: channelSchema,
     addBlocked: Joi.array().items(Joi.object()),
     removeBlocked: Joi.array().items(Joi.object())
 });

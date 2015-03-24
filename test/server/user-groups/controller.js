@@ -858,7 +858,7 @@ describe('UserGroups', function () {
             UserGroups.create('testPutApproveGroupAddUser', 'silver lining', 'test PUT /user-groups/approve', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com'], 'needApprovals', 'test').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
+                    return ug.add(['one@first.com'], 'needsApproval', 'test').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
                 })
                 .then(function () {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
@@ -927,7 +927,7 @@ describe('UserGroups', function () {
             UserGroups.create('testPutApproveGroupNotOwner', 'silver lining', 'test PUT /user-groups/approve', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com'], 'needApprovals', 'test').save();
+                    return ug.add(['one@first.com'], 'needsApproval', 'test').save();
                 })
                 .then(function() {
                     return Users._findOne({email: 'one@first.com'});

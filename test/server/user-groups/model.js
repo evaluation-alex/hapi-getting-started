@@ -244,7 +244,7 @@ describe('UserGroups Model', function () {
             var error = null;
             UserGroups.create('addUsersTest3', 'silver lining', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
-                    return ug.add(['test3'], 'ownermember', 'test4').save();
+                    return ug.add(['test3'], 'owners', 'test4').add(['test3'], 'members', 'test4').save();
                 })
                 .then(function (ug) {
                     expect(ug._isMemberOf('owners', 'test3')).to.be.true();

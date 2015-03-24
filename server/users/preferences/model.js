@@ -72,15 +72,14 @@ _.extend(Preferences.prototype, new Update([
 _.extend(Preferences.prototype, new Save(Preferences));
 _.extend(Preferences.prototype, new CAudit(Preferences._collection, 'email'));
 
+var channelSchema = Joi.object().keys({
+    frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
+    lastSent: Joi.date()
+});
+
 var notificationPrefSchema = Joi.object().keys({
-    inapp: Joi.object().keys({
-        frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
-        lastSent: Joi.date()
-    }),
-    email: Joi.object().keys({
-        frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
-        lastSent: Joi.date()
-    }),
+    inapp: channelSchema,
+    email: channelSchema,
     blocked: Joi.array().items(Joi.object())
 });
 

@@ -25,8 +25,9 @@ module.exports = function FindHandler (Model, queryBuilder, i18nEnabled, findCb)
             .then(findHook)
             .then(function (output) {
                 if (i18nEnabled) {
+                    var locale = utils.locale(request);
                     _.forEach(output.data, function (o) {
-                        o.i18n(utils.locale(request));
+                        o.i18n(locale);
                     });
                 }
                 reply(output);

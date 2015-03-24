@@ -4,6 +4,7 @@ var relativeToServer = './../../server/';
 var Hapi = require('hapi');
 var HapiAuthBasic = require('hapi-auth-basic');
 var Promise = require('bluebird');
+Promise.longStackTraces();
 var AuthPlugin = require(relativeToServer + 'common/plugins/auth');
 var MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
 var Config = require(relativeTo + 'config');

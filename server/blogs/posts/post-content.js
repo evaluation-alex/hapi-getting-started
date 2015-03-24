@@ -61,6 +61,6 @@ module.exports.readContent = function readContent (post) {
 
 
 module.exports.readContentMultiple = function readContentMultiple (posts) {
-    return Promise.settle(_.map(posts, module.exports.readContent));
+    return Promise.resolve(_.map(posts, module.exports.readContent));
 };
 

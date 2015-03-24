@@ -66,15 +66,18 @@ describe('Posts', function () {
                     return Promise.join(p1, p2, p3);
                 })
                 .then(function (p) {
-                    //var p1 = p[0];
+                    var p1 = p[0];
                     var p2 = p[1];
                     var p3 = p[2];
                     var pubDt = new Date();
                     pubDt.setFullYear(2015, 1, 14);
                     p3.publishedOn = pubDt;
-                    p3.save();
                     p2.isActive = false;
-                    p2.save();
+                    return Promise.join(p1.save(), p2.save(), p3.save(), function (p1, p2, p3) {
+                        PostContent.writeContent(p1, 'p[0]');
+                        PostContent.writeContent(p2, 'p[1]');
+                        PostContent.writeContent(p3, 'p[2]');
+                    });
                 })
                 .then(function () {
                     done();

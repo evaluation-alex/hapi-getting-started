@@ -106,10 +106,8 @@ var Controller = new ControllerFactory(Posts)
         }
         return Posts.newObject(request, by)
             .then(function (post) {
-                if (post) {
-                    PostContent.writeContent(post, request.payload.content);
-                    post.content = request.payload.content;
-                }
+                PostContent.writeContent(post, request.payload.content);
+                post.content = request.payload.content;
                 return post;
             });
     })
@@ -149,11 +147,11 @@ var Controller = new ControllerFactory(Posts)
         }
         return query;
     }, function enrichPosts (output) {
-        return PostContent.readContentMultiple(output.data)
-            .then(function (contents) {
-                for (var i = 0, l = output.data.length; i < l; i++) {
-                    output.data[i].content = contents[i].value();
-                }
+        return Promise.all(PostContent.readContentMultiple(output.data)
+            .map(function (content, indx) {
+                output.data[indx].content = content;
+            }))
+            .then(function () {
                 return output;
             });
     })
@@ -200,7 +198,7 @@ var Controller = new ControllerFactory(Posts)
     ],
     'publish',
     function publish (post, request, by) {
-        if (post.state === 'draft' || post.state === 'pending review') {
+        if (['draft', 'pending review'].indexOf(post.state) !== -1) {
             var blog = request.pre.blogs;
             if ((_.findWhere(blog.owners, by) || by === 'root') || (!post.needsReview)) {
                 request.payload.state = 'published';
@@ -230,7 +228,7 @@ var Controller = new ControllerFactory(Posts)
     ],
     'reject',
     function reject (post, request, by) {
-        if (post.state === 'draft' || post.state === 'pending review') {
+        if (['draft', 'pending review'].indexOf(post.state) !== -1) {
             request.payload.state = 'do not publish';
             post.reviewedBy = by;
             post.reviewedOn = new Date();

@@ -2,7 +2,7 @@
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var ObjectAssign = require('object-assign');
 var Joi = require('joi');
-var Promisify = require('./../common/mixins/promisify');
+var Promisify = require('./../../common/mixins/promisify');
 var _ = require('lodash');
 
 var Roles = BaseModel.extend({

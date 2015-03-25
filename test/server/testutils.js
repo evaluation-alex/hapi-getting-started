@@ -15,7 +15,7 @@ var Audit = require(relativeToServer + 'audit/model');
 var Blogs = require(relativeToServer + 'blogs/model');
 var Posts = require(relativeToServer + 'blogs/posts/model');
 var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
-var Roles = require(relativeToServer + 'roles/model');
+var Roles = require(relativeToServer + 'users/roles/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
 var Preferences = require(relativeToServer + 'users/preferences/model');
 
@@ -151,13 +151,13 @@ var setupServer = function () {
                     '../../server/audit',
                     '../../server/auth-attempts',
                     '../../server/contact',
-                    '../../server/session',
-                    '../../server/user-groups',
                     '../../server/users',
-                    '../../server/blogs',
-                    '../../server/blogs/posts',
+                    '../../server/users/session',
                     '../../server/users/notifications',
-                    '../../server/users/preferences'
+                    '../../server/users/preferences',
+                    '../../server/user-groups',
+                    '../../server/blogs',
+                    '../../server/blogs/posts'
                 ];
                 var ModelsPlugin = {
                     register: require('hapi-mongo-models'),
@@ -174,7 +174,7 @@ var setupServer = function () {
                             try {
                                 server.route(require(component));
                             } catch (err) {
-                                console.log(err);
+                                console.log(err, err.stack);
                             }
                         });
                         resolve({server: server, authheader: authorizationHeader(foundUser)});

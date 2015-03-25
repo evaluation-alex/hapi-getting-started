@@ -1,5 +1,5 @@
 'use strict';
-var RouteFactory = require('./../common/route-factory');
+var RouteFactory = require('./../../common/route-factory');
 var Controller = require('./controller');
 
 var routeFactory = new RouteFactory();

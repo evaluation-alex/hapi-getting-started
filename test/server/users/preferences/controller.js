@@ -44,10 +44,6 @@ describe('Preferences', function () {
                 })
                 .then(function (foundUser) {
                     authheader = tu.authorizationHeader(foundUser);
-                    return Preferences._findOne({email: 'one@first.com'});
-                })
-                .then(function (p) {
-                    id = p._id.toString();
                     done();
                 })
                 .catch(function (err) {
@@ -58,23 +54,27 @@ describe('Preferences', function () {
         });
 
         it('should only send back preferences with the id in params', function (done) {
-            var request = {
-                method: 'GET',
-                url: '/preferences/' + id,
-                headers: {
-                    Authorization: authheader
-                }
-            };
-            server.inject(request, function (response) {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
-                    expect(response.payload).to.contain('one@first.com');
-                    done();
-                } catch (err) {
-                    done(err);
-                }
-            });
+            Preferences._findOne({email: 'one@first.com'})
+            .then(function (p) {
+                    id = p._id.toString();
+                    var request = {
+                        method: 'GET',
+                        url: '/preferences/' + id,
+                        headers: {
+                            Authorization: authheader
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            expect(response.payload).to.exist();
+                            expect(response.payload).to.contain('one@first.com');
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
         });
 
         it('should send back not found when the preferences with the id in params is not found', function (done) {
@@ -127,10 +127,6 @@ describe('Preferences', function () {
                 })
                 .then(function (foundUser) {
                     authheader = tu.authorizationHeader(foundUser);
-                    return Preferences._findOne({email: 'root'});
-                })
-                .then(function (p) {
-                    id = p._id.toString();
                     done();
                 });
         });
@@ -142,6 +138,10 @@ describe('Preferences', function () {
                 })
                 .then(function (u) {
                     authheader = tu.authorizationHeader(u);
+                    return Preferences._findOne({email: 'root'});
+                })
+                .then(function (p) {
+                    id = p._id.toString();
                     var request = {
                         method: 'PUT',
                         url: '/preferences/' + id,

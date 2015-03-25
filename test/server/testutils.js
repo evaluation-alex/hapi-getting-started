@@ -83,12 +83,14 @@ function setupRootUser () {
     return new Promise(function (resolve, reject) {
         Users._findOne({email: 'root'})
             .then(function (found) {
+                Preferences.remove({email: 'root'}, function (err) {
+                    Preferences.create('root', 'silver lining', 'en', 'test');
+                });
                 if (found) {
                     resolve(found.setRoles(['root'], 'testSetup').save());
                 } else {
                     Users.create('root', 'password123', 'silver lining', 'test')
                         .then(function (rt) {
-                            Preferences.create('root', 'silver lining', 'en', 'test');
                             resolve(rt.setRoles(['root'], 'testSetup').save());
                         });
                 }
@@ -100,11 +102,13 @@ function setupFirstUser () {
     return new Promise(function (resolve, reject) {
         Users._findOne({email: 'one@first.com'})
             .then(function (found) {
+                Preferences.remove({email: 'one@first.com'}, function (err) {
+                    Preferences.create('one@first.com', 'silver lining', 'en', 'test');
+                });
                 if (found) {
                     resolve(found);
                 } else {
                     resolve(Users.create('one@first.com', 'password', 'silver lining', 'test'));
-                    Preferences.create('one@first.com', 'silver lining', 'en', 'test');
                 }
             });
     });

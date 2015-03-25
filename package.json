@@ -48,7 +48,7 @@
         "hapi-bunyan": "0.6.x",
         "hapi-mongo-models": "1.1.x",
         "hapi-require-https": "2.0.x",
-        "hoek": "2.11.x",
+        "hoek": "2.12.x",
         "i18n": "0.5.x",
         "joi": "6.0.x",
         "lodash": "3.5.x",

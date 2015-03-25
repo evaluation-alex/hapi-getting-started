@@ -155,7 +155,7 @@ var Controller = new ControllerFactory(Posts)
                 return output;
             });
     })
-    .findOneController(function enrichPost (post) {
+    .findOneController([], function enrichPost (post) {
         return PostContent.readContent(post)
             .then(function (content) {
                 post.content = content;

@@ -16,7 +16,9 @@ var notificationUpdatePrefSchema = Joi.object().keys({
 });
 
 var Controller = new ControllerFactory(Preferences)
-    .findOneController()
+    .findOneController([
+        onlyOwnerAllowed(Preferences, 'email')
+    ])
     .updateController({
         payload: {
             notifications: Joi.object().keys({

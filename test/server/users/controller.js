@@ -292,6 +292,27 @@ describe('Users', function () {
                 }
             });
         });
+
+        it('should send back unauthorized if the id in the url and authenticated user are different', function (done) {
+            Users._findOne({email: 'root'})
+                .then(function (u) {
+                    var request = {
+                        method: 'GET',
+                        url: '/users/' + u._id.toString(),
+                        headers: {
+                            Authorization: authheader
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
     });
 
     describe('PUT /users/{id}', function () {
@@ -328,7 +349,7 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
+                    Users._findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.isActive).to.be.false();
                             expect(foundUser.session).to.not.exist();
@@ -359,7 +380,7 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
+                    Users._findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
                             expect(foundUser.session).to.not.exist();
@@ -390,7 +411,7 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
+                    Users._findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.session).to.not.exist();
                             return Audit.findAudit('users', foundUser.email, {'change.audit': 'reset password'});
@@ -422,7 +443,7 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Users._findOne({_id: server.plugins['hapi-mongo-models'].BaseModel.ObjectID(id)})
+                    Users._findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.session).to.not.exist();
                             expect(foundUser.roles).to.include(['readonly']);
@@ -435,6 +456,36 @@ describe('Users', function () {
                     done(err);
                 }
             });
+        });
+
+        it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
+            Users._findOne({email: 'one@first.com'})
+                .then(function (u) {
+                    return u.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    authheader = tu.authorizationHeader(u);
+                    var request = {
+                        method: 'PUT',
+                        url: '/users/' + id,
+                        headers: {
+                            Authorization: authheader
+                        },
+                        payload: {
+                            isActive: true,
+                            roles: ['readonly'],
+                            password: 'newpassword'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(401);
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
         });
 
         it('should return not found if the user is not found', function (done) {

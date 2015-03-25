@@ -121,10 +121,11 @@ ControllerFactory.prototype.findController = function findController (validator,
     return self;
 };
 
-ControllerFactory.prototype.findOneController = function findOneController (findOneCb) {
+ControllerFactory.prototype.findOneController = function findOneController (prereqs, findOneCb) {
     var self = this;
+    var pre = _.filter(_.flatten([ensurePermissions('view', self.component), prePopulate(self.model, 'id'), prereqs]), function (f) {return !!f;});
     self.forMethod('findOne')
-        .preProcessWith([ensurePermissions('view', self.component), prePopulate(self.model, 'id')])
+        .preProcessWith(pre)
         .handleUsing(new FindOneHandler(self.model, self.i18nEnabled, findOneCb));
     return self;
 };

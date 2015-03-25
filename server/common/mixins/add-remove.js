@@ -36,7 +36,6 @@ module.exports = function CommonMixinAddRemove (roles) {
                     self._audit('remove ' + role, memberToRemove, null, by);
                 }
             });
-
             return self;
         }
     };

@@ -248,12 +248,12 @@ describe('Users Model', function () {
         });
     });
 
-    describe('Users.this._hydrateRoles', function () {
+    describe('Users.this._populateRoles', function () {
         it('should populate _roles', function (done) {
             var error = null;
             Users._findOne({email: firstEmail})
                 .then(function (user) {
-                    return user.hydrateRoles();
+                    return user.populateRoles();
                 })
                 .then(function (decoratedUser) {
                     expect(decoratedUser._roles).to.be.an.instanceof(Array);
@@ -273,7 +273,7 @@ describe('Users Model', function () {
             Users._findOne({email: firstEmail})
                 .then(function (user) {
                     user.roles = [];
-                    return user.hydrateRoles();
+                    return user.populateRoles();
                 })
                 .then(function (decoratedUser) {
                     expect(decoratedUser._roles).to.be.undefined();
@@ -295,16 +295,16 @@ describe('Users Model', function () {
                     return user;
                 })
                 .then(function (user) {
-                    return user.hydrateRoles();
+                    return user.populateRoles();
                 })
                 .then(function (decoratedUser) {
                     expect(decoratedUser._roles).to.be.undefined();
                     decoratedUser.roles = ['readonly'];
-                    return decoratedUser.hydrateRoles();
+                    return decoratedUser.populateRoles();
                 })
                 .then(function (decoratedUser) {
                     expect(decoratedUser._roles.length).to.equal(1);
-                    return decoratedUser.hydrateRoles();
+                    return decoratedUser.populateRoles();
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();
@@ -321,7 +321,7 @@ describe('Users Model', function () {
             var error = null;
             Users._findOne({email: firstEmail})
                 .then(function (user) {
-                    return user.hydrateRoles();
+                    return user.populateRoles();
                 })
                 .then(function (decoratedUser) {
                     expect(decoratedUser.hasPermissionsTo('view', '*')).to.be.true();
@@ -340,7 +340,7 @@ describe('Users Model', function () {
             var error = null;
             Users._findOne({email: 'root'})
                 .then(function (user) {
-                    return user.hydrateRoles();
+                    return user.populateRoles();
                 })
                 .then(function (decoratedUser) {
                     expect(decoratedUser.hasPermissionsTo('view', '*')).to.be.true();

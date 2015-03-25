@@ -9,6 +9,7 @@ var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
 var errors = require('./../common/errors');
 var Promise = require('bluebird');
+var onlyOwnerAllowed = require('./../common/prereqs/only-owner');
 
 var Controller = new ControllerFactory(Users)
     .customNewController('signup', {
@@ -66,7 +67,9 @@ var Controller = new ControllerFactory(Users)
         });
         return output;
     })
-    .findOneController(function stripPrivateData (user) {
+    .findOneController([
+        onlyOwnerAllowed(Users, 'email')
+    ], function stripPrivateData (user) {
         return user.stripPrivateData();
     })
     .updateController({
@@ -75,8 +78,9 @@ var Controller = new ControllerFactory(Users)
             roles: Joi.array().items(Joi.string()),
             password: Joi.string()
         }
-    },
-    [],
+    }, [
+        onlyOwnerAllowed(Users, 'email')
+    ],
     'update',
     'update')
     .forMethod('loginForgot')

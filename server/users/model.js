@@ -13,6 +13,7 @@ var IsActive = require('./../common/mixins/is-active');
 var Save = require('./../common/mixins/save');
 var CAudit = require('./../common/mixins/audit');
 var Roles = require('./../roles/model');
+var Preferences = require('./preferences/model');
 var _ = require('lodash');
 var moment = require('moment');
 var errors = require('./../common/errors');
@@ -50,7 +51,7 @@ Users.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onO
     });
     return ret;
 };
-Users.prototype.hydrateRoles = function hydrateRoles () {
+Users.prototype.populateRoles = function populateRoles () {
     var self = this;
     if (self._roles || !self.roles || self.roles.length === 0) {
         return Promise.resolve(self);
@@ -61,6 +62,14 @@ Users.prototype.hydrateRoles = function hydrateRoles () {
                 return self;
             });
     }
+};
+Users.prototype.populatePreferences = function populatePreferences () {
+    var self = this;
+    return Preferences._findOne({email: self.email, organisation: self.organisation})
+        .then(function (pref) {
+            self.preferences = pref;
+            return self;
+        });
 };
 Users.prototype._invalidateSession = function invalidateSession () {
     var self = this;
@@ -210,7 +219,10 @@ Users.findBySessionCredentials = function findBySessionCredentials (email, key) 
             if (!keyMatch) {
                 return Promise.reject(new errors.SessionCredentialsNotMatchingError({email: email}));
             }
-            return user.hydrateRoles();
+            return user.populateRoles()
+                .then(function (u) {
+                    return u.populatePreferences();
+                });
         });
 };
 

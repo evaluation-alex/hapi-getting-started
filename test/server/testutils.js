@@ -86,8 +86,9 @@ function setupRootUser () {
                 if (found) {
                     resolve(found.setRoles(['root'], 'testSetup').save());
                 } else {
-                    Users.create('root', 'password123', 'silver lining')
+                    Users.create('root', 'password123', 'silver lining', 'test')
                         .then(function (rt) {
+                            Preferences.create('root', 'silver lining', 'en', 'test');
                             resolve(rt.setRoles(['root'], 'testSetup').save());
                         });
                 }
@@ -102,7 +103,8 @@ function setupFirstUser () {
                 if (found) {
                     resolve(found);
                 } else {
-                    resolve(Users.create('one@first.com', 'password', 'silver lining'));
+                    resolve(Users.create('one@first.com', 'password', 'silver lining', 'test'));
+                    Preferences.create('one@first.com', 'silver lining', 'en', 'test');
                 }
             });
     });

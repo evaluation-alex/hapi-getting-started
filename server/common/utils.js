@@ -2,6 +2,7 @@
 var Boom = require('boom');
 var logger = require('./../../config').logger;
 var statsd = require('./../../config').statsd;
+var traverse = require('traverse');
 
 module.exports.logAndBoom = function logAndBoom (err, locale, reply) {
     logger.error({error: err, stack: err.stack});
@@ -33,6 +34,7 @@ module.exports.defaultcb = function defaultcb(bucket, resolve, reject) {
 /*jshint unused:false*/
 module.exports.locale = function (request) {
     //TODO: hardcoded for now, to figure out from headers / user preferences later
-    return 'en';
+    var ret = traverse(request).get(['auth', 'credentials', 'user', 'preferences', 'locale']);
+    return ret ? ret : 'en';
 };
 /*jshint unused:true*/

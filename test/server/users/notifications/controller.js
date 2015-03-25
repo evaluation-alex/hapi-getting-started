@@ -4,6 +4,7 @@ var relativeToServer = './../../../../server/';
 var _ = require('lodash');
 var moment = require('moment');
 var Users = require(relativeToServer + 'users/model');
+var Preferences = require(relativeToServer + 'users/preferences/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Promise = require('bluebird');
@@ -183,7 +184,42 @@ describe('Notifications', function () {
                 }
             });
         });
-
+        it ('should filter out blocked notifications based on preferences', function (done) {
+            var authHeader = '';
+            Users._findOne({email: 'one@first.com'})
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    authHeader = tu.authorizationHeader(u);
+                    return Preferences._findOne({email: 'one@first.com'});
+                })
+                .then(function (p) {
+                    p.notifications.userGroups.blocked.push('abc123');
+                    return p.save();
+                })
+                .then(function () {
+                    var request = {
+                        method: 'GET',
+                        url: '/notifications',
+                        headers: {
+                            Authorization: authHeader
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            var p = JSON.parse(response.payload);
+                            _.forEach(p.data, function (d) {
+                                expect(d.objectId).to.not.equal(/abc123/);
+                            });
+                            done();
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
     });
 
     describe('PUT /notifications/{id}', function () {

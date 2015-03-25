@@ -34,6 +34,17 @@ var Controller = new ControllerFactory(Notifications)
             query.createdOn = query.createdOn || {};
             query.createdOn.$gte = moment(request.query.createdOnAfter, ['YYYY-MM-DD']).toDate();
         }
+        var prefs = request.auth.credentials.user.preferences;
+        if (prefs) {
+            var blocked = _.flatten([
+                prefs.notifications.blogs.blocked,
+                prefs.notifications.posts.blocked,
+                prefs.notifications.userGroups.blocked
+            ]);
+            if (blocked.length > 0) {
+                query.objectId = {$nin: blocked};
+            }
+        }
         return query;
     })
     .updateController({

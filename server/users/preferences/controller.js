@@ -11,8 +11,8 @@ var channelSchema = Joi.object().keys({
 var notificationUpdatePrefSchema = Joi.object().keys({
     inapp: channelSchema,
     email: channelSchema,
-    addBlocked: Joi.array().items(Joi.object()),
-    removeBlocked: Joi.array().items(Joi.object())
+    addedBlocked: Joi.array().items(Joi.object()),
+    removedBlocked: Joi.array().items(Joi.object())
 });
 
 var Controller = new ControllerFactory(Preferences)

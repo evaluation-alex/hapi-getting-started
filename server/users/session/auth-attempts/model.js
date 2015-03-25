@@ -2,8 +2,8 @@
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var ObjectAssign = require('object-assign');
 var Joi = require('joi');
-var Promisify = require('./../common/mixins/promisify');
-var Config = require('./../../config');
+var Promisify = require('./../../../common/mixins/promisify');
+var Config = require('./../../../../config');
 var Promise = require('bluebird');
 
 var authAttemptsConfig = Config.authAttempts;

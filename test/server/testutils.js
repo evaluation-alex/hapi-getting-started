@@ -14,7 +14,7 @@ var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Blogs = require(relativeToServer + 'blogs/model');
 var Posts = require(relativeToServer + 'blogs/posts/model');
-var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
+var AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
 var Roles = require(relativeToServer + 'users/roles/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
 var Preferences = require(relativeToServer + 'users/preferences/model');
@@ -149,10 +149,10 @@ var setupServer = function () {
                 var Manifest = require('./../../server/manifest').manifest;
                 var components = [
                     '../../server/audit',
-                    '../../server/auth-attempts',
                     '../../server/contact',
                     '../../server/users',
                     '../../server/users/session',
+                    '../../server/users/session/auth-attempts',
                     '../../server/users/notifications',
                     '../../server/users/preferences',
                     '../../server/user-groups',

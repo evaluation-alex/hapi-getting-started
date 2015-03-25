@@ -1,7 +1,7 @@
 'use strict';
 var Joi = require('joi');
 var Users = require('./../model');
-var AuthAttempts = require('./../../auth-attempts/model');
+var AuthAttempts = require('./auth-attempts/model');
 var ControllerFactory = require('./../../common/controller-factory');
 var utils = require('./../../common/utils');
 var errors = require('./../../common/errors');

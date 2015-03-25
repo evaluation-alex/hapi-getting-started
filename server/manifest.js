@@ -26,9 +26,9 @@ var plugins = {
     'hapi-mongo-models': {
         mongodb: Config.hapiMongoModels.mongodb,
         models: {
-            AuthAttempts: './server/auth-attempts/model',
             Audit: './server/audit/model',
             Users: './server/users/model',
+            AuthAttempts: './server/users/session/auth-attempts/model',
             Roles: './server/users/roles/model',
             Notifications: './server/users/notifications/model',
             Preferences: './server/users/preferences/model',
@@ -46,9 +46,9 @@ var plugins = {
 
 var components = [
     './server/contact',
-    './server/auth-attempts',
     './server/users',
     './server/users/session',
+    './server/users/session/auth-attempts',
     './server/users/notifications',
     './server/users/preferences',
     './server/user-groups',

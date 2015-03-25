@@ -1,11 +1,11 @@
 'use strict';
-var relativeToServer = './../../../server/';
-var AuthAttempts = require(relativeToServer + 'auth-attempts/model');
+var relativeToServer = './../../../../../server/';
+var AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
 var Promise = require('bluebird');
 //var expect = require('chai').expect;
 var Code = require('code');   // assertion library
 var Lab = require('lab');
-var tu = require('./../testutils');
+var tu = require('./../../../testutils');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;

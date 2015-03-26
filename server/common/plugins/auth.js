@@ -1,7 +1,6 @@
 'use strict';
 var Users = require('./../../users/model');
 var Roles = require('./../../users/roles/model');
-var Promise = require('bluebird');
 var logger = require('./../../../config').logger;
 var errors = require('./../errors');
 

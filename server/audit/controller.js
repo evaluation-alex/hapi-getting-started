@@ -9,11 +9,14 @@ var Controller = new ControllerFactory(Audit)
         query: {
             by: Joi.string(),
             objectType: Joi.string(),
-            objectChangedId: Joi.string()
+            objectChangedId: Joi.string(),
+            onBefore: Joi.date(),
+            onAfter: Joi.date()
         }
     }, function buildFindQuery (request) {
         var query = {};
         utils.buildQueryFromRequestForFields(query, request, [['by', 'by']]);
+        utils.buildQueryFromRequestForDateFields(query, request, 'on');
         if (request.query.objectType) {
             query.objectChangedType = request.query.objectType;
         }

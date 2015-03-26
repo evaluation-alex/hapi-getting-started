@@ -16,7 +16,7 @@ module.exports = function prePopulate (Model, idToUse) {
                 Model._findOne({_id: Model.ObjectID(id)})
                     .then(function (obj) {
                         if (!obj) {
-                            return Promise.reject(new errors.UserNotFoundError({type: type, idstr: id.toString()}));
+                            return Promise.reject(new errors.ObjectNotFoundError({type: type, idstr: id.toString()}));
                         }
                         reply(obj);
                     })

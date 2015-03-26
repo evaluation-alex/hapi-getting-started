@@ -13,7 +13,10 @@ var FindOneHandler = require('./handlers/find-one');
 var UpdateHandler = require('./handlers/update');
 var SendNotifications = require('./handlers/send-notifications');
 var CancelNotifications = require('./handlers/cancel-notifications');
-var utils = require('./utils');
+var JoinLeaveNotificationsBuilder = require('./notifications/join-leave-builder');
+var CancelJoinNotificationsBuilder = require('./notifications/cancel-join-builder');
+var ApproveNotificationsBuilder = require('./notifications/approve-builder');
+var RejectNotificationsBuilder = require('./notifications/reject-builder');
 
 var ControllerFactory = function ControllerFactory (model) {
     var self = this;
@@ -150,30 +153,13 @@ ControllerFactory.prototype.deleteController = function deleteController (pre) {
 
 ControllerFactory.prototype.joinLeaveController = function joinController (group, approvers, idForNotificationTitle) {
     var self = this;
-    var notificationBuilder = function notificationBuilder (action, title, notifyAction) {
-        return function notifier (obj, request) {
-            var u = request.auth.credentials.email;
-            var ret = {
-                to: obj[approvers],
-                description: {},
-                title: [title[obj.access], {
-                    title: obj[idForNotificationTitle],
-                    email: u
-                }],
-                action: notifyAction[obj.access],
-                priority: obj.access === 'restricted' ? 'medium' : 'low'
-            };
-            ret.description[action] = u;
-            return ret;
-        };
-    };
 
     self.updateController(undefined, [
             ensurePermissions('view', self.component)
         ],
         'join',
         'join');
-    self.sendNotifications(notificationBuilder('join', {
+    self.sendNotifications(new JoinLeaveNotificationsBuilder(approvers, idForNotificationTitle, 'join', {
         public: '{{email}} has joined {{title}}',
         restricted: '{{email}} has joined {{title}} and needs your approval'
     }, {
@@ -187,7 +173,7 @@ ControllerFactory.prototype.joinLeaveController = function joinController (group
         ],
         'leave',
         'leave');
-    self.sendNotifications(notificationBuilder('leave', {
+    self.sendNotifications(new JoinLeaveNotificationsBuilder(approvers, idForNotificationTitle, 'leave', {
         public: '{{email}} has left {{title}}',
         restricted: '{{email}} has left {{title}}'
     }, {
@@ -203,16 +189,6 @@ ControllerFactory.prototype.approveRejectController = function approveRejectCont
         payload: {}
     };
     validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
-    var cancelJoinNotifications = function cancelJoinNotifications (obj, request, notification) {
-        var modified = false;
-        _.forEach(request.payload[toAdd], function (a) {
-            if (notification.content.join === a) {
-                modified = true;
-                notification.setState('cancelled', request.auth.credentials.user.email);
-            }
-        });
-        return modified ? notification.save() : notification;
-    };
 
     self.updateController(validator, [
             validAndPermitted(self.model, 'id', [approvers]),
@@ -220,15 +196,8 @@ ControllerFactory.prototype.approveRejectController = function approveRejectCont
         ],
         'approve',
         'approve');
-    self.sendNotifications(function approveNotificationBuilder (obj, request) {
-        return {
-            to: utils.hasItems(request.payload[toAdd]) ? obj[approvers] : [],
-            title: ['{{title}} has new approved subscribers', {title: obj[idForNotificationsTitle]}],
-            description: utils.hasItems(request.payload[toAdd]) ? {approved: request.payload[toAdd]} : {},
-            priority: obj.access === 'restricted' ? 'medium' : 'low'
-        };
-    });
-    self.cancelNotifications('approve', cancelJoinNotifications);
+    self.sendNotifications(new ApproveNotificationsBuilder(toAdd, approvers, idForNotificationsTitle));
+    self.cancelNotifications('approve', new CancelJoinNotificationsBuilder(toAdd));
 
     self.updateController(validator, [
             validAndPermitted(self.model, 'id', [approvers]),
@@ -236,19 +205,8 @@ ControllerFactory.prototype.approveRejectController = function approveRejectCont
         ],
         'reject',
         'reject');
-    self.sendNotifications(function rejectNotificationBuilder (obj, request) {
-        return {
-            to: utils.hasItems(request.payload[toAdd]) ? request.payload[toAdd] : [],
-            title: ['Your request to follow {{title}} was denied', {
-                title: obj[idForNotificationsTitle]
-            }],
-            description: ['Your request to follow {{title}} was denied by {{updatedBy}}', {
-                title: obj[idForNotificationsTitle],
-                updatedBy: request.auth.credentials.user.email
-            }]
-        };
-    });
-    self.cancelNotifications('approve', cancelJoinNotifications);
+    self.sendNotifications(new RejectNotificationsBuilder(toAdd, idForNotificationsTitle));
+    self.cancelNotifications('approve', new CancelJoinNotificationsBuilder(toAdd));
 
     return self;
 };

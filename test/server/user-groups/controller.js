@@ -957,6 +957,7 @@ describe('UserGroups', function () {
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(0);
+                                    groupsToClear.push('testPutApproveGroupAddUserEmpty');
                                     done();
                                 });
                         } catch (err) {

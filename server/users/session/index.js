@@ -6,11 +6,11 @@ var routeFactory = new RouteFactory();
 
 routeFactory.newRoute()
     .forMethod('POST')
-    .onPath('/login')
+    .onPath('/session')
     .withController(Controller.login);
 routeFactory.newRoute()
     .forMethod('DELETE')
-    .onPath('/logout')
+    .onPath('/session')
     .usingAuthStrategy('simple')
     .withController(Controller.logout);
 

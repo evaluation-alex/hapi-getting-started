@@ -78,7 +78,7 @@ Users.prototype.stripPrivateData = function stripData () {
     var self = this;
     return {
         email: self.email,
-        isLoggedIn: self.session.key ? true : false
+        isLoggedIn: !!self.session.key
     };
 };
 Users.prototype.afterLogin = function afterLogin () {
@@ -86,7 +86,8 @@ Users.prototype.afterLogin = function afterLogin () {
     return {
         user: self.email,
         session: self.session,
-        authHeader: 'Basic ' + new Buffer(self.email + ':' + self.session.key).toString('base64')
+        authHeader: 'Basic ' + new Buffer(self.email + ':' + self.session.key).toString('base64'),
+        preferences: self.preferences
     };
 };
 Users.prototype.updateUser = function update (doc, by) {

@@ -41,7 +41,7 @@ describe('Session', function () {
             .done();
     });
 
-    describe('POST /login', function () {
+    describe('POST /session', function () {
         it('returns early when abuse is detected', function (done) {
             var authAttemptsConfig = Config.authAttempts;
             var authSpam = [];
@@ -63,7 +63,7 @@ describe('Session', function () {
                 .then(function () {
                     var request = {
                         method: 'POST',
-                        url: '/login',
+                        url: '/session',
                         payload: {
                             email: 'test.users@test.api',
                             password: 'password123'
@@ -83,7 +83,7 @@ describe('Session', function () {
         it('returns an error when you pass incorrect credentials', function (done) {
             var request = {
                 method: 'POST',
-                url: '/login',
+                url: '/session',
                 payload: {
                     email: 'test.users@test.api',
                     password: 'bogus'
@@ -111,7 +111,7 @@ describe('Session', function () {
         it('returns an error when you pass non existent user', function (done) {
             var request = {
                 method: 'POST',
-                url: '/login',
+                url: '/session',
                 payload: {
                     email: 'test.unknown@test.api',
                     password: 'bogus'
@@ -130,7 +130,7 @@ describe('Session', function () {
         it('returns a session successfully', function (done) {
             var request = {
                 method: 'POST',
-                url: '/login',
+                url: '/session',
                 payload: {
                     email: 'test.users@test.api',
                     password: 'password123'
@@ -153,11 +153,11 @@ describe('Session', function () {
         });
     });
 
-    describe('DELETE /logout', function () {
+    describe('DELETE /session', function () {
         it('returns an error when no authorization is passed', function (done) {
             var request = {
                 method: 'DELETE',
-                url: '/logout'
+                url: '/session'
             };
             server.inject(request, function (response) {
                 try {
@@ -172,7 +172,7 @@ describe('Session', function () {
         it('returns a not found when user does not exist', function (done) {
             var request = {
                 method: 'DELETE',
-                url: '/logout',
+                url: '/session',
                 headers: {
                     Authorization: tu.authorizationHeader2('test.not.created@logout.api', '123')
                 }
@@ -192,7 +192,7 @@ describe('Session', function () {
         it('returns a not found when user has already logged out', function (done) {
             var request = {
                 method: 'DELETE',
-                url: '/logout',
+                url: '/session',
                 headers: {
                     Authorization: ''
                 }
@@ -229,7 +229,7 @@ describe('Session', function () {
                 then(function (foundUser) {
                     var request = {
                         method: 'DELETE',
-                        url: '/logout',
+                        url: '/session',
                         headers: {
                             Authorization: ''
                         }
@@ -259,5 +259,4 @@ describe('Session', function () {
         return tu.cleanup({ users: emails}, done);
     });
 });
-
 

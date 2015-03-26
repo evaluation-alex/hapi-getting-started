@@ -2,7 +2,7 @@
 var utils = require('./../utils');
 var Promise = require('bluebird');
 
-module.exports = function NewHandler (Model, notify, i18nEnabled, newCb) {
+module.exports = function NewHandler (Model, notify, newCb) {
     var newObjHook = function newObjCb (request, by) {
         /*jshint unused:false*/
         return new Promise(function (resolve, reject) {
@@ -17,9 +17,9 @@ module.exports = function NewHandler (Model, notify, i18nEnabled, newCb) {
                 if (notify.emit) {
                     notify.emit('invoked', n, request);
                 }
-                reply(i18nEnabled ? n.i18n(utils.locale(request)) : n).code(201);
+                reply(n).code(201);
             }).catch(function (err) {
-                utils.logAndBoom(err, utils.locale(request), reply);
+                utils.logAndBoom(err, reply);
             });
     };
 };

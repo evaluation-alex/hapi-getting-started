@@ -13,8 +13,8 @@ var CustomErrorFactory = function CustomErrorFactory (message, name, errorType, 
         Error.captureStackTrace(this, CustomError);
     };
     CustomError.prototype = Object.create(Error.prototype);
-    CustomError.prototype.boomError = function boomError (locale) {
-        return Boom[this.errorType](i18n.__({phrase: this.phrase, locale: locale ? locale : 'en'}, this.data));
+    CustomError.prototype.i18nError = function i18nError (locale) {
+        return Boom[this.errorType](i18n.__({phrase: this.phrase, locale: locale}, this.data));
     };
     CustomError.constructor = CustomError;
     return CustomError;
@@ -84,3 +84,14 @@ module.exports.PasswordResetError = new CustomErrorFactory('PasswordResetFailed'
     'PasswordResetError',
     'badRequest',
     'Invalid email or key.');
+
+module.exports.NoPermissionsForActionError = new CustomErrorFactory('NoPermissionsForAction',
+    'NoPermissionsForActionError',
+    'forbidden',
+    'Permission denied {{action}} on {{object}} for user {{user}}');
+
+module.exports.NotObjectOwnerError = new CustomErrorFactory('NotObjectOwner',
+    'NotObjectOwnerError',
+    'unauthorized',
+    '{{email}} does not have permission to modify');
+

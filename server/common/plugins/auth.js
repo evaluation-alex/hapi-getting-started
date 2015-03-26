@@ -20,7 +20,7 @@ var loginValidation = function loginValidation (email, sessionkey, callback) {
         errors.SessionExpiredError,
         errors.SessionCredentialsNotMatchingError,
         function (err) {
-            callback(err.boomError('en'), false);
+            callback(err.i18nError('en'), false);
         })
         .catch(function (err) {
             logger.info(['auth', 'error'], {user: email, success: false, error: JSON.stringify(err)});

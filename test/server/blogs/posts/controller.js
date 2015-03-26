@@ -753,6 +753,72 @@ describe('Posts', function () {
                 });
         });
 
+        it('should allow root to publish draft / pending review posts', function (done) {
+            var postId = null;
+            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
+                .then(function (p) {
+                    postId = p._id.toString();
+                    return Users._findOne({email: 'root'});
+                })
+                .then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (u) {
+                    var request = {
+                        method: 'PUT',
+                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        headers: {
+                            Authorization: tu.authorizationHeader(u)
+                        },
+                        payload: {
+                            access: 'restricted'
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Posts._find({_id: Posts.ObjectID(postId)})
+                                .then(function (found) {
+                                    expect(found[0].access).to.equal('restricted');
+                                    expect(found[0].state).to.equal('published');
+                                    return Audit.findAudit('posts', found[0]._id, {by: 'root'});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit).to.exist();
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].change[0].action).to.equal('state');
+                                })
+                                .then(function () {
+                                    //because the events from the controller may not be complete
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'posts',
+                                            objectId: Posts.ObjectID(postId)
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(3);
+                                                Notifications.remove({
+                                                    objectType: 'posts',
+                                                    objectId: Posts.ObjectID(postId)
+                                                }, function (err, count) {
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        expect(count).to.equal(3);
+                                                        done();
+                                                    }
+                                                });
+                                            });
+                                        clearTimeout(ct);
+                                    }, 1000);
+                                });
+                        } catch (err) {
+                            done(err);
+                        }
+                    });
+                });
+        });
+
         it('should fail to publish draft / pending review posts if user is not an owner/contributor of the blog', function (done) {
             var postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by

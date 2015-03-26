@@ -31,7 +31,7 @@ var areValid = function areValid (Model, payloadPropertiesToLookup) {
                     reply();
                 })
                 .catch(function (err) {
-                    utils.logAndBoom(err, utils.locale(request), reply);
+                    utils.logAndBoom(err, reply);
                 });
         } else {
             reply();

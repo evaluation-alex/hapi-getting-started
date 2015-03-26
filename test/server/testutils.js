@@ -7,6 +7,7 @@ var Promise = require('bluebird');
 Promise.longStackTraces();
 var AuthPlugin = require(relativeToServer + 'common/plugins/auth');
 var MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
+var I18NPlugin = require(relativeToServer + 'common/plugins/i18n');
 var Config = require(relativeTo + 'config');
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Users = require(relativeToServer + 'users/model');
@@ -156,7 +157,7 @@ var setupServer = function () {
                     register: require('hapi-mongo-models'),
                     options: JSON.parse(JSON.stringify(Manifest.plugins['hapi-mongo-models']))
                 };
-                var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, MetricsPlugin];
+                var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, MetricsPlugin, I18NPlugin];
                 var server = new Hapi.Server();
                 server.connection({host: 'localhost', port: Config.port});
                 server.register(plugins, function (err) {

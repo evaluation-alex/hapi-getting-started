@@ -6,9 +6,9 @@ var traverse = require('traverse');
 var _ = require('lodash');
 var moment = require('moment');
 
-module.exports.logAndBoom = function logAndBoom (err, locale, reply) {
+module.exports.logAndBoom = function logAndBoom (err, reply) {
     logger.error({error: err, stack: err.stack});
-    reply (err.canMakeBoomError ? err.boomError(locale) : Boom.badImplementation(err));
+    reply (err.canMakeBoomError ? err : Boom.badImplementation(err));
 };
 
 module.exports.toStatsD = function toStatsD (route, statusCode, user, device, browser, start, finish) {

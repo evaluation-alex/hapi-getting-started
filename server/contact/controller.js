@@ -28,7 +28,7 @@ var Controller = new ControllerFactory()
                 reply({message: 'Success.'});
             })
             .catch(function (err) {
-                utils.logAndBoom(err, utils.locale(request), reply);
+                utils.logAndBoom(err, reply);
             });
     })
     .doneConfiguring();

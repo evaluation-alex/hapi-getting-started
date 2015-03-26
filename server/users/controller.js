@@ -108,7 +108,7 @@ var Controller = new ControllerFactory(Users)
                 reply({message: 'Success.'});
             })
             .catch(function (err) {
-                utils.logAndBoom(err, utils.locale(request), reply);
+                utils.logAndBoom(err, reply);
             });
     })
     .forMethod('loginReset')
@@ -131,7 +131,7 @@ var Controller = new ControllerFactory(Users)
                 reply({message: 'Success.'});
             })
             .catch(function (err) {
-                utils.logAndBoom(err, utils.locale(request), reply);
+                utils.logAndBoom(err, reply);
             });
     })
     .doneConfiguring();

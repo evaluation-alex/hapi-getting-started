@@ -1,9 +1,8 @@
 'use strict';
 var Promise = require('bluebird');
 var utils = require('./../utils');
-var _ = require('lodash');
 
-module.exports = function FindHandler (Model, queryBuilder, i18nEnabled, findCb) {
+module.exports = function FindHandler (Model, queryBuilder, findCb) {
     var findHook = function findObjsCb(output) {
         /*jshint unused:false*/
         return new Promise(function (resolve, reject) {
@@ -23,17 +22,9 @@ module.exports = function FindHandler (Model, queryBuilder, i18nEnabled, findCb)
         var page = request.query.page;
         Model._pagedFind(query, fields, sort, limit, page)
             .then(findHook)
-            .then(function (output) {
-                if (i18nEnabled) {
-                    var locale = utils.locale(request);
-                    _.forEach(output.data, function (o) {
-                        o.i18n(locale);
-                    });
-                }
-                reply(output);
-            })
+            .then(reply)
             .catch(function (err) {
-                utils.logAndBoom(err, utils.locale(request), reply);
+                utils.logAndBoom(err, reply);
             });
     };
 };

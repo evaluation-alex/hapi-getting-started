@@ -2,8 +2,8 @@
 var Promise = require('bluebird');
 var utils = require('./../utils');
 
-module.exports = function FindOneHandler (Model, i18nEnabled, findOneCb) {
-    var findOne = function findOneCB(output) {
+module.exports = function FindOneHandler (Model, findOneCb) {
+    var findOneHook = function findOneCB(output) {
         /*jshint unused:false*/
         return new Promise(function (resolve, reject) {
             resolve(findOneCb ? findOneCb(output) : output);
@@ -11,12 +11,10 @@ module.exports = function FindOneHandler (Model, i18nEnabled, findOneCb) {
         /*jshint unused:true*/
     };
     return function findOneHandler (request, reply) {
-        findOne(request.pre[Model._collection])
-            .then(function (o) {
-                reply(i18nEnabled ? o.i18n(utils.locale(request)) : o);
-            })
+        findOneHook(request.pre[Model._collection])
+            .then(reply)
             .catch(function (err) {
-                utils.logAndBoom(err, utils.locale(request), reply);
+                utils.logAndBoom(err, reply);
             });
     };
 };

@@ -21,7 +21,7 @@ module.exports = function prePopulate (Model, idToUse) {
                         reply(obj);
                     })
                     .catch(function (err) {
-                        utils.logAndBoom(err, utils.locale(request), reply);
+                        utils.logAndBoom(err, reply);
                     });
             }
         }

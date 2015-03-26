@@ -1,14 +1,12 @@
 'use strict';
 var Joi = require('joi');
 var _ = require('lodash');
-var moment = require('moment');
 var Notifications = require('./model');
 var ControllerFactory = require('./../../common/controller-factory');
 var onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
 var utils = require('./../../common/utils');
 
 var Controller = new ControllerFactory(Notifications)
-    .needsI18N()
     .findController({
         query: {
             title: Joi.string(),

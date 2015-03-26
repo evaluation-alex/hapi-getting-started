@@ -40,7 +40,7 @@ var plugins = {
     'hapi-require-https': {},
     'hapi-auth-basic': {},
     './server/common/plugins/auth': {},
-    './server/common/auth/metrics': {}
+    './server/common/plugins/metrics': {}
 };
 
 var components = [

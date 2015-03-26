@@ -3,7 +3,7 @@ var _ = require('lodash');
 var utils = require('./../utils');
 var Promise = require('bluebird');
 
-module.exports = function UpdateHandler (Model, notify, i18nEnabled, updateCb) {
+module.exports = function UpdateHandler (Model, notify, updateCb) {
     var updateOneHook = function updateCB(u ,request, by) {
         /*jshint unused:false*/
         return new Promise(function (resolve, reject) {
@@ -22,10 +22,10 @@ module.exports = function UpdateHandler (Model, notify, i18nEnabled, updateCb) {
                 if (notify.emit) {
                     notify.emit('invoked', u, request);
                 }
-                reply(i18nEnabled ? u.i18n(utils.locale(request)) : u);
+                reply(u);
             })
             .catch(function (err) {
-                utils.logAndBoom(err, utils.locale(request), reply);
+                utils.logAndBoom(err, reply);
             });
     };
 };

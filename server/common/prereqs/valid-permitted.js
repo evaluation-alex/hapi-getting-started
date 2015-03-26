@@ -28,7 +28,7 @@ module.exports = function validAndPermitted (Model, idProperty, groups) {
                     return cases[m.message]();
                 })
                 .catch(function (err) {
-                    utils.logAndBoom(err, utils.locale(request), reply);
+                    utils.logAndBoom(err, reply);
                 });
         }
     };

@@ -28,12 +28,6 @@ var ControllerFactory = function ControllerFactory (model) {
     return self;
 };
 
-ControllerFactory.prototype.needsI18N = function needsI18N () {
-    var self = this;
-    self.i18nEnabled = true;
-    return self;
-};
-
 ControllerFactory.prototype.enableNotifications = function enableNotifications () {
     var self = this;
     self.notify = true;
@@ -100,7 +94,7 @@ ControllerFactory.prototype.newController = function newController (validator, p
         prereqs]);
     self.forMethod('new')
         .preProcessWith(pre)
-        .handleUsing(new NewHandler(self.model, self.controller.new, self.i18nEnabled, newCb));
+        .handleUsing(new NewHandler(self.model, self.controller.new, newCb));
     return self;
 };
 
@@ -108,7 +102,7 @@ ControllerFactory.prototype.customNewController = function customNewController (
     var self = this;
     self.forMethod(method)
         .preProcessWith([isUnique(self.model, uniqueCheck)])
-        .handleUsing(new NewHandler(self.model, self.controller[method], self.i18nEnabled, newCb));
+        .handleUsing(new NewHandler(self.model, self.controller[method], newCb));
     return self;
 };
 
@@ -121,7 +115,7 @@ ControllerFactory.prototype.findController = function findController (validator,
     self.forMethod('find')
         .withValidation(validator)
         .preProcessWith(ensurePermissions('view', self.component))
-        .handleUsing(new FindHandler(self.model, queryBuilder, self.i18nEnabled, findCb));
+        .handleUsing(new FindHandler(self.model, queryBuilder, findCb));
     return self;
 };
 
@@ -130,7 +124,7 @@ ControllerFactory.prototype.findOneController = function findOneController (prer
     var pre = _.filter(_.flatten([ensurePermissions('view', self.component), prePopulate(self.model, 'id'), prereqs]), function (f) {return !!f;});
     self.forMethod('findOne')
         .preProcessWith(pre)
-        .handleUsing(new FindOneHandler(self.model, self.i18nEnabled, findOneCb));
+        .handleUsing(new FindOneHandler(self.model, findOneCb));
     return self;
 };
 
@@ -142,7 +136,7 @@ ControllerFactory.prototype.updateController = function updateController (valida
     var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prePopulate(self.model, 'id'), prereqs]);
     self.forMethod(methodName)
         .preProcessWith(pre)
-        .handleUsing(new UpdateHandler(self.model, self.controller[methodName], self.i18nEnabled, updateCb));
+        .handleUsing(new UpdateHandler(self.model, self.controller[methodName], updateCb));
     return self;
 };
 

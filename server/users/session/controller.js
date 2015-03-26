@@ -16,7 +16,7 @@ var abuseDetected = function abuseDetected (request, reply) {
             reply();
         })
         .catch(function (err) {
-            utils.logAndBoom(err, utils.locale(request), reply);
+            utils.logAndBoom(err, reply);
         });
 };
 
@@ -44,7 +44,7 @@ var Controller = new ControllerFactory()
             })
             .catch(function (err) {
                 AuthAttempts.create(ip, email);
-                utils.logAndBoom(err, utils.locale(request), reply);
+                utils.logAndBoom(err, reply);
             });
     })
     .forMethod('logout')

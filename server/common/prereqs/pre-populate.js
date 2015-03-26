@@ -12,7 +12,7 @@ module.exports = function prePopulate (Model, idToUse) {
             if (request.pre['validAndPermitted' + type]) {
                 reply(request.pre['validAndPermitted' + type]);
             } else {
-                var id = request.params[idToUse] ? request.params[idToUse] : request.payload[idToUse];
+                var id = utils.lookupParamsOrPayloadOrQuery(request, idToUse);
                 Model._findOne({_id: Model.ObjectID(id)})
                     .then(function (obj) {
                         if (!obj) {

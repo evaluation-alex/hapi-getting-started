@@ -1,6 +1,6 @@
 'use strict';
 var Joi = require('joi');
-var Preferences = require('./model');
+var Users = require('./../model');
 var ControllerFactory = require('./../../common/controller-factory');
 var onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
 
@@ -15,21 +15,20 @@ var notificationUpdatePrefSchema = Joi.object().keys({
     removedBlocked: Joi.array().items(Joi.object())
 });
 
-var Controller = new ControllerFactory(Preferences)
-    .findOneController([
-        onlyOwnerAllowed(Preferences, 'email')
-    ])
+var Controller = new ControllerFactory(Users)
     .updateController({
         payload: {
-            notifications: Joi.object().keys({
-                blogs: notificationUpdatePrefSchema,
-                posts: notificationUpdatePrefSchema,
-                userGroups: notificationUpdatePrefSchema
-            }),
-            locale: Joi.string().only('en', 'hi')
+            preferences : {
+                notifications: Joi.object().keys({
+                    blogs: notificationUpdatePrefSchema,
+                    posts: notificationUpdatePrefSchema,
+                    userGroups: notificationUpdatePrefSchema
+                }),
+                locale: Joi.string().only('en', 'hi')
+            }
         }
     }, [
-        onlyOwnerAllowed(Preferences, 'email')
+        onlyOwnerAllowed(Users, 'email')
     ], 'update',
     'update')
     .doneConfiguring();

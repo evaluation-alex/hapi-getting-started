@@ -936,17 +936,21 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should add users who have been approved to the subscribers list and cancel the remaining notifications', function (done) {
+        it('should add users who have been approved to the subscribers list and cancel the approval notifications for that user only', function (done) {
             var request = {};
             var id = '';
             Blogs.create('testBlogPutApproveAddUser', 'silver lining', 'test PUT /blogs/approve', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    return b.add(['one@first.com'], 'needsApproval', 'test').save();
+                    return b.add(['one@first.com', 'someotherguytoo'], 'needsApproval', 'test').save();
                 })
                 .then(function () {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
                     return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
+                })
+                .then(function () {
+                    //email, organisation, objectType, objectId, title, state, action, priority, content, by
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguytoo'}, 'test');
                 })
                 .then(function () {
                     request = {
@@ -966,6 +970,7 @@ describe('Blogs', function () {
                                 .then(function (b) {
                                     expect(b).to.exist();
                                     expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
+                                    expect(b[0]._isMemberOf('needsApproval', 'someotherguytoo')).to.be.true();
                                     return Audit.findAudit('blogs', 'testBlogPutApproveAddUser', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
@@ -989,8 +994,8 @@ describe('Blogs', function () {
                                                 if (err) {
                                                     done(err);
                                                 } else {
-                                                    //3 cancellations and 3 approval
-                                                    expect(count).to.equal(6);
+                                                    //3 cancellations and 3 just approved and 3 pending approval
+                                                    expect(count).to.equal(9);
                                                     done();
                                                 }
                                             });
@@ -1000,6 +1005,46 @@ describe('Blogs', function () {
                                 });
                         } catch (err) {
                             blogsToClear.push('testBlogPutApproveAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should do nothing if the approved list is empty', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('testBlogPutApproveAddUserEmpty', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    return b.add(['one@first.com', 'someotherguytoo'], 'needsApproval', 'test').save();
+                })
+                .then(function () {
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/approve',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedSubscribers: []
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({title: 'testBlogPutApproveAddUserEmpty'})
+                                .then(function (b) {
+                                    expect(b).to.exist();
+                                    expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    expect(b[0]._isMemberOf('needsApproval', 'someotherguytoo')).to.be.true();
+                                    return Audit.findAudit('blogs', 'testBlogPutApproveAddUserEmpty', {'change.action': {$regex: /add subscriber/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(0);
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('testBlogPutApproveAddUserEmpty');
                             done(err);
                         }
                     });
@@ -1167,6 +1212,45 @@ describe('Blogs', function () {
                                 });
                         } catch (err) {
                             blogsToClear.push('testPutRejectBlogAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should do nothing if the reject list is empty', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('testPutRejectBlogAddUserEmpty', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    return b.add(['one@first.com'], 'needsApproval', 'test').save();
+                })
+                .then(function () {
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id + '/reject',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedSubscribers: []
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({title: 'testPutRejectBlogAddUserEmpty'})
+                                .then(function (b) {
+                                    expect(b).to.exist();
+                                    expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    return Audit.findAudit('blogs', 'testPutRejectBlogAddUserEmpty', {'change.action': {$regex: /remove needsApproval/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(0);
+                                    done();
+                                });
+                        } catch (err) {
+                            blogsToClear.push('testPutRejectBlogAddUserEmpty');
                             done(err);
                         }
                     });

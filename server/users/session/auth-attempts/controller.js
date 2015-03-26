@@ -2,6 +2,7 @@
 var Joi = require('joi');
 var AuthAttempts = require('./model');
 var ControllerFactory = require('./../../../common/controller-factory');
+var utils = require('./../../../common/utils');
 
 var Controller = new ControllerFactory(AuthAttempts)
     .findController({
@@ -11,12 +12,7 @@ var Controller = new ControllerFactory(AuthAttempts)
         }
     }, function buildFindQuery (request) {
         var query = {};
-        if (request.query.ip) {
-            query.ip = request.query.ip;
-        }
-        if (request.query.email) {
-            query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
-        }
+        utils.buildQueryFromRequestForFields(query, request, [['ip', 'ip'], ['email', 'email']]);
         query.organisation = '*';
         return query;
     })

@@ -852,17 +852,21 @@ describe('UserGroups', function () {
                     });
                 });
         });
-        it('should add users who have been approved to the members list and cancel the remaining notifications', function (done) {
+        it('should add users who have been approved to the members list and cancel the remaining approval notifications for that user only', function (done) {
             var request = {};
             var id = '';
             UserGroups.create('testPutApproveGroupAddUser', 'silver lining', 'test PUT /user-groups/approve', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com'], 'needsApproval', 'test').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
+                    return ug.add(['one@first.com', 'someotherguy'], 'needsApproval', 'test').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
                 })
                 .then(function () {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
                     return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
+                })
+                .then(function () {
+                    //email, organisation, objectType, objectId, title, state, action, priority, content, by
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguy'}, 'test');
                 })
                 .then(function() {
                     request = {
@@ -882,6 +886,7 @@ describe('UserGroups', function () {
                                 .then(function (ug) {
                                     expect(ug).to.exist();
                                     expect(ug[0]._isMemberOf('members', 'one@first.com')).to.be.true();
+                                    expect(ug[0]._isMemberOf('needsApproval', 'someotherguy')).to.be.true();
                                     return Audit.findAudit('user-groups', 'testPutApproveGroupAddUser', {'change.action': {$regex: /add member/}});
                                 })
                                 .then(function (foundAudit) {
@@ -905,8 +910,8 @@ describe('UserGroups', function () {
                                                 if (err) {
                                                     done(err);
                                                 } else {
-                                                    //3 for cancel and 3 for the approval
-                                                    expect(count).to.equal(6);
+                                                    //3 cancellations and 3 just approved and 3 pending approval
+                                                    expect(count).to.equal(9);
                                                     done();
                                                 }
                                             });
@@ -916,6 +921,46 @@ describe('UserGroups', function () {
                                 });
                         } catch (err) {
                             groupsToClear.push('testPutApproveGroupAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should do nothing if the approved list is empty', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutApproveGroupAddUserEmpty', 'silver lining', 'test PUT /user-groups/approve', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    return ug.add(['one@first.com', 'someotherguy'], 'needsApproval', 'test').remove(['test'], 'owners', 'test').save();
+                })
+                .then(function() {
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/approve',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedMembers: []
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            UserGroups._find({name: 'testPutApproveGroupAddUserEmpty'})
+                                .then(function (ug) {
+                                    expect(ug).to.exist();
+                                    expect(ug[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    expect(ug[0]._isMemberOf('needsApproval', 'someotherguy')).to.be.true();
+                                    return Audit.findAudit('user-groups', 'testPutApproveGroupAddUserEmpty', {'change.action': {$regex: /add member/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(0);
+                                    done();
+                                });
+                        } catch (err) {
+                            groupsToClear.push('testPutApproveGroupAddUserEmpty');
                             done(err);
                         }
                     });
@@ -1084,6 +1129,45 @@ describe('UserGroups', function () {
 
                         } catch (err) {
                             groupsToClear.push('testPutRejectGroupAddUser');
+                            done(err);
+                        }
+                    });
+                });
+        });
+        it('should do nothing when the reject list is empty', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutRejectGroupAddUserEmpty', 'silver lining', 'test PUT /user-groups/reject', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    return ug.add(['one@first.com'], 'needsApproval', 'test').remove(['test'], 'owners', 'test').save();
+                })
+                .then(function() {
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id + '/reject',
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            addedMembers: []
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            UserGroups._find({name: 'testPutRejectGroupAddUserEmpty'})
+                                .then(function (ug) {
+                                    expect(ug).to.exist();
+                                    expect(ug[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    return Audit.findAudit('user-groups', 'testPutRejectGroupAddUserEmpty', {'change.action': {$regex: /remove needsApproval/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(0);
+                                    done();
+                                });
+                        } catch (err) {
+                            groupsToClear.push('testPutRejectGroupAddUserEmpty');
                             done(err);
                         }
                     });

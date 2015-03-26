@@ -3,7 +3,6 @@ var relativeToServer = './../../../../server/';
 
 var Users = require(relativeToServer + 'users/model');
 var Audit = require(relativeToServer + 'audit/model');
-var Preferences = require(relativeToServer + 'users/preferences/model');
 //var expect = require('chai').expect;
 var tu = require('./../../testutils');
 var Code = require('code');   // assertion library
@@ -11,7 +10,6 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var before = lab.before;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
@@ -34,89 +32,6 @@ describe('Preferences', function () {
             .done();
     });
 
-    describe('GET /preferences/{id}', function () {
-        var authheader = '';
-        var id = '';
-        before(function (done) {
-            Users._findOne({email: 'one@first.com'})
-                .then(function (foundUser) {
-                    return foundUser.loginSuccess('test', 'test').save();
-                })
-                .then(function (foundUser) {
-                    authheader = tu.authorizationHeader(foundUser);
-                    done();
-                })
-                .catch(function (err) {
-                    if (err) {
-                        done(err);
-                    }
-                });
-        });
-
-        it('should only send back preferences with the id in params', function (done) {
-            Preferences._findOne({email: 'one@first.com'})
-            .then(function (p) {
-                    id = p._id.toString();
-                    var request = {
-                        method: 'GET',
-                        url: '/preferences/' + id,
-                        headers: {
-                            Authorization: authheader
-                        }
-                    };
-                    server.inject(request, function (response) {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            expect(response.payload).to.exist();
-                            expect(response.payload).to.contain('one@first.com');
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
-                    });
-                });
-        });
-
-        it('should send back not found when the preferences with the id in params is not found', function (done) {
-            var request = {
-                method: 'GET',
-                url: '/preferences/abcdefabcdefabcdefabcdef',
-                headers: {
-                    Authorization: authheader
-                }
-            };
-            server.inject(request, function (response) {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
-            });
-        });
-
-        it('should send back unauthorized if the id in the url and authenticated user are different', function (done) {
-            Preferences._findOne({email: 'root'})
-                .then(function (u) {
-                    var request = {
-                        method: 'GET',
-                        url: '/preferences/' + u._id.toString(),
-                        headers: {
-                            Authorization: authheader
-                        }
-                    };
-                    server.inject(request, function (response) {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
-                    });
-                });
-        });
-    });
-
     describe('PUT /preferences/{id}', function () {
         var authheader = '';
         var id = '';
@@ -132,25 +47,29 @@ describe('Preferences', function () {
         });
 
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
+            var oneauthheader = '';
             Users._findOne({email: 'one@first.com'})
                 .then(function (u) {
                     return u.loginSuccess('test', 'test').save();
                 })
                 .then(function (u) {
-                    authheader = tu.authorizationHeader(u);
-                    return Preferences._findOne({email: 'root'});
+                    oneauthheader = tu.authorizationHeader(u);
+                    return Users._findOne({email: 'root'});
                 })
-                .then(function (p) {
-                    id = p._id.toString();
+                .then(function (u) {
+                    id = u._id.toString();
+                })
+                .then(function () {
                     var request = {
                         method: 'PUT',
                         url: '/preferences/' + id,
                         headers: {
-                            Authorization: authheader
+                            Authorization: oneauthheader
                         },
                         payload: {
-                            isActive: true,
-                            locale: 'hi'
+                            preferences : {
+                                locale: 'hi'
+                            }
                         }
                     };
                     server.inject(request, function (response) {
@@ -172,7 +91,9 @@ describe('Preferences', function () {
                     Authorization: authheader
                 },
                 payload: {
-                    isActive: true
+                    preferences: {
+                        locale: 'hi'
+                    }
                 }
             };
             server.inject(request, function (response) {
@@ -186,10 +107,10 @@ describe('Preferences', function () {
         });
 
         it('should modify preferences and audit changes', function (done) {
-            Preferences._findOne({email: 'root'})
+            Users._findOne({email: 'root'})
                 .then(function (p) {
-                    p.notifications.blogs.blocked.push('something');
-                    p.notifications.posts.blocked.push('none of them');
+                    p.preferences.notifications.blogs.blocked.push('something');
+                    p.preferences.notifications.posts.blocked.push('none of them');
                     id = p._id.toString();
                     return p.save();
                 })
@@ -201,26 +122,27 @@ describe('Preferences', function () {
                             Authorization: authheader
                         },
                         payload: {
-                            isActive: true,
-                            locale: 'hi',
-                            notifications: {
-                                blogs: {
-                                    email : {
-                                        frequency: 'daily'
+                            preferences: {
+                                locale: 'hi',
+                                notifications: {
+                                    blogs: {
+                                        email : {
+                                            frequency: 'daily'
+                                        },
+                                        addedBlocked: ['something']
                                     },
-                                    addedBlocked: ['something']
-                                },
-                                userGroups: {
-                                    email: {
-                                        frequency: 'weekly'
+                                    userGroups: {
+                                        email: {
+                                            frequency: 'weekly'
+                                        },
+                                        addedBlocked: ['all of them']
                                     },
-                                    addedBlocked: ['all of them']
-                                },
-                                posts: {
-                                    inapp: {
-                                        frequency: 'daily'
-                                    },
-                                    removedBlocked: ['none of them']
+                                    posts: {
+                                        inapp: {
+                                            frequency: 'daily'
+                                        },
+                                        removedBlocked: ['none of them']
+                                    }
                                 }
                             }
                         }
@@ -228,16 +150,16 @@ describe('Preferences', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Preferences._findOne({email: 'root'})
+                            Users._findOne({email: 'root'})
                                 .then(function (p) {
-                                    expect(p.locale).to.equal('hi');
-                                    expect(p.notifications.blogs.email.frequency).to.equal('daily');
-                                    expect(p.notifications.userGroups.email.frequency).to.equal('weekly');
-                                    expect(p.notifications.posts.inapp.frequency).to.equal('daily');
-                                    expect(p.notifications.blogs.blocked[0]).to.equal('something');
-                                    expect(p.notifications.userGroups.blocked[0]).to.equal('all of them');
-                                    expect(p.notifications.posts.blocked.length).to.equal(0);
-                                    return Audit.findAudit('preferences', 'root', {'change.action': 'locale'});
+                                    expect(p.preferences.locale).to.equal('hi');
+                                    expect(p.preferences.notifications.blogs.email.frequency).to.equal('daily');
+                                    expect(p.preferences.notifications.userGroups.email.frequency).to.equal('weekly');
+                                    expect(p.preferences.notifications.posts.inapp.frequency).to.equal('daily');
+                                    expect(p.preferences.notifications.blogs.blocked[0]).to.equal('something');
+                                    expect(p.preferences.notifications.userGroups.blocked[0]).to.equal('all of them');
+                                    expect(p.preferences.notifications.posts.blocked.length).to.equal(0);
+                                    return Audit.findAudit('users', 'root', {'change.action': 'preferences.locale'});
                                 })
                                 .then(function (audit) {
                                     expect(audit).to.exist();

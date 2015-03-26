@@ -2,6 +2,7 @@
 var Joi = require('joi');
 var Audit = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
+var utils = require('./../common/utils');
 
 var Controller = new ControllerFactory(Audit)
     .findController({
@@ -12,9 +13,7 @@ var Controller = new ControllerFactory(Audit)
         }
     }, function buildFindQuery (request) {
         var query = {};
-        if (request.query.by) {
-            query.by = {$regex: new RegExp('^.*?' + request.query.by + '.*$', 'i')};
-        }
+        utils.buildQueryFromRequestForFields(query, request, [['by', 'by']]);
         if (request.query.objectType) {
             query.objectChangedType = request.query.objectType;
         }

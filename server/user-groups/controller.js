@@ -5,6 +5,7 @@ var UserGroups = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
 var areValid = require('./../common/prereqs/are-valid');
 var validAndPermitted = require('./../common/prereqs/valid-permitted');
+var utils = require('./../common/utils');
 
 var Controller = new ControllerFactory(UserGroups)
     .enableNotifications()
@@ -42,12 +43,7 @@ var Controller = new ControllerFactory(UserGroups)
         }
     }, function buildFindQuery (request) {
         var query = {};
-        var fields = [['email', 'members'], ['groupName', 'name']];
-        _.forEach(fields, function (pair) {
-            if (request.query[pair[0]]) {
-                query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
-            }
-        });
+        utils.buildQueryFromRequestForFields(query, request, [['email', 'members'], ['groupName', 'name']]);
         return query;
     })
     .findOneController()
@@ -70,7 +66,7 @@ var Controller = new ControllerFactory(UserGroups)
         _.forEach(['members', 'owners'], function (toInspect) {
             _.forEach(['added', 'removed'], function (t) {
                 var p = t + _.capitalize(toInspect);
-                if (request.payload[p] && request.payload[p].length > 0) {
+                if (utils.hasItems(request.payload[p])) {
                     shouldNotify = true;
                     description[toInspect] = description[toInspect] || {};
                     description[toInspect][t] = request.payload[p];

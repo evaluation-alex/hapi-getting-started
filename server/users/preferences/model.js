@@ -1,76 +1,93 @@
 'use strict';
-var BaseModel = require('hapi-mongo-models').BaseModel;
 var Joi = require('joi');
-var ObjectAssign = require('object-assign');
-var Promisify = require('./../../common/mixins/promisify');
-var Insert = require('./../../common/mixins/insert');
 var AddRemove = require('./../../common/mixins/add-remove');
 var Properties = require('./../../common/mixins/properties');
 var Update = require('./../../common/mixins/update');
-var IsActive = require('./../../common/mixins/is-active');
-var Save = require('./../../common/mixins/save');
-var CAudit = require('./../../common/mixins/audit');
 var _ = require('lodash');
 
-var Preferences = BaseModel.extend({
-    /* jshint -W064 */
-    constructor: function preferences (attrs) {
-        ObjectAssign(this, attrs);
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
-    }
-    /* jshint +W064 */
-});
+var Preferences = function preferences () {};
 
-Preferences._collection = 'preferences';
-
-Promisify(Preferences, ['findOne', 'findByIdAndUpdate', 'insert']);
-_.extend(Preferences, new Insert('email', 'create'));
-_.extend(Preferences.prototype, new IsActive());
 _.extend(Preferences.prototype, new AddRemove([
-    'notifications.blogs.blocked',
-    'notifications.posts.blocked',
-    'notifications.userGroups.blocked'
+    'preferences.notifications.blogs.blocked',
+    'preferences.notifications.posts.blocked',
+    'preferences.notifications.userGroups.blocked'
 ]));
 _.extend(Preferences.prototype, new Properties([
-    'notifications.blogs.inapp.frequency',
-    'notifications.blogs.inapp.lastSent',
-    'notifications.blogs.email.frequency',
-    'notifications.blogs.email.lastSent',
-    'notifications.posts.inapp.frequency',
-    'notifications.posts.inapp.lastSent',
-    'notifications.blogs.email.frequency',
-    'notifications.blogs.email.lastSent',
-    'notifications.userGroups.inapp.frequency',
-    'notifications.userGroups.inapp.lastSent',
-    'notifications.userGroups.email.frequency',
-    'notifications.userGroups.email.lastSent',
-    'locale',
-    'isActive']));
+    'preferences.notifications.blogs.inapp.frequency',
+    'preferences.notifications.blogs.inapp.lastSent',
+    'preferences.notifications.blogs.email.frequency',
+    'preferences.notifications.blogs.email.lastSent',
+    'preferences.notifications.posts.inapp.frequency',
+    'preferences.notifications.posts.inapp.lastSent',
+    'preferences.notifications.blogs.email.frequency',
+    'preferences.notifications.blogs.email.lastSent',
+    'preferences.notifications.userGroups.inapp.frequency',
+    'preferences.notifications.userGroups.inapp.lastSent',
+    'preferences.notifications.userGroups.email.frequency',
+    'preferences.notifications.userGroups.email.lastSent',
+    'preferences.locale']));
 _.extend(Preferences.prototype, new Update([
-    'notifications.blogs.inapp.frequency',
-    'notifications.blogs.inapp.lastSent',
-    'notifications.blogs.email.frequency',
-    'notifications.blogs.email.lastSent',
-    'notifications.posts.inapp.frequency',
-    'notifications.posts.inapp.lastSent',
-    'notifications.blogs.email.frequency',
-    'notifications.blogs.email.lastSent',
-    'notifications.userGroups.inapp.frequency',
-    'notifications.userGroups.inapp.lastSent',
-    'notifications.userGroups.email.frequency',
-    'notifications.userGroups.email.lastSent',
-    'locale',
-    'isActive'
+    'preferences.notifications.blogs.inapp.frequency',
+    'preferences.notifications.blogs.inapp.lastSent',
+    'preferences.notifications.blogs.email.frequency',
+    'preferences.notifications.blogs.email.lastSent',
+    'preferences.notifications.posts.inapp.frequency',
+    'preferences.notifications.posts.inapp.lastSent',
+    'preferences.notifications.blogs.email.frequency',
+    'preferences.notifications.blogs.email.lastSent',
+    'preferences.notifications.userGroups.inapp.frequency',
+    'preferences.notifications.userGroups.inapp.lastSent',
+    'preferences.notifications.userGroups.email.frequency',
+    'preferences.notifications.userGroups.email.lastSent',
+    'preferences.locale'
 ], [
-    'notifications.blogs.blocked',
-    'notifications.posts.blocked',
-    'notifications.userGroups.blocked'
+    'preferences.notifications.blogs.blocked',
+    'preferences.notifications.posts.blocked',
+    'preferences.notifications.userGroups.blocked'
 ]));
-_.extend(Preferences.prototype, new Save(Preferences));
-_.extend(Preferences.prototype, new CAudit(Preferences._collection, 'email'));
+
+Preferences.prototype.resetPrefs = function resetPrefsToDefault () {
+    var self = this;
+    self.preferences = {
+        notifications: {
+            blogs: {
+                inapp: {
+                    frequency: 'immediate',
+                        lastSent: undefined
+                },
+                email: {
+                    frequency: 'daily',
+                        lastSent: undefined
+                },
+                blocked: []
+            },
+            posts: {
+                inapp: {
+                    frequency: 'immediate',
+                        lastSent: undefined
+                },
+                email: {
+                    frequency: 'daily',
+                        lastSent: undefined
+                },
+                blocked: []
+            },
+            userGroups: {
+                inapp: {
+                    frequency: 'immediate',
+                        lastSent: undefined
+                },
+                email: {
+                    frequency: 'daily',
+                        lastSent: undefined
+                },
+                blocked: []
+            }
+        },
+        locale: 'en'
+    };
+    return self;
+};
 
 var channelSchema = Joi.object().keys({
     frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
@@ -84,74 +101,12 @@ var notificationPrefSchema = Joi.object().keys({
 });
 
 Preferences.schema = Joi.object().keys({
-    _id: Joi.object(),
-    email: Joi.string().email().required(),
-    organisation: Joi.string().required(),
     notifications: Joi.object().keys({
         blogs: notificationPrefSchema,
         posts: notificationPrefSchema,
         userGroups: notificationPrefSchema
     }),
-    locale: Joi.string().only('en', 'hi'),
-    isActive: Joi.boolean().default(true),
-    createdBy: Joi.string(),
-    createdOn: Joi.date(),
-    updatedBy: Joi.string(),
-    updatedOn: Joi.date()
+    locale: Joi.string().only('en', 'hi')
 });
-
-Preferences.indexes = [
-    [{email: 1, orgranisazation: 1}, {unique: true}]
-];
-
-Preferences.create = function create (email, organisation, locale, by) {
-    var self = this;
-    var document = {
-        email: email,
-        organisation: organisation,
-        notifications: {
-            blogs: {
-                inapp: {
-                    frequency: 'immediate',
-                    lastSent: undefined
-                },
-                email: {
-                    frequency: 'daily',
-                    lastSent: undefined
-                },
-                blocked: []
-            },
-            posts: {
-                inapp: {
-                    frequency: 'immediate',
-                    lastSent: undefined
-                },
-                email: {
-                    frequency: 'daily',
-                    lastSent: undefined
-                },
-                blocked: []
-            },
-            userGroups: {
-                inapp: {
-                    frequency: 'immediate',
-                    lastSent: undefined
-                },
-                email: {
-                    frequency: 'daily',
-                    lastSent: undefined
-                },
-                blocked: []
-            }
-        },
-        locale: locale,
-        isActive: true,
-        createdBy: by,
-        createdOn: new Date(),
-        updatedBy: by,
-        updatedOn: new Date()
-    };
-    return self._insertAndAudit(document);
-};
 
 module.exports = Preferences;

@@ -13,6 +13,7 @@ var FindOneHandler = require('./handlers/find-one');
 var UpdateHandler = require('./handlers/update');
 var SendNotifications = require('./handlers/send-notifications');
 var CancelNotifications = require('./handlers/cancel-notifications');
+var utils = require('./utils');
 
 var ControllerFactory = function ControllerFactory (model) {
     var self = this;
@@ -135,7 +136,7 @@ ControllerFactory.prototype.updateController = function updateController (valida
     var perms = _.find(prereqs, function (prereq) {
         return prereq.assign === 'ensurePermissions';
     });
-    var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prereqs, prePopulate(self.model, 'id')]);
+    var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prePopulate(self.model, 'id'), prereqs]);
     self.forMethod(methodName)
         .preProcessWith(pre)
         .handleUsing(new UpdateHandler(self.model, self.controller[methodName], self.i18nEnabled, updateCb));
@@ -220,17 +221,12 @@ ControllerFactory.prototype.approveRejectController = function approveRejectCont
         'approve',
         'approve');
     self.sendNotifications(function approveNotificationBuilder (obj, request) {
-        var ret = {
-            to: [],
+        return {
+            to: utils.hasItems(request.payload[toAdd]) ? obj[approvers] : [],
             title: ['{{title}} has new approved subscribers', {title: obj[idForNotificationsTitle]}],
-            description: {}
+            description: utils.hasItems(request.payload[toAdd]) ? {approved: request.payload[toAdd]} : {},
+            priority: obj.access === 'restricted' ? 'medium' : 'low'
         };
-        if (request.payload[toAdd] && request.payload[toAdd].length > 0) {
-            ret.to = obj[approvers];
-            ret.description = {approved: request.payload[toAdd]};
-            ret.priority = obj.access === 'restricted' ? 'medium' : 'low';
-        }
-        return ret;
     });
     self.cancelNotifications('approve', cancelJoinNotifications);
 
@@ -241,8 +237,8 @@ ControllerFactory.prototype.approveRejectController = function approveRejectCont
         'reject',
         'reject');
     self.sendNotifications(function rejectNotificationBuilder (obj, request) {
-        var ret = {
-            to: [],
+        return {
+            to: utils.hasItems(request.payload[toAdd]) ? request.payload[toAdd] : [],
             title: ['Your request to follow {{title}} was denied', {
                 title: obj[idForNotificationsTitle]
             }],
@@ -251,10 +247,6 @@ ControllerFactory.prototype.approveRejectController = function approveRejectCont
                 updatedBy: request.auth.credentials.user.email
             }]
         };
-        if (request.payload[toAdd] && request.payload[toAdd].length > 0) {
-            ret.to = request.payload[toAdd];
-        }
-        return ret;
     });
     self.cancelNotifications('approve', cancelJoinNotifications);
 

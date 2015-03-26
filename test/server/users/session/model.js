@@ -21,10 +21,10 @@ describe('Session Model', function () {
     before(function (done) {
         tu.setupRolesAndUsers()
             .then(function() {
-                return Users.create(firstEmail, 'passwor', 'silver lining');
+                return Users.create(firstEmail, 'silver lining', 'passwor', 'en');
             })
             .then(function () {
-                return Users.create(secondEmail, 'passwor', 'silver lining');
+                return Users.create(secondEmail, 'silver lining', 'passwor', 'en');
             })
             .then(function () {
                 done();

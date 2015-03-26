@@ -31,7 +31,6 @@ var plugins = {
             AuthAttempts: './server/users/session/auth-attempts/model',
             Roles: './server/users/roles/model',
             Notifications: './server/users/notifications/model',
-            Preferences: './server/users/preferences/model',
             UserGroups: './server/user-groups/model',
             Blogs: './server/blogs/model',
             Posts: './server/blogs/posts/model'

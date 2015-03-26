@@ -28,7 +28,7 @@ describe('Users Model', function () {
     describe('Users.create', function () {
         it('should create a new instance when create succeeds', function (done) {
             var error = null;
-            Users.create(firstEmail, 'test123', 'silver lining')
+            Users.create(firstEmail, 'silver lining', 'test123', 'en')
                 .then(function (result) {
                     expect(result).to.be.an.instanceof(Users);
                     expect(result.roles).to.be.an.instanceof(Array);
@@ -44,7 +44,7 @@ describe('Users Model', function () {
         });
 
         it('should throw an error when create fails if you try to create with the same email', function (done) {
-            Users.create(firstEmail, 'test123', 'silver lining')
+            Users.create(firstEmail, 'silver lining', 'test123', 'en')
                 .then(function (result) {
                     expect(result).to.not.exist();
                 })
@@ -60,7 +60,7 @@ describe('Users Model', function () {
     describe('Users.findByCredentials', function () {
         it('should returns a result when finding by login and by credentials correctly', function (done) {
             var error = null;
-            Users.create(secondEmail, 'test1234', 'silver lining')
+            Users.create(secondEmail, 'silver lining', 'test1234', 'en')
                 .then(function (user) {
                     return Users._findOne({email: user.email});
                 })
@@ -196,7 +196,7 @@ describe('Users Model', function () {
         });
     });
 
-    describe('Users.this.resetPassword, Users.this.resetPasswordSent', function () {
+    describe('Users.this.setPassword, Users.this.resetPasswordSent', function () {
         it('resetPasswordsSent should create audit entries', function (done) {
             var error = null;
             Users._findOne({email:firstEmail})
@@ -221,7 +221,7 @@ describe('Users Model', function () {
             var error = null;
             Users._findOne({email:firstEmail})
                 .then(function (user) {
-                    return user.resetPassword('new password confirm', 'test').save();
+                    return user.setPassword('new password confirm', 'test').save();
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();

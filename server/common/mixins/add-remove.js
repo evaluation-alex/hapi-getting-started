@@ -1,6 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var traverse = require('traverse');
+var utils = require('./../utils');
 
 module.exports = function CommonMixinAddRemove (roles) {
     return {
@@ -32,7 +33,7 @@ module.exports = function CommonMixinAddRemove (roles) {
                 var found = _.remove(list, function (m) {
                     return m === memberToRemove;
                 });
-                if (found.length > 0) {
+                if (utils.hasItems(found)) {
                     self._audit('remove ' + role, memberToRemove, null, by);
                 }
             });

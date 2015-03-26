@@ -5,6 +5,7 @@ var moment = require('moment');
 var Notifications = require('./model');
 var ControllerFactory = require('./../../common/controller-factory');
 var onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
+var utils = require('./../../common/utils');
 
 var Controller = new ControllerFactory(Notifications)
     .needsI18N()
@@ -19,32 +20,18 @@ var Controller = new ControllerFactory(Notifications)
         }
     }, function buildFindQuery (request) {
         var query = {};
-        var fields = [['state', 'state'], ['objectType', 'objectType']];
-        _.forEach(fields, function (pair) {
-            if (request.query[pair[0]]) {
-                query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
-            }
-        });
         query.email = request.auth.credentials.user.email;
-        if (request.query.createdOnBefore) {
-            query.createdOn = {};
-            query.createdOn.$lte = moment(request.query.createdOnBefore, ['YYYY-MM-DD']).toDate();
-        }
-        if (request.query.createdOnAfter) {
-            query.createdOn = query.createdOn || {};
-            query.createdOn.$gte = moment(request.query.createdOnAfter, ['YYYY-MM-DD']).toDate();
-        }
         var prefs = request.auth.credentials.user.preferences;
-        if (prefs) {
-            var blocked = _.flatten([
-                prefs.notifications.blogs.blocked,
-                prefs.notifications.posts.blocked,
-                prefs.notifications.userGroups.blocked
-            ]);
-            if (blocked.length > 0) {
-                query.objectId = {$nin: blocked};
-            }
+        var blocked = _.flatten([
+            prefs.notifications.blogs.blocked,
+            prefs.notifications.posts.blocked,
+            prefs.notifications.userGroups.blocked
+        ]);
+        if (utils.hasItems(blocked)) {
+            query.objectId = {$nin: blocked};
         }
+        utils.buildQueryFromRequestForFields(query, request, [['state', 'state'], ['objectType', 'objectType']]);
+        utils.buildQueryFromRequestForDateFields(query, request, 'createdOn');
         return query;
     })
     .updateController({

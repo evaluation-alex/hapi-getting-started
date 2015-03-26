@@ -16,6 +16,7 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var mkdirp = Promise.promisify(require('mkdirp'));
 var Config = require('./../../config');
+var utils = require('./../common/utils');
 
 var Blogs = BaseModel.extend({
     /* jshint -W064 */
@@ -93,10 +94,10 @@ Blogs.create = function create (title, organisation, description, owners, contri
         title: title,
         organisation: organisation,
         description: description,
-        owners: owners && owners.length > 0 ? owners : [by],
-        contributors: contributors && contributors.length > 0 ? contributors : [by],
-        subscribers: subscribers && subscribers.length > 0 ? subscribers : [by],
-        subscriberGroups: subscriberGroups ? subscriberGroups : [],
+        owners: utils.hasItems(owners) ? owners : [by],
+        contributors: utils.hasItems(contributors) ? contributors : [by],
+        subscribers: utils.hasItems(subscribers) ? subscribers : [by],
+        subscriberGroups: utils.hasItems(subscriberGroups) ? subscriberGroups : [],
         needsApproval: [],
         needsReview: needsReview,
         access: access,

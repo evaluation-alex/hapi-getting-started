@@ -3,7 +3,6 @@ var Joi = require('joi');
 var _ = require('lodash');
 var Config = require('./../../config');
 var Users = require('./model');
-var Preferences = require('./preferences/model');
 var Mailer = require('./../common/plugins/mailer');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
@@ -16,6 +15,7 @@ var Controller = new ControllerFactory(Users)
         payload: {
             email: Joi.string().email().required(),
             organisation: Joi.string().required(),
+            locale: Joi.string().only(['en', 'hi']).default('en'),
             password: Joi.string().required()
         }
     }, function uniqueCheckQuery (request) {
@@ -27,7 +27,8 @@ var Controller = new ControllerFactory(Users)
         var email = request.payload.email;
         var password = request.payload.password;
         var organisation = request.payload.organisation;
-        return Users.create(email, password, organisation)
+        var locale = request.payload.locale;
+        return Users.create(email, organisation, password, locale)
             .then(function (user) {
                 return user.loginSuccess(request.info.remoteAddress, user.email).save();
             })
@@ -41,9 +42,8 @@ var Controller = new ControllerFactory(Users)
                 };
                 user = user.afterLogin();
                 var m = Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload);
-                var pref = Preferences.create(email, organisation, utils.locale(request), email);
                 /*jshint unused:false*/
-                return Promise.join(user, m, pref, function (user, m, pref) {
+                return Promise.join(user, m, function (user, m) {
                     return user;
                 });
                 /*jshint unused:true*/
@@ -56,9 +56,7 @@ var Controller = new ControllerFactory(Users)
         }
     }, function buildFindQuery (request) {
         var query = {};
-        if (request.query.email) {
-            query.email = {$regex: new RegExp('^.*?' + request.query.email + '.*$', 'i')};
-        }
+        utils.buildQueryFromRequestForFields(query, request, [['email', 'email']]);
         return query;
     },
     function stripPrivateData (output) {
@@ -82,7 +80,9 @@ var Controller = new ControllerFactory(Users)
         onlyOwnerAllowed(Users, 'email')
     ],
     'update',
-    'update')
+    function updateUser (user, request, by) {
+        return user._invalidateSession().updateUser(request, by);
+    })
     .forMethod('loginForgot')
     .withValidation({
         payload: {
@@ -125,7 +125,7 @@ var Controller = new ControllerFactory(Users)
                 if (!user || (request.payload.key !== user.resetPwd.token)) {
                     return Promise.reject(new errors.PasswordResetError());
                 }
-                return user._invalidateSession().resetPassword(request.payload.password, user.email).save();
+                return user._invalidateSession().setPassword(request.payload.password, user.email).save();
             })
             .then(function () {
                 reply({message: 'Success.'});

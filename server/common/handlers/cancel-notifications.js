@@ -1,8 +1,8 @@
 'use strict';
-var logger = require('./../../../config').logger;
 var Promise = require('bluebird');
 var Notifications = require('./../../users/notifications/model');
 var _ = require('lodash');
+var utils = require('./../utils');
 
 module.exports = function CancelNotification (model, cancelAction, cancelNotificationsCb) {
     return function cancelNotifications (target, request) {
@@ -25,11 +25,7 @@ module.exports = function CancelNotification (model, cancelAction, cancelNotific
                     }
                 }));
             })
-            .catch(function (err) {
-                if (err) {
-                    logger.error({error: err});
-                }
-            })
+            .catch(utils.errback)
             .done();
     };
 };

@@ -1,12 +1,13 @@
 'use strict';
 var _ = require('lodash');
 var Promise = require('bluebird');
+var utils = require('./../utils');
 
 module.exports = function CommonAreValid (property) {
     return {
         areValid: function areValid (toCheck, organisation) {
             var self = this;
-            if (!toCheck || toCheck.length === 0) {
+            if (!utils.hasItems(toCheck)) {
                 return Promise.resolve({});
             } else {
                 var conditions = {};

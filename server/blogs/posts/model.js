@@ -11,6 +11,7 @@ var Properties = require('./../../common/mixins/properties');
 var Save = require('./../../common/mixins/save');
 var CAudit = require('./../../common/mixins/audit');
 var _ = require('lodash');
+var utils = require('./../../common/utils');
 
 var Posts = BaseModel.extend({
     /* jshint -W064 */
@@ -70,7 +71,7 @@ Posts.indexes = [
 
 Posts.newObject = function newObject (doc, by) {
     var self = this;
-    return self.create(doc.params.blogId || doc.payload.blogId,
+    return self.create(utils.lookupParamsOrPayloadOrQuery(doc, 'blogId'),
         doc.auth.credentials.user.organisation,
         doc.payload.title,
         doc.payload.state,

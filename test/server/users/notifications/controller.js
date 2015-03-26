@@ -4,7 +4,6 @@ var relativeToServer = './../../../../server/';
 var _ = require('lodash');
 var moment = require('moment');
 var Users = require(relativeToServer + 'users/model');
-var Preferences = require(relativeToServer + 'users/preferences/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Promise = require('bluebird');
@@ -188,17 +187,11 @@ describe('Notifications', function () {
             var authHeader = '';
             Users._findOne({email: 'one@first.com'})
                 .then(function (user) {
+                    user.preferences.notifications.userGroups.blocked.push('abc123');
                     return user.loginSuccess('test', 'test').save();
                 })
                 .then(function (u) {
                     authHeader = tu.authorizationHeader(u);
-                    return Preferences._findOne({email: 'one@first.com'});
-                })
-                .then(function (p) {
-                    p.notifications.userGroups.blocked.push('abc123');
-                    return p.save();
-                })
-                .then(function () {
                     var request = {
                         method: 'GET',
                         url: '/notifications',

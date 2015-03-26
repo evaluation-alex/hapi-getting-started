@@ -10,6 +10,7 @@ var validAndPermitted = require('./../../common/prereqs/valid-permitted');
 var prePopulate = require('./../../common/prereqs/pre-populate');
 var PostContent = require('./post-content');
 var errors = require('./../../common/errors');
+var utils = require('./../../common/utils');
 var Promise = require('bluebird');
 
 /*jshint unused:false*/
@@ -83,7 +84,7 @@ var Controller = new ControllerFactory(Posts)
         prePopulate(Blogs, 'blogId')
     ], function uniqueCheckQuery (request) {
         return {
-            blogId: request.params.blogId, //TODO: look at query as well, but that doesnt seem to be working right now
+            blogId: utils.lookupParamsOrPayloadOrQuery(request, 'blogId'),
             organisation: request.auth.credentials.user.organisation,
             title: request.payload.title,
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
@@ -127,24 +128,12 @@ var Controller = new ControllerFactory(Posts)
         }
     }, function buildFindQuery (request) {
         var query = {};
-        var fields = [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']];
-        _.forEach(fields, function (pair) {
-            if (request.query[pair[0]]) {
-                query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
-            }
-        });
-        if (request.query.blogId || request.params.blogId) {
-            var blogId = request.query.blogId ? request.query.blogId : request.params.blogId;
+        utils.buildQueryFromRequestForFields(query, request, [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]);
+        var blogId = utils.lookupParamsOrPayloadOrQuery(request, 'blogId');
+        if (blogId) {
             query.blogId = Blogs.ObjectID(blogId);
         }
-        if (request.query.publishedOnBefore) {
-            query.publishedOn = {};
-            query.publishedOn.$lte = moment(request.query.publishedOnBefore, ['YYYY-MM-DD']).toDate();
-        }
-        if (request.query.publishedOnAfter) {
-            query.publishedOn = query.publishedOn || {};
-            query.publishedOn.$gte = moment(request.query.publishedOnAfter, ['YYYY-MM-DD']).toDate();
-        }
+        utils.buildQueryFromRequestForDateFields(query, request, 'publishedOn');
         return query;
     }, function enrichPosts (output) {
         return Promise.all(PostContent.readContentMultiple(output.data)

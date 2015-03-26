@@ -34,12 +34,12 @@ describe('Audit', function () {
     describe('GET /audit', function () {
         describe('users', function () {
             beforeEach(function (done) {
-                Users.create('test.users@test.api', 'password123', 'silver lining')
+                Users.create('test.users@test.api', 'silver lining', 'password123', 'en')
                     .then(function (newUser) {
                         return newUser.loginSuccess('test', 'test').save();
                     })
                     .then(function () {
-                        return Users.create('test.users2@test.api', 'password123', 'silver lining');
+                        return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
                     })
                     .then(function (newUser2) {
                         return newUser2.loginSuccess('test', 'test').save();

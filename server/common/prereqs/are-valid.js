@@ -5,17 +5,18 @@ var utils = require('./../utils');
 var Users = require('./../../users/model');
 var UserGroups = require('./../../user-groups/model');
 var errors = require('./../errors');
+var utils = require('./../utils');
 
 var areValid = function areValid (Model, payloadPropertiesToLookup) {
     return function areValidObjects (request, reply) {
         var toLookup = [];
         payloadPropertiesToLookup.forEach(function (payloadPropertyToLookup){
-            if (request.payload[payloadPropertyToLookup] && request.payload[payloadPropertyToLookup].length > 0) {
+            if (utils.hasItems(request.payload[payloadPropertyToLookup])) {
                 toLookup.push(request.payload[payloadPropertyToLookup]);
             }
         });
         toLookup = _.flatten(toLookup);
-        if (toLookup.length > 0) {
+        if (utils.hasItems(toLookup)) {
             Model.areValid(toLookup, request.auth.credentials.user.organisation)
                 .then(function (validated) {
                     var msg = '';

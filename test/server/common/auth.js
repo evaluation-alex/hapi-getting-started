@@ -2,7 +2,6 @@
 var relativeToServer = './../../../server/';
 
 var Users = require(relativeToServer + 'users/model');
-var Preferences = require(relativeToServer + 'users/preferences/model');
 var ensurePermissions = require(relativeToServer + 'common/prereqs/ensure-permissions');
 var moment = require('moment');
 //var expect = require('chai').expect;
@@ -27,14 +26,13 @@ describe('Auth', function () {
                 server = res.server;
             })
             .then(function () {
-                return Users.create(email, 'auth123', 'silver lining');
+                return Users.create(email, 'silver lining', 'auth123', 'en');
             })
             .then(function (user) {
                 return user.loginSuccess('test', 'test').save();
             })
             .then(function (user) {
                 authheader = tu.authorizationHeader(user);
-                return Preferences.create(email, 'silver lining', 'en', 'test');
             })
             .then(function () {
                 done();
@@ -57,7 +55,6 @@ describe('Auth', function () {
                     expect(credentials).to.exist();
                     expect(credentials.user).to.be.an.instanceof(Users);
                     expect(credentials.user._roles).to.exist();
-                    expect(credentials.user.preferences).to.exist();
                     reply('ok').takeover();
                 });
             }

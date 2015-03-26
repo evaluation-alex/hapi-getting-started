@@ -6,7 +6,7 @@ var readFileP = Promise.promisify(require('fs').readFile);
 var writeFile = require('fs').writeFile;
 var LRUCache = require('lru-cache');
 var _ = require('lodash');
-var logger = Config.logger;
+var utils = require('./../../common/utils');
 
 var cache = new LRUCache({
     max: 100 * 1024 * 1024, length: function length (n) {
@@ -33,11 +33,7 @@ module.exports.writeContent = function writeContent (post, content) {
     if (!_.isUndefined(content) && content.length > 0) {
         var filename = module.exports.filenameForPost(post);
         cache.set(filename, content);
-        writeFile(Config.storage.diskPath + filename, content, {}, function errHandler (err) {
-            if (err) {
-                logger.error({error: err, stack: err.stack});
-            }
-        });
+        writeFile(Config.storage.diskPath + filename, content, {}, utils.errback);
     }
     return post;
 };
@@ -52,10 +48,7 @@ module.exports.readContent = function readContent (post) {
                 content = content.toString();
                 cache.set(filename, content);
                 return content;
-            }, function (err) {
-                logger.error({error: err, stack: err.stack});
-                return JSON.stringify(err);
-            });
+            }, utils.errback);
     }
 };
 

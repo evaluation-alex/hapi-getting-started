@@ -2,7 +2,6 @@
 var relativeToServer = './../../../server/';
 
 var Users = require(relativeToServer + 'users/model');
-var Preferences = require(relativeToServer + 'users/preferences/model');
 var Audit = require(relativeToServer + 'audit/model');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
@@ -28,7 +27,7 @@ describe('Users', function () {
             })
             .then(function () {
                 emails.push('test.users@test.api');
-                return Users.create('test.users@test.api', 'password123', 'silver lining');
+                return Users.create('test.users@test.api', 'silver lining', 'password123', 'en');
             })
             .then(function (newUser) {
                 newUser.loginSuccess('test', 'test').save();
@@ -133,7 +132,7 @@ describe('Users', function () {
                     authheader = tu.authorizationHeader(foundUser);
                 }).
                 then(function () {
-                    return Users.create('test.users2@test.api', 'password123', 'silver lining');
+                    return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
                 })
                 .then(function (newUser) {
                     return newUser.loginSuccess('test', 'test').save();
@@ -326,7 +325,7 @@ describe('Users', function () {
                 .then(function (foundUser) {
                     authheader = tu.authorizationHeader(foundUser);
                     emails.push('test.users2@test.api');
-                    return Users.create('test.users2@test.api', 'password123', 'silver lining');
+                    return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
                 })
                 .then(function (newUser) {
                     newUser.loginSuccess('test', 'test').save();
@@ -558,10 +557,6 @@ describe('Users', function () {
                         })
                         .then(function (foundLogin) {
                             expect(foundLogin).to.exist();
-                            return Preferences._findOne({email: 'test.signup2@signup.api'});
-                        })
-                        .then(function (pref) {
-                            expect(pref).to.exist();
                             emails.push(request.payload.email);
                             done();
                         });

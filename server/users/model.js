@@ -13,6 +13,7 @@ var IsActive = require('./../common/mixins/is-active');
 var Save = require('./../common/mixins/save');
 var CAudit = require('./../common/mixins/audit');
 var Session = require('./session/model');
+var Preferences = require('./preferences/model');
 var _ = require('lodash');
 var errors = require('./../common/errors');
 
@@ -21,10 +22,6 @@ var Users = BaseModel.extend({
     constructor: function user (attrs) {
         ObjectAssign(this, attrs);
         Object.defineProperty(this, '_roles', {
-            writable: true,
-            enumerable: false
-        });
-        Object.defineProperty(this, 'preferences', {
             writable: true,
             enumerable: false
         });
@@ -42,11 +39,13 @@ Promisify(Users, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']
 _.extend(Users, new Insert('email', 'signup'));
 _.extend(Users, new AreValid('email'));
 _.extend(Users, Session);
+_.extend(Users, Preferences);
 _.extend(Users.prototype, new IsActive());
 _.extend(Users.prototype, new Properties(['isActive', 'roles']));
 _.extend(Users.prototype, new Save(Users));
 _.extend(Users.prototype, new CAudit(Users._collection, 'email'));
 _.extend(Users.prototype, Session.prototype);
+_.extend(Users.prototype, Preferences.prototype);
 
 Users.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
     var self = this;
@@ -63,7 +62,7 @@ Users.prototype.resetPasswordSent = function resetPasswordSent (by) {
     };
     return self._audit('reset password sent', null, self.resetPwd, by);
 };
-Users.prototype.resetPassword = function resetPassword (newPassword, by) {
+Users.prototype.setPassword = function setPassword (newPassword, by) {
     var self = this;
     if (newPassword) {
         var oldPassword = self.password;
@@ -90,12 +89,11 @@ Users.prototype.afterLogin = function afterLogin () {
         authHeader: 'Basic ' + new Buffer(self.email + ':' + self.session.key).toString('base64')
     };
 };
-Users.prototype.update = function update (doc, by) {
+Users.prototype.updateUser = function update (doc, by) {
     var self = this;
-    return self._invalidateSession()
-        .setIsActive(doc.payload.isActive, by)
+    return self.setIsActive(doc.payload.isActive, by)
         .setRoles(doc.payload.roles, by)
-        .resetPassword(doc.payload.password, by);
+        .setPassword(doc.payload.password, by);
 };
 
 Users.schema = Joi.object().keys({
@@ -109,6 +107,7 @@ Users.schema = Joi.object().keys({
         expires: Joi.date().required()
     }),
     session: Session.schema,
+    preferences: Preferences.schema,
     isActive: Joi.boolean().default(true),
     createdBy: Joi.string(),
     createdOn: Joi.date(),
@@ -121,7 +120,7 @@ Users.indexes = [
     [{email: 1, organisation: 1}, {unique: true}]
 ];
 
-Users.create = function create (email, password, organisation) {
+Users.create = function create (email, organisation, password, locale) {
     var self = this;
     var hash = Bcrypt.hashSync(password, 10);
     var document = {
@@ -130,6 +129,44 @@ Users.create = function create (email, password, organisation) {
         organisation: organisation,
         roles: ['readonly'],
         session: {},
+        preferences: {
+            notifications: {
+                blogs: {
+                    inapp: {
+                        frequency: 'immediate',
+                        lastSent: undefined
+                    },
+                    email: {
+                        frequency: 'daily',
+                        lastSent: undefined
+                    },
+                    blocked: []
+                },
+                posts: {
+                    inapp: {
+                        frequency: 'immediate',
+                        lastSent: undefined
+                    },
+                    email: {
+                        frequency: 'daily',
+                        lastSent: undefined
+                    },
+                    blocked: []
+                },
+                userGroups: {
+                    inapp: {
+                        frequency: 'immediate',
+                        lastSent: undefined
+                    },
+                    email: {
+                        frequency: 'daily',
+                        lastSent: undefined
+                    },
+                    blocked: []
+                }
+            },
+            locale: locale
+        },
         isActive: true,
         createdBy: email,
         createdOn: new Date(),

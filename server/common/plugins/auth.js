@@ -1,6 +1,5 @@
 'use strict';
 var Users = require('./../../users/model');
-var Preferences = require('./../../users/preferences/model');
 var Roles = require('./../../users/roles/model');
 var Promise = require('bluebird');
 var logger = require('./../../../config').logger;
@@ -10,12 +9,10 @@ var loginValidation = function loginValidation (email, sessionkey, callback) {
     Users.findBySessionCredentials(email, sessionkey)
         .then(function (user) {
             logger.info(['auth'], {user: email, success: true});
-            var roles = Roles._find({name: {$in: user.roles}, organisation: user.organisation});
-            var preferences = Preferences._findOne({email: user.email, organisation: user.organisation});
-            Promise.join(roles, preferences, function (roles, prefs) {
-                user._roles = roles;
-                user.preferences = prefs;
-                callback(null, true, {user: user});
+            Roles._find({name: {$in: user.roles}, organisation: user.organisation})
+                .then(function (roles) {
+                    user._roles = roles;
+                    callback(null, true, {user: user});
             });
         })
         .catch(errors.UserNotFoundError,

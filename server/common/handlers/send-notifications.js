@@ -1,7 +1,7 @@
 'use strict';
-var logger = require('./../../../config').logger;
 var Promise = require('bluebird');
 var Notifications = require('./../../users/notifications/model');
+var utils = require('./../utils');
 
 module.exports = function SendNotifications (model, notifyCb) {
     return function onNotify (target, request) {
@@ -14,7 +14,7 @@ module.exports = function SendNotifications (model, notifyCb) {
         };
         return notifyHook(target, request)
             .then(function (args) {
-                if (args.to && args.to.length > 0) {
+                if (utils.hasItems(args.to)) {
                     return Notifications.create(args.to,
                         target.organisation,
                         model._collection,
@@ -28,11 +28,7 @@ module.exports = function SendNotifications (model, notifyCb) {
                 }
                 return undefined;
             })
-            .catch(function (err) {
-                if (err) {
-                    logger.error({error: err});
-                }
-            })
+            .catch(utils.errback)
             .done();
     };
 };

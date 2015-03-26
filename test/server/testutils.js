@@ -17,7 +17,6 @@ var Posts = require(relativeToServer + 'blogs/posts/model');
 var AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
 var Roles = require(relativeToServer + 'users/roles/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
-var Preferences = require(relativeToServer + 'users/preferences/model');
 
 var _ = require('lodash');
 
@@ -83,13 +82,10 @@ function setupRootUser () {
     return new Promise(function (resolve, reject) {
         Users._findOne({email: 'root'})
             .then(function (found) {
-                Preferences.remove({email: 'root'}, function (err) {
-                    Preferences.create('root', 'silver lining', 'en', 'test');
-                });
                 if (found) {
-                    resolve(found.setRoles(['root'], 'testSetup').save());
+                    resolve(found.setRoles(['root'], 'testSetup').resetPrefs().save());
                 } else {
-                    Users.create('root', 'password123', 'silver lining', 'test')
+                    Users.create('root', 'silver lining', 'password123', 'en')
                         .then(function (rt) {
                             resolve(rt.setRoles(['root'], 'testSetup').save());
                         });
@@ -102,13 +98,10 @@ function setupFirstUser () {
     return new Promise(function (resolve, reject) {
         Users._findOne({email: 'one@first.com'})
             .then(function (found) {
-                Preferences.remove({email: 'one@first.com'}, function (err) {
-                    Preferences.create('one@first.com', 'silver lining', 'en', 'test');
-                });
                 if (found) {
-                    resolve(found);
+                    resolve(found.resetPrefs().save());
                 } else {
-                    resolve(Users.create('one@first.com', 'password', 'silver lining', 'test'));
+                    resolve(Users.create('one@first.com', 'silver lining', 'password', 'en'));
                 }
             });
     });
@@ -195,10 +188,8 @@ exports.setupServer = setupServer;
 function cleanupUsers (usersToCleanup) {
     return new Promise(function (resolve, reject) {
         if (usersToCleanup && usersToCleanup.length > 0) {
-            Users.remove({email: {$in: usersToCleanup}}, function (err1) {
-                Preferences.remove({email: {$in: usersToCleanup}}, function (err2) {
-                    err1 || err2 ? reject({err1: err1, err2: err2}) : resolve(true);
-                });
+            Users.remove({email: {$in: usersToCleanup}}, function (err) {
+                err ? reject(err) : resolve(true);
             });
         } else {
             resolve(true);

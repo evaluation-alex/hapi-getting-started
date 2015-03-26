@@ -12,6 +12,7 @@ var PostContent = require('./post-content');
 var errors = require('./../../common/errors');
 var utils = require('./../../common/utils');
 var Promise = require('bluebird');
+var Hoek = require('hoek');
 
 /*jshint unused:false*/
 var stateBasedNotificationSend = {
@@ -91,15 +92,11 @@ var Controller = new ControllerFactory(Posts)
         };
     }, function newPost (request, by) {
         var blog = request.pre.blogs;
-        request.payload.access = _.isUndefined(request.payload.access) ?
-            blog.access :
-            request.payload.access;
-        request.payload.allowComments = _.isUndefined(request.payload.allowComments) ?
-            blog.allowComments :
-            request.payload.allowComments;
-        request.payload.needsReview = _.isUndefined(request.payload.needsReview) ?
-            blog.needsReview :
-            request.payload.needsReview;
+        request.payload = Hoek.applyToDefaults(request.payload, {
+            access: blog.access,
+            allowComments: blog.allowComments,
+            needsReview: blog.needsReview
+        });
         if (request.payload.state === 'published') {
             if (request.payload.needsReview && !(blog._isMemberOf('owners', by) || by === 'root')) {
                 request.payload.state = 'pending review';
@@ -189,7 +186,7 @@ var Controller = new ControllerFactory(Posts)
     function publish (post, request, by) {
         if (['draft', 'pending review'].indexOf(post.state) !== -1) {
             var blog = request.pre.blogs;
-            if ((_.findWhere(blog.owners, by) || by === 'root') || (!post.needsReview)) {
+            if ((blog._isMemberOf('owners', by) || by === 'root') || (!post.needsReview)) {
                 request.payload.state = 'published';
                 post.reviewedBy = by;
                 post.reviewedOn = new Date();

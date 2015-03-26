@@ -22,7 +22,6 @@ module.exports.toStatsD = function toStatsD (route, statusCode, user, device, br
 module.exports.errback = function errback (err) {
     if (err) {
         logger.error({error: err, stack: err.stack});
-        return JSON.stringify({error: err});
     }
 };
 
@@ -73,8 +72,9 @@ module.exports.buildQueryFromRequestForDateFields = function buildQueryFromReque
     var before = field + 'Before';
     var after = field + 'After';
     if (request.query[before]) {
-        query[field] = query[field] || {};
-        query[field].$lte = moment(request.query[before], ['YYYY-MM-DD']).toDate();
+        query[field] = {
+            $lte: moment(request.query[before], ['YYYY-MM-DD']).toDate()
+        };
     }
     if (request.query[after]) {
         query[field] = query[field] || {};

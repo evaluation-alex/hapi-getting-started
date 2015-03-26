@@ -1165,6 +1165,7 @@ describe('UserGroups', function () {
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(0);
+                                    groupsToClear.push('testPutRejectGroupAddUserEmpty');
                                     done();
                                 });
                         } catch (err) {

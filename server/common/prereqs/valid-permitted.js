@@ -1,8 +1,6 @@
 'use strict';
-var Boom = require('boom');
 var _ = require('lodash');
 var utils = require('./../utils');
-var i18n = require('./../../../config').i18n;
 var Promise = require('bluebird');
 var errors = require('./../errors');
 

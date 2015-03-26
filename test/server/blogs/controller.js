@@ -1040,8 +1040,8 @@ describe('Blogs', function () {
                                     return Audit.findAudit('blogs', 'testBlogPutApproveAddUserEmpty', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
-                                    blogsToClear.push('testBlogPutApproveAddUserEmpty');
                                     expect(foundAudit.length).to.equal(0);
+                                    blogsToClear.push('testBlogPutApproveAddUserEmpty');
                                     done();
                                 });
                         } catch (err) {
@@ -1248,6 +1248,7 @@ describe('Blogs', function () {
                                 })
                                 .then(function (foundAudit) {
                                     expect(foundAudit.length).to.equal(0);
+                                    blogsToClear.push('testPutRejectBlogAddUserEmpty');
                                     done();
                                 });
                         } catch (err) {

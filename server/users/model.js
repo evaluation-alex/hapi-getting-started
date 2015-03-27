@@ -3,7 +3,6 @@ var BaseModel = require('hapi-mongo-models').BaseModel;
 var ObjectAssign = require('object-assign');
 var Joi = require('joi');
 var Uuid = require('node-uuid');
-var Bcrypt = require('bcrypt');
 var Promise = require('bluebird');
 var Promisify = require('./../common/mixins/promisify');
 var Insert = require('./../common/mixins/insert');
@@ -16,6 +15,7 @@ var Session = require('./session/model');
 var Preferences = require('./preferences/model');
 var _ = require('lodash');
 var errors = require('./../common/errors');
+var utils = require('./../common/utils');
 
 var Users = BaseModel.extend({
     /* jshint -W064 */
@@ -66,7 +66,7 @@ Users.prototype.setPassword = function setPassword (newPassword, by) {
     var self = this;
     if (newPassword) {
         var oldPassword = self.password;
-        var newHashedPassword = Bcrypt.hashSync(newPassword, 10);
+        var newHashedPassword = utils.secureHash(newPassword);
         self.password = newHashedPassword;
         delete self.resetPwd;
         self._invalidateSession();
@@ -123,7 +123,7 @@ Users.indexes = [
 
 Users.create = function create (email, organisation, password, locale) {
     var self = this;
-    var hash = Bcrypt.hashSync(password, 10);
+    var hash = utils.secureHash(password);
     var document = {
         email: email,
         password: hash,
@@ -184,7 +184,7 @@ Users.findByCredentials = function findByCredentials (email, password) {
             if (!user) {
                 return Promise.reject(new errors.UserNotFoundError({email: email}));
             }
-            var passwordMatch = Bcrypt.compareSync(password, user.password);
+            var passwordMatch = utils.secureCompare(password, user.password);
             if (!passwordMatch) {
                 return Promise.reject(new errors.IncorrectPasswordError({email: email}));
             }

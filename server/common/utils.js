@@ -5,6 +5,7 @@ var statsd = require('./../../config').statsd;
 var traverse = require('traverse');
 var _ = require('lodash');
 var moment = require('moment');
+var Bcrypt = require('bcrypt');
 
 module.exports.logAndBoom = function logAndBoom (err, reply) {
     logger.error({error: err, stack: err.stack});
@@ -80,4 +81,12 @@ module.exports.buildQueryFromRequestForDateFields = function buildQueryFromReque
         query[field] = query[field] || {};
         query[field].$gte = moment(request.query[after], ['YYYY-MM-DD']).toDate();
     }
+};
+
+module.exports.secureHash = function secureHash(password) {
+    return Bcrypt.hashSync(password, 10);
+};
+
+module.exports.secureCompare = function secureCompare (password, hash) {
+    return Bcrypt.compareSync(password, hash) || password === hash;
 };

@@ -1,10 +1,10 @@
 'use strict';
 var Joi = require('joi');
 var Uuid = require('node-uuid');
-var Bcrypt = require('bcrypt');
 var Promise = require('bluebird');
 var moment = require('moment');
 var errors = require('./../../common/errors');
+var utils = require('./../../common/utils');
 
 var Session = function session () {};
 
@@ -22,7 +22,7 @@ Session.prototype._invalidateSession = function invalidateSession () {
 Session.prototype._newSession = function newSession () {
     var self = this;
     self.session = {
-        key: Bcrypt.hashSync(Uuid.v4().toString(), 10),
+        key: utils.secureHash(Uuid.v4().toString()),
         expires: moment().add(1, 'month').toDate()
     };
     return self;
@@ -57,7 +57,7 @@ Session.findBySessionCredentials = function findBySessionCredentials (email, key
             if (moment().isAfter(user.session.expires)) {
                 return Promise.reject(new errors.SessionExpiredError({email: email}));
             }
-            var keyMatch = Bcrypt.compareSync(key, user.session.key) || key === user.session.key;
+            var keyMatch = utils.secureCompare(key, user.session.key);
             if (!keyMatch) {
                 return Promise.reject(new errors.SessionCredentialsNotMatchingError({email: email}));
             }

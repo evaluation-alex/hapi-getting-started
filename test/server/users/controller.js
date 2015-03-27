@@ -3,6 +3,8 @@ var relativeToServer = './../../../server/';
 
 var Users = require(relativeToServer + 'users/model');
 var Audit = require(relativeToServer + 'audit/model');
+var Mailer = require(relativeToServer + 'common/plugins/mailer');
+var Promise = require('bluebird');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -610,6 +612,30 @@ describe('Users', function () {
                             done();
                         });
                 } catch (err) {
+                    done(err);
+                }
+            });
+        });
+
+        it('gracefully handles errors and sends back boom message', function (done) {
+            var prev = Mailer.sendEmail;
+            Mailer.sendEmail = function () {
+                return Promise.reject(new Error('test'));
+            };
+            var request = {
+                method: 'POST',
+                url: '/login/forgot',
+                payload: {
+                    email: 'test.users@test.api'
+                }
+            };
+            server.inject(request, function (response) {
+                try {
+                    expect(response.statusCode).to.equal(500);
+                    Mailer.sendEmail = prev;
+                    done();
+                } catch (err) {
+                    Mailer.sendEmail = prev;
                     done(err);
                 }
             });

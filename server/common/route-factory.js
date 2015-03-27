@@ -61,9 +61,7 @@ RouteFactory.prototype.withController = function withController (controller) {
     if (controller.validate) {
         self.withValidation(controller.validate);
     }
-    if (controller.pre) {
-        self.preProcessWith(controller.pre);
-    }
+    self.preProcessWith(controller.pre);
     return self;
 };
 RouteFactory.prototype._defaultRoute = function _defaultRoute (method, path, controller) {

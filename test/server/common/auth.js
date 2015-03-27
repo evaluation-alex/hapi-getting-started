@@ -3,6 +3,7 @@ var relativeToServer = './../../../server/';
 
 var Users = require(relativeToServer + 'users/model');
 var ensurePermissions = require(relativeToServer + 'common/prereqs/ensure-permissions');
+var Promise = require('bluebird');
 var moment = require('moment');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
@@ -255,7 +256,7 @@ describe('Auth', function () {
         });
     });
 
-    it ('returns a session expired when the session has expired', function (done) {
+    it('returns a session expired when the session has expired', function (done) {
         server.route({
             method: 'GET',
             path: '/',
@@ -290,6 +291,41 @@ describe('Auth', function () {
                 });
             })
             .done();
+    });
+
+    it('does adequate error handling and logging when errors occur', function (done) {
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+                server.auth.test('simple', request, function (err, credentials) {
+                    expect(err).to.be.an.instanceof(Error);
+                    expect(credentials).to.not.exist();
+                    reply('ok');
+                });
+            }
+        });
+
+        var prev = Users.findBySessionCredentials;
+        Users.findBySessionCredentials = function () {
+            return Promise.reject(new Error('test'));
+        };
+        var request = {
+            method: 'GET',
+            url: '/',
+            headers: {
+                Authorization: authheader
+            }
+        };
+        server.inject(request, function () {
+            try {
+                Users.findBySessionCredentials = prev;
+                done();
+            } catch (err) {
+                Users.findBySessionCredentials = prev;
+                done(err);
+            }
+        });
     });
 
     afterEach(function (done) {

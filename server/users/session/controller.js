@@ -48,7 +48,7 @@ var Controller = new ControllerFactory()
             });
     })
     .forMethod('logout')
-    .handleUsing(function logoutHandler(request, reply) {
+    .handleUsing(function logoutHandler (request, reply) {
         var user = request.auth.credentials.user;
         user.logout(request.info.remoteAddress, user.email).save()
             .then(function () {

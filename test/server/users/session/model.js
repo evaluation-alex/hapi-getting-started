@@ -1,8 +1,8 @@
 'use strict';
 var relativeToServer = './../../../../server/';
 
-var Users = require(relativeToServer+'users/model');
-var Audit = require(relativeToServer+'audit/model');
+var Users = require(relativeToServer + 'users/model');
+var Audit = require(relativeToServer + 'audit/model');
 var moment = require('moment');
 //var expect = require('chai').expect;
 var tu = require('./../../testutils');
@@ -20,7 +20,7 @@ describe('Session Model', function () {
     var secondEmail = 'test.search@session.module';
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function() {
+            .then(function () {
                 return Users.create(firstEmail, 'silver lining', 'passwor', 'en');
             })
             .then(function () {
@@ -91,7 +91,7 @@ describe('Session Model', function () {
                     user.session.expires = moment().subtract(5, 'days').toDate();
                     return user.save();
                 })
-                .then(function(user) {
+                .then(function (user) {
                     return Users.findBySessionCredentials(secondEmail, user.session.key);
                 })
                 .then(function (foundUser) {
@@ -112,7 +112,7 @@ describe('Session Model', function () {
                 .then(function (user) {
                     return user.logout('tests').save();
                 })
-                .then(function() {
+                .then(function () {
                     return Users.findBySessionCredentials(secondEmail, 'something');
                 })
                 .then(function (foundUser) {
@@ -137,7 +137,7 @@ describe('Session Model', function () {
                     return user.loginSuccess('test', 'test').save();
                 }).then(function (user) {
                     expect(user.session).to.exist();
-                    return Audit.findAudit('users',  user.email, {'change.action': 'login success'});
+                    return Audit.findAudit('users', user.email, {'change.action': 'login success'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -156,13 +156,13 @@ describe('Session Model', function () {
     describe('Session.this.logout', function () {
         it('should remove the session object on the user and should create an audit entry', function (done) {
             var error = null;
-            Users._findOne({email:firstEmail})
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     return user.logout('test', 'test').save();
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
-                    return Audit.findAudit('users',  user.email, {'change.action': 'logout'});
+                    return Audit.findAudit('users', user.email, {'change.action': 'logout'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -181,13 +181,13 @@ describe('Session Model', function () {
     describe('Session.this.loginFail', function () {
         it('should remove the session object on the user and should create an audit entry', function (done) {
             var error = null;
-            Users._findOne({email:firstEmail})
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     return user.loginFail('test', 'test').save();
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
-                    return Audit.findAudit('users',  user.email, {'change.action': 'login fail'});
+                    return Audit.findAudit('users', user.email, {'change.action': 'login fail'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);

@@ -1,9 +1,9 @@
 'use strict';
 var relativeToServer = './../../../server/';
 
-var Users = require(relativeToServer+'users/model');
-var Audit = require(relativeToServer+'audit/model');
-var Roles = require(relativeToServer+'users/roles/model');
+var Users = require(relativeToServer + 'users/model');
+var Audit = require(relativeToServer + 'audit/model');
+var Roles = require(relativeToServer + 'users/roles/model');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -20,7 +20,7 @@ describe('Users Model', function () {
     var secondEmail = 'test.search@users.module';
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function() {
+            .then(function () {
                 done();
             });
     });
@@ -129,7 +129,7 @@ describe('Users Model', function () {
                     tu.testComplete(done, error);
                 });
         });
-        it('should return an object with as many entries as emails sent, appropriately populated', function(done) {
+        it('should return an object with as many entries as emails sent, appropriately populated', function (done) {
             var error = null;
             Users.areValid([firstEmail, secondEmail, 'bogus'], 'silver lining')
                 .then(function (result) {
@@ -153,7 +153,7 @@ describe('Users Model', function () {
             var error = null;
             Users._findOne({email: firstEmail})
                 .then(function (user) {
-                    return Roles._find({name : {$in: user.roles}})
+                    return Roles._find({name: {$in: user.roles}})
                         .then(function (roles) {
                             user._roles = roles;
                             return user;
@@ -176,7 +176,7 @@ describe('Users Model', function () {
             var error = null;
             Users._findOne({email: 'root'})
                 .then(function (user) {
-                    return Roles._find({name : {$in: user.roles}})
+                    return Roles._find({name: {$in: user.roles}})
                         .then(function (roles) {
                             user._roles = roles;
                             return user;
@@ -199,12 +199,12 @@ describe('Users Model', function () {
     describe('Users.this.setPassword, Users.this.resetPasswordSent', function () {
         it('resetPasswordsSent should create audit entries', function (done) {
             var error = null;
-            Users._findOne({email:firstEmail})
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     return user.resetPasswordSent('test').save();
                 })
                 .then(function (user) {
-                    return Audit.findAudit('users',  user.email, {'change.action': 'reset password sent'});
+                    return Audit.findAudit('users', user.email, {'change.action': 'reset password sent'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -219,13 +219,13 @@ describe('Users Model', function () {
         });
         it('resetPassword should create audit entries and invalidate sessions', function (done) {
             var error = null;
-            Users._findOne({email:firstEmail})
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     return user.setPassword('new password confirm', 'test').save();
                 })
                 .then(function (user) {
                     expect(user.session).to.not.exist();
-                    return Audit.findAudit('users',  user.email, {'change.action': 'reset password'});
+                    return Audit.findAudit('users', user.email, {'change.action': 'reset password'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -243,13 +243,13 @@ describe('Users Model', function () {
     describe('Users.this.setRoles', function () {
         it('update Roles should create audit entries and invalidate sessions', function (done) {
             var error = null;
-            Users._findOne({email:firstEmail})
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     return user.setRoles(['root'], 'test').save();
                 }).then(function (user) {
                     expect(user.session).to.not.exist();
                     expect(user.roles).to.include(['root']);
-                    return Audit.findAudit('users',  user.email, {'change.action': 'roles'});
+                    return Audit.findAudit('users', user.email, {'change.action': 'roles'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -268,13 +268,13 @@ describe('Users Model', function () {
     describe('Users.this.reactivate, Users.this.deactivate', function () {
         it('deactivate should create audit entries and invalidate sessions and mark user as inactive', function (done) {
             var error = null;
-            Users._findOne({email:firstEmail})
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     return user.deactivate('test').save();
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.false();
-                    return Audit.findAudit('users',  user.email, {'change.action': 'isActive'});
+                    return Audit.findAudit('users', user.email, {'change.action': 'isActive'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
@@ -290,13 +290,13 @@ describe('Users Model', function () {
         });
         it('reactivate should create audit entries and the user should be active again', function (done) {
             var error = null;
-            Users._findOne({email:firstEmail})
+            Users._findOne({email: firstEmail})
                 .then(function (user) {
                     return user.reactivate('test').save();
                 })
                 .then(function (user) {
                     expect(user.isActive).to.be.true();
-                    return Audit.findAudit('users',  user.email, {'change.action': 'isActive'});
+                    return Audit.findAudit('users', user.email, {'change.action': 'isActive'});
                 })
                 .then(function (userAudit) {
                     expect(userAudit.length).to.equal(2);

@@ -600,7 +600,7 @@ describe('UserGroups', function () {
                                                 });
                                                 clearTimeout(ct);
                                             });
-                                    } ,1000);
+                                    }, 1000);
                                 });
                         } catch (err) {
                             groupsToClear.push('testPutJoinGroupAddUser');
@@ -794,7 +794,7 @@ describe('UserGroups', function () {
                                                 });
                                                 clearTimeout(ct);
                                             });
-                                    } ,1000);
+                                    }, 1000);
                                 });
                         } catch (err) {
                             groupsToClear.push('testPutLeaveGroupAddUser');
@@ -868,7 +868,7 @@ describe('UserGroups', function () {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
                     return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguy'}, 'test');
                 })
-                .then(function() {
+                .then(function () {
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/approve',
@@ -934,7 +934,7 @@ describe('UserGroups', function () {
                     id = ug._id.toString();
                     return ug.add(['one@first.com', 'someotherguy'], 'needsApproval', 'test').remove(['test'], 'owners', 'test').save();
                 })
-                .then(function() {
+                .then(function () {
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/approve',
@@ -975,7 +975,7 @@ describe('UserGroups', function () {
                     id = ug._id.toString();
                     return ug.add(['one@first.com'], 'needsApproval', 'test').save();
                 })
-                .then(function() {
+                .then(function () {
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (u) {
@@ -1076,7 +1076,7 @@ describe('UserGroups', function () {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
                     return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
-                .then(function() {
+                .then(function () {
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/reject',
@@ -1113,7 +1113,7 @@ describe('UserGroups', function () {
                                                 Notifications.remove({
                                                     objectType: 'user-groups',
                                                     objectId: UserGroups.ObjectID(id)
-                                                }, function(err, count) {
+                                                }, function (err, count) {
                                                     groupsToClear.push('testPutRejectGroupAddUser');
                                                     if (err) {
                                                         done(err);
@@ -1143,7 +1143,7 @@ describe('UserGroups', function () {
                     id = ug._id.toString();
                     return ug.add(['one@first.com'], 'needsApproval', 'test').remove(['test'], 'owners', 'test').save();
                 })
-                .then(function() {
+                .then(function () {
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/reject',
@@ -1183,7 +1183,7 @@ describe('UserGroups', function () {
                     id = ug._id.toString();
                     return ug.add(['one@first.com'], 'needsApproval', 'test').save();
                 })
-                .then(function() {
+                .then(function () {
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (u) {

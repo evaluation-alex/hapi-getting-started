@@ -50,11 +50,11 @@ AuthAttempts.create = function create (ip, email) {
 AuthAttempts.abuseDetected = function abuseDetected (ip, email) {
     var self = this;
     return Promise.join(self._count({ip: ip}), self._count({ip: ip, email: email}),
-            function (abusiveIpCount, abusiveIpUserCount) {
-                var ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;
-                var ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
-                return (ipLimitReached || ipUserLimitReached);
-            });
+        function (abusiveIpCount, abusiveIpUserCount) {
+            var ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;
+            var ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
+            return (ipLimitReached || ipUserLimitReached);
+        });
 };
 
 module.exports = AuthAttempts;

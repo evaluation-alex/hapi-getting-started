@@ -183,7 +183,7 @@ describe('Notifications', function () {
                 }
             });
         });
-        it ('should filter out blocked notifications based on preferences', function (done) {
+        it('should filter out blocked notifications based on preferences', function (done) {
             var authHeader = '';
             Users._findOne({email: 'one@first.com'})
                 .then(function (user) {

@@ -23,7 +23,7 @@ describe('Utils', function () {
         Config.logger = prev;
         done();
     });
-    it ('should do nothing when no error passed', function (done) {
+    it('should do nothing when no error passed', function (done) {
         var prev = Config.logger;
         Config.logger = {
             error: function () {
@@ -34,7 +34,7 @@ describe('Utils', function () {
         Config.logger = prev;
         done();
     });
-    it ('should lookup params first, then payload, then query', function (done) {
+    it('should lookup params first, then payload, then query', function (done) {
         expect(utils.lookupParamsOrPayloadOrQuery({}, 'f')).to.be.undefined();
         expect(utils.lookupParamsOrPayloadOrQuery({
             params: {

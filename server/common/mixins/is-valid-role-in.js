@@ -10,8 +10,7 @@ module.exports = function ValidAndPermitted () {
                     if (!g) {
                         return {message: 'not found'};
                     } else {
-                        if (member === 'root' ||
-                            !!_.find(roles, function (role) {
+                        if (member === 'root' || !!_.find(roles, function (role) {
                                 return g._isMemberOf(role, member);
                             })
                         ) {

@@ -67,7 +67,7 @@ describe('Preferences', function () {
                             Authorization: oneauthheader
                         },
                         payload: {
-                            preferences : {
+                            preferences: {
                                 locale: 'hi'
                             }
                         }
@@ -126,7 +126,7 @@ describe('Preferences', function () {
                                 locale: 'hi',
                                 notifications: {
                                     blogs: {
-                                        email : {
+                                        email: {
                                             frequency: 'daily'
                                         },
                                         addedBlocked: ['something']

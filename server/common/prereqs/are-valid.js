@@ -10,7 +10,7 @@ var utils = require('./../utils');
 var areValid = function areValid (Model, payloadPropertiesToLookup) {
     return function areValidObjects (request, reply) {
         var toLookup = [];
-        payloadPropertiesToLookup.forEach(function (payloadPropertyToLookup){
+        payloadPropertiesToLookup.forEach(function (payloadPropertyToLookup) {
             if (utils.hasItems(request.payload[payloadPropertyToLookup])) {
                 toLookup.push(request.payload[payloadPropertyToLookup]);
             }

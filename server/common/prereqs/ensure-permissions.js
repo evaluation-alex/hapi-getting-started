@@ -7,7 +7,8 @@ module.exports = function ensurePermissions (forAction, onObject) {
         method: function userRoleHasPerms (request, reply) {
             var ret = request.auth.credentials.user.hasPermissionsTo(forAction, onObject);
             if (!ret) {
-                return reply(new errors.NoPermissionsForActionError({action: forAction,
+                return reply(new errors.NoPermissionsForActionError({
+                    action: forAction,
                     object: onObject,
                     user: request.auth.credentials.user.email
                 }));

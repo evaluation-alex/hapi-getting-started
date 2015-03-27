@@ -12,7 +12,7 @@ var loginValidation = function loginValidation (email, sessionkey, callback) {
                 .then(function (roles) {
                     user._roles = roles;
                     callback(null, true, {user: user});
-            });
+                });
         })
         .catch(errors.UserNotFoundError,
         errors.UserNotLoggedInError,

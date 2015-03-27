@@ -242,11 +242,13 @@ function cleanupNotifications (toClear) {
             });
         }));
         if (notificationsToCleanup.length > 0) {
-            Notifications.remove({$or: [
-                {'title.1.title': {$in: notificationsToCleanup}},
-                {'title.1.postTitle' : {$in: notificationsToCleanup}},
-                {'title.1.name': {$in: notificationsToCleanup}}
-            ]}, function (err, count) {
+            Notifications.remove({
+                $or: [
+                    {'title.1.title': {$in: notificationsToCleanup}},
+                    {'title.1.postTitle': {$in: notificationsToCleanup}},
+                    {'title.1.name': {$in: notificationsToCleanup}}
+                ]
+            }, function (err, count) {
                 err ? reject(err) : resolve(true);
             });
         } else {

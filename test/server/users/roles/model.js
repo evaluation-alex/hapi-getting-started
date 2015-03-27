@@ -87,7 +87,7 @@ describe('Roles Model', function () {
                     }
                 });
         });
-        it ('should return true if you match a specific action, object combination', function (done) {
+        it('should return true if you match a specific action, object combination', function (done) {
             try {
                 expect(role.hasPermissionsTo('view', 'test')).to.be.true();
                 done();
@@ -97,7 +97,7 @@ describe('Roles Model', function () {
                 }
             }
         });
-        it ('should return true if you ask for view when you have update permissions set on the role for the givn object', function (done) {
+        it('should return true if you ask for view when you have update permissions set on the role for the givn object', function (done) {
             try {
                 expect(role.hasPermissionsTo('view', 'test2')).to.be.true();
                 done();
@@ -107,8 +107,8 @@ describe('Roles Model', function () {
                 }
             }
         });
-        it ('should return false if you dont match any permissions for the role', function (done) {
-            try{
+        it('should return false if you dont match any permissions for the role', function (done) {
+            try {
                 expect(role.hasPermissionsTo('view', 'test3')).to.be.false();
                 expect(role.hasPermissionsTo('update', 'test3')).to.be.false();
                 done();
@@ -118,7 +118,7 @@ describe('Roles Model', function () {
                 }
             }
         });
-        it ('should return true if you have permissions permissions on *', function (done) {
+        it('should return true if you have permissions permissions on *', function (done) {
             Roles._find({name: 'root', organisation: 'silver lining'})
                 .then(function (root) {
                     expect(root[0].hasPermissionsTo('view', 'test3')).to.be.true();
@@ -132,7 +132,7 @@ describe('Roles Model', function () {
                     }
                 });
         });
-        after(function(done) {
+        after(function (done) {
             rolesToClear.push('hasPermissions');
             done();
         });

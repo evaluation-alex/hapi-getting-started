@@ -5,7 +5,8 @@ var Properties = require('./../../common/mixins/properties');
 var Update = require('./../../common/mixins/update');
 var _ = require('lodash');
 
-var Preferences = function preferences () {};
+var Preferences = function preferences () {
+};
 
 _.extend(Preferences.prototype, new AddRemove([
     'preferences.notifications.blogs.blocked',
@@ -53,33 +54,33 @@ Preferences.prototype.resetPrefs = function resetPrefsToDefault () {
             blogs: {
                 inapp: {
                     frequency: 'immediate',
-                        lastSent: undefined
+                    lastSent: undefined
                 },
                 email: {
                     frequency: 'daily',
-                        lastSent: undefined
+                    lastSent: undefined
                 },
                 blocked: []
             },
             posts: {
                 inapp: {
                     frequency: 'immediate',
-                        lastSent: undefined
+                    lastSent: undefined
                 },
                 email: {
                     frequency: 'daily',
-                        lastSent: undefined
+                    lastSent: undefined
                 },
                 blocked: []
             },
             userGroups: {
                 inapp: {
                     frequency: 'immediate',
-                        lastSent: undefined
+                    lastSent: undefined
                 },
                 email: {
                     frequency: 'daily',
-                        lastSent: undefined
+                    lastSent: undefined
                 },
                 blocked: []
             }

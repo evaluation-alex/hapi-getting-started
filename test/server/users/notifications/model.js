@@ -17,7 +17,7 @@ var expect = Code.expect;
 describe('Notifications Model', function () {
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function() {
+            .then(function () {
                 done();
             });
     });
@@ -71,7 +71,7 @@ describe('Notifications Model', function () {
             activated.reactivate('test').save()
                 .then(function (a) {
                     expect(a.isActive).to.be.true();
-                    return Audit.findAudit('notifications',  a._id, {'change.action': {$regex: /^isActive/}});
+                    return Audit.findAudit('notifications', a._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -81,7 +81,7 @@ describe('Notifications Model', function () {
                 })
                 .then(function (d) {
                     expect(d.isActive).to.be.false();
-                    return Audit.findAudit('notifications',  d._id, {'change.action': {$regex: /^isActive/}});
+                    return Audit.findAudit('notifications', d._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -99,7 +99,7 @@ describe('Notifications Model', function () {
             activated.deactivate('test').save()
                 .then(function (a) {
                     expect(a.isActive).to.be.false();
-                    return Audit.findAudit('notifications',  a._id, {'change.action': {$regex: /^isActive/}});
+                    return Audit.findAudit('notifications', a._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -110,7 +110,7 @@ describe('Notifications Model', function () {
                 })
                 .then(function (d) {
                     expect(d.isActive).to.be.true();
-                    return Audit.findAudit('notifications',  d._id, {'change.action': {$regex: /^isActive/}});
+                    return Audit.findAudit('notifications', d._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -144,7 +144,7 @@ describe('Notifications Model', function () {
             testnotification.setState(testnotification.state, 'test').save()
                 .then(function (p) {
                     expect(p.state).to.equal('unread');
-                    return Audit.findAudit('notifications',  p._id, {'change.action': {$regex: /^state/}});
+                    return Audit.findAudit('notifications', p._id, {'change.action': {$regex: /^state/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -162,7 +162,7 @@ describe('Notifications Model', function () {
             testnotification.setState('cancelled', 'test').save()
                 .then(function (p) {
                     expect(p.state).to.equal('cancelled');
-                    return Audit.findAudit('notifications',  p._id, {'change.action': {$regex: /^state/}});
+                    return Audit.findAudit('notifications', p._id, {'change.action': {$regex: /^state/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -185,7 +185,11 @@ describe('Notifications Model', function () {
         it('should update the field with the new localised strings and do nothing if alread localised', function (done) {
             var error = null;
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
-            Notifications.create('i18n', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', ['New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}', {postTitle: 'test post', blogTitle: 'test blog', publishedBy: 'test author'}], 'test')
+            Notifications.create('i18n', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', ['New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}', {
+                postTitle: 'test post',
+                blogTitle: 'test blog',
+                publishedBy: 'test author'
+            }], 'test')
                 .then(function (notification) {
                     var localised = notification.i18n('en');
                     expect(localised.content).to.equal('New Post test post in Blog test blog published by test author');
@@ -202,7 +206,7 @@ describe('Notifications Model', function () {
     });
 
     after(function (done) {
-        Notifications.remove({title : 'titles dont matter'}, function (err, doc) {
+        Notifications.remove({title: 'titles dont matter'}, function (err, doc) {
             if (err) {
                 done(err);
             }

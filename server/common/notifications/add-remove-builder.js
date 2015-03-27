@@ -2,7 +2,7 @@
 var utils = require('./../utils');
 var _ = require('lodash');
 
-module.exports = function AddRemoveNotificationsBuilder(type, roles, owners, idForNotificationsTitle) {
+module.exports = function AddRemoveNotificationsBuilder (type, roles, owners, idForNotificationsTitle) {
     return function updateNotificationBuilder (obj, request) {
         var description = {};
         var shouldNotify = false;

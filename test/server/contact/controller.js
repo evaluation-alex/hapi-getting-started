@@ -62,7 +62,7 @@ describe('Contact', function () {
             try {
                 expect(response.statusCode).to.equal(200);
                 done();
-            } catch(err) {
+            } catch (err) {
                 done(err);
             }
         });

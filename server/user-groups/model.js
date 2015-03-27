@@ -29,7 +29,7 @@ var UserGroups = BaseModel.extend({
 
 UserGroups._collection = 'user-groups';
 
-Promisify(UserGroups,['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+Promisify(UserGroups, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
 _.extend(UserGroups, new Insert('name', 'create'));
 _.extend(UserGroups, new AreValid('name'));
 _.extend(UserGroups, new IsValid());
@@ -71,10 +71,10 @@ UserGroups.newObject = function newObject (doc, by) {
         by)
         .then(function (userGroup) {
             return userGroup
-                    .add(doc.payload.members, 'members', by)
-                    .add(doc.payload.owners, 'owners', by)
-                    .setAccess(doc.payload.access, by)
-                    .save();
+                .add(doc.payload.members, 'members', by)
+                .add(doc.payload.owners, 'owners', by)
+                .setAccess(doc.payload.access, by)
+                .save();
         });
 };
 

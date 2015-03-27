@@ -20,7 +20,7 @@ describe('AuthAttempts Model', function () {
 
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function() {
+            .then(function () {
                 done();
             });
     });
@@ -57,7 +57,7 @@ describe('AuthAttempts Model', function () {
                     });
             });
         };
-        for (var i = 0; i < authAttemptsConfig.forIpAndUser+1; i++) {
+        for (var i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
             authSpam.push(authRequest());
         }
         Promise.all(authSpam)
@@ -71,7 +71,7 @@ describe('AuthAttempts Model', function () {
                 expect(err).to.not.exist();
                 error = err;
             })
-            .finally(function() {
+            .finally(function () {
                 tu.testComplete(done, error);
             });
     });
@@ -109,7 +109,7 @@ describe('AuthAttempts Model', function () {
                 expect(err).to.not.exist();
                 error = err;
             })
-            .finally(function() {
+            .finally(function () {
                 tu.testComplete(done, error);
             });
     });

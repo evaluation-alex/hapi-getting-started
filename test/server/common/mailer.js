@@ -2,7 +2,7 @@
 var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
 
-var Config = require(relativeTo+'config');
+var Config = require(relativeTo + 'config');
 var Mailer = require(relativeToServer + 'common/plugins/mailer');
 //var expect = require('chai').expect;
 var Code = require('code');   // assertion library
@@ -27,7 +27,6 @@ describe('Mailer', function () {
             .done();
     });
 
-
     it('sends an email, if sent repeatedly, hits the cache', function (done) {
         var options = {
             subject: 'Your ' + Config.projectName + ' account',
@@ -44,7 +43,7 @@ describe('Mailer', function () {
             .then(function (info) {
                 expect(info).to.exist();
             })
-            .then(function() {
+            .then(function () {
                 return Mailer.sendEmail(options, 'server/users/templates/welcome.hbs.md', payload);
             })
             .then(function (info) {

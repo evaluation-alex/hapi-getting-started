@@ -36,7 +36,7 @@ describe('Session', function () {
                 done();
             })
             .catch(function (err) {
-                    done(err);
+                done(err);
             })
             .done();
     });
@@ -256,7 +256,7 @@ describe('Session', function () {
     });
 
     afterEach(function (done) {
-        return tu.cleanup({ users: emails}, done);
+        return tu.cleanup({users: emails}, done);
     });
 });
 

@@ -17,15 +17,15 @@ var expect = Code.expect;
 
 describe('Handlers and Mixins', function () {
     it('create handler should log and boom errors when it encounters exceptions', function (done) {
-        var reply = function reply(args) {
+        var reply = function reply (args) {
             expect(args).to.be.an.instanceof(Error);
         };
         var request = {
             auth: {
                 credentials: {
-                   user: {
-                       email: 'test'
-                   }
+                    user: {
+                        email: 'test'
+                    }
                 }
             }
         };
@@ -40,7 +40,7 @@ describe('Handlers and Mixins', function () {
         handler(request, reply);
         done();
     });
-    it ('find handler should log and boom errors when it encounters exceptions', function (done) {
+    it('find handler should log and boom errors when it encounters exceptions', function (done) {
         var Model = {
             _pagedFind: function (query, fields, sort, limit, page) {
                 expect(query).to.exist();
@@ -58,17 +58,16 @@ describe('Handlers and Mixins', function () {
             };
         };
         var request = {
-            query: {
-            }
+            query: {}
         };
-        var reply = function reply(args) {
+        var reply = function reply (args) {
             expect(args).to.be.an.instanceof(Error);
         };
         var handler = new FindHandler(Model, queryBuilder, undefined);
         handler(request, reply);
         done();
     });
-    it ('findOne handler should log and boom exceptions when it encounters exceptions', function (done) {
+    it('findOne handler should log and boom exceptions when it encounters exceptions', function (done) {
         var Model = {
             _collection: 'test'
         };
@@ -77,7 +76,7 @@ describe('Handlers and Mixins', function () {
                 test: 'something'
             }
         };
-        var reply = function reply(args) {
+        var reply = function reply (args) {
             expect(args).to.be.an.instanceof(Error);
         };
         var findOneCb = function (obj) {

@@ -22,7 +22,7 @@ var gatherPerfStats = function gatherPerfStats (request) {
     var browser = ua.toString();
     var start = request.info.received;
     var end = request.info.responded;
-    process.nextTick(function() {
+    process.nextTick(function () {
         utils.toStatsD(path,
             statusCode,
             user,

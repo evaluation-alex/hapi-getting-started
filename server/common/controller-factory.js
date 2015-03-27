@@ -121,7 +121,9 @@ ControllerFactory.prototype.findController = function findController (validator,
 
 ControllerFactory.prototype.findOneController = function findOneController (prereqs, findOneCb) {
     var self = this;
-    var pre = _.filter(_.flatten([ensurePermissions('view', self.component), prePopulate(self.model, 'id'), prereqs]), function (f) {return !!f;});
+    var pre = _.filter(_.flatten([ensurePermissions('view', self.component), prePopulate(self.model, 'id'), prereqs]), function (f) {
+        return !!f;
+    });
     self.forMethod('findOne')
         .preProcessWith(pre)
         .handleUsing(new FindOneHandler(self.model, findOneCb));

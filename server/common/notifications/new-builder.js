@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function NewObjectNotificationsBuilder(type, owners, title) {
+module.exports = function NewObjectNotificationsBuilder (type, owners, title) {
     return function newNotification (obj, request) {
         return {
             to: obj[owners],

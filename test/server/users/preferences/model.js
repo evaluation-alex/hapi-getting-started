@@ -19,7 +19,7 @@ describe('Preferences Model', function () {
     var usersToClear = [];
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function() {
+            .then(function () {
                 done();
             });
     });
@@ -39,7 +39,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesLocale(testpref.locale, 'test').save()
                 .then(function (p) {
                     expect(p.preferences.locale).to.equal('hi');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.locale/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.locale/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -57,7 +57,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesLocale('en', 'test').save()
                 .then(function (p) {
                     expect(p.preferences.locale).to.equal('en');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.locale/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.locale/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -96,7 +96,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsBlogsInappFrequency(testpref.preferences.notifications.blogs.inapp.frequency, 'test').save()
                 .then(function (p) {
                     expect(p.preferences.notifications.blogs.inapp.frequency).to.equal('daily');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.blogs\.inapp\.frequency/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.blogs\.inapp\.frequency/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -114,7 +114,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsBlogsInappFrequency('immediate', 'test').save()
                 .then(function (p) {
                     expect(p.preferences.notifications.blogs.inapp.frequency).to.equal('immediate');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.blogs\.inapp\.frequency/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.blogs\.inapp\.frequency/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -153,7 +153,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsBlogsInappLastSent(testpref.preferences.notifications.blogs.inapp.lastSent, 'test').save()
                 .then(function (p) {
                     expect(moment(p.preferences.notifications.blogs.inapp.lastSent).format('YYYYMMDD')).to.equal('20150323');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.blogs\.inapp\.lastSent/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.blogs\.inapp\.lastSent/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -171,7 +171,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsBlogsInappLastSent(new Date(2015, 2, 24, 0, 0, 0, 0), 'test').save()
                 .then(function (p) {
                     expect(moment(p.preferences.notifications.blogs.inapp.lastSent).format('YYYYMMDD')).to.equal('20150324');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.blogs\.inapp\.lastSent/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.blogs\.inapp\.lastSent/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -194,7 +194,7 @@ describe('Preferences Model', function () {
     describe('Preferences.this.addNotificationsBlogsBlocked', function () {
         before(function (done) {
             Users.create('addNotificationsBlogsBlocked1', 'silver lining', 'password', 'en')
-                .then(function(p1) {
+                .then(function (p1) {
                     p1.preferences.notifications.blogs.blocked.push('blocked1');
                     return p1.save();
                 })
@@ -205,11 +205,11 @@ describe('Preferences Model', function () {
                     p2.preferences.notifications.blogs.blocked.push('blocked1');
                     return p2.save();
                 })
-                .then(function() {
+                .then(function () {
                     done();
                 })
-                .catch(function(err) {
-                    if(err) {
+                .catch(function (err) {
+                    if (err) {
                         done(err);
                     }
                 });
@@ -222,7 +222,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'newBlocked')).to.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^add preferences\.notifications\.blogs\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -244,7 +244,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'blocked1')).to.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^add preferences\.notifications\.blogs\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -288,7 +288,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'unknownBlog1')).to.not.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^remove preferences\.notifications\.blogs\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -309,7 +309,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'toBeRemoved')).to.not.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^remove preferences\.notifications\.blogs\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -348,7 +348,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsPostsInappFrequency(testpref.preferences.notifications.posts.inapp.frequency, 'test').save()
                 .then(function (p) {
                     expect(p.preferences.notifications.posts.inapp.frequency).to.equal('daily');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.posts\.inapp\.frequency/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.posts\.inapp\.frequency/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -366,7 +366,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsPostsInappFrequency('immediate', 'test').save()
                 .then(function (p) {
                     expect(p.preferences.notifications.posts.inapp.frequency).to.equal('immediate');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.posts\.inapp\.frequency/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.posts\.inapp\.frequency/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -405,7 +405,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsPostsInappLastSent(testpref.preferences.notifications.posts.inapp.lastSent, 'test').save()
                 .then(function (p) {
                     expect(moment(p.preferences.notifications.posts.inapp.lastSent).format('YYYYMMDD')).to.equal('20150323');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.posts\.inapp\.lastSent/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.posts\.inapp\.lastSent/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -423,7 +423,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsPostsInappLastSent(new Date(2015, 2, 24, 0, 0, 0, 0), 'test').save()
                 .then(function (p) {
                     expect(moment(p.preferences.notifications.posts.inapp.lastSent).format('YYYYMMDD')).to.equal('20150324');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.posts\.inapp\.lastSent/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.posts\.inapp\.lastSent/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -446,7 +446,7 @@ describe('Preferences Model', function () {
     describe('Preferences.this.addNotificationsPostsBlocked', function () {
         before(function (done) {
             Users.create('addNotificationsPostsBlocked1', 'silver lining', 'password', 'en')
-                .then(function(p1) {
+                .then(function (p1) {
                     p1.preferences.notifications.posts.blocked.push('blocked1');
                     return p1.save();
                 })
@@ -457,11 +457,11 @@ describe('Preferences Model', function () {
                     p2.preferences.notifications.posts.blocked.push('blocked1');
                     return p2.save();
                 })
-                .then(function() {
+                .then(function () {
                     done();
                 })
-                .catch(function(err) {
-                    if(err) {
+                .catch(function (err) {
+                    if (err) {
                         done(err);
                     }
                 });
@@ -474,7 +474,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.posts.blocked, 'newBlocked')).to.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^add preferences\.notifications\.posts\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.posts\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -496,7 +496,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.posts.blocked, 'blocked1')).to.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^add preferences\.notifications\.posts\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.posts\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -540,7 +540,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.posts.blocked, 'unknownBlog1')).to.not.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^remove preferences\.notifications\.posts\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.posts\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -561,7 +561,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.posts.blocked, 'toBeRemoved')).to.not.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^remove preferences\.notifications\.posts\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.posts\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -600,7 +600,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsUserGroupsInappFrequency(testpref.preferences.notifications.userGroups.inapp.frequency, 'test').save()
                 .then(function (p) {
                     expect(p.preferences.notifications.userGroups.inapp.frequency).to.equal('daily');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.userGroups\.inapp\.frequency/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.userGroups\.inapp\.frequency/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -618,7 +618,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsUserGroupsInappFrequency('immediate', 'test').save()
                 .then(function (p) {
                     expect(p.preferences.notifications.userGroups.inapp.frequency).to.equal('immediate');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.userGroups\.inapp\.frequency/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.userGroups\.inapp\.frequency/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -657,7 +657,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsUserGroupsInappLastSent(testpref.preferences.notifications.userGroups.inapp.lastSent, 'test').save()
                 .then(function (p) {
                     expect(moment(p.preferences.notifications.userGroups.inapp.lastSent).format('YYYYMMDD')).to.equal('20150323');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.userGroups\.inapp\.lastSent/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.userGroups\.inapp\.lastSent/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -675,7 +675,7 @@ describe('Preferences Model', function () {
             testpref.setPreferencesNotificationsUserGroupsInappLastSent(new Date(2015, 2, 24, 0, 0, 0, 0), 'test').save()
                 .then(function (p) {
                     expect(moment(p.preferences.notifications.userGroups.inapp.lastSent).format('YYYYMMDD')).to.equal('20150324');
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^preferences.notifications\.userGroups\.inapp\.lastSent/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^preferences.notifications\.userGroups\.inapp\.lastSent/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -698,7 +698,7 @@ describe('Preferences Model', function () {
     describe('Preferences.this.addNotificationsUserGroupsBlocked', function () {
         before(function (done) {
             Users.create('addNotificationsUserGroupsBlocked1', 'silver lining', 'password', 'hi')
-                .then(function(p1) {
+                .then(function (p1) {
                     p1.preferences.notifications.userGroups.blocked.push('blocked1');
                     return p1.save();
                 })
@@ -709,11 +709,11 @@ describe('Preferences Model', function () {
                     p2.preferences.notifications.userGroups.blocked.push('blocked1');
                     return p2.save();
                 })
-                .then(function() {
+                .then(function () {
                     done();
                 })
-                .catch(function(err) {
-                    if(err) {
+                .catch(function (err) {
+                    if (err) {
                         done(err);
                     }
                 });
@@ -726,7 +726,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'newBlocked')).to.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^add preferences\.notifications\.userGroups\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
@@ -748,7 +748,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'blocked1')).to.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^add preferences\.notifications\.userGroups\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -792,7 +792,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'unknownBlog')).to.not.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^remove preferences\.notifications\.userGroups\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
@@ -813,7 +813,7 @@ describe('Preferences Model', function () {
                 })
                 .then(function (p) {
                     expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'toBeRemoved')).to.not.exist();
-                    return Audit.findAudit('users',  p.email, {'change.action': {$regex: /^remove preferences\.notifications\.userGroups\.blocked/}});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);

@@ -4,7 +4,7 @@ var utils = require('./../utils');
 var Promise = require('bluebird');
 
 module.exports = function UpdateHandler (Model, notify, updateCb) {
-    var updateHook = function updateObjCb(u ,request, by) {
+    var updateHook = function updateObjCb (u, request, by) {
         /*jshint unused:false*/
         return new Promise(function (resolve, reject) {
             resolve(_.isFunction(updateCb) ? updateCb(u, request, by) : u[updateCb](request, by));
@@ -15,7 +15,7 @@ module.exports = function UpdateHandler (Model, notify, updateCb) {
         var u = request.pre[Model._collection];
         var by = request.auth.credentials.user.email;
         updateHook(u, request, by)
-            .then(function (u){
+            .then(function (u) {
                 return u.save();
             })
             .then(function (u) {

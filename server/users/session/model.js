@@ -6,7 +6,8 @@ var moment = require('moment');
 var errors = require('./../../common/errors');
 var utils = require('./../../common/utils');
 
-var Session = function session () {};
+var Session = function session () {
+};
 
 Session.schema = Joi.object().keys({
     key: Joi.object(),

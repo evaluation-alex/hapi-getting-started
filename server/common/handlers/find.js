@@ -3,10 +3,10 @@ var Promise = require('bluebird');
 var utils = require('./../utils');
 
 module.exports = function FindHandler (Model, queryBuilder, findCb) {
-    var findHook = function findObjsCb(output) {
+    var findHook = function findObjsCb (output) {
         /*jshint unused:false*/
         return new Promise(function (resolve, reject) {
-            resolve(findCb ? findCb(output): output);
+            resolve(findCb ? findCb(output) : output);
         });
         /*jshint unused:true*/
     };

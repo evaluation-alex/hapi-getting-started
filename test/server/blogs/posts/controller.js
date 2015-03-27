@@ -1044,7 +1044,7 @@ describe('Posts', function () {
     describe('PUT /blogs/{blogId}/posts/{id}/reject', function () {
         var blogId = null;
         before(function (done) {
-                Blogs.create('test PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/reject'], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/reject'], false, 'public', true, 'test')
                 .then(function (b) {
                     blogId = b._id.toString();
                     return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test notifications', 'test');
@@ -1102,7 +1102,10 @@ describe('Posts', function () {
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.remove({objectType: 'posts', objectId: Posts.ObjectID(postId)}, function (err, count) {
+                                                Notifications.remove({
+                                                    objectType: 'posts',
+                                                    objectId: Posts.ObjectID(postId)
+                                                }, function (err, count) {
                                                     if (err) {
                                                         done(err);
                                                     } else {

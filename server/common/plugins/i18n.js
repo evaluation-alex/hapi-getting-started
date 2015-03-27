@@ -3,7 +3,7 @@ var utils = require('./../utils');
 var _ = require('lodash');
 
 module.exports.register = function register (server, options, next) {
-    server.ext('onPreResponse', function internationalize(request, reply) {
+    server.ext('onPreResponse', function internationalize (request, reply) {
         var locale = utils.locale(request);
         var response = request.response;
         if (response.canMakeBoomError) {

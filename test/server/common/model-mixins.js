@@ -46,16 +46,16 @@ describe('Model mixins', function () {
     });
 
     describe('CommonMixinJoinApproveReject', function () {
-        it ('should add directly to the appropriate list if public access is specified', function (done) {
+        it('should add directly to the appropriate list if public access is specified', function (done) {
             done();
         });
-        it ('should add to the needs approval list if restricted access is specified', function (done) {
+        it('should add to the needs approval list if restricted access is specified', function (done) {
             done();
         });
-        it ('should move from needs approval to the list when approved and removed from the needs approval list', function (done) {
+        it('should move from needs approval to the list when approved and removed from the needs approval list', function (done) {
             done();
         });
-        it ('should remove from needs approval to the list when rejected', function (done) {
+        it('should remove from needs approval to the list when rejected', function (done) {
             done();
         });
     });
@@ -64,25 +64,25 @@ describe('Model mixins', function () {
         it('should add a set property for every item sent in the parameters', function (done) {
             done();
         });
-        it ('should modify and audit the value only if the parameter passed is not undefined and different in value from the current value', function (done) {
+        it('should modify and audit the value only if the parameter passed is not undefined and different in value from the current value', function (done) {
             done();
         });
-        it ('should do nothing if the value passed is undefined', function (done) {
+        it('should do nothing if the value passed is undefined', function (done) {
             done();
         });
-        it ('should do nothing if the value passed is unchanged from that on the object', function (done) {
+        it('should do nothing if the value passed is unchanged from that on the object', function (done) {
             done();
         });
     });
 
     describe('CommonMixinUpdate', function () {
-        it ('should call set for properties being updated', function(done) {
+        it('should call set for properties being updated', function (done) {
             done();
         });
-        it ('should call add / remove for lists being updated', function (done) {
+        it('should call add / remove for lists being updated', function (done) {
             done();
         });
-        it ('should ignore properties not defined for the mixin', function (done) {
+        it('should ignore properties not defined for the mixin', function (done) {
             done();
         });
     });
@@ -109,13 +109,13 @@ describe('Model mixins', function () {
     });
 
     describe('CommonMixinSave', function () {
-        it ('should save all the audit entries and then the object', function (done) {
+        it('should save all the audit entries and then the object', function (done) {
             done();
         });
     });
 
     describe('CommonMixinAudit', function () {
-        it ('should add an element to the audit list', function (done) {
+        it('should add an element to the audit list', function (done) {
             done();
         });
     });

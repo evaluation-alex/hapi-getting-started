@@ -116,7 +116,6 @@ describe('Audit', function () {
         });
     });
 
-
     afterEach(function (done) {
         return tu.cleanup({users: emails}, done);
     });

@@ -20,12 +20,12 @@ module.exports.resetCache = function resetCache () {
 
 module.exports.filenameForPost = function filenameForPost (post) {
     return [('/' +
-        post.organisation +
-        '/blogs/' +
-        post.blogId.toString() + '/').replace(' ', '-') +
-        moment(post.createdOn).format('YYYYMMDD') +
-        '__' +
-        post._id.toString()
+    post.organisation +
+    '/blogs/' +
+    post.blogId.toString() + '/').replace(' ', '-') +
+    moment(post.createdOn).format('YYYYMMDD') +
+    '__' +
+    post._id.toString()
     ];
 };
 
@@ -51,7 +51,6 @@ module.exports.readContent = function readContent (post) {
             }, utils.errback);
     }
 };
-
 
 module.exports.readContentMultiple = function readContentMultiple (posts) {
     return Promise.resolve(_.map(posts, module.exports.readContent));

@@ -18,7 +18,7 @@ var notificationUpdatePrefSchema = Joi.object().keys({
 var Controller = new ControllerFactory(Users)
     .updateController({
         payload: {
-            preferences : {
+            preferences: {
                 notifications: Joi.object().keys({
                     blogs: notificationUpdatePrefSchema,
                     posts: notificationUpdatePrefSchema,

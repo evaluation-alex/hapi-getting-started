@@ -19,7 +19,7 @@ describe('UserGroups Model', function () {
     var groupsToCleanup = [];
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function() {
+            .then(function () {
                 done();
             });
     });
@@ -76,7 +76,7 @@ describe('UserGroups Model', function () {
     });
 
     describe('UserGroups.isValid', function () {
-        it ('should return with a not found message when group does not exist', function (done) {
+        it('should return with a not found message when group does not exist', function (done) {
             var error = null;
             UserGroups.isValid(BaseModel.ObjectID(null), 'unknown', ['owners'])
                 .then(function (m) {
@@ -91,10 +91,10 @@ describe('UserGroups Model', function () {
                     tu.testComplete(done, error);
                 });
         });
-        it ('should return with not an owner when the owner argument is not an owner (active or otherwise)', function (done) {
+        it('should return with not an owner when the owner argument is not an owner (active or otherwise)', function (done) {
             var error = null;
             UserGroups.create('isValidTest', 'silver lining', 'isValidTest', 'test5')
-                .then(function(ug) {
+                .then(function (ug) {
                     return UserGroups.isValid(ug._id, 'unknown', ['owners']);
                 })
                 .then(function (m) {
@@ -110,10 +110,10 @@ describe('UserGroups Model', function () {
                     tu.testComplete(done, error);
                 });
         });
-        it ('should return valid when the group exists and the owner is an active owner', function (done) {
+        it('should return valid when the group exists and the owner is an active owner', function (done) {
             var error = null;
             UserGroups.create('isValidTest2', 'silver lining', 'isValidTest2', 'test5')
-                .then(function(ug) {
+                .then(function (ug) {
                     return UserGroups.isValid(ug._id, 'test5', ['owners']);
                 })
                 .then(function (m) {
@@ -129,10 +129,10 @@ describe('UserGroups Model', function () {
                     tu.testComplete(done, error);
                 });
         });
-        it ('should return valid when the group exists and we pass root as owner', function (done) {
+        it('should return valid when the group exists and we pass root as owner', function (done) {
             var error = null;
             UserGroups.create('isValidTest3', 'silver lining', 'isValidTest3', 'test5')
-                .then(function(ug) {
+                .then(function (ug) {
                     return UserGroups.isValid(ug._id, 'root', ['owners']);
                 })
                 .then(function (m) {
@@ -165,7 +165,7 @@ describe('UserGroups Model', function () {
                     tu.testComplete(done, error);
                 });
         });
-        it('should return an object with as many entries as names sent, appropriately populated', function(done) {
+        it('should return an object with as many entries as names sent, appropriately populated', function (done) {
             var error = null;
             UserGroups.create('test UserGroups.areValid', 'silver lining', 'test', 'test')
                 .then(function () {

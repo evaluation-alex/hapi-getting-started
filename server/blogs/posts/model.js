@@ -86,29 +86,29 @@ Posts.newObject = function newObject (doc, by) {
 
 Posts.create = function create (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) {
     var self = this;
-        var now = new Date();
-        var document = {
-            blogId: blogId,
-            organisation: organisation,
-            title: title,
-            state: state,
-            access: access,
-            allowComments: allowComments,
-            needsReview: needsReview,
-            category: category,
-            tags: tags,
-            attachments: attachments,
-            publishedBy: by,
-            publishedOn: state === 'published' ? now : null,
-            reviewedBy: state === 'published' ? by : null,
-            reviewedOn: state === 'published' ? now : null,
-            isActive: true,
-            createdBy: by,
-            createdOn: now,
-            updatedBy: by,
-            updatedOn: now
-        };
-        return self._insertAndAudit(document);
+    var now = new Date();
+    var document = {
+        blogId: blogId,
+        organisation: organisation,
+        title: title,
+        state: state,
+        access: access,
+        allowComments: allowComments,
+        needsReview: needsReview,
+        category: category,
+        tags: tags,
+        attachments: attachments,
+        publishedBy: by,
+        publishedOn: state === 'published' ? now : null,
+        reviewedBy: state === 'published' ? by : null,
+        reviewedOn: state === 'published' ? now : null,
+        isActive: true,
+        createdBy: by,
+        createdOn: now,
+        updatedBy: by,
+        updatedOn: now
+    };
+    return self._insertAndAudit(document);
 };
 
 module.exports = Posts;

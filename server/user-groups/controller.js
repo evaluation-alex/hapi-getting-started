@@ -4,8 +4,7 @@ var UserGroups = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
 var areValid = require('./../common/prereqs/are-valid');
 var validAndPermitted = require('./../common/prereqs/valid-permitted');
-var NewObjectNotificationsBuilder = require('./../common/notifications/new-builder');
-var DeleteObjectNotificationsBuilder = require('./../common/notifications/delete-builder');
+var CreateDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
 var AddRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
 var utils = require('./../common/utils');
 
@@ -27,7 +26,7 @@ var Controller = new ControllerFactory(UserGroups)
             organisation: request.auth.credentials.user.organisation
         };
     })
-    .sendNotifications(new NewObjectNotificationsBuilder('UserGroup', 'owners', 'name'))
+    .sendNotifications(new CreateDeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name', 'new'))
     .findController({
         query: {
             email: Joi.string(),
@@ -55,7 +54,7 @@ var Controller = new ControllerFactory(UserGroups)
     ], 'update', 'update')
     .sendNotifications(new AddRemoveNotificationsBuilder('UserGroup', ['owners', 'members'], 'owners', 'name'))
     .deleteController(validAndPermitted(UserGroups, 'id', ['owners']))
-    .sendNotifications(new DeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name'))
+    .sendNotifications(new CreateDeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name', 'delete'))
     .joinLeaveController(['members'], 'owners', 'name')
     .approveRejectController('addedMembers', 'owners', 'name')
     .doneConfiguring();

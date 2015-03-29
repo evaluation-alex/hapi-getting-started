@@ -4,8 +4,7 @@ var Blogs = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
 var areValid = require('./../common/prereqs/are-valid');
 var validAndPermitted = require('./../common/prereqs/valid-permitted');
-var NewObjectNotificationsBuilder = require('./../common/notifications/new-builder');
-var DeleteObjectNotificationsBuilder = require('./../common/notifications/delete-builder');
+var CreateDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
 var AddRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
 var utils = require('./../common/utils');
 
@@ -32,7 +31,7 @@ var Controller = new ControllerFactory(Blogs)
             organisation: request.auth.credentials.user.organisation
         };
     })
-    .sendNotifications(new NewObjectNotificationsBuilder('Blog', 'owners', 'title'))
+    .sendNotifications(new CreateDeleteObjectNotificationsBuilder('Blog', 'owners', 'title', 'new'))
     .findController({
         query: {
             title: Joi.string(),
@@ -71,7 +70,7 @@ var Controller = new ControllerFactory(Blogs)
     ], 'update', 'update')
     .sendNotifications(new AddRemoveNotificationsBuilder('Blog', ['owners', 'contributors', 'subscribers', 'subscriberGroups'], 'owners', 'title'))
     .deleteController(validAndPermitted(Blogs, 'id', ['owners']))
-    .sendNotifications(new DeleteObjectNotificationsBuilder('Blog', 'owners', 'title'))
+    .sendNotifications(new CreateDeleteObjectNotificationsBuilder('Blog', 'owners', 'title', 'delete'))
     .joinLeaveController(['subscribers'], 'owners', 'title')
     .approveRejectController('addedSubscribers', 'owners', 'title')
     .doneConfiguring();

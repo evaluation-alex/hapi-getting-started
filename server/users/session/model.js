@@ -18,20 +18,21 @@ Session.schema = Joi.array().items(Joi.object().keys({
 
 Session.prototype._invalidateSession = function invalidateSession (ipaddress, by) {
     var self = this;
-    _.remove(self.session, function (session) {
+    var removed = _.remove(self.session, function (session) {
         return session.ipaddress === ipaddress;
     });
-    self._audit('user.session', ipaddress, null, by);
+    self._audit('user.session', removed, null, by);
     return self;
 };
 Session.prototype._newSession = function newSession (ipaddress, by) {
     var self = this;
-    self.session.push({
+    var session = {
         ipaddress: ipaddress,
         key: utils.secureHash(Uuid.v4().toString()),
         expires: moment().add(1, 'month').toDate()
-    });
-    self._audit('user.session', null, ipaddress, by);
+    };
+    self.session.push(session);
+    self._audit('user.session', null, session, by);
     return self;
 };
 Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
@@ -42,10 +43,11 @@ Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
     });
     if (!found) {
         self._newSession(ipaddress, by);
-    }
-    if (found && moment().isAfter(found.expires)) {
-        self._invalidateSession(ipaddress, by);
-        self._newSession(ipaddress, by);
+    } else {
+        if (moment().isAfter(found.expires)) {
+            self._invalidateSession(ipaddress, by);
+            self._newSession(ipaddress, by);
+        }
     }
     return self;
 };

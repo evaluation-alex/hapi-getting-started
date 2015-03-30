@@ -192,34 +192,33 @@ describe('Session Model', function () {
         });
         it('should create a new session object on the user and should create an audit entry, if user hasnt logged in already', function (done) {
             var error = null;
-            Users._findOne({email: firstEmail})
-                .then(function (user) {
-                    Audit.remove({objectChangedId: user._id}, function (err, ct) {
-                        if (err) {
-                            done(err);
-                        }
-                        expect(ct).to.be.instancof(Number);
+            Audit.remove({objectChangedId: firstEmail}, function (err) {
+                if (err) {
+                    done(err);
+                }
+                Users._findOne({email: firstEmail})
+                    .then(function (user) {
+                        user.session = [];
+                        return user.save();
+                    })
+                    .then(function (user) {
+                        return user.loginSuccess('test', 'test').save();
+                    }).then(function (user) {
+                        expect(user.session.length).to.equal(1);
+                        return Audit.findAudit('users', user.email, {'change.action': 'user.session'});
+                    })
+                    .then(function (userAudit) {
+                        expect(userAudit[0]).to.be.an.instanceof(Audit);
+                        expect(userAudit[0].change[0].newValues.ipaddress).to.equal('test');
+                    })
+                    .catch(function (err) {
+                        expect(err).to.not.exist();
+                        error = err;
+                    })
+                    .finally(function () {
+                        tu.testComplete(done, error);
                     });
-                    user.session = [];
-                    return user.save();
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
-                }).then(function (user) {
-                    expect(user.session.length).to.equal(1);
-                    return Audit.findAudit('users', user.email, {'change.action': 'user.session'});
-                })
-                .then(function (userAudit) {
-                    expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].change[0].newValues).to.equal('test');
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .finally(function () {
-                    tu.testComplete(done, error);
-                });
+            });
         });
     });
 
@@ -236,7 +235,6 @@ describe('Session Model', function () {
                 })
                 .then(function (userAudit) {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].change[0].newValues).to.equal('test');
                 })
                 .catch(function (err) {
                     expect(err).to.not.exist();

@@ -24,7 +24,7 @@ var _ = require('lodash');
 var mongodb;
 
 var authorizationHeader = function (user) {
-    return 'Basic ' + (new Buffer(user.email + ':' + user.session.key)).toString('base64');
+    return 'Basic ' + (new Buffer(user.email + ':' + user.session[0].key)).toString('base64');
 };
 
 exports.authorizationHeader = authorizationHeader;

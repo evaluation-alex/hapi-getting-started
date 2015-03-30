@@ -241,7 +241,7 @@ describe('Notifications', function () {
                     return Users._findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
-                    return user.loginSuccess('test').save();
+                    return user.loginSuccess('test', 'test').save();
                 })
                 .then(function (user) {
                     var request = {

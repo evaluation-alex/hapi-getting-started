@@ -34,6 +34,10 @@ describe('Utils', function () {
         Config.logger = prev;
         done();
     });
+    it('should return the proper ip address from the request', function (done) {
+        expect(utils.ip({info: {remoteAddress: '127.0.0.1'}})).to.equal('127.0.0.1');
+        done();
+    });
     it('should lookup params first, then payload, then query', function (done) {
         expect(utils.lookupParamsOrPayloadOrQuery({}, 'f')).to.be.undefined();
         expect(utils.lookupParamsOrPayloadOrQuery({

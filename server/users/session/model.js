@@ -1,5 +1,6 @@
 'use strict';
 var Joi = require('joi');
+var _ = require('lodash');
 var Uuid = require('node-uuid');
 var Promise = require('bluebird');
 var moment = require('moment');
@@ -9,40 +10,45 @@ var utils = require('./../../common/utils');
 var Session = function session () {
 };
 
-Session.schema = Joi.object().keys({
+Session.schema = Joi.array().items(Joi.object().keys({
+    ipaddress: Joi.string(),
     key: Joi.object(),
     expires: Joi.date()
-});
+}));
 
-Session.prototype._invalidateSession = function invalidateSession () {
+Session.prototype._invalidateSession = function invalidateSession (ipaddress, by) {
     var self = this;
-    self.session = {};
-    delete self.session;
+    _.remove(self.session, function (session) {return session.ipaddress === ipaddress;});
+    self._audit('user.session', ipaddress, null, by);
     return self;
 };
-Session.prototype._newSession = function newSession () {
+Session.prototype._newSession = function newSession (ipaddress, by) {
     var self = this;
-    self.session = {
-        key: utils.secureHash(Uuid.v4().toString()),
-        expires: moment().add(1, 'month').toDate()
-    };
+    var found = _.find(self.session, function (session) { return session.ipaddress === ipaddress;});
+    if (!(found && moment().isBefore(found.expires))) {
+        self.session.push({
+            ipaddress: ipaddress,
+            key: utils.secureHash(Uuid.v4().toString()),
+            expires: moment().add(1, 'month').toDate()
+        });
+        self._audit('user.session', null, ipaddress, by);
+    }
     return self;
 };
 Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
     var self = this;
-    self._newSession();
+    self._newSession(ipaddress, by);
     delete self.resetPwd;
-    return self._audit('login success', null, ipaddress, by);
+    return self;
 };
 Session.prototype.loginFail = function loginFail (ipaddress, by) {
     var self = this;
-    self._invalidateSession();
     return self._audit('login fail', null, ipaddress, by);
 };
 Session.prototype.logout = function logout (ipaddress, by) {
     var self = this;
-    self._invalidateSession();
-    return self._audit('logout', null, ipaddress, by);
+    self._invalidateSession(ipaddress, by);
+    return self;
 };
 
 Session.findBySessionCredentials = function findBySessionCredentials (email, key) {
@@ -52,15 +58,17 @@ Session.findBySessionCredentials = function findBySessionCredentials (email, key
             if (!user) {
                 return Promise.reject(new errors.UserNotFoundError({email: email}));
             }
-            if (!user.session || !user.session.key) {
+            if (!utils.hasItems(user.session)) {
                 return Promise.reject(new errors.UserNotLoggedInError({email: email}));
             }
-            if (moment().isAfter(user.session.expires)) {
-                return Promise.reject(new errors.SessionExpiredError({email: email}));
-            }
-            var keyMatch = utils.secureCompare(key, user.session.key);
-            if (!keyMatch) {
+            var matchingSession = _.find(user.session, function (session) {
+                return utils.secureCompare(key, session.key);
+            });
+            if (!matchingSession) {
                 return Promise.reject(new errors.SessionCredentialsNotMatchingError({email: email}));
+            }
+            if (moment().isAfter(matchingSession.expires)) {
+                return Promise.reject(new errors.SessionExpiredError({email: email}));
             }
             return user;
         });

@@ -28,9 +28,10 @@ var Controller = new ControllerFactory(Users)
         var password = request.payload.password;
         var organisation = request.payload.organisation;
         var locale = request.payload.locale;
+        var ip = utils.ip(request);
         return Users.create(email, organisation, password, locale)
             .then(function (user) {
-                return user.loginSuccess(request.info.remoteAddress, user.email).save();
+                return user.loginSuccess(ip, user.email).save();
             })
             .then(function (user) {
                 var options = {
@@ -40,7 +41,7 @@ var Controller = new ControllerFactory(Users)
                         address: email
                     }
                 };
-                user = user.afterLogin();
+                user = user.afterLogin(ip);
                 var m = Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload);
                 /*jshint unused:false*/
                 return Promise.join(user, m, function (user, m) {
@@ -81,7 +82,7 @@ var Controller = new ControllerFactory(Users)
     ],
     'update',
     function updateUser (user, request, by) {
-        return user._invalidateSession().updateUser(request, by);
+        return user._invalidateSession(utils.ip(request), by).updateUser(request, by);
     })
     .forMethod('loginForgot')
     .withValidation({
@@ -125,7 +126,7 @@ var Controller = new ControllerFactory(Users)
                 if (!user || (request.payload.key !== user.resetPwd.token)) {
                     return Promise.reject(new errors.PasswordResetError());
                 }
-                return user._invalidateSession().setPassword(request.payload.password, user.email).save();
+                return user._invalidateSession(utils.ip(request), user.email).setPassword(request.payload.password, user.email).save();
             })
             .then(function () {
                 reply({message: 'Success.'});

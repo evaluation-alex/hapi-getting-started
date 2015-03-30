@@ -69,7 +69,6 @@ Users.prototype.setPassword = function setPassword (newPassword, by) {
         var newHashedPassword = utils.secureHash(newPassword);
         self.password = newHashedPassword;
         delete self.resetPwd;
-        self._invalidateSession();
         self._audit('reset password', oldPassword, newHashedPassword, by);
     }
     return self;
@@ -77,16 +76,16 @@ Users.prototype.setPassword = function setPassword (newPassword, by) {
 Users.prototype.stripPrivateData = function stripData () {
     var self = this;
     return {
-        email: self.email,
-        isLoggedIn: !!self.session.key
+        email: self.email
     };
 };
-Users.prototype.afterLogin = function afterLogin () {
+Users.prototype.afterLogin = function afterLogin (ipaddress) {
     var self = this;
+    var session = _.find(self.session, function (session) { return session.ipaddress === ipaddress; });
     return {
         user: self.email,
-        session: self.session,
-        authHeader: 'Basic ' + new Buffer(self.email + ':' + self.session.key).toString('base64'),
+        session: session,
+        authHeader: 'Basic ' + new Buffer(self.email + ':' + session.key).toString('base64'),
         preferences: self.preferences
     };
 };
@@ -129,7 +128,7 @@ Users.create = function create (email, organisation, password, locale) {
         password: hash,
         organisation: organisation,
         roles: ['readonly'],
-        session: {},
+        session: [],
         preferences: {
             notifications: {
                 blogs: {

@@ -40,6 +40,11 @@ module.exports.defaultcb = function defaultcb (bucket, resolve, reject) {
     };
 };
 
+module.exports.ip = function (request) {
+    var ret = request.info.remoteAddress;
+    return ret === '' ? 'test': ret;
+};
+
 module.exports.locale = function locale (request) {
     var ret = traverse(request).get(['auth', 'credentials', 'user', 'preferences', 'locale']);
     //TODO: if not found in user prefs, figure out from request headers - tbd

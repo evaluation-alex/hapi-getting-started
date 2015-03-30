@@ -8,7 +8,7 @@ var errors = require('./../../common/errors');
 var Promise = require('bluebird');
 
 var abuseDetected = function abuseDetected (request, reply) {
-    AuthAttempts.abuseDetected(request.info.remoteAddress, request.payload.email)
+    AuthAttempts.abuseDetected(utils.ip(request), request.payload.email)
         .then(function (detected) {
             if (detected) {
                 return Promise.reject(new errors.AbusiveLoginAttemptsError());
@@ -34,13 +34,13 @@ var Controller = new ControllerFactory()
     .handleUsing(function loginHandler (request, reply) {
         var email = request.payload.email;
         var password = request.payload.password;
-        var ip = request.info.remoteAddress;
+        var ip = utils.ip(request);
         Users.findByCredentials(email, password)
             .then(function (user) {
                 return user.loginSuccess(ip, user.email).save();
             })
             .then(function (user) {
-                reply(user.afterLogin());
+                reply(user.afterLogin(ip));
             })
             .catch(function (err) {
                 AuthAttempts.create(ip, email);
@@ -50,7 +50,7 @@ var Controller = new ControllerFactory()
     .forMethod('logout')
     .handleUsing(function logoutHandler (request, reply) {
         var user = request.auth.credentials.user;
-        user.logout(request.info.remoteAddress, user.email).save()
+        user.logout(utils.ip(request), user.email).save()
             .then(function () {
                 reply({message: 'Success.'});
             });

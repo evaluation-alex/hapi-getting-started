@@ -353,7 +353,7 @@ describe('Users', function () {
                     Users._findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.isActive).to.be.false();
-                            expect(foundUser.session).to.not.exist();
+                            expect(foundUser.session.length).to.equal(0);
                             return Audit.findAudit('users', foundUser.email, {'change.audit': 'isActive'});
                         })
                         .then(function (foundAudit) {
@@ -384,7 +384,7 @@ describe('Users', function () {
                     Users._findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
-                            expect(foundUser.session).to.not.exist();
+                            expect(foundUser.session.length).to.equal(0);
                             return Audit.findAudit('users', foundUser.email, {'change.audit': 'update roles'});
                         })
                         .then(function (foundAudit) {
@@ -414,7 +414,7 @@ describe('Users', function () {
                     expect(response.statusCode).to.equal(200);
                     Users._findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
-                            expect(foundUser.session).to.not.exist();
+                            expect(foundUser.session.length).to.equal(0);
                             return Audit.findAudit('users', foundUser.email, {'change.audit': 'reset password'});
                         })
                         .then(function (foundAudit) {
@@ -446,7 +446,7 @@ describe('Users', function () {
                     expect(response.statusCode).to.equal(200);
                     Users._findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
-                            expect(foundUser.session).to.not.exist();
+                            expect(foundUser.session.length).to.equal(0);
                             expect(foundUser.roles).to.include(['readonly']);
                             expect(foundUser.isActive).to.be.true();
                             done();
@@ -551,6 +551,7 @@ describe('Users', function () {
                         .then(function (foundUser) {
                             expect(foundUser).to.exist();
                             expect(foundUser.session).to.exist();
+                            expect(foundUser.session.length).to.equal(1);
                             return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'signup'});
                         })
                         .then(function (foundSignup) {

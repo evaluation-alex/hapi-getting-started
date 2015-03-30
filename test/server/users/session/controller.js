@@ -45,19 +45,8 @@ describe('Session', function () {
         it('returns early when abuse is detected', function (done) {
             var authAttemptsConfig = Config.authAttempts;
             var authSpam = [];
-            var authRequest = function () {
-                return new Promise(function (resolve/*, reject*/) {
-                    AuthAttempts.create('', 'test.users@test.api')
-                        .then(function () {
-                            resolve(true);
-                        })
-                        .catch(function () {
-                            resolve(false);
-                        });
-                });
-            };
             for (var i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
-                authSpam.push(authRequest());
+                authSpam.push(AuthAttempts.create('test', 'test.users@test.api'));
             }
             Promise.all(authSpam)
                 .then(function () {
@@ -243,7 +232,7 @@ describe('Session', function () {
                             expect(response.statusCode).to.equal(200);
                             Users._findOne({email: 'one@first.com'})
                                 .then(function (foundUser) {
-                                    expect(foundUser.session).to.not.exist();
+                                    expect(foundUser.session.length).to.equal(0);
                                     foundUser.loginSuccess('test', 'test').save();
                                     done();
                                 });

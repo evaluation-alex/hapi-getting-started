@@ -224,7 +224,6 @@ describe('Users Model', function () {
                     return user.setPassword('new password confirm', 'test').save();
                 })
                 .then(function (user) {
-                    expect(user.session).to.not.exist();
                     return Audit.findAudit('users', user.email, {'change.action': 'reset password'});
                 })
                 .then(function (userAudit) {
@@ -247,7 +246,6 @@ describe('Users Model', function () {
                 .then(function (user) {
                     return user.setRoles(['root'], 'test').save();
                 }).then(function (user) {
-                    expect(user.session).to.not.exist();
                     expect(user.roles).to.include(['root']);
                     return Audit.findAudit('users', user.email, {'change.action': 'roles'});
                 })

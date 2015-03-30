@@ -199,7 +199,7 @@ describe('Auth', function () {
                 return user.loginSuccess('test', 'test').save();
             })
             .then(function (user) {
-                authheader = tu.authorizationHeader2(email, user.session.key);
+                authheader = tu.authorizationHeader2(email, user.session[0].key);
                 var request = {
                     method: 'GET',
                     url: '/',
@@ -271,7 +271,7 @@ describe('Auth', function () {
 
         Users._findOne({email: email})
             .then(function (user) {
-                user.session.expires = moment().subtract(15, 'days').toDate();
+                user.session[0].expires = moment().subtract(15, 'days').toDate();
                 return user.save();
             })
             .then(function () {

@@ -2,6 +2,8 @@
 var relativeToServer = './../../../../server/';
 
 var Users = require(relativeToServer + 'users/model');
+var utils = require(relativeToServer + 'common/utils');
+var Uuid = require('node-uuid');
 var Audit = require(relativeToServer + 'audit/model');
 var moment = require('moment');
 //var expect = require('chai').expect;
@@ -130,9 +132,77 @@ describe('Session Model', function () {
     });
 
     describe('Session.this.loginSuccess', function () {
-        it('should create a new session object on the user and should create an audit entry', function (done) {
+        it('should do nothing if the user is already logged in from that ip', function (done) {
             var error = null;
             Users._findOne({email: firstEmail})
+                .then(function (user) {
+                    user.session.push({
+                        ipaddress: 'test',
+                        key: utils.secureHash(Uuid.v4().toString()),
+                        expires: moment().add(1, 'month').toDate()
+                    });
+                    return user.save();
+                }).then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (user) {
+                    expect(user.session.length).to.equal(1);
+                    return Audit.findAudit('users', user.email, {'change.action': 'user.session'});
+                })
+                .then(function (userAudit) {
+                    expect(userAudit.length).to.equal(0);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .finally(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should remove the expired session and login the user', function (done) {
+            var error = null;
+            Users._findOne({email: firstEmail})
+                .then(function (user) {
+                    user.session = [];
+                    user.session.push({
+                        ipaddress: 'test',
+                        key: utils.secureHash(Uuid.v4().toString()),
+                        expires: moment().subtract(1, 'minute').toDate()
+                    });
+                    return user.save();
+                }).then(function (user) {
+                    return user.loginSuccess('test', 'test').save();
+                })
+                .then(function (user) {
+                    expect(user.session.length).to.equal(1);
+                    expect(moment().isBefore(user.session[0].expires)).to.be.true();
+                    return Audit.findAudit('users', user.email, {'change.action': 'user.session'});
+                })
+                .then(function (userAudit) {
+                    expect(userAudit.length).to.equal(1);
+                })
+                .catch(function (err) {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .finally(function () {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should create a new session object on the user and should create an audit entry, if user hasnt logged in already', function (done) {
+            var error = null;
+            Users._findOne({email: firstEmail})
+                .then(function (user) {
+                    Audit.remove({objectChangedId: user._id}, function (err, ct) {
+                        if (err) {
+                            done(err);
+                        }
+                        expect(ct).to.be.instancof(Number);
+                    });
+                    user.session = [];
+                    return user.save();
+                })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
                 }).then(function (user) {

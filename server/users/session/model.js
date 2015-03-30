@@ -18,27 +18,35 @@ Session.schema = Joi.array().items(Joi.object().keys({
 
 Session.prototype._invalidateSession = function invalidateSession (ipaddress, by) {
     var self = this;
-    _.remove(self.session, function (session) {return session.ipaddress === ipaddress;});
+    _.remove(self.session, function (session) {
+        return session.ipaddress === ipaddress;
+    });
     self._audit('user.session', ipaddress, null, by);
     return self;
 };
 Session.prototype._newSession = function newSession (ipaddress, by) {
     var self = this;
-    var found = _.find(self.session, function (session) { return session.ipaddress === ipaddress;});
-    if (!(found && moment().isBefore(found.expires))) {
-        self.session.push({
-            ipaddress: ipaddress,
-            key: utils.secureHash(Uuid.v4().toString()),
-            expires: moment().add(1, 'month').toDate()
-        });
-        self._audit('user.session', null, ipaddress, by);
-    }
+    self.session.push({
+        ipaddress: ipaddress,
+        key: utils.secureHash(Uuid.v4().toString()),
+        expires: moment().add(1, 'month').toDate()
+    });
+    self._audit('user.session', null, ipaddress, by);
     return self;
 };
 Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
     var self = this;
-    self._newSession(ipaddress, by);
     delete self.resetPwd;
+    var found = _.find(self.session, function (session) {
+        return session.ipaddress === ipaddress;
+    });
+    if (!found) {
+        self._newSession(ipaddress, by);
+    }
+    if (found && moment().isAfter(found.expires)) {
+        self._invalidateSession(ipaddress, by);
+        self._newSession(ipaddress, by);
+    }
     return self;
 };
 Session.prototype.loginFail = function loginFail (ipaddress, by) {

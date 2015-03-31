@@ -1,22 +1,16 @@
 'use strict';
 var BaseModel = require('hapi-mongo-models').BaseModel;
-var ObjectAssign = require('object-assign');
 var Joi = require('joi');
-var Promisify = require('./../../../common/mixins/promisify');
+var promisify = require('./../../../common/mixins/promisify');
 var Config = require('./../../../../config');
 var Promise = require('bluebird');
+var _ = require('lodash');
 
 var authAttemptsConfig = Config.authAttempts;
 
-var AuthAttempts = BaseModel.extend({
-    /* jshint -W064 */
-    constructor: function authAttempts (attrs) {
-        ObjectAssign(this, attrs);
-    }
-    /* jshint +W064 */
-});
-
-Promisify(AuthAttempts, ['pagedFind', 'find', 'count', 'insert']);
+var AuthAttempts = function AuthAttempts (attrs) {
+    _.assign(this, attrs);
+};
 
 AuthAttempts._collection = 'auth-attempts';
 
@@ -32,6 +26,9 @@ AuthAttempts.indexes = [
     [{ip: 1, email: 1}],
     [{email: 1}]
 ];
+
+_.extend(AuthAttempts, BaseModel);
+promisify(AuthAttempts, ['pagedFind', 'find', 'count', 'insert']);
 
 AuthAttempts.create = function create (ip, email) {
     var self = this;

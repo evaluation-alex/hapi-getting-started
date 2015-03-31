@@ -1,8 +1,7 @@
 'use strict';
 var BaseModel = require('hapi-mongo-models').BaseModel;
-var ObjectAssign = require('object-assign');
 var Joi = require('joi');
-var Promisify = require('./../common/mixins/promisify');
+var promisify = require('./../common/mixins/promisify');
 var Insert = require('./../common/mixins/insert');
 var AddRemove = require('./../common/mixins/add-remove');
 var JoinApproveRejectLeave = require('./../common/mixins/join-approve-reject-leave');
@@ -17,29 +16,15 @@ var mkdirp = Promise.promisify(require('mkdirp'));
 var Config = require('./../../config');
 var utils = require('./../common/utils');
 
-var Blogs = BaseModel.extend({
-    /* jshint -W064 */
-    constructor: function blog (attrs) {
-        ObjectAssign(this, attrs);
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
-    }
-    /* jshint +W064 */
-});
+var Blogs = function Blogs (attrs) {
+    _.assign(this, attrs);
+    Object.defineProperty(this, 'audit', {
+        writable: true,
+        enumerable: false
+    });
+};
 
 Blogs._collection = 'blogs';
-
-Promisify(Blogs, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
-_.extend(Blogs, new Insert('title', 'create'));
-_.extend(Blogs.prototype, new IsActive());
-_.extend(Blogs.prototype, new AddRemove(['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));
-_.extend(Blogs.prototype, new Properties(['description', 'isActive', 'needsReview', 'access', 'allowComments']));
-_.extend(Blogs.prototype, new JoinApproveRejectLeave('addedSubscribers', 'subscribers', 'needsApproval'));
-_.extend(Blogs.prototype, new Update(['isActive', 'description', 'needsReview', 'access', 'allowComments'], ['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));
-_.extend(Blogs.prototype, new Save(Blogs));
-_.extend(Blogs.prototype, new CAudit(Blogs._collection, 'title'));
 
 Blogs.schema = Joi.object().keys({
     _id: Joi.object(),
@@ -67,6 +52,17 @@ Blogs.indexes = [
     [{owners: 1}],
     [{contributors: 1}]
 ];
+
+_.extend(Blogs, BaseModel);
+promisify(Blogs, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+_.extend(Blogs, new Insert('title', 'create'));
+_.extend(Blogs.prototype, new IsActive());
+_.extend(Blogs.prototype, new AddRemove(['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));
+_.extend(Blogs.prototype, new Properties(['description', 'isActive', 'needsReview', 'access', 'allowComments']));
+_.extend(Blogs.prototype, new JoinApproveRejectLeave('addedSubscribers', 'subscribers', 'needsApproval'));
+_.extend(Blogs.prototype, new Update(['isActive', 'description', 'needsReview', 'access', 'allowComments'], ['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));
+_.extend(Blogs.prototype, new Save(Blogs));
+_.extend(Blogs.prototype, new CAudit(Blogs._collection, 'title'));
 
 Blogs.newObject = function newObject (doc, by) {
     var self = this;

@@ -11,7 +11,7 @@ module.exports = function promisify (Model, toPromisify) {
             //[].slice.call(arguments) is a optimization killer per bluebird docs
             //https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments
             var args = new Array(arguments.length);
-            for (var i = 0 ; i < args.length ; ++i) {
+            for (var i = 0; i < args.length; ++i) {
                 args[i] = arguments[i];
             }
             return new Promise(function (resolve, reject) {

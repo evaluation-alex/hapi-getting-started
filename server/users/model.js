@@ -1,10 +1,9 @@
 'use strict';
 var BaseModel = require('hapi-mongo-models').BaseModel;
-var ObjectAssign = require('object-assign');
 var Joi = require('joi');
 var Uuid = require('node-uuid');
 var Promise = require('bluebird');
-var Promisify = require('./../common/mixins/promisify');
+var promisify = require('./../common/mixins/promisify');
 var Insert = require('./../common/mixins/insert');
 var AreValid = require('./../common/mixins/exist');
 var Properties = require('./../common/mixins/properties');
@@ -17,25 +16,46 @@ var _ = require('lodash');
 var errors = require('./../common/errors');
 var utils = require('./../common/utils');
 
-var Users = BaseModel.extend({
-    /* jshint -W064 */
-    constructor: function user (attrs) {
-        ObjectAssign(this, attrs);
-        Object.defineProperty(this, '_roles', {
-            writable: true,
-            enumerable: false
-        });
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
-    }
-    /* jshint +W064 */
-});
+var Users = function Users (attrs) {
+    _.assign(this, attrs);
+    Object.defineProperty(this, '_roles', {
+        writable: true,
+        enumerable: false
+    });
+    Object.defineProperty(this, 'audit', {
+        writable: true,
+        enumerable: false
+    });
+};
 
 Users._collection = 'users';
 
-Promisify(Users, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+Users.schema = Joi.object().keys({
+    _id: Joi.object(),
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+    organisation: Joi.string().required(),
+    roles: Joi.array().items(Joi.string()).unique(),
+    resetPwd: Joi.object().keys({
+        token: Joi.string().required(),
+        expires: Joi.date().required()
+    }),
+    session: Session.schema,
+    preferences: Preferences.schema,
+    isActive: Joi.boolean().default(true),
+    createdBy: Joi.string(),
+    createdOn: Joi.date(),
+    updatedBy: Joi.string(),
+    updatedOn: Joi.date()
+});
+
+Users.indexes = [
+    [{email: 1}, {unique: true}],
+    [{email: 1, organisation: 1}, {unique: true}]
+];
+
+_.extend(Users, BaseModel);
+promisify(Users, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
 _.extend(Users, new Insert('email', 'signup'));
 _.extend(Users, new AreValid('email'));
 _.extend(Users, Session);
@@ -97,30 +117,6 @@ Users.prototype.updateUser = function update (doc, by) {
         .setRoles(doc.payload.roles, by)
         .setPassword(doc.payload.password, by);
 };
-
-Users.schema = Joi.object().keys({
-    _id: Joi.object(),
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-    organisation: Joi.string().required(),
-    roles: Joi.array().items(Joi.string()).unique(),
-    resetPwd: Joi.object().keys({
-        token: Joi.string().required(),
-        expires: Joi.date().required()
-    }),
-    session: Session.schema,
-    preferences: Preferences.schema,
-    isActive: Joi.boolean().default(true),
-    createdBy: Joi.string(),
-    createdOn: Joi.date(),
-    updatedBy: Joi.string(),
-    updatedOn: Joi.date()
-});
-
-Users.indexes = [
-    [{email: 1}, {unique: true}],
-    [{email: 1, organisation: 1}, {unique: true}]
-];
 
 Users.create = function create (email, organisation, password, locale) {
     var self = this;

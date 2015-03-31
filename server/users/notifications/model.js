@@ -1,8 +1,7 @@
 'use strict';
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Joi = require('joi');
-var ObjectAssign = require('object-assign');
-var Promisify = require('./../../common/mixins/promisify');
+var promisify = require('./../../common/mixins/promisify');
 var Properties = require('./../../common/mixins/properties');
 var Update = require('./../../common/mixins/update');
 var IsActive = require('./../../common/mixins/is-active');
@@ -12,27 +11,15 @@ var I18N = require('./../../common/mixins/i18n');
 var _ = require('lodash');
 var Promise = require('bluebird');
 
-var Notifications = BaseModel.extend({
-    /* jshint -W064 */
-    constructor: function notification (attrs) {
-        ObjectAssign(this, attrs);
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
-    }
-    /* jshint +W064 */
-});
+var Notifications = function Notifications (attrs) {
+    _.assign(this, attrs);
+    Object.defineProperty(this, 'audit', {
+        writable: true,
+        enumerable: false
+    });
+};
 
 Notifications._collection = 'notifications';
-
-Promisify(Notifications, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
-_.extend(Notifications.prototype, new IsActive());
-_.extend(Notifications.prototype, new Properties(['state', 'isActive']));
-_.extend(Notifications.prototype, new Update(['state', 'isActive'], []));
-_.extend(Notifications.prototype, new Save(Notifications));
-_.extend(Notifications.prototype, new CAudit(Notifications._collection, '_id'));
-_.extend(Notifications.prototype, new I18N(['title', 'content']));
 
 Notifications.schema = Joi.object().keys({
     _id: Joi.object(),
@@ -56,6 +43,15 @@ Notifications.indexes = [
     [{objectType: 1, objectId: 1, state: 1, action: 1}],
     [{email: 1, objectType: 1, objectId: 1, createdOn: 1}]
 ];
+
+_.extend(Notifications, BaseModel);
+promisify(Notifications, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+_.extend(Notifications.prototype, new IsActive());
+_.extend(Notifications.prototype, new Properties(['state', 'isActive']));
+_.extend(Notifications.prototype, new Update(['state', 'isActive'], []));
+_.extend(Notifications.prototype, new Save(Notifications));
+_.extend(Notifications.prototype, new CAudit(Notifications._collection, '_id'));
+_.extend(Notifications.prototype, new I18N(['title', 'content']));
 
 Notifications.create = function create (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
     var self = this;

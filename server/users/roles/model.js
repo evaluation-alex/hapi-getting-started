@@ -1,29 +1,15 @@
 'use strict';
 var BaseModel = require('hapi-mongo-models').BaseModel;
-var ObjectAssign = require('object-assign');
 var Joi = require('joi');
-var Promisify = require('./../../common/mixins/promisify');
+var promisify = require('./../../common/mixins/promisify');
 var _ = require('lodash');
 
-var Roles = BaseModel.extend({
-    /* jshint -W064 */
-    constructor: function role (attrs) {
-        ObjectAssign(this, attrs);
-    }
-    /* jshint +W064 */
-});
-
-Promisify(Roles, ['insert', 'find', 'findOne']);
-
-Roles.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
-    var self = this;
-    var ret = !!_.find(self.permissions, function (p) {
-        return ((p.object === onObject || p.object === '*') && (p.action === performAction || p.action === 'update'));
-    });
-    return ret;
+var Roles = function Roles (attrs) {
+    _.assign(this, attrs);
 };
 
 Roles._collection = 'roles';
+
 Roles.schema = Joi.object().keys({
     _id: Joi.object(),
     name: Joi.string().required(),
@@ -37,6 +23,17 @@ Roles.schema = Joi.object().keys({
 Roles.indexes = [
     [{name: 1, organisation: 1}, {unique: true}],
 ];
+
+_.extend(Roles, BaseModel);
+promisify(Roles, ['insert', 'find', 'findOne']);
+
+Roles.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
+    var self = this;
+    var ret = !!_.find(self.permissions, function (p) {
+        return ((p.object === onObject || p.object === '*') && (p.action === performAction || p.action === 'update'));
+    });
+    return ret;
+};
 
 Roles.create = function create (name, organisation, permissions) {
     var self = this;

@@ -1,8 +1,7 @@
 'use strict';
 var BaseModel = require('hapi-mongo-models').BaseModel;
 var Joi = require('joi');
-var ObjectAssign = require('object-assign');
-var Promisify = require('./../../common/mixins/promisify');
+var promisify = require('./../../common/mixins/promisify');
 var Insert = require('./../../common/mixins/insert');
 var AddRemove = require('./../../common/mixins/add-remove');
 var IsActive = require('./../../common/mixins/is-active');
@@ -13,31 +12,15 @@ var CAudit = require('./../../common/mixins/audit');
 var _ = require('lodash');
 var utils = require('./../../common/utils');
 
-var Posts = BaseModel.extend({
-    /* jshint -W064 */
-    constructor: function post (attrs) {
-        ObjectAssign(this, attrs);
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
-    }
-    /* jshint +W064 */
-});
+var Posts = function Posts (attrs) {
+    _.assign(this, attrs);
+    Object.defineProperty(this, 'audit', {
+        writable: true,
+        enumerable: false
+    });
+};
 
 Posts._collection = 'posts';
-
-Promisify(Posts, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
-_.extend(Posts, new Insert('_id', 'create'));
-_.extend(Posts.prototype, new IsActive());
-_.extend(Posts.prototype, new AddRemove({
-    tags: 'tags',
-    attachments: 'attachments'
-}));
-_.extend(Posts.prototype, new Properties(['title', 'state', 'category', 'access', 'allowComments', 'needsReview', 'isActive']));
-_.extend(Posts.prototype, new Update(['isActive', 'state', 'category', 'title', 'access', 'allowComments', 'needsReview'], ['tags', 'attachments']));
-_.extend(Posts.prototype, new Save(Posts));
-_.extend(Posts.prototype, new CAudit(Posts._collection, '_id'));
 
 Posts.schema = Joi.object().keys({
     _id: Joi.object(),
@@ -68,6 +51,19 @@ Posts.indexes = [
     [{tags: 1}],
     [{state: 1, publishedOn: 1}]
 ];
+
+_.extend(Posts, BaseModel);
+promisify(Posts, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+_.extend(Posts, new Insert('_id', 'create'));
+_.extend(Posts.prototype, new IsActive());
+_.extend(Posts.prototype, new AddRemove({
+    tags: 'tags',
+    attachments: 'attachments'
+}));
+_.extend(Posts.prototype, new Properties(['title', 'state', 'category', 'access', 'allowComments', 'needsReview', 'isActive']));
+_.extend(Posts.prototype, new Update(['isActive', 'state', 'category', 'title', 'access', 'allowComments', 'needsReview'], ['tags', 'attachments']));
+_.extend(Posts.prototype, new Save(Posts));
+_.extend(Posts.prototype, new CAudit(Posts._collection, '_id'));
 
 Posts.newObject = function newObject (doc, by) {
     var self = this;

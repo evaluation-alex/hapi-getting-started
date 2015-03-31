@@ -5,8 +5,28 @@ var Properties = require('./../../common/mixins/properties');
 var Update = require('./../../common/mixins/update');
 var _ = require('lodash');
 
-var Preferences = function preferences () {
+var Preferences = function Preferences () {
 };
+
+var channelSchema = Joi.object().keys({
+    frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
+    lastSent: Joi.date()
+});
+
+var notificationPrefSchema = Joi.object().keys({
+    inapp: channelSchema,
+    email: channelSchema,
+    blocked: Joi.array().items(Joi.object())
+});
+
+Preferences.schema = Joi.object().keys({
+    notifications: Joi.object().keys({
+        blogs: notificationPrefSchema,
+        posts: notificationPrefSchema,
+        userGroups: notificationPrefSchema
+    }),
+    locale: Joi.string().only('en', 'hi')
+});
 
 _.extend(Preferences.prototype, new AddRemove([
     'preferences.notifications.blogs.blocked',
@@ -89,25 +109,5 @@ Preferences.prototype.resetPrefs = function resetPrefsToDefault () {
     };
     return self;
 };
-
-var channelSchema = Joi.object().keys({
-    frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
-    lastSent: Joi.date()
-});
-
-var notificationPrefSchema = Joi.object().keys({
-    inapp: channelSchema,
-    email: channelSchema,
-    blocked: Joi.array().items(Joi.object())
-});
-
-Preferences.schema = Joi.object().keys({
-    notifications: Joi.object().keys({
-        blogs: notificationPrefSchema,
-        posts: notificationPrefSchema,
-        userGroups: notificationPrefSchema
-    }),
-    locale: Joi.string().only('en', 'hi')
-});
 
 module.exports = Preferences;

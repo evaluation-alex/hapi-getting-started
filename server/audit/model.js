@@ -1,18 +1,12 @@
 'use strict';
 var BaseModel = require('hapi-mongo-models').BaseModel;
+var _ = require('lodash');
 var Joi = require('joi');
-var ObjectAssign = require('object-assign');
-var Promisify = require('./../common/mixins/promisify');
+var promisify = require('./../common/mixins/promisify');
 
-var Audit = BaseModel.extend({
-    /* jshint -W064 */
-    constructor: function audit (attrs) {
-        ObjectAssign(this, attrs);
-    }
-    /* jshint +W064 */
-});
-
-Promisify(Audit, ['pagedFind', 'find']);
+var Audit = function Audit (attrs) {
+    _.assign(this, attrs);
+};
 
 Audit._collection = 'audit';
 
@@ -34,6 +28,9 @@ Audit.indexes = [
     [{by: 1, on: 1}],
     [{on: 1}]
 ];
+
+_.extend(Audit, BaseModel);
+promisify(Audit, ['pagedFind', 'find']);
 
 Audit.findAudit = function findAudit (type, id, conditions) {
     var self = this;

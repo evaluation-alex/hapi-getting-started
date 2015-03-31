@@ -1,8 +1,7 @@
 'use strict';
 var BaseModel = require('hapi-mongo-models').BaseModel;
-var ObjectAssign = require('object-assign');
 var Joi = require('joi');
-var Promisify = require('./../common/mixins/promisify');
+var promisify = require('./../common/mixins/promisify');
 var Insert = require('./../common/mixins/insert');
 var AreValid = require('./../common/mixins/exist');
 var AddRemove = require('./../common/mixins/add-remove');
@@ -14,30 +13,15 @@ var Save = require('./../common/mixins/save');
 var CAudit = require('./../common/mixins/audit');
 var _ = require('lodash');
 
-var UserGroups = BaseModel.extend({
-    /* jshint -W064 */
-    constructor: function userGroup (attrs) {
-        ObjectAssign(this, attrs);
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
-    }
-    /* jshint +W064 */
-});
+var UserGroups = function UserGroups (attrs) {
+    _.assign(this, attrs);
+    Object.defineProperty(this, 'audit', {
+        writable: true,
+        enumerable: false
+    });
+};
 
 UserGroups._collection = 'user-groups';
-
-Promisify(UserGroups, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
-_.extend(UserGroups, new Insert('name', 'create'));
-_.extend(UserGroups, new AreValid('name'));
-_.extend(UserGroups.prototype, new IsActive());
-_.extend(UserGroups.prototype, new AddRemove(['owners', 'members', 'needsApproval']));
-_.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActive']));
-_.extend(UserGroups.prototype, new JoinApproveRejectLeave('addedMembers', 'members', 'needsApproval'));
-_.extend(UserGroups.prototype, new Update(['isActive', 'description', 'access'], ['owners', 'members', 'needsApproval']));
-_.extend(UserGroups.prototype, new Save(UserGroups));
-_.extend(UserGroups.prototype, new CAudit(UserGroups._collection, 'name'));
 
 UserGroups.schema = Joi.object().keys({
     _id: Joi.object(),
@@ -60,6 +44,18 @@ UserGroups.indexes = [
     [{'members': 1}],
     [{'owners': 1}]
 ];
+
+_.extend(UserGroups, BaseModel);
+promisify(UserGroups, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+_.extend(UserGroups, new Insert('name', 'create'));
+_.extend(UserGroups, new AreValid('name'));
+_.extend(UserGroups.prototype, new IsActive());
+_.extend(UserGroups.prototype, new AddRemove(['owners', 'members', 'needsApproval']));
+_.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActive']));
+_.extend(UserGroups.prototype, new JoinApproveRejectLeave('addedMembers', 'members', 'needsApproval'));
+_.extend(UserGroups.prototype, new Update(['isActive', 'description', 'access'], ['owners', 'members', 'needsApproval']));
+_.extend(UserGroups.prototype, new Save(UserGroups));
+_.extend(UserGroups.prototype, new CAudit(UserGroups._collection, 'name'));
 
 UserGroups.newObject = function newObject (doc, by) {
     var self = this;

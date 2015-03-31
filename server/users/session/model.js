@@ -37,7 +37,6 @@ Session.prototype._newSession = function newSession (ipaddress, by) {
 };
 Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
     var self = this;
-    delete self.resetPwd;
     var found = _.find(self.session, function (session) {
         return session.ipaddress === ipaddress;
     });

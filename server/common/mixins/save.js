@@ -7,7 +7,6 @@ module.exports = function CommonMixinSave (Model) {
             var self = this;
             insertAudit(self.audit);
             self.audit = undefined;
-            //delete self.audit;
             return Model._findByIdAndUpdate(self._id, self);
         }
     };

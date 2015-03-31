@@ -48,9 +48,7 @@ Blogs.schema = Joi.object().keys({
 
 Blogs.indexes = [
     [{title: 1, organisation: 1}, {unique: true}],
-    [{description: 1}],
-    [{owners: 1}],
-    [{contributors: 1}]
+    [{description: 1}]
 ];
 
 _.extend(Blogs, BaseModel);

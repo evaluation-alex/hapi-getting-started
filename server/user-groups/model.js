@@ -40,9 +40,7 @@ UserGroups.schema = Joi.object().keys({
 });
 
 UserGroups.indexes = [
-    [{name: 1, organisation: 1}, {unique: true}],
-    [{'members': 1}],
-    [{'owners': 1}]
+    [{name: 1, organisation: 1}, {unique: true}]
 ];
 
 _.extend(UserGroups, BaseModel);

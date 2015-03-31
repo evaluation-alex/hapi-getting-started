@@ -46,8 +46,7 @@ Posts.schema = Joi.object().keys({
 });
 
 Posts.indexes = [
-    [{blogId: 1, organisation: 1, title: 1, publishedOn: 1}],
-    [{title: 1}],
+    [{organisation: 1, title: 1, blogId: 1, publishedOn: 1}],
     [{tags: 1}],
     [{state: 1, publishedOn: 1}]
 ];

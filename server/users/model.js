@@ -81,7 +81,9 @@ Users.prototype.stripPrivateData = function stripData () {
 };
 Users.prototype.afterLogin = function afterLogin (ipaddress) {
     var self = this;
-    var session = _.find(self.session, function (session) { return session.ipaddress === ipaddress; });
+    var session = _.find(self.session, function (session) {
+        return session.ipaddress === ipaddress;
+    });
     return {
         user: self.email,
         session: session,

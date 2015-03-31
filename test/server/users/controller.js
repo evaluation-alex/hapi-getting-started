@@ -47,6 +47,7 @@ describe('Users', function () {
         var authheader = '';
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
+                foundUser.loginSuccess('test', 'test');
                 authheader = tu.authorizationHeader(foundUser);
                 return foundUser.logout('test', 'test').save();
             })
@@ -73,7 +74,7 @@ describe('Users', function () {
         var authheader = '';
         Users._findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
-                return foundUser.loginSuccess('test').save();
+                return foundUser.loginSuccess('test', 'test').save();
             })
             .then(function (foundUser) {
                 authheader = tu.authorizationHeader(foundUser);

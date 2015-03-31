@@ -181,28 +181,23 @@ ControllerFactory.prototype.joinLeaveController = function joinController (group
 
 ControllerFactory.prototype.approveRejectController = function approveRejectController (toAdd, approvers, idForNotificationsTitle) {
     var self = this;
+
     var validator = {
         payload: {}
     };
     validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
-
-    self.updateController(validator, [
-            validAndPermitted(self.model, 'id', [approvers]),
-            areValid.users([toAdd])
-        ],
-        'approve',
-        'approve');
-    self.sendNotifications(new ApproveNotificationsBuilder(toAdd, approvers, idForNotificationsTitle));
-    self.cancelNotifications('approve', new CancelJoinNotificationsBuilder(toAdd));
-
-    self.updateController(validator, [
-            validAndPermitted(self.model, 'id', [approvers]),
-            areValid.users([toAdd])
-        ],
-        'reject',
-        'reject');
-    self.sendNotifications(new RejectNotificationsBuilder(toAdd, idForNotificationsTitle));
-    self.cancelNotifications('approve', new CancelJoinNotificationsBuilder(toAdd));
+    _.forEach(['approve', 'reject'], function (action) {
+        self.updateController(validator, [
+                validAndPermitted(self.model, 'id', [approvers]),
+                areValid.users([toAdd])
+            ],
+            action,
+            action);
+        self.sendNotifications(action === 'approve' ?
+            new ApproveNotificationsBuilder(toAdd, approvers, idForNotificationsTitle) :
+            new RejectNotificationsBuilder(toAdd, idForNotificationsTitle));
+        self.cancelNotifications('approve', new CancelJoinNotificationsBuilder(toAdd));
+    });
 
     return self;
 };

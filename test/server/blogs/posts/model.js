@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../../server/';
-var BaseModel = require('hapi-mongo-models').BaseModel;
 var Posts = require(relativeToServer + 'blogs/posts/model');
 var Audit = require(relativeToServer + 'audit/model');
 var _ = require('lodash');
@@ -19,7 +18,7 @@ var expect = Code.expect;
 describe('Posts Model', function () {
     var postsToClear = [];
     var blogsToClear = [];
-    var blogId = BaseModel.ObjectId('54ec3cdbb25155f40ce6107e');
+    var blogId = Posts.ObjectId('54ec3cdbb25155f40ce6107e');
 
     before(function (done) {
         tu.setupRolesAndUsers()

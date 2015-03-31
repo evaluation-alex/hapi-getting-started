@@ -7,7 +7,6 @@ var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
 var _ = require('lodash');
-var BaseModel = require('hapi-mongo-models').BaseModel;
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
 var Code = require('code');   // assertion library
@@ -324,7 +323,7 @@ describe('Blogs', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                            Blogs._find({_id: Blogs.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].isActive).to.be.true();
                                     return Audit.findAudit('blogs', found[0].title, {'change.action': 'isActive'});
@@ -361,7 +360,7 @@ describe('Blogs', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                            Blogs._find({_id: Blogs.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].isActive).to.be.false();
                                     return Audit.findAudit('blogs', found[0].title, {'change.action': 'isActive'});
@@ -402,7 +401,7 @@ describe('Blogs', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                            Blogs._find({_id: Blogs.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].subscribers[1]).to.equal('one@first.com');
                                     expect(found[0].subscriberGroups[0]).to.equal('testBlogsAddGroup');
@@ -444,7 +443,7 @@ describe('Blogs', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                            Blogs._find({_id: Blogs.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].subscribers.length).to.equal(0);
                                     expect(found[0].subscriberGroups.length).to.equal(0);
@@ -558,7 +557,7 @@ describe('Blogs', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                            Blogs._find({_id: Blogs.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].description).to.equal('updated');
                                     return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /description/}});
@@ -597,7 +596,7 @@ describe('Blogs', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                            Blogs._find({_id: Blogs.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].access).to.equal('restricted');
                                     return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /access/}});
@@ -634,7 +633,7 @@ describe('Blogs', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                            Blogs._find({_id: Blogs.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].needsReview).to.equal(true);
                                     return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /needsReview/}});
@@ -671,7 +670,7 @@ describe('Blogs', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                            Blogs._find({_id: Blogs.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found[0].allowComments).to.equal(false);
                                     return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /allowComments/}});
@@ -1578,7 +1577,7 @@ describe('Blogs', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Blogs._find({_id: BaseModel.ObjectID(id)})
+                            Blogs._find({_id: Blogs.ObjectID(id)})
                                 .then(function (p) {
                                     expect(p[0].isActive).to.be.false;
                                     return Audit.findAudit('blogs', p[0].title, {'change.action': 'isActive'});

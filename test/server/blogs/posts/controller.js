@@ -13,7 +13,6 @@ var fs = require('fs');
 var _ = require('lodash');
 var moment = require('moment');
 var Promise = require('bluebird');
-var BaseModel = require('hapi-mongo-models').BaseModel;
 //var expect = require('chai').expect;
 var tu = require('./../../testutils');
 var Code = require('code');   // assertion library
@@ -485,7 +484,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Posts._find({_id: BaseModel.ObjectID(postId)})
+                    Posts._find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].isActive).to.be.false();
                             return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
@@ -516,7 +515,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Posts._find({_id: BaseModel.ObjectID(postId)})
+                    Posts._find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].isActive).to.be.true();
                             return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
@@ -548,7 +547,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Posts._find({_id: BaseModel.ObjectID(postId)})
+                    Posts._find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].tags[0]).to.equal('add some');
                             return Audit.findAudit('posts', found[0]._id, {'change.action': {$regex: /tag/}});
@@ -580,7 +579,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Posts._find({_id: BaseModel.ObjectID(postId)})
+                    Posts._find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
                             var filename = PostContent.filenameForPost(found[0]);
                             var timeout = setTimeout(function () {
@@ -612,7 +611,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Posts._find({_id: BaseModel.ObjectID(postId)})
+                    Posts._find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].access).to.equal('restricted');
                             expect(found[0].allowComments).to.equal(false);
@@ -825,7 +824,7 @@ describe('Posts', function () {
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
+                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').save();
@@ -848,7 +847,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(401);
-                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                            Posts._find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('draft');
                                     done();
@@ -866,7 +865,7 @@ describe('Posts', function () {
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
+                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').add(['owner1'], 'owners', 'test').save();
@@ -889,7 +888,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                            Posts._find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('pending review');
                                     expect(found[0].access).to.equal('restricted');
@@ -931,7 +930,7 @@ describe('Posts', function () {
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, false, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
+                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').save();
@@ -954,7 +953,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                            Posts._find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('published');
                                     expect(found[0].access).to.equal('restricted');
@@ -997,7 +996,7 @@ describe('Posts', function () {
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'archived', 'restricted', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
+                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').save();
@@ -1020,7 +1019,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                            Posts._find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('archived');
                                     expect(found[0].access).to.equal('restricted');
@@ -1088,7 +1087,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                            Posts._find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].access).to.equal('restricted');
                                     expect(found[0].state).to.equal('do not publish');
@@ -1129,7 +1128,7 @@ describe('Posts', function () {
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
+                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').save();
@@ -1152,7 +1151,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(401);
-                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                            Posts._find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('draft');
                                     done();
@@ -1169,11 +1168,11 @@ describe('Posts', function () {
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: BaseModel.ObjectID(blogId)});
+                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').save();
-                    return Posts._findOne({_id: BaseModel.ObjectID(postId)});
+                    return Posts._findOne({_id: Posts.ObjectID(postId)});
                 })
                 .then(function (post) {
                     post.setState('published', 'test').save();
@@ -1196,7 +1195,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                            Posts._find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('published');
                                     done();
@@ -1263,7 +1262,7 @@ describe('Posts', function () {
         });
 
         it('should not allow you to create a post if you are not an owner / contributor to the blog', function (done) {
-            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+            Blogs._findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').save();
                     return Users._findOne({email: 'one@first.com'});
@@ -1305,7 +1304,7 @@ describe('Posts', function () {
         });
 
         it('should create post successfully, and publish if blog doesnt have needsReview set', function (done) {
-            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+            Blogs._findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'contributors', 'test').setNeedsReview(false, 'test').save();
                     return Users._findOne({email: 'one@first.com'});
@@ -1355,7 +1354,7 @@ describe('Posts', function () {
         });
 
         it('should create post successfully, and mark it as pending review if blog has needsReview set', function (done) {
-            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+            Blogs._findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
                     return Users._findOne({email: 'one@first.com'});
@@ -1399,7 +1398,7 @@ describe('Posts', function () {
         });
 
         it('should create post successfully, and mark it as draft if user has marked it as draft irrespective of whether user is owner / needsReview setting', function (done) {
-            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+            Blogs._findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
                     return Users._findOne({email: 'one@first.com'});
@@ -1443,7 +1442,7 @@ describe('Posts', function () {
         });
 
         it('should create post successfully, and mark it as published if creator is an owner of the blog', function (done) {
-            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+            Blogs._findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
                     return Users._findOne({email: 'one@first.com'});
@@ -1489,7 +1488,7 @@ describe('Posts', function () {
         });
 
         it('should create post successfully, inherit needsReview, allowComments, access from blog if not passed', function (done) {
-            Blogs._findOne({_id: BaseModel.ObjectID(blogId)})
+            Blogs._findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').setAccess('restricted', 'test').setAllowComments(false, 'test').save();
                     return Users._findOne({email: 'one@first.com'});
@@ -1628,7 +1627,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: BaseModel.ObjectID(postId)})
+                            Posts._find({_id: Posts.ObjectID(postId)})
                                 .then(function (p) {
                                     expect(p[0].isActive).to.be.false;
                                     return Audit.findAudit('posts', p[0]._id, {by: 'one@first.com'});

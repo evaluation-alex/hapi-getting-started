@@ -258,24 +258,37 @@ describe('Session Model', function () {
     describe('Session.this.logout', function () {
         it('should remove the session object on the user and should create an audit entry', function (done) {
             var error = null;
-            Users._findOne({email: firstEmail})
-                .then(function (user) {
-                    return user.logout('test', 'test').save();
-                })
-                .then(function (user) {
-                    expect(user.session.length).to.equal(0);
-                    return Audit.findAudit('users', user.email, {'change.action': 'user.session'});
-                })
-                .then(function (userAudit) {
-                    expect(userAudit[0]).to.be.an.instanceof(Audit);
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .finally(function () {
-                    tu.testComplete(done, error);
-                });
+            Audit.remove({objectChangedId: firstEmail}, function (err) {
+                if (err) {
+                    done(err);
+                }
+                Users._findOne({email: firstEmail})
+                    .then(function (user) {
+                        user.session = [{
+                            ipaddress: 'test',
+                            key: utils.secureHash(Uuid.v4()),
+                            expires: moment().add(1, 'month').toDate()
+                        }];
+                        return user.save();
+                    })
+                    .then(function (user) {
+                        return user.logout('test', 'test').save();
+                    })
+                    .then(function (user) {
+                        expect(user.session.length).to.equal(0);
+                        return Audit.findAudit('users', user.email, {'change.action': 'user.session'});
+                    })
+                    .then(function (userAudit) {
+                        expect(userAudit[0]).to.be.an.instanceof(Audit);
+                    })
+                    .catch(function (err) {
+                        expect(err).to.not.exist();
+                        error = err;
+                    })
+                    .finally(function () {
+                        tu.testComplete(done, error);
+                    });
+            });
         });
     });
 

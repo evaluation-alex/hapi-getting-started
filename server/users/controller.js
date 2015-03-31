@@ -68,9 +68,7 @@ var Controller = new ControllerFactory(Users)
     })
     .findOneController([
         onlyOwnerAllowed(Users, 'email')
-    ], function stripPrivateData (user) {
-        return user.stripPrivateData();
-    })
+    ])
     .updateController({
         payload: {
             isActive: Joi.boolean(),

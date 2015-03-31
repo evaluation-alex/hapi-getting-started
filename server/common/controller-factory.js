@@ -3,7 +3,7 @@ var Joi = require('joi');
 var _ = require('lodash');
 var EventEmitter = require('events');
 var ensurePermissions = require('./prereqs/ensure-permissions');
-var validAndPermitted = require('./prereqs/valid-permitted');
+var isMemberOf = require('./prereqs/valid-permitted');
 var isUnique = require('./prereqs/is-unique');
 var areValid = require('./prereqs/are-valid');
 var prePopulate = require('./prereqs/pre-populate');
@@ -165,7 +165,7 @@ ControllerFactory.prototype.joinLeaveController = function joinController (group
 
     self.updateController(undefined, [
             ensurePermissions('view', self.component),
-            validAndPermitted(self.model, 'id', group)
+            isMemberOf(self.model, group)
         ],
         'leave',
         'leave');
@@ -188,7 +188,7 @@ ControllerFactory.prototype.approveRejectController = function approveRejectCont
     validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
     _.forEach(['approve', 'reject'], function (action) {
         self.updateController(validator, [
-                validAndPermitted(self.model, 'id', [approvers]),
+                isMemberOf(self.model, [approvers]),
                 areValid.users([toAdd])
             ],
             action,

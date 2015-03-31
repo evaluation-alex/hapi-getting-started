@@ -6,7 +6,7 @@ var Posts = require('./model');
 var Blogs = require('./../model');
 var UserGroups = require('./../../user-groups/model');
 var ControllerFactory = require('./../../common/controller-factory');
-var validAndPermitted = require('./../../common/prereqs/valid-permitted');
+var isMemberOf = require('./../../common/prereqs/valid-permitted');
 var prePopulate = require('./../../common/prereqs/pre-populate');
 var PostContent = require('./post-content');
 var errors = require('./../../common/errors');
@@ -81,8 +81,8 @@ var Controller = new ControllerFactory(Posts)
             needsReview: Joi.boolean()
         }
     }, [
-        validAndPermitted(Blogs, 'blogId', ['contributors', 'owners']),
-        prePopulate(Blogs, 'blogId')
+        prePopulate(Blogs, 'blogId'),
+        isMemberOf(Blogs, ['contributors', 'owners'])
     ], function uniqueCheckQuery (request) {
         return {
             blogId: utils.lookupParamsOrPayloadOrQuery(request, 'blogId'),
@@ -162,7 +162,8 @@ var Controller = new ControllerFactory(Posts)
             allowComments: Joi.boolean()
         }
     }, [
-        validAndPermitted(Blogs, 'blogId', ['contributors', 'owners'])
+        prePopulate(Blogs, 'blogId'),
+        isMemberOf(Blogs, ['contributors', 'owners'])
     ],
     'update',
     function update (post, request, by) {
@@ -179,8 +180,8 @@ var Controller = new ControllerFactory(Posts)
             access: Joi.string().only(['public', 'restricted'])
         }
     }, [
-        validAndPermitted(Blogs, 'blogId', ['owners', 'contributors']),
-        prePopulate(Blogs, 'blogId')
+        prePopulate(Blogs, 'blogId'),
+        isMemberOf(Blogs, ['owners', 'contributors'])
     ],
     'publish',
     function publish (post, request, by) {
@@ -209,8 +210,8 @@ var Controller = new ControllerFactory(Posts)
             access: Joi.string().only(['public', 'restricted'])
         }
     }, [
-        validAndPermitted(Blogs, 'blogId', ['owners', 'contributors']),
-        prePopulate(Blogs, 'blogId')
+        prePopulate(Blogs, 'blogId'),
+        isMemberOf(Blogs, ['owners', 'contributors'])
     ],
     'reject',
     function reject (post, request, by) {
@@ -227,7 +228,8 @@ var Controller = new ControllerFactory(Posts)
     })
     .cancelNotifications('review')
     .deleteController([
-        validAndPermitted(Blogs, 'blogId', ['owners'])
+        prePopulate(Blogs, 'blogId'),
+        isMemberOf(Blogs, ['owners'])
     ])
     .doneConfiguring();
 

@@ -13,7 +13,7 @@ module.exports = function ensurePermissions (forAction, onObject) {
                     user: request.auth.credentials.user.email
                 }));
             }
-            reply();
+            reply(true);
         }
     };
 };

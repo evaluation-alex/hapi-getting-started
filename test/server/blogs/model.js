@@ -3,7 +3,6 @@ var relativeToServer = './../../../server/';
 
 var Blogs = require(relativeToServer + 'blogs/model');
 var Audit = require(relativeToServer + 'audit/model');
-var BaseModel = require('hapi-mongo-models').BaseModel;
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var _ = require('lodash');
 //var expect = require('chai').expect;
@@ -74,81 +73,6 @@ describe('Blogs Model', function () {
                 })
                 .done(function () {
                     blogsToClear.push('dupeBlog');
-                    tu.testComplete(done, error);
-                });
-        });
-    });
-
-    describe('Blogs.isValid', function () {
-        it('should return with a not found message when blog does not exist', function (done) {
-            var error = null;
-            Blogs.isValid(BaseModel.ObjectID(null), 'unknown', ['owners'])
-                .then(function (m) {
-                    expect(m).to.exist();
-                    expect(m.message).to.equal('not found');
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should return with not an owner when the owner argument is not an owner (active or otherwise)', function (done) {
-            var error = null;
-            Blogs.create('isValidTest', 'silver lining', 'Blog.isValid test', [], [], [], [], false, 'public', true, 'test')
-                .then(function (b) {
-                    return Blogs.isValid(b._id, 'unknown', ['owners']);
-                })
-                .then(function (m) {
-                    expect(m).to.exist();
-                    expect(m.message).to.match(/not permitted/);
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    blogsToClear.push('isValidTest');
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should return valid when the blog exists and the owner is an active owner', function (done) {
-            var error = null;
-            Blogs.create('isValidTest2', 'silver lining', 'Blog.isValid test2', ['validOwner'], [], [], [], false, 'public', true, 'test')
-                .then(function (b) {
-                    return Blogs.isValid(b._id, 'validOwner', ['owners']);
-                })
-                .then(function (m) {
-                    expect(m).to.exist();
-                    expect(m.message).to.equal('valid');
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    blogsToClear.push('isValidTest2');
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should return valid when the group exists and we pass root as owner', function (done) {
-            var error = null;
-            Blogs.create('isValidTest3', 'silver lining', 'Blog.isValid test3', ['validOwner'], [], [], [], false, 'public', true, 'test')
-                .then(function (b) {
-                    return Blogs.isValid(b._id, 'root', ['owners']);
-                })
-                .then(function (m) {
-                    expect(m).to.exist();
-                    expect(m.message).to.equal('valid');
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    blogsToClear.push('isValidTest3');
                     tu.testComplete(done, error);
                 });
         });

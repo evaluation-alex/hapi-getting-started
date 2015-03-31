@@ -2,7 +2,6 @@
 var relativeToServer = './../../../server/';
 
 var UserGroups = require(relativeToServer + 'user-groups/model');
-var BaseModel = require('hapi-mongo-models').BaseModel;
 var Audit = require(relativeToServer + 'audit/model');
 //var expect = require('chai').expect;
 var tu = require('./../testutils');
@@ -75,82 +74,7 @@ describe('UserGroups Model', function () {
         });
     });
 
-    describe('UserGroups.isValid', function () {
-        it('should return with a not found message when group does not exist', function (done) {
-            var error = null;
-            UserGroups.isValid(BaseModel.ObjectID(null), 'unknown', ['owners'])
-                .then(function (m) {
-                    expect(m).to.exist();
-                    expect(m.message).to.equal('not found');
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should return with not an owner when the owner argument is not an owner (active or otherwise)', function (done) {
-            var error = null;
-            UserGroups.create('isValidTest', 'silver lining', 'isValidTest', 'test5')
-                .then(function (ug) {
-                    return UserGroups.isValid(ug._id, 'unknown', ['owners']);
-                })
-                .then(function (m) {
-                    expect(m).to.exist();
-                    expect(m.message).to.match(/not permitted/);
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    groupsToCleanup.push('isValidTest');
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should return valid when the group exists and the owner is an active owner', function (done) {
-            var error = null;
-            UserGroups.create('isValidTest2', 'silver lining', 'isValidTest2', 'test5')
-                .then(function (ug) {
-                    return UserGroups.isValid(ug._id, 'test5', ['owners']);
-                })
-                .then(function (m) {
-                    expect(m).to.exist();
-                    expect(m.message).to.equal('valid');
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    groupsToCleanup.push('isValidTest2');
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should return valid when the group exists and we pass root as owner', function (done) {
-            var error = null;
-            UserGroups.create('isValidTest3', 'silver lining', 'isValidTest3', 'test5')
-                .then(function (ug) {
-                    return UserGroups.isValid(ug._id, 'root', ['owners']);
-                })
-                .then(function (m) {
-                    expect(m).to.exist();
-                    expect(m.message).to.equal('valid');
-                })
-                .catch(function (err) {
-                    expect(err).to.not.exist();
-                    error = err;
-                })
-                .done(function () {
-                    groupsToCleanup.push('isValidTest3');
-                    tu.testComplete(done, error);
-                });
-        });
-    });
-
-    describe('Users.areValid', function () {
+    describe('UserGroups.areValid', function () {
         it('should return empty array when nothing is sent', function (done) {
             var error = null;
             UserGroups.areValid([], 'silver lining')

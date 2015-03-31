@@ -3,7 +3,7 @@ var Joi = require('joi');
 var UserGroups = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
 var areValid = require('./../common/prereqs/are-valid');
-var validAndPermitted = require('./../common/prereqs/valid-permitted');
+var isMemberOf = require('./../common/prereqs/valid-permitted');
 var CreateDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
 var AddRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
 var utils = require('./../common/utils');
@@ -49,11 +49,11 @@ var Controller = new ControllerFactory(UserGroups)
             description: Joi.string(),
             access: Joi.string().only(['restricted', 'public'])
         }
-    }, [validAndPermitted(UserGroups, 'id', ['owners']),
+    }, [isMemberOf(UserGroups, ['owners']),
         areValid.users(['addedMembers', 'addedOwners'])
     ], 'update', 'update')
     .sendNotifications(new AddRemoveNotificationsBuilder('UserGroup', ['owners', 'members'], 'owners', 'name'))
-    .deleteController(validAndPermitted(UserGroups, 'id', ['owners']))
+    .deleteController(isMemberOf(UserGroups, ['owners']))
     .sendNotifications(new CreateDeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name', 'delete'))
     .joinLeaveController(['members'], 'owners', 'name')
     .approveRejectController('addedMembers', 'owners', 'name')

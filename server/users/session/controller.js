@@ -13,7 +13,7 @@ var abuseDetected = function abuseDetected (request, reply) {
             if (detected) {
                 return Promise.reject(new errors.AbusiveLoginAttemptsError());
             }
-            reply();
+            reply(false);
         })
         .catch(function (err) {
             utils.logAndBoom(err, reply);

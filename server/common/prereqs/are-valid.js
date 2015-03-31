@@ -28,13 +28,13 @@ var areValid = function areValid (Model, payloadPropertiesToLookup) {
                     if (msg.indexOf(',') > -1) {
                         return Promise.reject(new errors.NotValidUsersOrGroupsError({msg: msg}));
                     }
-                    reply();
+                    reply(true);
                 })
                 .catch(function (err) {
                     utils.logAndBoom(err, reply);
                 });
         } else {
-            reply();
+            reply(true);
         }
     };
 };

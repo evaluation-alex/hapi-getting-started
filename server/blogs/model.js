@@ -4,7 +4,6 @@ var ObjectAssign = require('object-assign');
 var Joi = require('joi');
 var Promisify = require('./../common/mixins/promisify');
 var Insert = require('./../common/mixins/insert');
-var IsValid = require('./../common/mixins/is-valid-role-in');
 var AddRemove = require('./../common/mixins/add-remove');
 var JoinApproveRejectLeave = require('./../common/mixins/join-approve-reject-leave');
 var Update = require('./../common/mixins/update');
@@ -34,7 +33,6 @@ Blogs._collection = 'blogs';
 
 Promisify(Blogs, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
 _.extend(Blogs, new Insert('title', 'create'));
-_.extend(Blogs, new IsValid());
 _.extend(Blogs.prototype, new IsActive());
 _.extend(Blogs.prototype, new AddRemove(['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));
 _.extend(Blogs.prototype, new Properties(['description', 'isActive', 'needsReview', 'access', 'allowComments']));

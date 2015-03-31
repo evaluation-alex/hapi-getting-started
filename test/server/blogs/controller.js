@@ -466,6 +466,81 @@ describe('Blogs', function () {
                 })
                 .done();
         });
+        it('should add/remove subscribers / owners and have changes audited and notifications sent to owners', function (done) {
+            var request = {};
+            var id = '';
+            Blogs.create('test PUT /blogs add remove subscribers and owners', 'silver lining', 'test PUT /blogs add remove subscribers and owners', ['one@first.com'], [], ['root'], [], false, 'public', true, 'test')
+                .then(function (b) {
+                    id = b._id.toString();
+                    expect(b._isMemberOf('subscribers', 'root')).to.be.true();
+                    expect(b._isMemberOf('owners', 'one@first.com')).to.be.true();
+                    request = {
+                        method: 'PUT',
+                        url: '/blogs/' + id,
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            removedOwners: ['one@first.com'],
+                            removedSubscribers: ['root'],
+                            addedOwners: ['root'],
+                            addedSubscribers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            Blogs._find({title: 'test PUT /blogs add remove subscribers and owners'})
+                                .then(function (b) {
+                                    expect(b).to.exist();
+                                    expect(b[0]._isMemberOf('subscribers', 'root')).to.be.false();
+                                    expect(b[0]._isMemberOf('owners', 'one@first.com')).to.be.false();
+                                    expect(b[0]._isMemberOf('owners', 'root')).to.be.true();
+                                    expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
+                                    return Audit.findAudit('blogs', 'test PUT /blogs add remove subscribers and owners', {'change.action': {$regex: /add|remove/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].change[0].action).to.match(/add|remove/);
+                                    expect(foundAudit[0].change[1].action).to.match(/add|remove/);
+                                    expect(foundAudit[0].change[2].action).to.match(/add|remove/);
+                                    expect(foundAudit[0].change[3].action).to.match(/add|remove/);
+                                })
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'blogs',
+                                            objectId: Blogs.ObjectID(id)
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(1);
+                                                expect(notifications[0].content.owners.added.length).to.equal(1);
+                                                expect(notifications[0].content.owners.removed.length).to.equal(1);
+                                                expect(notifications[0].content.subscribers.added.length).to.equal(1);
+                                                expect(notifications[0].content.subscribers.removed.length).to.equal(1);
+                                                Notifications.remove({
+                                                    objectType: 'blogs',
+                                                    objectId: Blogs.ObjectID(id)
+                                                }, function (err, count) {
+                                                    blogsToClear.push('test PUT /blogs add remove subscribers and owners');
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        expect(count).to.equal(1);
+                                                        done();
+                                                    }
+                                                });
+                                                clearTimeout(ct);
+                                            });
+                                    }, 1000);
+                                });
+                        } catch (err) {
+                            blogsToClear.push('test PUT /blogs add remove subscribers and owners');
+                            done(err);
+                        }
+                    });
+                });
+        });
         it('should update description and have changes audited', function (done) {
             Blogs.create('test PUT /blogs update desc', 'silver lining', 'test PUT /blogs update desc', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {

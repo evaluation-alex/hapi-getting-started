@@ -481,6 +481,86 @@ describe('UserGroups', function () {
                     });
                 });
         });
+        it('should add/remove members / owners and have changes audited and notifications sent to owners', function (done) {
+            var request = {};
+            var id = '';
+            UserGroups.create('testPutGroupAddRemoveUserOwner', 'silver lining', 'test PUT /user-groups', 'test')
+                .then(function (ug) {
+                    id = ug._id.toString();
+                    ug.members[0] = 'root';
+                    ug.owners[0] = 'one@first.com';
+                    return ug.save();
+                })
+                .then(function (ug) {
+                    expect(ug._isMemberOf('members', 'root')).to.be.true();
+                    expect(ug._isMemberOf('owners', 'one@first.com')).to.be.true();
+                    request = {
+                        method: 'PUT',
+                        url: '/user-groups/' + id,
+                        headers: {
+                            Authorization: rootAuthHeader
+                        },
+                        payload: {
+                            removedOwners: ['one@first.com'],
+                            removedMembers: ['root'],
+                            addedOwners: ['root'],
+                            addedMembers: ['one@first.com']
+                        }
+                    };
+                    server.inject(request, function (response) {
+                        try {
+                            expect(response.statusCode).to.equal(200);
+                            UserGroups._find({name: 'testPutGroupAddRemoveUserOwner'})
+                                .then(function (ug) {
+                                    expect(ug).to.exist();
+                                    expect(ug[0]._isMemberOf('members', 'root')).to.be.false();
+                                    expect(ug[0]._isMemberOf('owners', 'one@first.com')).to.be.false();
+                                    expect(ug[0]._isMemberOf('owners', 'root')).to.be.true();
+                                    expect(ug[0]._isMemberOf('members', 'one@first.com')).to.be.true();
+                                    return Audit.findAudit('user-groups', 'testPutGroupAddRemoveUserOwner', {'change.action': {$regex: /add|remove/}});
+                                })
+                                .then(function (foundAudit) {
+                                    expect(foundAudit.length).to.equal(1);
+                                    expect(foundAudit[0].change[0].action).to.match(/add|remove/);
+                                    expect(foundAudit[0].change[1].action).to.match(/add|remove/);
+                                    expect(foundAudit[0].change[2].action).to.match(/add|remove/);
+                                    expect(foundAudit[0].change[3].action).to.match(/add|remove/);
+                                })
+                                .then(function () {
+                                    var ct = setTimeout(function () {
+                                        Notifications._find({
+                                            objectType: 'user-groups',
+                                            objectId: UserGroups.ObjectID(id)
+                                        })
+                                            .then(function (notifications) {
+                                                expect(notifications.length).to.equal(1);
+                                                expect(notifications[0].content.owners.added.length).to.equal(1);
+                                                expect(notifications[0].content.owners.removed.length).to.equal(1);
+                                                expect(notifications[0].content.members.added.length).to.equal(1);
+                                                expect(notifications[0].content.members.removed.length).to.equal(1);
+                                                Notifications.remove({
+                                                    objectType: 'user-groups',
+                                                    objectId: UserGroups.ObjectID(id)
+                                                }, function (err, count) {
+                                                    groupsToClear.push('testPutGroupAddRemoveUserOwner');
+                                                    if (err) {
+                                                        done(err);
+                                                    } else {
+                                                        expect(count).to.equal(1);
+                                                        done();
+                                                    }
+                                                });
+                                                clearTimeout(ct);
+                                            });
+                                    }, 1000);
+                                });
+                        } catch (err) {
+                            groupsToClear.push('testPutGroupAddRemoveUserOwner');
+                            done(err);
+                        }
+                    });
+                });
+        });
         it('should update description and have changes audited', function (done) {
             var request = {};
             var id = '';

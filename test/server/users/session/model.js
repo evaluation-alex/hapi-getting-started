@@ -128,7 +128,6 @@ describe('Session Model', function () {
                     tu.testComplete(done, error);
                 });
         });
-
     });
 
     describe('Session.this.loginSuccess', function () {
@@ -210,6 +209,40 @@ describe('Session Model', function () {
                     .then(function (userAudit) {
                         expect(userAudit[0]).to.be.an.instanceof(Audit);
                         expect(userAudit[0].change[0].newValues.ipaddress).to.equal('test');
+                    })
+                    .catch(function (err) {
+                        expect(err).to.not.exist();
+                        error = err;
+                    })
+                    .finally(function () {
+                        tu.testComplete(done, error);
+                    });
+            });
+        });
+        it('should create a new session object on the user and should create an audit entry, if user hasnt logged in from that ip', function (done) {
+            var error = null;
+            Audit.remove({objectChangedId: firstEmail}, function (err) {
+                if (err) {
+                    done(err);
+                }
+                Users._findOne({email: firstEmail})
+                    .then(function (user) {
+                        user.session = [{
+                            ipaddress: 'test',
+                            key: utils.secureHash(Uuid.v4()),
+                            expires: moment().add(1, 'month').toDate()
+                        }];
+                        return user.save();
+                    })
+                    .then(function (user) {
+                        return user.loginSuccess('test2', 'test').save();
+                    }).then(function (user) {
+                        expect(user.session.length).to.equal(2);
+                        return Audit.findAudit('users', user.email, {'change.action': 'user.session'});
+                    })
+                    .then(function (userAudit) {
+                        expect(userAudit[0]).to.be.an.instanceof(Audit);
+                        expect(userAudit[0].change[0].newValues.ipaddress).to.equal('test2');
                     })
                     .catch(function (err) {
                         expect(err).to.not.exist();

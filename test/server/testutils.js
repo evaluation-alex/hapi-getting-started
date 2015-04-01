@@ -189,7 +189,7 @@ exports.setupServer = setupServer;
 function cleanupUsers (usersToCleanup) {
     return new Promise(function (resolve, reject) {
         if (usersToCleanup && usersToCleanup.length > 0) {
-            Users.remove({email: {$in: usersToCleanup}}, function (err) {
+            Users.deleteMany({email: {$in: usersToCleanup}}, function (err) {
                 err ? reject(err) : resolve(true);
             });
         } else {
@@ -201,7 +201,7 @@ function cleanupUsers (usersToCleanup) {
 function cleanupUserGroups (groupsToCleanup) {
     return new Promise(function (resolve, reject) {
         if (groupsToCleanup && groupsToCleanup.length > 0) {
-            UserGroups.remove({name: {$in: groupsToCleanup}}, function (err) {
+            UserGroups.deleteMany({name: {$in: groupsToCleanup}}, function (err) {
                 err ? reject(err) : resolve(true);
             });
         } else {
@@ -213,7 +213,7 @@ function cleanupUserGroups (groupsToCleanup) {
 function cleanupBlogs (blogsToCleanup) {
     return new Promise(function (resolve, reject) {
         if (blogsToCleanup && blogsToCleanup.length > 0) {
-            Blogs.remove({title: {$in: blogsToCleanup}}, function (err) {
+            Blogs.deleteMany({title: {$in: blogsToCleanup}}, function (err) {
                 err ? reject(err) : resolve(true);
             });
         } else {
@@ -225,7 +225,7 @@ function cleanupBlogs (blogsToCleanup) {
 function cleanupPosts (postsToCleanup) {
     return new Promise(function (resolve, reject) {
         if (postsToCleanup && postsToCleanup.length > 0) {
-            Posts.remove({title: {$in: postsToCleanup}}, function (err) {
+            Posts.deleteMany({title: {$in: postsToCleanup}}, function (err) {
                 err ? reject(err) : resolve(true);
             });
         } else {
@@ -242,7 +242,7 @@ function cleanupNotifications (toClear) {
             });
         }));
         if (notificationsToCleanup.length > 0) {
-            Notifications.remove({
+            Notifications.deleteMany({
                 $or: [
                     {'title.1.title': {$in: notificationsToCleanup}},
                     {'title.1.postTitle': {$in: notificationsToCleanup}},
@@ -259,7 +259,7 @@ function cleanupNotifications (toClear) {
 
 function cleanupAudit () {
     return new Promise(function (resolve, reject) {
-        Audit.remove({}, function (err) {
+        Audit.deleteMany({}, function (err) {
             err ? reject(err) : resolve(true);
         });
     });
@@ -267,7 +267,7 @@ function cleanupAudit () {
 
 function cleanupAuthAttempts () {
     return new Promise(function (resolve, reject) {
-        AuthAttempts.remove({}, function (err) {
+        AuthAttempts.deleteMany({}, function (err) {
             err ? reject(err) : resolve(true);
         });
     });
@@ -275,7 +275,7 @@ function cleanupAuthAttempts () {
 
 var cleanupRoles = function (roles) {
     return new Promise(function (resolve, reject) {
-        Roles.remove({name: {$in: roles}}, function (err) {
+        Roles.deleteMany({name: {$in: roles}}, function (err) {
             err ? reject(err) : resolve(true);
         });
     });

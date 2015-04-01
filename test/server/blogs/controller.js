@@ -517,7 +517,7 @@ describe('Blogs', function () {
                                                 expect(notifications[0].content.owners.removed.length).to.equal(1);
                                                 expect(notifications[0].content.subscribers.added.length).to.equal(1);
                                                 expect(notifications[0].content.subscribers.removed.length).to.equal(1);
-                                                Notifications.remove({
+                                                Notifications.deleteMany({
                                                     objectType: 'blogs',
                                                     objectId: Blogs.ObjectID(id)
                                                 }, function (err, count) {
@@ -754,7 +754,7 @@ describe('Blogs', function () {
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.remove({
+                                                Notifications.deleteMany({
                                                     objectType: 'blogs',
                                                     objectId: Blogs.ObjectID(id)
                                                 }, function (err, count) {
@@ -819,7 +819,7 @@ describe('Blogs', function () {
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.remove({
+                                                Notifications.deleteMany({
                                                     objectType: 'blogs',
                                                     objectId: Blogs.ObjectID(id)
                                                 }, function (err, count) {
@@ -938,7 +938,7 @@ describe('Blogs', function () {
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.remove({
+                                                Notifications.deleteMany({
                                                     objectType: 'blogs',
                                                     objectId: Blogs.ObjectID(id)
                                                 }, function (err, count) {
@@ -1060,7 +1060,7 @@ describe('Blogs', function () {
                                             action: 'approve'
                                         }).then(function (notifications) {
                                             expect(notifications.length).to.equal(3);
-                                            Notifications.remove({
+                                            Notifications.deleteMany({
                                                 objectType: 'blogs',
                                                 objectId: Blogs.ObjectID(id)
                                             }, function (err, count) {
@@ -1268,7 +1268,7 @@ describe('Blogs', function () {
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.remove({
+                                                Notifications.deleteMany({
                                                     objectType: 'blogs',
                                                     objectId: Blogs.ObjectID(id)
                                                 }, function (err, count) {

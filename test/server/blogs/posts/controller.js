@@ -730,7 +730,7 @@ describe('Posts', function () {
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.remove({
+                                                Notifications.deleteMany({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
                                                 }, function (err, count) {
@@ -796,7 +796,7 @@ describe('Posts', function () {
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.remove({
+                                                Notifications.deleteMany({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
                                                 }, function (err, count) {
@@ -902,7 +902,7 @@ describe('Posts', function () {
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(1);
-                                                Notifications.remove({
+                                                Notifications.deleteMany({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
                                                 }, function (err, count) {
@@ -967,7 +967,7 @@ describe('Posts', function () {
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.remove({
+                                                Notifications.deleteMany({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
                                                 }, function (err, count) {
@@ -1101,7 +1101,7 @@ describe('Posts', function () {
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.remove({
+                                                Notifications.deleteMany({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
                                                 }, function (err, count) {

@@ -28,7 +28,7 @@ AuthAttempts.indexes = [
 ];
 
 _.extend(AuthAttempts, BaseModel);
-promisify(AuthAttempts, ['pagedFind', 'find', 'count', 'insert']);
+promisify(AuthAttempts, ['pagedFind', 'find', 'count', 'insertOne']);
 
 AuthAttempts.create = function create (ip, email) {
     var self = this;
@@ -38,7 +38,7 @@ AuthAttempts.create = function create (ip, email) {
         organisation: '*',
         time: new Date()
     };
-    return self._insert(document)
+    return self._insertOne(document)
         .then(function (aa) {
             return aa[0];
         });

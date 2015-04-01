@@ -269,7 +269,7 @@ describe('Blogs Model', function () {
                 deactivated.deactivate('test').save()
                     .then(function (d) {
                         deactivated = d;
-                        Audit.remove({objectChangedId: d.title}, function (err) {
+                        Audit.deleteMany({objectChangedId: d.title}, function (err) {
                             if (err) {
                             }
                         });

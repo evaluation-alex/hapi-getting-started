@@ -333,7 +333,7 @@ describe('Notifications', function () {
 
     afterEach(function (done) {
         /*jshint unused:false*/
-        Notifications.remove({title: 'titles dont matter'}, function (err, doc) {
+        Notifications.deleteMany({title: 'titles dont matter'}, function (err, doc) {
             if (err) {
                 done(err);
             }

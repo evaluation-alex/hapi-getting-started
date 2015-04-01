@@ -65,7 +65,7 @@ describe('Posts Model', function () {
                 deactivated.deactivate('test').save()
                     .then(function (d) {
                         deactivated = d;
-                        Audit.remove({objectChangedId: d._id}, function (err) {
+                        Audit.deleteMany({objectChangedId: d._id}, function (err) {
                             if (err) {
                             }
                         });

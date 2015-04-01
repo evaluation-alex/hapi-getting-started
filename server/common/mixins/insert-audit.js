@@ -5,6 +5,6 @@ var _ = require('lodash');
 
 module.exports = function insertAudit (audit) {
     if (audit) {
-        BaseModel.db.collection('audit').insert(audit, utils.defaultcb('audit.insert', _.noop, _.noop));
+        BaseModel.db.collection('audit').insertOne(audit, utils.defaultcb('audit.insert', _.noop, _.noop));
     }
 };

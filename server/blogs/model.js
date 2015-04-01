@@ -52,7 +52,7 @@ Blogs.indexes = [
 ];
 
 _.extend(Blogs, BaseModel);
-promisify(Blogs, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+promisify(Blogs, ['find', 'findOne', 'pagedFind', 'findOneAndReplace', 'insertOne']);
 _.extend(Blogs, new Insert('title', 'create'));
 _.extend(Blogs.prototype, new IsActive());
 _.extend(Blogs.prototype, new AddRemove(['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));

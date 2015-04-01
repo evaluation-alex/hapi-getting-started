@@ -44,7 +44,7 @@ UserGroups.indexes = [
 ];
 
 _.extend(UserGroups, BaseModel);
-promisify(UserGroups, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+promisify(UserGroups, ['find', 'findOne', 'pagedFind', 'findOneAndReplace', 'insertOne']);
 _.extend(UserGroups, new Insert('name', 'create'));
 _.extend(UserGroups, new AreValid('name'));
 _.extend(UserGroups.prototype, new IsActive());

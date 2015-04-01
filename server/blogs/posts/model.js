@@ -52,7 +52,7 @@ Posts.indexes = [
 ];
 
 _.extend(Posts, BaseModel);
-promisify(Posts, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+promisify(Posts, ['find', 'findOne', 'pagedFind', 'findOneAndReplace', 'insertOne']);
 _.extend(Posts, new Insert('_id', 'create'));
 _.extend(Posts.prototype, new IsActive());
 _.extend(Posts.prototype, new AddRemove({

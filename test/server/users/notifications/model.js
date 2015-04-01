@@ -56,7 +56,7 @@ describe('Notifications Model', function () {
                 deactivated.deactivate('test').save()
                     .then(function (d) {
                         deactivated = d;
-                        Audit.remove({objectChangedId: d._id}, function (err) {
+                        Audit.deleteMany({objectChangedId: d._id}, function (err) {
                             if (err) {
                             }
                         });
@@ -206,7 +206,7 @@ describe('Notifications Model', function () {
     });
 
     after(function (done) {
-        Notifications.remove({title: 'titles dont matter'}, function (err, doc) {
+        Notifications.deleteMany({title: 'titles dont matter'}, function (err, doc) {
             if (err) {
                 done(err);
             }

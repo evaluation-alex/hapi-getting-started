@@ -45,7 +45,7 @@ Notifications.indexes = [
 ];
 
 _.extend(Notifications, BaseModel);
-promisify(Notifications, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+promisify(Notifications, ['find', 'findOne', 'pagedFind', 'findOneAndReplace', 'insertOne']);
 _.extend(Notifications.prototype, new IsActive());
 _.extend(Notifications.prototype, new Properties(['state', 'isActive']));
 _.extend(Notifications.prototype, new Update(['state', 'isActive'], []));
@@ -76,7 +76,7 @@ Notifications.create = function create (email, organisation, objectType, objectI
             updatedBy: by,
             updatedOn: new Date()
         };
-        return self._insert(document)
+        return self._insertOne(document)
             .then(function (doc) {
                 return doc[0];
             });

@@ -55,7 +55,7 @@ Users.indexes = [
 ];
 
 _.extend(Users, BaseModel);
-promisify(Users, ['find', 'findOne', 'pagedFind', 'findByIdAndUpdate', 'insert']);
+promisify(Users, ['find', 'findOne', 'pagedFind', 'findOneAndReplace', 'insertOne']);
 _.extend(Users, new Insert('email', 'signup'));
 _.extend(Users, new AreValid('email'));
 _.extend(Users, Session);

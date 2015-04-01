@@ -4,7 +4,7 @@ var utils = require('./../utils');
 var _ = require('lodash');
 
 module.exports = function promisify (Model, toPromisify) {
-    //['find', 'findOne', 'count', 'pagedFind', 'findByIdAndUpdate', 'insert']
+    //['find', 'findOne', 'count', 'pagedFind', 'findOneAndReplace', 'insertOne']
     _.forEach(toPromisify, function (method) {
         Model['_' + method] = function () {
             var self = this;

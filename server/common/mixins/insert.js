@@ -7,7 +7,7 @@ module.exports = function InsertAndAudit (idToUse, action) {
     return {
         _insertAndAudit: function insertAndAudit (doc) {
             var self = this;
-            return self._insert(doc)
+            return self._insertOne(doc)
                 .then(function (obj) {
                     if (!obj) {
                         return Promise.reject(new errors.ObjectNotCreatedError({collection: self._collection}));

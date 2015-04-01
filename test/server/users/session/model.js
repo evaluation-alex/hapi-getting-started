@@ -191,7 +191,7 @@ describe('Session Model', function () {
         });
         it('should create a new session object on the user and should create an audit entry, if user hasnt logged in already', function (done) {
             var error = null;
-            Audit.remove({objectChangedId: firstEmail}, function (err) {
+            Audit.deleteMany({objectChangedId: firstEmail}, function (err) {
                 if (err) {
                     done(err);
                 }
@@ -221,7 +221,7 @@ describe('Session Model', function () {
         });
         it('should create a new session object on the user and should create an audit entry, if user hasnt logged in from that ip', function (done) {
             var error = null;
-            Audit.remove({objectChangedId: firstEmail}, function (err) {
+            Audit.deleteMany({objectChangedId: firstEmail}, function (err) {
                 if (err) {
                     done(err);
                 }
@@ -258,7 +258,7 @@ describe('Session Model', function () {
     describe('Session.this.logout', function () {
         it('should remove the session object on the user and should create an audit entry', function (done) {
             var error = null;
-            Audit.remove({objectChangedId: firstEmail}, function (err) {
+            Audit.deleteMany({objectChangedId: firstEmail}, function (err) {
                 if (err) {
                     done(err);
                 }

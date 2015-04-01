@@ -1,5 +1,5 @@
 'use strict';
-var saveChangeHistory = require('./insert-audit');
+var saveChangeHistory = require('./save-change-history');
 var errors = require('./../errors');
 var Promise = require('bluebird');
 

@@ -1,5 +1,5 @@
 'use strict';
-var saveChangeHistory = require('./insert-audit');
+var saveChangeHistory = require('./save-change-history');
 
 module.exports = function CommonMixinSave (Model) {
     return {

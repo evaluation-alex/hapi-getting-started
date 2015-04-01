@@ -239,7 +239,7 @@ describe('Users Model', function () {
         });
         it('setPassword should do nothing if called with a falsy password', function (done) {
             var error = null;
-            Audit.remove({objectChangedId: firstEmail}, function (err) {
+            Audit.deleteMany({objectChangedId: firstEmail}, function (err) {
                 if (err) {
                     done(err);
                 }

@@ -12,7 +12,7 @@ module.exports = function InsertAndAudit (idToUse, action) {
                     if (!obj) {
                         return Promise.reject(new errors.ObjectNotCreatedError({collection: self._collection}));
                     } else {
-                        var audit = {
+                        saveChangeHistory({
                             objectChangedType: self._collection,
                             objectChangedId: obj[0][idToUse],
                             organisation: obj[0].organisation,
@@ -23,10 +23,9 @@ module.exports = function InsertAndAudit (idToUse, action) {
                                 origValues: null,
                                 newValues: doc
                             }]
-                        };
-                        saveChangeHistory(audit);
+                        });
+                        return obj[0];
                     }
-                    return obj[0];
                 });
         }
     };

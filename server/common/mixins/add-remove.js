@@ -4,37 +4,36 @@ var traverse = require('traverse');
 var utils = require('./../utils');
 
 module.exports = function CommonMixinAddRemove (roles) {
+    var rp = {};
+    _.forEach(roles, function (role) {
+        rp[role] = role.split('.');
+    });
     return {
-        _isMemberOf: function isMemberOf (role, email) {
+        isMemberOf: function isMemberOf (role, email) {
             var self = this;
-            return !!_.findWhere(traverse(self).get(role.split('.')), email);
-        },
-        _findListForRole: function findListForRole (role) {
-            var self = this;
-            var path = _.findWhere(roles, role);
-            return path ? traverse(self).get(path.split('.')) : undefined;
+            return !!_.findWhere(traverse(self).get(rp[role]), email);
         },
         add: function add (toAdd, role, by) {
             var self = this;
-            var list = self._findListForRole(role);
+            var list = traverse(self).get(rp[role]);
             _.forEach(toAdd, function (memberToAdd) {
                 var found = _.findWhere(list, memberToAdd);
                 if (!found) {
                     list.push(memberToAdd);
-                    self._audit('add ' + role, null, memberToAdd, by);
+                    self.trackChanges('add ' + role, null, memberToAdd, by);
                 }
             });
             return self;
         },
         remove: function remove (toRemove, role, by) {
             var self = this;
-            var list = self._findListForRole(role);
+            var list = traverse(self).get(rp[role]);
             _.forEach(toRemove, function (memberToRemove) {
                 var found = _.remove(list, function (m) {
                     return m === memberToRemove;
                 });
                 if (utils.hasItems(found)) {
-                    self._audit('remove ' + role, memberToRemove, null, by);
+                    self.trackChanges('remove ' + role, memberToRemove, null, by);
                 }
             });
             return self;

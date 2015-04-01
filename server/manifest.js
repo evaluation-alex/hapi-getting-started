@@ -50,6 +50,7 @@ var components = [
     './server/users/session/auth-attempts',
     './server/users/notifications',
     './server/users/preferences',
+    './server/users/profile',
     './server/user-groups',
     './server/blogs',
     './server/blogs/posts',

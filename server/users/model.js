@@ -8,14 +8,16 @@ var Insert = require('./../common/mixins/insert');
 var AreValid = require('./../common/mixins/exist');
 var Properties = require('./../common/mixins/properties');
 var IsActive = require('./../common/mixins/is-active');
+var AddRemove = require('./../common/mixins/add-remove');
+var Update = require('./../common/mixins/update');
 var Save = require('./../common/mixins/save');
 var CAudit = require('./../common/mixins/audit');
 var Session = require('./session/model');
 var Preferences = require('./preferences/model');
+var Profile = require('./profile/model');
 var _ = require('lodash');
 var errors = require('./../common/errors');
 var utils = require('./../common/utils');
-
 var Users = function Users (attrs) {
     _.assign(this, attrs);
     Object.defineProperty(this, '_roles', {
@@ -42,6 +44,7 @@ Users.schema = Joi.object().keys({
     }),
     session: Session.schema,
     preferences: Preferences.schema,
+    profile: Profile.schema,
     isActive: Joi.boolean().default(true),
     createdBy: Joi.string(),
     createdOn: Joi.date(),
@@ -60,28 +63,38 @@ _.extend(Users, new Insert('email', 'signup'));
 _.extend(Users, new AreValid('email'));
 _.extend(Users, Session);
 _.extend(Users, Preferences);
+_.extend(Users, Profile);
 _.extend(Users.prototype, new IsActive());
 _.extend(Users.prototype, new Properties(['isActive', 'roles']));
-_.extend(Users.prototype, new Save(Users));
-_.extend(Users.prototype, new CAudit(Users._collection, 'email'));
+_.extend(Users.prototype, new AddRemove(_.flatten(Preferences.arrprops, Profile.arrprops)));
 _.extend(Users.prototype, Session.prototype);
 _.extend(Users.prototype, Preferences.prototype);
+_.extend(Users.prototype, Profile.prototype);
+_.extend(Users.prototype, new Update([
+    'isActive',
+    'roles',
+    'password'
+], [
+], 'updateUser'));
+_.extend(Users.prototype, new Save(Users));
+_.extend(Users.prototype, new CAudit(Users._collection, 'email'));
 
 Users.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
     var self = this;
-    var ret = !!_.find(self._roles, function (role) {
+    return !!_.find(self._roles, function (role) {
         return role.hasPermissionsTo(performAction, onObject);
     });
-    return ret;
 };
+
 Users.prototype.resetPasswordSent = function resetPasswordSent (by) {
     var self = this;
     self.resetPwd = {
         token: Uuid.v4(),
         expires: Date.now() + 10000000
     };
-    return self._audit('reset password sent', null, self.resetPwd, by);
+    return self.trackChanges('reset password sent', null, self.resetPwd, by);
 };
+
 Users.prototype.setPassword = function setPassword (newPassword, by) {
     var self = this;
     if (newPassword) {
@@ -89,16 +102,18 @@ Users.prototype.setPassword = function setPassword (newPassword, by) {
         var newHashedPassword = utils.secureHash(newPassword);
         self.password = newHashedPassword;
         delete self.resetPwd;
-        self._audit('reset password', oldPassword, newHashedPassword, by);
+        self.trackChanges('reset password', oldPassword, newHashedPassword, by);
     }
     return self;
 };
+
 Users.prototype.stripPrivateData = function stripData () {
     var self = this;
     return {
         email: self.email
     };
 };
+
 Users.prototype.afterLogin = function afterLogin (ipaddress) {
     var self = this;
     var session = _.find(self.session, function (session) {
@@ -111,12 +126,6 @@ Users.prototype.afterLogin = function afterLogin (ipaddress) {
         preferences: self.preferences
     };
 };
-Users.prototype.updateUser = function update (doc, by) {
-    var self = this;
-    return self.setIsActive(doc.payload.isActive, by)
-        .setRoles(doc.payload.roles, by)
-        .setPassword(doc.payload.password, by);
-};
 
 Users.create = function create (email, organisation, password, locale) {
     var self = this;
@@ -127,51 +136,16 @@ Users.create = function create (email, organisation, password, locale) {
         organisation: organisation,
         roles: ['readonly'],
         session: [],
-        preferences: {
-            notifications: {
-                blogs: {
-                    inapp: {
-                        frequency: 'immediate',
-                        lastSent: undefined
-                    },
-                    email: {
-                        frequency: 'daily',
-                        lastSent: undefined
-                    },
-                    blocked: []
-                },
-                posts: {
-                    inapp: {
-                        frequency: 'immediate',
-                        lastSent: undefined
-                    },
-                    email: {
-                        frequency: 'daily',
-                        lastSent: undefined
-                    },
-                    blocked: []
-                },
-                userGroups: {
-                    inapp: {
-                        frequency: 'immediate',
-                        lastSent: undefined
-                    },
-                    email: {
-                        frequency: 'daily',
-                        lastSent: undefined
-                    },
-                    blocked: []
-                }
-            },
-            locale: locale
-        },
+        preferences: Preferences.create(),
+        profile: Profile.create(),
         isActive: true,
         createdBy: email,
         createdOn: new Date(),
         updatedBy: email,
         updatedOn: new Date()
     };
-    return self._insertAndAudit(document);
+    document.preferences.locale = locale;
+    return self.insertAndAudit(document);
 };
 
 Users.findByCredentials = function findByCredentials (email, password) {
@@ -190,4 +164,3 @@ Users.findByCredentials = function findByCredentials (email, password) {
 };
 
 module.exports = Users;
-

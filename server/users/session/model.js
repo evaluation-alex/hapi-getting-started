@@ -21,7 +21,7 @@ Session.prototype._invalidateSession = function invalidateSession (ipaddress, by
     var removed = _.remove(self.session, function (session) {
         return session.ipaddress === ipaddress;
     });
-    self._audit('user.session', removed, null, by);
+    self.trackChanges('user.session', removed, null, by);
     return self;
 };
 Session.prototype._newSession = function newSession (ipaddress, by) {
@@ -32,7 +32,7 @@ Session.prototype._newSession = function newSession (ipaddress, by) {
         expires: moment().add(1, 'month').toDate()
     };
     self.session.push(session);
-    self._audit('user.session', null, session, by);
+    self.trackChanges('user.session', null, session, by);
     return self;
 };
 Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
@@ -52,7 +52,7 @@ Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
 };
 Session.prototype.loginFail = function loginFail (ipaddress, by) {
     var self = this;
-    return self._audit('login fail', null, ipaddress, by);
+    return self.trackChanges('login fail', null, ipaddress, by);
 };
 Session.prototype.logout = function logout (ipaddress, by) {
     var self = this;

@@ -30,7 +30,7 @@ var Controller = new ControllerFactory(Users)
     }, [
         onlyOwnerAllowed(Users, 'email')
     ], 'update',
-    'update')
+    'updatePreferences')
     .doneConfiguring();
 
 module.exports = Controller;

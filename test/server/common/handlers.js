@@ -96,7 +96,7 @@ describe('Handlers and Mixins', function () {
             _collection: 'test'
         };
         _.extend(obj, new InsertAndAudit('_id', 'create'));
-        obj._insertAndAudit({test: 'error'})
+        obj.insertAndAudit({test: 'error'})
             .catch(function (err) {
                 expect(err).to.exist();
             });

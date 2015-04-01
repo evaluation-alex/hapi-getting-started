@@ -9,7 +9,7 @@ module.exports = function isMemberOf (Model, groups) {
             var obj = request.pre[Model._collection];
             var user = request.auth.credentials.user.email;
             if (user === 'root' || !!_.find(groups, function (role) {
-                    return obj._isMemberOf(role, user);
+                    return obj.isMemberOf(role, user);
                 })
             ) {
                 reply(true);

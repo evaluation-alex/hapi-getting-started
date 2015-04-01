@@ -1,11 +1,11 @@
 'use strict';
-var insertAudit = require('./insert-audit');
+var saveChangeHistory = require('./insert-audit');
 var errors = require('./../errors');
 var Promise = require('bluebird');
 
 module.exports = function InsertAndAudit (idToUse, action) {
     return {
-        _insertAndAudit: function insertAndAudit (doc) {
+        insertAndAudit: function insertAndAudit (doc) {
             var self = this;
             return self._insertOne(doc)
                 .then(function (obj) {
@@ -24,7 +24,7 @@ module.exports = function InsertAndAudit (idToUse, action) {
                                 newValues: doc
                             }]
                         };
-                        insertAudit(audit);
+                        saveChangeHistory(audit);
                     }
                     return obj[0];
                 });

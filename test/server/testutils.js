@@ -84,7 +84,7 @@ function setupRootUser () {
         Users._findOne({email: 'root'})
             .then(function (found) {
                 if (found) {
-                    resolve(found.setRoles(['root'], 'testSetup').resetPrefs().save());
+                    resolve(found.setRoles(['root'], 'testSetup').resetPrefs().resetProfile().save());
                 } else {
                     Users.create('root', 'silver lining', 'password123', 'en')
                         .then(function (rt) {
@@ -100,7 +100,7 @@ function setupFirstUser () {
         Users._findOne({email: 'one@first.com'})
             .then(function (found) {
                 if (found) {
-                    resolve(found.resetPrefs().save());
+                    resolve(found.resetPrefs().resetProfile().save());
                 } else {
                     resolve(Users.create('one@first.com', 'silver lining', 'password', 'en'));
                 }
@@ -149,6 +149,7 @@ var setupServer = function () {
                     '../../server/users/session/auth-attempts',
                     '../../server/users/notifications',
                     '../../server/users/preferences',
+                    '../../server/users/profile',
                     '../../server/user-groups',
                     '../../server/blogs',
                     '../../server/blogs/posts'

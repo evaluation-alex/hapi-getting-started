@@ -86,7 +86,7 @@ UserGroups.create = function create (name, organisation, description, owner) {
         updatedBy: owner,
         updatedOn: new Date()
     };
-    return self._insertAndAudit(document);
+    return self.insertAndAudit(document);
 };
 
 module.exports = UserGroups;

@@ -471,8 +471,8 @@ describe('Blogs', function () {
             Blogs.create('test PUT /blogs add remove subscribers and owners', 'silver lining', 'test PUT /blogs add remove subscribers and owners', ['one@first.com'], [], ['root'], [], false, 'public', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    expect(b._isMemberOf('subscribers', 'root')).to.be.true();
-                    expect(b._isMemberOf('owners', 'one@first.com')).to.be.true();
+                    expect(b.isMemberOf('subscribers', 'root')).to.be.true();
+                    expect(b.isMemberOf('owners', 'one@first.com')).to.be.true();
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
@@ -492,10 +492,10 @@ describe('Blogs', function () {
                             Blogs._find({title: 'test PUT /blogs add remove subscribers and owners'})
                                 .then(function (b) {
                                     expect(b).to.exist();
-                                    expect(b[0]._isMemberOf('subscribers', 'root')).to.be.false();
-                                    expect(b[0]._isMemberOf('owners', 'one@first.com')).to.be.false();
-                                    expect(b[0]._isMemberOf('owners', 'root')).to.be.true();
-                                    expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
+                                    expect(b[0].isMemberOf('subscribers', 'root')).to.be.false();
+                                    expect(b[0].isMemberOf('owners', 'one@first.com')).to.be.false();
+                                    expect(b[0].isMemberOf('owners', 'root')).to.be.true();
+                                    expect(b[0].isMemberOf('subscribers', 'one@first.com')).to.be.true();
                                     return Audit.findAudit('blogs', 'test PUT /blogs add remove subscribers and owners', {'change.action': {$regex: /add|remove/}});
                                 })
                                 .then(function (foundAudit) {
@@ -738,7 +738,7 @@ describe('Blogs', function () {
                             Blogs._find({title: 'testPutSubscribeGroupAddUser'})
                                 .then(function (b) {
                                     expect(b).to.exist();
-                                    expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    expect(b[0].isMemberOf('needsApproval', 'one@first.com')).to.be.true();
                                     return Audit.findAudit('blogs', 'testPutSubscribeGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
                                 })
                                 .then(function (foundAudit) {
@@ -803,7 +803,7 @@ describe('Blogs', function () {
                             Blogs._find({title: 'testPutSubscribePublicGroupAddUser'})
                                 .then(function (b) {
                                     expect(b).to.exist();
-                                    expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
+                                    expect(b[0].isMemberOf('subscribers', 'one@first.com')).to.be.true();
                                     return Audit.findAudit('blogs', 'testPutSubscribePublicGroupAddUser', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
@@ -922,7 +922,7 @@ describe('Blogs', function () {
                             Blogs._find({title: 'testPutUnSubscribeGroupAddUser'})
                                 .then(function (b) {
                                     expect(b).to.exist();
-                                    expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.false();
+                                    expect(b[0].isMemberOf('subscribers', 'one@first.com')).to.be.false();
                                     return Audit.findAudit('blogs', 'testPutUnSubscribeGroupAddUser', {'change.action': {$regex: /remove subscriber/}});
                                 })
                                 .then(function (foundAudit) {
@@ -1043,8 +1043,8 @@ describe('Blogs', function () {
                             Blogs._find({title: 'testBlogPutApproveAddUser'})
                                 .then(function (b) {
                                     expect(b).to.exist();
-                                    expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.true();
-                                    expect(b[0]._isMemberOf('needsApproval', 'someotherguytoo')).to.be.true();
+                                    expect(b[0].isMemberOf('subscribers', 'one@first.com')).to.be.true();
+                                    expect(b[0].isMemberOf('needsApproval', 'someotherguytoo')).to.be.true();
                                     return Audit.findAudit('blogs', 'testBlogPutApproveAddUser', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
@@ -1109,8 +1109,8 @@ describe('Blogs', function () {
                             Blogs._find({title: 'testBlogPutApproveAddUserEmpty'})
                                 .then(function (b) {
                                     expect(b).to.exist();
-                                    expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
-                                    expect(b[0]._isMemberOf('needsApproval', 'someotherguytoo')).to.be.true();
+                                    expect(b[0].isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    expect(b[0].isMemberOf('needsApproval', 'someotherguytoo')).to.be.true();
                                     return Audit.findAudit('blogs', 'testBlogPutApproveAddUserEmpty', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
@@ -1158,7 +1158,7 @@ describe('Blogs', function () {
                             Blogs._find({title: 'testPutApproveBlogNotOwner'})
                                 .then(function (b) {
                                     expect(b).to.exist();
-                                    expect(b[0]._isMemberOf('subscribers', 'one@first.com')).to.be.false();
+                                    expect(b[0].isMemberOf('subscribers', 'one@first.com')).to.be.false();
                                     return Audit.findAudit('blogs', 'testPutApproveBlogNotOwner', {'change.action': {$regex: /add subscriber/}});
                                 })
                                 .then(function (foundAudit) {
@@ -1251,7 +1251,7 @@ describe('Blogs', function () {
                             Blogs._find({title: 'testPutRejectBlogAddUser'})
                                 .then(function (b) {
                                     expect(b).to.exist();
-                                    expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.false();
+                                    expect(b[0].isMemberOf('needsApproval', 'one@first.com')).to.be.false();
                                     return Audit.findAudit('blogs', 'testPutRejectBlogAddUser', {'change.action': {$regex: /remove needsApproval/}});
                                 })
                                 .then(function (foundAudit) {
@@ -1317,7 +1317,7 @@ describe('Blogs', function () {
                             Blogs._find({title: 'testPutRejectBlogAddUserEmpty'})
                                 .then(function (b) {
                                     expect(b).to.exist();
-                                    expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    expect(b[0].isMemberOf('needsApproval', 'one@first.com')).to.be.true();
                                     return Audit.findAudit('blogs', 'testPutRejectBlogAddUserEmpty', {'change.action': {$regex: /remove needsApproval/}});
                                 })
                                 .then(function (foundAudit) {
@@ -1365,7 +1365,7 @@ describe('Blogs', function () {
                             Blogs._find({title: 'testPutRejectBlogNotOwner'})
                                 .then(function (b) {
                                     expect(b).to.exist();
-                                    expect(b[0]._isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    expect(b[0].isMemberOf('needsApproval', 'one@first.com')).to.be.true();
                                     blogsToClear.push('testPutRejectBlogNotOwner');
                                     done();
                                 });

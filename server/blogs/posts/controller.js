@@ -98,7 +98,7 @@ var Controller = new ControllerFactory(Posts)
             needsReview: blog.needsReview
         });
         if (request.payload.state === 'published') {
-            if (request.payload.needsReview && !(blog._isMemberOf('owners', by) || by === 'root')) {
+            if (request.payload.needsReview && !(blog.isMemberOf('owners', by) || by === 'root')) {
                 request.payload.state = 'pending review';
             }
         }
@@ -187,7 +187,7 @@ var Controller = new ControllerFactory(Posts)
     function publish (post, request, by) {
         if (['draft', 'pending review'].indexOf(post.state) !== -1) {
             var blog = request.pre.blogs;
-            if ((blog._isMemberOf('owners', by) || by === 'root') || (!post.needsReview)) {
+            if ((blog.isMemberOf('owners', by) || by === 'root') || (!post.needsReview)) {
                 request.payload.state = 'published';
                 post.reviewedBy = by;
                 post.reviewedOn = new Date();

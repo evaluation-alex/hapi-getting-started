@@ -11,7 +11,7 @@ module.exports = function CommonMixinProperties (properties) {
             var self = this;
             var origval = traverse(self).get(path);
             if (!_.isUndefined(newValue) && !_.isEqual(origval, newValue)) {
-                self._audit(property, origval, newValue, by);
+                self.trackChanges(property, origval, newValue, by);
                 traverse(self).set(path, newValue);
             }
             return self;

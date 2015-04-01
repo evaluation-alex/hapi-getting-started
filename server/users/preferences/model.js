@@ -1,6 +1,5 @@
 'use strict';
 var Joi = require('joi');
-var AddRemove = require('./../../common/mixins/add-remove');
 var Properties = require('./../../common/mixins/properties');
 var Update = require('./../../common/mixins/update');
 var _ = require('lodash');
@@ -28,11 +27,11 @@ Preferences.schema = Joi.object().keys({
     locale: Joi.string().only('en', 'hi')
 });
 
-_.extend(Preferences.prototype, new AddRemove([
+Preferences.arrprops = [
     'preferences.notifications.blogs.blocked',
     'preferences.notifications.posts.blocked',
     'preferences.notifications.userGroups.blocked'
-]));
+];
 _.extend(Preferences.prototype, new Properties([
     'preferences.notifications.blogs.inapp.frequency',
     'preferences.notifications.blogs.inapp.lastSent',
@@ -65,11 +64,16 @@ _.extend(Preferences.prototype, new Update([
     'preferences.notifications.blogs.blocked',
     'preferences.notifications.posts.blocked',
     'preferences.notifications.userGroups.blocked'
-]));
+], 'updatePreferences'));
 
 Preferences.prototype.resetPrefs = function resetPrefsToDefault () {
     var self = this;
-    self.preferences = {
+    self.preferences = Preferences.create();
+    return self;
+};
+
+Preferences.create = function create () {
+    return {
         notifications: {
             blogs: {
                 inapp: {
@@ -107,7 +111,6 @@ Preferences.prototype.resetPrefs = function resetPrefsToDefault () {
         },
         locale: 'en'
     };
-    return self;
 };
 
 module.exports = Preferences;

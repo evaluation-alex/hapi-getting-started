@@ -100,7 +100,7 @@ Blogs.create = function create (title, organisation, description, owners, contri
         updatedBy: by,
         updatedOn: new Date()
     };
-    return self._insertAndAudit(document);
+    return self.insertAndAudit(document);
 };
 
 module.exports = Blogs;

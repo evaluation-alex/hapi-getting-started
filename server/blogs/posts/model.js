@@ -103,7 +103,7 @@ Posts.create = function create (blogId, organisation, title, state, access, allo
         updatedBy: by,
         updatedOn: now
     };
-    return self._insertAndAudit(document);
+    return self.insertAndAudit(document);
 };
 
 module.exports = Posts;

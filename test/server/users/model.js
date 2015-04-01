@@ -237,6 +237,31 @@ describe('Users Model', function () {
                     tu.testComplete(done, error);
                 });
         });
+        it('setPassword should do nothing if called with a falsy password', function (done) {
+            var error = null;
+            Audit.remove({objectChangedId: firstEmail}, function (err) {
+                if (err) {
+                    done(err);
+                }
+                Users._findOne({email: firstEmail})
+                    .then(function (user) {
+                        return user.setPassword(undefined, 'test').save();
+                    })
+                    .then(function (user) {
+                        return Audit.findAudit('users', user.email, {'change.action': 'reset password'});
+                    })
+                    .then(function (userAudit) {
+                        expect(userAudit.length).to.equal(0);
+                    })
+                    .catch(function (err) {
+                        expect(err).to.not.exist();
+                        error = err;
+                    })
+                    .finally(function () {
+                        tu.testComplete(done, error);
+                    });
+            });
+        });
     });
 
     describe('Users.this.setRoles', function () {

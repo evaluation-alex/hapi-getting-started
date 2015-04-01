@@ -56,9 +56,7 @@ var Controller = new ControllerFactory(Users)
             isActive: Joi.string()
         }
     }, function buildFindQuery (request) {
-        var query = {};
-        utils.buildQueryFromRequestForFields(query, request, [['email', 'email']]);
-        return query;
+        return utils.buildQueryFromRequestForFields({}, request, [['email', 'email']]);
     },
     function stripPrivateData (output) {
         output.data = _.map(output.data, function (user) {

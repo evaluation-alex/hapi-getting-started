@@ -34,9 +34,7 @@ var Controller = new ControllerFactory(UserGroups)
             isActive: Joi.string()
         }
     }, function buildFindQuery (request) {
-        var query = {};
-        utils.buildQueryFromRequestForFields(query, request, [['email', 'members'], ['groupName', 'name']]);
-        return query;
+        return utils.buildQueryFromRequestForFields({}, request, [['email', 'members'], ['groupName', 'name']]);
     })
     .findOneController()
     .updateController({

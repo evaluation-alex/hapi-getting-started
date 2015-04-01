@@ -11,8 +11,7 @@ var Controller = new ControllerFactory(AuthAttempts)
             email: Joi.string()
         }
     }, function buildFindQuery (request) {
-        var query = {};
-        utils.buildQueryFromRequestForFields(query, request, [['ip', 'ip'], ['email', 'email']]);
+        var query = utils.buildQueryFromRequestForFields({}, request, [['ip', 'ip'], ['email', 'email']]);
         query.organisation = '*';
         return query;
     })

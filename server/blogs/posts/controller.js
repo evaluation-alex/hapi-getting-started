@@ -124,13 +124,15 @@ var Controller = new ControllerFactory(Posts)
             state: Joi.string()
         }
     }, function buildFindQuery (request) {
-        var query = {};
-        utils.buildQueryFromRequestForFields(query, request, [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]);
+        var query = utils.buildQueryFromRequestForDateFields(
+            utils.buildQueryFromRequestForFields({},
+                request,
+                [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]
+            ), request, 'publishedOn');
         var blogId = utils.lookupParamsOrPayloadOrQuery(request, 'blogId');
         if (blogId) {
             query.blogId = Blogs.ObjectID(blogId);
         }
-        utils.buildQueryFromRequestForDateFields(query, request, 'publishedOn');
         return query;
     }, function enrichPosts (output) {
         return Promise.all(PostContent.readContentMultiple(output.data)

@@ -17,7 +17,12 @@ var Controller = new ControllerFactory(Notifications)
             isActive: Joi.string()
         }
     }, function buildFindQuery (request) {
-        var query = {};
+        var query = utils.buildQueryFromRequestForDateFields(
+            utils.buildQueryFromRequestForFields({},
+                request,
+                [['state', 'state'], ['objectType', 'objectType']]
+            ), request,
+            'createdOn');
         query.email = request.auth.credentials.user.email;
         var prefs = request.auth.credentials.user.preferences;
         var blocked = _.flatten([
@@ -28,8 +33,6 @@ var Controller = new ControllerFactory(Notifications)
         if (utils.hasItems(blocked)) {
             query.objectId = {$nin: blocked};
         }
-        utils.buildQueryFromRequestForFields(query, request, [['state', 'state'], ['objectType', 'objectType']]);
-        utils.buildQueryFromRequestForDateFields(query, request, 'createdOn');
         return query;
     })
     .updateController({

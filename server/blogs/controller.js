@@ -42,9 +42,7 @@ var Controller = new ControllerFactory(Blogs)
             isActive: Joi.string()
         }
     }, function buildFindQuery (request) {
-        var query = {};
-        utils.buildQueryFromRequestForFields(query, request, [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'], ['subGroup', 'subscriberGroups']]);
-        return query;
+        return utils.buildQueryFromRequestForFields({}, request, [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'], ['subGroup', 'subscriberGroups']]);
     })
     .findOneController()
     .updateController({

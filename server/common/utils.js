@@ -72,6 +72,7 @@ module.exports.buildQueryFromRequestForFields = function buildQueryFromRequestFo
             query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
         }
     });
+    return query;
 };
 
 module.exports.buildQueryFromRequestForDateFields = function buildQueryFromRequestForDateFields (query, request, field) {
@@ -86,6 +87,7 @@ module.exports.buildQueryFromRequestForDateFields = function buildQueryFromReque
         query[field] = query[field] || {};
         query[field].$gte = moment(request.query[after], ['YYYY-MM-DD']).toDate();
     }
+    return query;
 };
 
 module.exports.secureHash = function secureHash (password) {

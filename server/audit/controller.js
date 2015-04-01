@@ -14,9 +14,9 @@ var Controller = new ControllerFactory(Audit)
             onAfter: Joi.date()
         }
     }, function buildFindQuery (request) {
-        var query = {};
-        utils.buildQueryFromRequestForFields(query, request, [['by', 'by']]);
-        utils.buildQueryFromRequestForDateFields(query, request, 'on');
+        var query = utils.buildQueryFromRequestForDateFields(
+            utils.buildQueryFromRequestForFields({}, request, [['by', 'by']]),
+            request, 'on');
         if (request.query.objectType) {
             query.objectChangedType = request.query.objectType;
         }

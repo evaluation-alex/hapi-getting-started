@@ -1,7 +1,6 @@
 'use strict';
 var relativeToServer = './../../../server/';
 var Users = require(relativeToServer + 'users/model');
-var ensurePermissions = require(relativeToServer + 'common/prereqs/ensure-permissions');
 var Promise = require('bluebird');
 var moment = require('moment');
 //var expect = require('chai').expect;
@@ -26,11 +25,11 @@ describe('Auth', function () {
             .then(function () {
                 return Users.create(email, 'silver lining', 'auth123', 'en');
             })
-            .then(function (user) {
-                return user.loginSuccess('test', 'test').save();
+            .then(function () {
+                return tu.findAndLogin(email);
             })
-            .then(function (user) {
-                authheader = tu.authorizationHeader(user);
+            .then(function (u) {
+                authheader = u.authheader;
             })
             .then(function () {
                 done();
@@ -159,83 +158,6 @@ describe('Auth', function () {
             })
             .done();
     });
-    it('returns with 403 when the required role(s) are missing', function (done) {
-        server.route({
-            method: 'GET',
-            path: '/3',
-            config: {
-                auth: {
-                    strategy: 'simple'
-                },
-                pre: [
-                    ensurePermissions('view', 'users')
-                ]
-            },
-            handler: function (request, reply) {
-                expect(request.auth.credentials).to.exist();
-                reply('ok').statusCode(200);
-            }
-        });
-        Users.findOne({email: email})
-            .then(function (user) {
-                return user.setRoles([], 'test').save();
-            })
-            .then(function (user) {
-                return user.loginSuccess('test', 'test').save();
-            })
-            .then(function (user) {
-                authheader = tu.authorizationHeader2(email, user.session[0].key);
-                var request = {
-                    method: 'GET',
-                    url: '/3',
-                    headers: {
-                        authorization: authheader
-                    }
-                };
-                server.inject(request, function (response) {
-                    try {
-                        expect(response.statusCode).to.equal(403);
-                        done();
-                    } catch (err) {
-                        done(err);
-                    }
-                });
-            })
-            .done();
-    });
-    it('returns with 403 when the required permissions are missing on the role', function (done) {
-        server.route({
-            method: 'GET',
-            path: '/4',
-            config: {
-                auth: {
-                    strategy: 'simple'
-                },
-                pre: [
-                    ensurePermissions('update', 'users')
-                ]
-            },
-            handler: function (request, reply) {
-                expect(request.auth.credentials).to.exist();
-                reply('ok').statusCode(200).takeover();
-            }
-        });
-        var request = {
-            method: 'GET',
-            url: '/4',
-            headers: {
-                authorization: authheader
-            }
-        };
-        server.inject(request, function (response) {
-            try {
-                expect(response.statusCode).to.equal(403);
-                done();
-            } catch (err) {
-                done(err);
-            }
-        });
-    });
     it('returns a session expired when the session has expired', function (done) {
         server.route({
             method: 'GET',
@@ -250,6 +172,7 @@ describe('Auth', function () {
         });
         Users.findOne({email: email})
             .then(function (user) {
+                user.loginSuccess('test', 'test');
                 user.session[0].expires = moment().subtract(15, 'days').toDate();
                 return user.save();
             })

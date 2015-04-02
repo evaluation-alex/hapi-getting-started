@@ -268,13 +268,10 @@ describe('Blogs', function () {
             Blogs.create('testPutBlogNotOwner', 'silver lining', 'test PUT /blogs not owner', [], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    authHeader = tu.authorizationHeader(u);
+                    authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
@@ -706,13 +703,10 @@ describe('Blogs', function () {
             Blogs.create('testPutSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/join',
@@ -767,13 +761,10 @@ describe('Blogs', function () {
             Blogs.create('testPutSubscribePublicGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/join',
@@ -850,13 +841,10 @@ describe('Blogs', function () {
             Blogs.create('testPutUnSubscribeGroupNotPart', 'silver lining', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/leave',
@@ -882,13 +870,10 @@ describe('Blogs', function () {
             Blogs.create('testPutUnSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], ['one@first.com'], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/leave',
@@ -1106,13 +1091,10 @@ describe('Blogs', function () {
                     return b.add(['one@first.com'], 'needsApproval', 'test').save();
                 })
                 .then(function () {
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/approve',
@@ -1125,7 +1107,7 @@ describe('Blogs', function () {
                     };
                     server.inject(request, function (response) {
                         try {
-                            u.setRoles(['readonly'], 'test').save();
+                            u.user.setRoles(['readonly'], 'test').save();
                             expect(response.statusCode).to.equal(401);
                             Blogs.find({title: 'testPutApproveBlogNotOwner'})
                                 .then(function (b) {
@@ -1309,13 +1291,10 @@ describe('Blogs', function () {
                     return b.add(['one@first.com'], 'needsApproval', 'test').save();
                 })
                 .then(function () {
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/reject',
@@ -1328,7 +1307,7 @@ describe('Blogs', function () {
                     };
                     server.inject(request, function (response) {
                         try {
-                            u.setRoles(['readonly'], 'test').save();
+                            u.user.setRoles(['readonly'], 'test').save();
                             expect(response.statusCode).to.equal(401);
                             Blogs.find({title: 'testPutRejectBlogNotOwner'})
                                 .then(function (b) {
@@ -1503,13 +1482,10 @@ describe('Blogs', function () {
             Blogs.create('testDelBlogNotOwner', 'silver lining', 'test DELETE /blogs', [], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    authHeader = tu.authorizationHeader(u);
+                    authHeader = u.authheader;
                     request = {
                         method: 'DELETE',
                         url: '/blogs/' + id,

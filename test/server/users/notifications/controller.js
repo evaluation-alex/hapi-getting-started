@@ -2,7 +2,6 @@
 var relativeToServer = './../../../../server/';
 var _ = require('lodash');
 var moment = require('moment');
-var Users = require(relativeToServer + 'users/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Promise = require('bluebird');
@@ -180,13 +179,13 @@ describe('Notifications', function () {
         });
         it('should filter out blocked notifications based on preferences', function (done) {
             var authHeader = '';
-            Users.findOne({email: 'one@first.com'})
-                .then(function (user) {
-                    user.preferences.notifications.userGroups.blocked.push('abc123');
-                    return user.loginSuccess('test', 'test').save();
-                })
+            tu.findAndLogin('one@first.com')
                 .then(function (u) {
-                    authHeader = tu.authorizationHeader(u);
+                    authHeader = u.authheader;
+                    u.user.preferences.notifications.userGroups.blocked.push('abc123');
+                    return u.user.save();
+                })
+                .then(function () {
                     var request = {
                         method: 'GET',
                         url: '/notifications',
@@ -232,17 +231,15 @@ describe('Notifications', function () {
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
                 .then(function (n) {
                     id = n._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com');
                 })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
-                })
-                .then(function (user) {
+                .then(function (u) {
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'PUT',
                         url: '/notifications/' + id,
                         headers: {
-                            Authorization: tu.authorizationHeader(user)
+                            Authorization: authHeader
                         },
                         payload: {
                             isActive: false

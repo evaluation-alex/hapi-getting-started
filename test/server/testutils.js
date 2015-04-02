@@ -30,11 +30,15 @@ var authorizationHeader2 = function (user, password) {
 };
 exports.authorizationHeader2 = authorizationHeader2;
 var setupConnect = function () {
-    return BaseModel.connect(Config.hapiMongoModels.mongodb)
-        .then(function (db) {
-            mongodb = db;
-            return db;
-        });
+    if (mongodb) {
+        return Promise.resolve(mongodb);
+    } else {
+        return BaseModel.connect(Config.hapiMongoModels.mongodb)
+            .then(function (db) {
+                mongodb = db;
+                return db;
+            });
+    }
 };
 exports.setupConnect = setupConnect;
 /*jshint unused:false*/
@@ -96,14 +100,24 @@ function setupRolesAndUsers () {
         });
 }
 exports.setupRolesAndUsers = setupRolesAndUsers;
+function findAndLogin (user, roles) {
+    return Users.findOne({email: user})
+        .then(function (foundUser) {
+            if (roles) {
+                foundUser.setRoles(roles, 'test');
+            }
+            return foundUser.loginSuccess('test', 'test').save();
+        })
+        .then(function (loggedin) {
+            return {user: loggedin, authheader: authorizationHeader(loggedin)};
+        });
+}
+module.exports.findAndLogin = findAndLogin;
 var setupServer = function () {
     return new Promise(function (resolve, reject) {
         setupRolesAndUsers()
             .then(function () {
-                return Users.findOne({email: 'root'});
-            })
-            .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test').save();
+                return findAndLogin('root');
             })
             .then(function (foundUser) {
                 var Manifest = require('./../../server/manifest').manifest;
@@ -138,7 +152,7 @@ var setupServer = function () {
                                 console.log(err, err.stack);
                             }
                         });
-                        resolve({server: server, authheader: authorizationHeader(foundUser)});
+                        resolve({server: server, authheader: foundUser.authheader});
                     }
                 });
             })

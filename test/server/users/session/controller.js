@@ -177,13 +177,10 @@ describe('Session', function () {
                     Authorization: ''
                 }
             };
-            Users.findOne({email: 'one@first.com'})
-                .then(function (foundUser) {
-                    return foundUser.loginSuccess('test', 'test').save();
-                })
-                .then(function (foundUser) {
-                    request.headers.Authorization = tu.authorizationHeader(foundUser);
-                    return foundUser.logout('test', 'test').save();
+            tu.findAndLogin('one@first.com')
+                .then(function (u) {
+                    request.headers.Authorization = u.authheader;
+                    return u.user.logout('test', 'test').save();
                 })
                 .done();
             server.inject(request, function (response) {
@@ -201,11 +198,8 @@ describe('Session', function () {
             });
         });
         it('removes the authenticated user session successfully', function (done) {
-            Users.findOne({email: 'one@first.com'})
-                .then(function (foundUser) {
-                    return foundUser.loginSuccess('test', 'test').save();
-                }).
-                then(function (foundUser) {
+            tu.findAndLogin('one@first.com')
+                .then(function (u) {
                     var request = {
                         method: 'DELETE',
                         url: '/session',
@@ -213,10 +207,7 @@ describe('Session', function () {
                             Authorization: ''
                         }
                     };
-                    request.headers.Authorization = tu.authorizationHeader(foundUser);
-                    return request;
-                })
-                .then(function (request) {
+                    request.headers.Authorization = u.authheader;
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);

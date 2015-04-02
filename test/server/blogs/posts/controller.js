@@ -417,12 +417,9 @@ describe('Posts', function () {
         it('should send back forbidden error when you try to modify a post of a blog you are not an owner of', function (done) {
             var request = {};
             var authHeader = '';
-            Users.findOne({email: 'one@first.com'})
+            tu.findAndLogin('one@first.com', ['root'])
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    authHeader = tu.authorizationHeader(u);
+                    authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId,
@@ -668,17 +665,14 @@ describe('Posts', function () {
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
                     var request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: u.authheader
                         },
                         payload: {
                             access: 'restricted'
@@ -733,17 +727,14 @@ describe('Posts', function () {
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Users.findOne({email: 'root'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('root');
                 })
                 .then(function (u) {
                     var request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: u.authheader
                         },
                         payload: {
                             access: 'restricted'
@@ -803,17 +794,14 @@ describe('Posts', function () {
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
                     var request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: u.authheader
                         },
                         payload: {
                             access: 'restricted'
@@ -846,17 +834,14 @@ describe('Posts', function () {
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').add(['owner1'], 'owners', 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
                     var request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: u.authheader
                         },
                         payload: {
                             access: 'restricted'
@@ -910,17 +895,14 @@ describe('Posts', function () {
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
                     var request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: u.authheader
                         },
                         payload: {
                             access: 'restricted'
@@ -974,17 +956,14 @@ describe('Posts', function () {
                 })
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
                     var request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: u.authheader
                         },
                         payload: {
                             access: 'restricted'
@@ -1042,17 +1021,15 @@ describe('Posts', function () {
                     return Notifications.create(['one@first.com', 'subscriber1', 'subscriber2'], 'silver lining', 'posts', p._id, 'titles dont matter', 'unread', 'review', 'medium', 'content is king', 'test');
                 })
                 .then(function () {
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: authHeader
                         },
                         payload: {
                             access: 'restricted'
@@ -1105,17 +1082,15 @@ describe('Posts', function () {
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: authHeader
                         },
                         payload: {
                             access: 'restricted'
@@ -1151,17 +1126,15 @@ describe('Posts', function () {
                 })
                 .then(function (post) {
                     post.setState('published', 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: authHeader
                         },
                         payload: {
                             access: 'restricted'
@@ -1238,17 +1211,15 @@ describe('Posts', function () {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: authHeader
                         },
                         payload: {
                             title: 'test POST blog owner',
@@ -1279,17 +1250,15 @@ describe('Posts', function () {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'contributors', 'test').setNeedsReview(false, 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: authHeader
                         },
                         payload: {
                             title: 'test POST needsReview and publish',
@@ -1331,17 +1300,15 @@ describe('Posts', function () {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: authHeader
                         },
                         payload: {
                             title: 'test POST needsReview and pending review',
@@ -1377,17 +1344,15 @@ describe('Posts', function () {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: authHeader
                         },
                         payload: {
                             title: 'test POST draft',
@@ -1423,17 +1388,15 @@ describe('Posts', function () {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: authHeader
                         },
                         payload: {
                             title: 'test POST needsReview, owner and published',
@@ -1471,17 +1434,15 @@ describe('Posts', function () {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').setAccess('restricted', 'test').setAllowComments(false, 'test').save();
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
-                            Authorization: tu.authorizationHeader(u)
+                            Authorization: authHeader
                         },
                         payload: {
                             title: 'test POST needsReview, access, allowComments',
@@ -1550,13 +1511,10 @@ describe('Posts', function () {
                 })
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'DELETE',
                         url: '/blogs/' + blogId + '/posts/' + postId,
@@ -1589,13 +1547,10 @@ describe('Posts', function () {
                 })
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     var request = {
                         method: 'DELETE',
                         url: '/blogs/' + blogId + '/posts/' + postId,

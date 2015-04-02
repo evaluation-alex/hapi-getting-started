@@ -276,13 +276,10 @@ describe('UserGroups', function () {
             UserGroups.create('testPutGroupNotOwner', 'silver lining', 'test PUT /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id,
@@ -619,13 +616,10 @@ describe('UserGroups', function () {
                     return ug.add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
                 })
                 .then(function () {
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/join',
@@ -684,13 +678,10 @@ describe('UserGroups', function () {
                     return ug.setAccess('public').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
                 })
                 .then(function () {
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/join',
@@ -770,13 +761,10 @@ describe('UserGroups', function () {
                     return ug.add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
                 })
                 .then(function () {
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/leave',
@@ -805,13 +793,10 @@ describe('UserGroups', function () {
                     return ug.add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').add(['one@first.com'], 'members', 'test').save();
                 })
                 .then(function () {
-                    return Users.findOne({email: 'one@first.com'});
-                })
-                .then(function (user) {
-                    return user.loginSuccess('test', 'test').save();
+                    return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/leave',
@@ -1030,13 +1015,10 @@ describe('UserGroups', function () {
                     return ug.add(['one@first.com'], 'needsApproval', 'test').save();
                 })
                 .then(function () {
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/approve',
@@ -1049,7 +1031,7 @@ describe('UserGroups', function () {
                     };
                     server.inject(request, function (response) {
                         try {
-                            u.setRoles(['readonly'], 'test').save();
+                            u.user.setRoles(['readonly'], 'test').save();
                             expect(response.statusCode).to.equal(401);
                             UserGroups.find({name: 'testPutApproveGroupNotOwner'})
                                 .then(function (ug) {
@@ -1233,13 +1215,10 @@ describe('UserGroups', function () {
                     return ug.add(['one@first.com'], 'needsApproval', 'test').save();
                 })
                 .then(function () {
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    var authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/reject',
@@ -1252,7 +1231,7 @@ describe('UserGroups', function () {
                     };
                     server.inject(request, function (response) {
                         try {
-                            u.setRoles(['readonly'], 'test').save();
+                            u.user.setRoles(['readonly'], 'test').save();
                             expect(response.statusCode).to.equal(401);
                             UserGroups.find({name: 'testPutRejectGroupNotOwner'})
                                 .then(function (ug) {
@@ -1387,13 +1366,10 @@ describe('UserGroups', function () {
             UserGroups.create('testDelGroupNotOwner', 'silver lining', 'test POST /user-groups', 'test')
                 .then(function (ug) {
                     id = ug._id.toString();
-                    return Users.findOne({email: 'one@first.com'});
+                    return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    authHeader = tu.authorizationHeader(u);
+                    var authHeader = u.authheader;
                     request = {
                         method: 'DELETE',
                         url: '/user-groups/' + id,

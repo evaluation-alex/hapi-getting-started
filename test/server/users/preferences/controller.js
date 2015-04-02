@@ -33,23 +33,17 @@ describe('Preferences', function () {
         var authheader = '';
         var id = '';
         before(function (done) {
-            Users.findOne({email: 'root'})
-                .then(function (foundUser) {
-                    return foundUser.loginSuccess('test', 'test').save();
-                })
-                .then(function (foundUser) {
-                    authheader = tu.authorizationHeader(foundUser);
+            tu.findAndLogin('root')
+                .then(function (u) {
+                    authheader = u.authheader;
                     done();
                 });
         });
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
             var oneauthheader = '';
-            Users.findOne({email: 'one@first.com'})
+            tu.findAndLogin('one@first.com')
                 .then(function (u) {
-                    return u.loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    oneauthheader = tu.authorizationHeader(u);
+                    oneauthheader = u.authheader;
                     return Users.findOne({email: 'root'});
                 })
                 .then(function (u) {

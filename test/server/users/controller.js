@@ -39,11 +39,10 @@ describe('Users', function () {
     });
     it('should send back a not authorized when user is not logged in', function (done) {
         var authheader = '';
-        Users.findOne({email: 'test.users@test.api'})
-            .then(function (foundUser) {
-                foundUser.loginSuccess('test', 'test');
-                authheader = tu.authorizationHeader(foundUser);
-                return foundUser.logout('test', 'test').save();
+        tu.findAndLogin('test.users@test.api')
+            .then(function (u) {
+                authheader = u.authheader;
+                return u.user.logout('test', 'test').save();
             })
             .then(function () {
                 var request = {
@@ -65,15 +64,9 @@ describe('Users', function () {
     });
     it('should send back a not authorized when user does not have permissions to view', function (done) {
         var authheader = '';
-        Users.findOne({email: 'test.users@test.api'})
-            .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test').save();
-            })
-            .then(function (foundUser) {
-                authheader = tu.authorizationHeader(foundUser);
-                return foundUser.setRoles([], 'test').save();
-            })
-            .then(function () {
+        tu.findAndLogin('test.users@test.api', [])
+            .then(function (u) {
+                authheader = u.authheader;
                 var request = {
                     method: 'GET',
                     url: '/users',
@@ -93,12 +86,9 @@ describe('Users', function () {
     });
     it('should send back users when requestor has permissions and is authenticated, Users:GET /users', function (done) {
         var authheader = '';
-        Users.findOne({email: 'one@first.com'})
-            .then(function (foundUser) {
-                return foundUser.loginSuccess('test', 'test').save();
-            })
-            .then(function (foundUser) {
-                authheader = tu.authorizationHeader(foundUser);
+        tu.findAndLogin('one@first.com')
+            .then(function (u) {
+                authheader = u.authheader;
                 var request = {
                     method: 'GET',
                     url: '/users',
@@ -120,12 +110,9 @@ describe('Users', function () {
     describe('GET /users', function () {
         var authheader = '';
         before(function (done) {
-            Users.findOne({email: 'one@first.com'})
-                .then(function (foundUser) {
-                    foundUser.loginSuccess('test', 'test').save();
-                    authheader = tu.authorizationHeader(foundUser);
-                }).
-                then(function () {
+            tu.findAndLogin('one@first.com')
+                .then(function (u) {
+                    authheader = u.authheader;
                     return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
                 })
                 .then(function (newUser) {
@@ -226,13 +213,10 @@ describe('Users', function () {
         var authheader = '';
         var id = '';
         before(function (done) {
-            Users.findOne({email: 'one@first.com'})
-                .then(function (foundUser) {
-                    return foundUser.loginSuccess('test', 'test').save();
-                })
-                .then(function (foundUser) {
-                    authheader = tu.authorizationHeader(foundUser);
-                    id = foundUser._id.toString();
+            tu.findAndLogin('one@first.com')
+                .then(function (u) {
+                    authheader = u.authheader;
+                    id = u.user._id.toString();
                     done();
                 })
                 .catch(function (err) {
@@ -302,12 +286,9 @@ describe('Users', function () {
         var authheader = '';
         var id = '';
         before(function (done) {
-            Users.findOne({email: 'root'})
-                .then(function (foundUser) {
-                    return foundUser.loginSuccess('test', 'test').save();
-                })
-                .then(function (foundUser) {
-                    authheader = tu.authorizationHeader(foundUser);
+            tu.findAndLogin('root')
+                .then(function (u) {
+                    authheader = u.authheader;
                     emails.push('test.users3@test.api');
                     return Users.create('test.users3@test.api', 'silver lining', 'password123', 'en');
                 })
@@ -436,12 +417,9 @@ describe('Users', function () {
             });
         });
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
-            Users.findOne({email: 'one@first.com'})
+            tu.findAndLogin('one@first.com')
                 .then(function (u) {
-                    return u.loginSuccess('test', 'test').save();
-                })
-                .then(function (u) {
-                    authheader = tu.authorizationHeader(u);
+                    authheader = u.authheader;
                     var request = {
                         method: 'PUT',
                         url: '/users/' + id,

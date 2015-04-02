@@ -226,6 +226,7 @@ var cleanupRoles = function (roles) {
 };
 module.exports.cleanupRoles = cleanupRoles;
 function cleanupConnect () {
+    mongodb = undefined;
     BaseModel.disconnect();
 }
 exports.cleanupConnect = cleanupConnect;

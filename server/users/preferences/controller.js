@@ -3,18 +3,15 @@ var Joi = require('joi');
 var Users = require('./../model');
 var ControllerFactory = require('./../../common/controller-factory');
 var onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
-
 var channelSchema = Joi.object().keys({
     frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly')
 });
-
 var notificationUpdatePrefSchema = Joi.object().keys({
     inapp: channelSchema,
     email: channelSchema,
     addedBlocked: Joi.array().items(Joi.object()),
     removedBlocked: Joi.array().items(Joi.object())
 });
-
 var Controller = new ControllerFactory(Users)
     .updateController({
         payload: {
@@ -32,5 +29,4 @@ var Controller = new ControllerFactory(Users)
     ], 'update',
     'updatePreferences')
     .doneConfiguring();
-
 module.exports = Controller;

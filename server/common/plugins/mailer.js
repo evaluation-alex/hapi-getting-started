@@ -9,9 +9,7 @@ var Promise = require('bluebird');
 var transport = Promise.promisifyAll(Nodemailer.createTransport(Hoek.clone(Config.nodemailer)));
 transport.use('compile', markdown({useEmbeddedImages: true}));
 var readFile = Promise.promisify(Fs.readFile);
-
 var templateCache = {};
-
 var renderTemplate = function renderTemplate (template, context) {
     context.projectName = Config.projectName;
     if (templateCache[template]) {
@@ -24,7 +22,6 @@ var renderTemplate = function renderTemplate (template, context) {
             });
     }
 };
-
 module.exports.sendEmail = function sendEmail (options, template, context) {
     return renderTemplate(template, context)
         .then(function (content) {

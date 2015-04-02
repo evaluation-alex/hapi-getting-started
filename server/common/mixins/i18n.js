@@ -1,7 +1,6 @@
 'use strict';
 var _ = require('lodash');
 var ___ = require('./../../../config').i18n;
-
 module.exports = function I18N (fields) {
     return {
         i18n: function i18n (locale) {

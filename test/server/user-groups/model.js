@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
 //var expect = require('chai').expect;
@@ -13,7 +12,6 @@ var it = lab.it;
 var before = lab.before;
 var after = lab.after;
 var expect = Code.expect;
-
 describe('UserGroups Model', function () {
     var groupsToCleanup = [];
     before(function (done) {
@@ -22,7 +20,6 @@ describe('UserGroups Model', function () {
                 done();
             });
     });
-
     describe('UserGroups.create', function () {
         it('should create a new document when it succeeds, the creator should be owner and member and have appropriate audit entries', function (done) {
             var error = null;
@@ -73,7 +70,6 @@ describe('UserGroups Model', function () {
                 });
         });
     });
-
     describe('UserGroups.areValid', function () {
         it('should return empty array when nothing is sent', function (done) {
             var error = null;
@@ -110,7 +106,6 @@ describe('UserGroups Model', function () {
                 });
         });
     });
-
     describe('UserGroups.this.addUsers', function () {
         it('should do nothing if the user is already present as a member and you add user as a member', function (done) {
             var error = null;
@@ -281,7 +276,6 @@ describe('UserGroups Model', function () {
                 });
         });
     });
-
     describe('UserGroups.this.removeUsers', function () {
         it('should do nothing if the user is not already present as a member and you remove user as a member', function (done) {
             var error = null;
@@ -429,7 +423,6 @@ describe('UserGroups Model', function () {
                 });
         });
     });
-
     describe('UserGroups.this.activate/deactivate', function () {
         it('should do nothing if the user group is already inactive/active and you deactivate/activate', function (done) {
             var error = null;
@@ -514,7 +507,6 @@ describe('UserGroups Model', function () {
                 });
         });
     });
-
     describe('UserGroups.this.setDescription', function () {
         it('should do nothing if there is no change in the description', function (done) {
             var error = null;
@@ -562,7 +554,6 @@ describe('UserGroups Model', function () {
                 });
         });
     });
-
     describe('UserGroups.this.setAccess', function () {
         it('should do nothing if there is no change in the access', function (done) {
             var error = null;
@@ -610,9 +601,7 @@ describe('UserGroups Model', function () {
                 });
         });
     });
-
     after(function (done) {
         return tu.cleanup({userGroups: groupsToCleanup}, done);
     });
-
 });

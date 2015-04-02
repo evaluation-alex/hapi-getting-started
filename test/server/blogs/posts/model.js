@@ -14,19 +14,16 @@ var it = lab.it;
 var before = lab.before;
 var after = lab.after;
 var expect = Code.expect;
-
 describe('Posts Model', function () {
     var postsToClear = [];
     var blogsToClear = [];
     var blogId = Posts.ObjectId('54ec3cdbb25155f40ce6107e');
-
     before(function (done) {
         tu.setupRolesAndUsers()
             .then(function () {
                 done();
             });
     });
-
     describe('Posts.create', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
             var error = null;
@@ -52,7 +49,6 @@ describe('Posts Model', function () {
                 });
         });
     });
-
     describe('Posts.this.activate/deactivate', function () {
         var activated = null, deactivated = null;
         before(function (done) {
@@ -65,10 +61,7 @@ describe('Posts Model', function () {
                 deactivated.deactivate('test').save()
                     .then(function (d) {
                         deactivated = d;
-                        Audit.deleteMany({objectChangedId: d._id}, function (err) {
-                            if (err) {
-                            }
-                        });
+                        Audit.remove({objectChangedId: d._id});
                     });
             })
                 .then(function () {
@@ -139,7 +132,6 @@ describe('Posts Model', function () {
             done();
         });
     });
-
     describe('Posts.this.setTitle', function () {
         var testpost = null;
         before(function (done) {
@@ -193,7 +185,6 @@ describe('Posts Model', function () {
             done();
         });
     });
-
     describe('Posts.this.setCategory', function () {
         var testpost = null;
         before(function (done) {
@@ -246,7 +237,6 @@ describe('Posts Model', function () {
             done();
         });
     });
-
     describe('Posts.this.setAccess', function () {
         var testpost = null;
         before(function (done) {
@@ -299,7 +289,6 @@ describe('Posts Model', function () {
             done();
         });
     });
-
     describe('Posts.this.allowComments', function () {
         var testpost = null;
         before(function (done) {
@@ -352,7 +341,6 @@ describe('Posts Model', function () {
             done();
         });
     });
-
     describe('Posts.this.needsReview', function () {
         var testpost = null;
         before(function (done) {
@@ -405,7 +393,6 @@ describe('Posts Model', function () {
             done();
         });
     });
-
     describe('Posts.this.addTags', function () {
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
@@ -417,7 +404,7 @@ describe('Posts Model', function () {
         });
         it('should add a new entry to tags when a tag is newly added', function (done) {
             var error = null;
-            Posts._findOne({title: 'addTags1', organisation: 'silver lining'})
+            Posts.findOne({title: 'addTags1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['newTag'], 'tags', 'test').save();
                 })
@@ -439,7 +426,7 @@ describe('Posts Model', function () {
         });
         it('should do nothing if the tag is already active in the group', function (done) {
             var error = null;
-            Posts._findOne({title: 'addTags2', organisation: 'silver lining'})
+            Posts.findOne({title: 'addTags2', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['testing'], 'tags', 'test').save();
                 })
@@ -464,7 +451,6 @@ describe('Posts Model', function () {
             done();
         });
     });
-
     describe('Posts.this.removeTags', function () {
         before(function (done) {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
@@ -476,7 +462,7 @@ describe('Posts Model', function () {
         });
         it('should do nothing if the tag is not present in the group', function (done) {
             var error = null;
-            Posts._findOne({title: 'removeTags1', organisation: 'silver lining'})
+            Posts.findOne({title: 'removeTags1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['unknownTag'], 'tags', 'test').save();
                 })
@@ -497,7 +483,7 @@ describe('Posts Model', function () {
         });
         it('should remove tag if present', function (done) {
             var error = null;
-            Posts._findOne({title: 'removeTags2', organisation: 'silver lining'})
+            Posts.findOne({title: 'removeTags2', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['removeTags'], 'tags', 'test').save();
                 })
@@ -523,7 +509,6 @@ describe('Posts Model', function () {
             done();
         });
     });
-
     after(function (done) {
         return tu.cleanup({blogs: blogsToClear, posts: postsToClear}, done);
     });

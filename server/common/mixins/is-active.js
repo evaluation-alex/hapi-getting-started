@@ -1,5 +1,4 @@
 'use strict';
-
 module.exports = function IsActive () {
     return {
         del: function del (doc, by) {

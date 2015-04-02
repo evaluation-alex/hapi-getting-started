@@ -1,6 +1,5 @@
 'use strict';
 var Config = require('./../config');
-
 var server = {
     connections: {
         routes: {
@@ -8,22 +7,19 @@ var server = {
         }
     }
 };
-
 var connections = [{
     port: Config.port,
     labels: ['api']
 }];
-
 if (Config.tls) {
     connections[0].tls = Config.tls;
 }
-
 var plugins = {
     'hapi-bunyan': {logger: Config.logger, mergeData: true, includeTags: true, joinTags: ','},
     'lout': {},
     'poop': {logPath: Config.logs.logDir},
     'tv': {},
-    'hapi-mongo-models': {
+    './server/common/plugins/model': {
         mongodb: Config.hapiMongoModels.mongodb,
         models: {
             Audit: './server/audit/model',
@@ -42,7 +38,6 @@ var plugins = {
     './server/common/plugins/auth': {},
     './server/common/plugins/metrics': {}
 };
-
 var components = [
     './server/contact',
     './server/users',
@@ -56,13 +51,10 @@ var components = [
     './server/blogs/posts',
     './server/audit'
 ];
-
 module.exports.components = components;
-
 var manifest = {
     server: server,
     connections: connections,
     plugins: plugins
 };
-
 module.exports.manifest = manifest;

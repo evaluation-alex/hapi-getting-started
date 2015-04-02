@@ -1,9 +1,8 @@
 'use strict';
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var BaseModel = require('./../common/model');
 var Joi = require('joi');
 var Uuid = require('node-uuid');
 var Promise = require('bluebird');
-var promisify = require('./../common/mixins/promisify');
 var Insert = require('./../common/mixins/insert');
 var AreValid = require('./../common/mixins/exist');
 var Properties = require('./../common/mixins/properties');
@@ -29,9 +28,7 @@ var Users = function Users (attrs) {
         enumerable: false
     });
 };
-
-Users._collection = 'users';
-
+Users.collection = 'users';
 Users.schema = Joi.object().keys({
     _id: Joi.object(),
     email: Joi.string().email().required(),
@@ -51,14 +48,11 @@ Users.schema = Joi.object().keys({
     updatedBy: Joi.string(),
     updatedOn: Joi.date()
 });
-
 Users.indexes = [
     [{email: 1}, {unique: true}],
     [{email: 1, organisation: 1}, {unique: true}]
 ];
-
 _.extend(Users, BaseModel);
-promisify(Users, ['find', 'findOne', 'pagedFind', 'findOneAndReplace', 'insertOne']);
 _.extend(Users, new Insert('email', 'signup'));
 _.extend(Users, new AreValid('email'));
 _.extend(Users, Session);
@@ -74,18 +68,15 @@ _.extend(Users.prototype, new Update([
     'isActive',
     'roles',
     'password'
-], [
-], 'updateUser'));
+], [], 'updateUser'));
 _.extend(Users.prototype, new Save(Users));
-_.extend(Users.prototype, new CAudit(Users._collection, 'email'));
-
+_.extend(Users.prototype, new CAudit(Users.collection, 'email'));
 Users.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
     var self = this;
     return !!_.find(self._roles, function (role) {
         return role.hasPermissionsTo(performAction, onObject);
     });
 };
-
 Users.prototype.resetPasswordSent = function resetPasswordSent (by) {
     var self = this;
     self.resetPwd = {
@@ -94,7 +85,6 @@ Users.prototype.resetPasswordSent = function resetPasswordSent (by) {
     };
     return self.trackChanges('reset password sent', null, self.resetPwd, by);
 };
-
 Users.prototype.setPassword = function setPassword (newPassword, by) {
     var self = this;
     if (newPassword) {
@@ -106,14 +96,12 @@ Users.prototype.setPassword = function setPassword (newPassword, by) {
     }
     return self;
 };
-
 Users.prototype.stripPrivateData = function stripData () {
     var self = this;
     return {
         email: self.email
     };
 };
-
 Users.prototype.afterLogin = function afterLogin (ipaddress) {
     var self = this;
     var session = _.find(self.session, function (session) {
@@ -126,7 +114,6 @@ Users.prototype.afterLogin = function afterLogin (ipaddress) {
         preferences: self.preferences
     };
 };
-
 Users.create = function create (email, organisation, password, locale) {
     var self = this;
     var hash = utils.secureHash(password);
@@ -147,10 +134,9 @@ Users.create = function create (email, organisation, password, locale) {
     document.preferences.locale = locale;
     return self.insertAndAudit(document);
 };
-
 Users.findByCredentials = function findByCredentials (email, password) {
     var self = this;
-    return self._findOne({email: email, isActive: true})
+    return self.findOne({email: email, isActive: true})
         .then(function (user) {
             if (!user) {
                 return Promise.reject(new errors.UserNotFoundError({email: email}));
@@ -162,5 +148,4 @@ Users.findByCredentials = function findByCredentials (email, password) {
             return user;
         });
 };
-
 module.exports = Users;

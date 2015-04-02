@@ -12,7 +12,6 @@ var it = lab.it;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
-
 describe('AuthAttempts', function () {
     var authheader = '';
     var server = null;
@@ -30,7 +29,6 @@ describe('AuthAttempts', function () {
             })
             .done();
     });
-
     describe('GET /auth-attempts', function () {
         it('should give auth-attempts of only the ip and email sent in the parameters', function (done) {
             AuthAttempts.create('127.0.0.2', 'test.abuse.find@auth.attempts')
@@ -63,7 +61,6 @@ describe('AuthAttempts', function () {
                     resolve(AuthAttempts.create('127.0.0.2', randomUsername));
                 });
             };
-
             for (var i = 0; i < 50; i++) {
                 authSpam.push(authRequest());
             }
@@ -90,10 +87,8 @@ describe('AuthAttempts', function () {
                 });
         });
     });
-
     afterEach(function (done) {
         return tu.cleanup({}, done);
     });
-
 });
 

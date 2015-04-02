@@ -1,7 +1,6 @@
 'use strict';
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var BaseModel = require('./../../common/model');
 var Joi = require('joi');
-var promisify = require('./../../common/mixins/promisify');
 var Properties = require('./../../common/mixins/properties');
 var Update = require('./../../common/mixins/update');
 var IsActive = require('./../../common/mixins/is-active');
@@ -10,7 +9,6 @@ var CAudit = require('./../../common/mixins/audit');
 var I18N = require('./../../common/mixins/i18n');
 var _ = require('lodash');
 var Promise = require('bluebird');
-
 var Notifications = function Notifications (attrs) {
     _.assign(this, attrs);
     Object.defineProperty(this, 'audit', {
@@ -18,9 +16,7 @@ var Notifications = function Notifications (attrs) {
         enumerable: false
     });
 };
-
-Notifications._collection = 'notifications';
-
+Notifications.collection = 'notifications';
 Notifications.schema = Joi.object().keys({
     _id: Joi.object(),
     email: Joi.string().email().required(),
@@ -38,21 +34,17 @@ Notifications.schema = Joi.object().keys({
     updatedBy: Joi.string(),
     updatedOn: Joi.date()
 });
-
 Notifications.indexes = [
     [{objectType: 1, objectId: 1, state: 1, action: 1}],
     [{email: 1, objectType: 1, objectId: 1, createdOn: 1}]
 ];
-
 _.extend(Notifications, BaseModel);
-promisify(Notifications, ['find', 'findOne', 'pagedFind', 'findOneAndReplace', 'insertOne']);
 _.extend(Notifications.prototype, new IsActive());
 _.extend(Notifications.prototype, new Properties(['state', 'isActive']));
 _.extend(Notifications.prototype, new Update(['state', 'isActive'], []));
 _.extend(Notifications.prototype, new Save(Notifications));
-_.extend(Notifications.prototype, new CAudit(Notifications._collection, '_id'));
+_.extend(Notifications.prototype, new CAudit(Notifications.collection, '_id'));
 _.extend(Notifications.prototype, new I18N(['title', 'content']));
-
 Notifications.create = function create (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
     var self = this;
     if (_.isArray(email)) {
@@ -76,11 +68,7 @@ Notifications.create = function create (email, organisation, objectType, objectI
             updatedBy: by,
             updatedOn: new Date()
         };
-        return self._insertOne(document)
-            .then(function (doc) {
-                return doc[0];
-            });
+        return self.insert(document);
     }
 };
-
 module.exports = Notifications;

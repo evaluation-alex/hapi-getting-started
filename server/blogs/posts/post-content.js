@@ -7,17 +7,14 @@ var writeFile = require('fs').writeFile;
 var LRUCache = require('lru-cache');
 var _ = require('lodash');
 var utils = require('./../../common/utils');
-
 var cache = new LRUCache({
     max: 100 * 1024 * 1024, length: function length (n) {
         return n.length;
     }, maxAge: 1000 * 60 * 60
 });
-
 module.exports.resetCache = function resetCache () {
     cache.reset();
 };
-
 module.exports.filenameForPost = function filenameForPost (post) {
     return [('/' +
     post.organisation +
@@ -28,7 +25,6 @@ module.exports.filenameForPost = function filenameForPost (post) {
     post._id.toString()
     ];
 };
-
 module.exports.writeContent = function writeContent (post, content) {
     if (!_.isUndefined(content) && content.length > 0) {
         var filename = module.exports.filenameForPost(post);
@@ -37,7 +33,6 @@ module.exports.writeContent = function writeContent (post, content) {
     }
     return post;
 };
-
 module.exports.readContent = function readContent (post) {
     var filename = module.exports.filenameForPost(post);
     if (cache.has(filename)) {
@@ -51,7 +46,6 @@ module.exports.readContent = function readContent (post) {
             }, utils.errback);
     }
 };
-
 module.exports.readContentMultiple = function readContentMultiple (posts) {
     return Promise.resolve(_.map(posts, module.exports.readContent));
 };

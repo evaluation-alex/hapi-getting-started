@@ -5,11 +5,12 @@ var Hapi = require('hapi');
 var HapiAuthBasic = require('hapi-auth-basic');
 var Promise = require('bluebird');
 Promise.longStackTraces();
+var utils = require(relativeToServer + 'common/utils');
 var AuthPlugin = require(relativeToServer + 'common/plugins/auth');
 var MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
 var I18NPlugin = require(relativeToServer + 'common/plugins/i18n');
 var Config = require(relativeTo + 'config');
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var BaseModel = require(relativeToServer + 'common/model');
 var Users = require(relativeToServer + 'users/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
@@ -18,123 +19,88 @@ var Posts = require(relativeToServer + 'blogs/posts/model');
 var AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
 var Roles = require(relativeToServer + 'users/roles/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
-
 var _ = require('lodash');
-
 var mongodb;
-
 var authorizationHeader = function (user) {
     return 'Basic ' + (new Buffer(user.email + ':' + user.session[0].key)).toString('base64');
 };
-
 exports.authorizationHeader = authorizationHeader;
-
 var authorizationHeader2 = function (user, password) {
     return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
 };
-
 exports.authorizationHeader2 = authorizationHeader2;
-
 var setupConnect = function () {
-    return new Promise(function (resolve, reject) {
-        BaseModel.connect(Config.hapiMongoModels.mongodb, function (err, db) {
-            if (err || !db) {
-                reject(err);
-            } else {
-                mongodb = db;
-                resolve(true);
-            }
+    return BaseModel.connect(Config.hapiMongoModels.mongodb)
+        .then(function (db) {
+            mongodb = db;
+            return db;
         });
-    });
 };
-
 exports.setupConnect = setupConnect;
 /*jshint unused:false*/
 function setupRootRole () {
-    return new Promise(function (resolve, reject) {
-        Roles._find({name: 'root', organisation: 'silver lining'})
-            .then(function (found) {
-                if (found && found.length > 0) {
-                    resolve(found[0]);
-                } else {
-                    resolve(Roles.create('root', 'silver lining', [{action: 'update', object: '*'}, {
-                        action: 'view',
-                        object: '*'
-                    }]));
-                }
-            });
-    });
+    return Roles.findOne({name: 'root', organisation: 'silver lining'})
+        .then(function (found) {
+            if (found) {
+                return found;
+            } else {
+                return Roles.create('root', 'silver lining', [{action: 'update', object: '*'}, {
+                    action: 'view',
+                    object: '*'
+                }]);
+            }
+        });
 }
-
 function setupReadonlyRole () {
-    return new Promise(function (resolve, reject) {
-        Roles._find({name: 'readonly', organisation: 'silver lining'})
-            .then(function (found) {
-                if (found && found.length > 0) {
-                    resolve(found[0]);
-                } else {
-                    resolve(Roles.create('readonly', 'silver lining', [{action: 'view', object: '*'}]));
-                }
-            });
-    });
+    return Roles.findOne({name: 'readonly', organisation: 'silver lining'})
+        .then(function (found) {
+            if (found) {
+                return found;
+            } else {
+                return Roles.create('readonly', 'silver lining', [{action: 'view', object: '*'}]);
+            }
+        });
 }
-
 function setupRootUser () {
-    return new Promise(function (resolve, reject) {
-        Users._findOne({email: 'root'})
-            .then(function (found) {
-                if (found) {
-                    resolve(found.setRoles(['root'], 'testSetup').resetPrefs().resetProfile().save());
-                } else {
-                    Users.create('root', 'silver lining', 'password123', 'en')
-                        .then(function (rt) {
-                            resolve(rt.setRoles(['root'], 'testSetup').save());
-                        });
-                }
-            });
-    });
+    return Users.findOne({email: 'root'})
+        .then(function (found) {
+            if (found) {
+                return found.setRoles(['root'], 'testSetup').resetPrefs().resetProfile().save();
+            } else {
+                return Users.create('root', 'silver lining', 'password123', 'en')
+                    .then(function (rt) {
+                        return rt.setRoles(['root'], 'testSetup').save();
+                    });
+            }
+        });
 }
-
 function setupFirstUser () {
-    return new Promise(function (resolve, reject) {
-        Users._findOne({email: 'one@first.com'})
-            .then(function (found) {
-                if (found) {
-                    resolve(found.resetPrefs().resetProfile().save());
-                } else {
-                    resolve(Users.create('one@first.com', 'silver lining', 'password', 'en'));
-                }
-            });
-    });
+    return Users.findOne({email: 'one@first.com'})
+        .then(function (found) {
+            if (found) {
+                return found.resetPrefs().resetProfile().save();
+            } else {
+                return Users.create('one@first.com', 'silver lining', 'password', 'en');
+            }
+        });
 }
 /*jshint unused:true*/
-
 function setupRolesAndUsers () {
-    return new Promise(function (resolve, reject) {
-        setupConnect()
-            .then(setupRootRole)
-            .then(setupReadonlyRole)
-            .then(setupRootUser)
-            .then(setupFirstUser)
-            .then(function () {
-                resolve(true);
-            })
-            .catch(function (err) {
-                if (err) {
-                    reject(err);
-                }
-            })
-            .done();
-    });
+    return setupConnect()
+        .then(setupRootRole)
+        .then(setupReadonlyRole)
+        .then(setupRootUser)
+        .then(setupFirstUser)
+        .then(function () {
+            return true;
+        });
 }
-
 exports.setupRolesAndUsers = setupRolesAndUsers;
-
 var setupServer = function () {
     return new Promise(function (resolve, reject) {
         setupRolesAndUsers()
             .then(function () {
-                return Users._findOne({email: 'root'});
+                return Users.findOne({email: 'root'});
             })
             .then(function (foundUser) {
                 return foundUser.loginSuccess('test', 'test').save();
@@ -155,8 +121,8 @@ var setupServer = function () {
                     '../../server/blogs/posts'
                 ];
                 var ModelsPlugin = {
-                    register: require('hapi-mongo-models'),
-                    options: JSON.parse(JSON.stringify(Manifest.plugins['hapi-mongo-models']))
+                    register: require(relativeToServer + 'common/plugins/model'),
+                    options: Manifest.plugins['./server/common/plugins/model']
                 };
                 var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, MetricsPlugin, I18NPlugin];
                 var server = new Hapi.Server();
@@ -180,117 +146,71 @@ var setupServer = function () {
                 if (err) {
                     reject(err);
                 }
-            })
-            .done();
+            });
     });
 };
-
 exports.setupServer = setupServer;
-
 function cleanupUsers (usersToCleanup) {
-    return new Promise(function (resolve, reject) {
-        if (usersToCleanup && usersToCleanup.length > 0) {
-            Users.deleteMany({email: {$in: usersToCleanup}}, function (err) {
-                err ? reject(err) : resolve(true);
-            });
-        } else {
-            resolve(true);
-        }
-    });
+    if (utils.hasItems(usersToCleanup)) {
+        return Users.remove({email: {$in: usersToCleanup}});
+    } else {
+        return Promise.resolve(true);
+    }
 }
-
 function cleanupUserGroups (groupsToCleanup) {
-    return new Promise(function (resolve, reject) {
-        if (groupsToCleanup && groupsToCleanup.length > 0) {
-            UserGroups.deleteMany({name: {$in: groupsToCleanup}}, function (err) {
-                err ? reject(err) : resolve(true);
-            });
-        } else {
-            resolve(true);
-        }
-    });
+    if (utils.hasItems(groupsToCleanup)) {
+        return UserGroups.remove({name: {$in: groupsToCleanup}});
+    } else {
+        return Promise.resolve(true);
+    }
 }
-
 function cleanupBlogs (blogsToCleanup) {
-    return new Promise(function (resolve, reject) {
-        if (blogsToCleanup && blogsToCleanup.length > 0) {
-            Blogs.deleteMany({title: {$in: blogsToCleanup}}, function (err) {
-                err ? reject(err) : resolve(true);
-            });
-        } else {
-            resolve(true);
-        }
-    });
+    if (utils.hasItems(blogsToCleanup)) {
+        return Blogs.remove({title: {$in: blogsToCleanup}});
+    } else {
+        return Promise.resolve(true);
+    }
 }
-
 function cleanupPosts (postsToCleanup) {
-    return new Promise(function (resolve, reject) {
-        if (postsToCleanup && postsToCleanup.length > 0) {
-            Posts.deleteMany({title: {$in: postsToCleanup}}, function (err) {
-                err ? reject(err) : resolve(true);
-            });
-        } else {
-            resolve(true);
-        }
-    });
+    if (utils.hasItems(postsToCleanup)) {
+        return Posts.remove({title: {$in: postsToCleanup}});
+    } else {
+        return Promise.resolve(true);
+    }
 }
-
 function cleanupNotifications (toClear) {
-    return new Promise(function (resolve, reject) {
-        var notificationsToCleanup = _.flatten(_.map(['userGroups', 'blogs', 'posts'], function (a) {
-            return _.map(toClear[a], function (i) {
-                return new RegExp(i, 'g');
-            });
-        }));
-        if (notificationsToCleanup.length > 0) {
-            Notifications.deleteMany({
-                $or: [
-                    {'title.1.title': {$in: notificationsToCleanup}},
-                    {'title.1.postTitle': {$in: notificationsToCleanup}},
-                    {'title.1.name': {$in: notificationsToCleanup}}
-                ]
-            }, function (err, count) {
-                err ? reject(err) : resolve(true);
-            });
-        } else {
-            resolve(true);
-        }
-    });
+    var notificationsToCleanup = _.flatten(_.map(['userGroups', 'blogs', 'posts'], function (a) {
+        return _.map(toClear[a], function (i) {
+            return new RegExp(i, 'g');
+        });
+    }));
+    if (utils.hasItems(notificationsToCleanup)) {
+        return Notifications.remove({
+            $or: [
+                {'title.1.title': {$in: notificationsToCleanup}},
+                {'title.1.postTitle': {$in: notificationsToCleanup}},
+                {'title.1.name': {$in: notificationsToCleanup}}
+            ]
+        });
+    } else {
+        return Promise.resolve(true);
+    }
 }
-
 function cleanupAudit () {
-    return new Promise(function (resolve, reject) {
-        Audit.deleteMany({}, function (err) {
-            err ? reject(err) : resolve(true);
-        });
-    });
+    return Audit.remove({});
 }
-
 function cleanupAuthAttempts () {
-    return new Promise(function (resolve, reject) {
-        AuthAttempts.deleteMany({}, function (err) {
-            err ? reject(err) : resolve(true);
-        });
-    });
+    return AuthAttempts.remove({});
 }
-
 var cleanupRoles = function (roles) {
-    return new Promise(function (resolve, reject) {
-        Roles.deleteMany({name: {$in: roles}}, function (err) {
-            err ? reject(err) : resolve(true);
-        });
-    });
+    return Roles.remove({name: {$in: roles}});
 };
-
 module.exports.cleanupRoles = cleanupRoles;
-
 function cleanupConnect (cb) {
     BaseModel.disconnect();
     cb();
 }
-
 exports.cleanupConnect = cleanupConnect;
-
 var cleanup = function (toClear, cb) {
     Promise.join(cleanupUsers(toClear.users),
         cleanupUserGroups(toClear.userGroups),
@@ -308,9 +228,7 @@ var cleanup = function (toClear, cb) {
         })
         .done();
 };
-
 exports.cleanup = cleanup;
-
 var testComplete = function (notify, err) {
     if (notify) {
         if (err) {
@@ -320,5 +238,4 @@ var testComplete = function (notify, err) {
         }
     }
 };
-
 exports.testComplete = testComplete;

@@ -2,7 +2,6 @@
 var _ = require('lodash');
 var utils = require('./../utils');
 var Promise = require('bluebird');
-
 module.exports = function UpdateHandler (Model, notify, updateCb) {
     var updateHook = function updateObjCb (u, request, by) {
         /*jshint unused:false*/
@@ -12,7 +11,7 @@ module.exports = function UpdateHandler (Model, notify, updateCb) {
         /*jshint unused:true*/
     };
     return function updateHandler (request, reply) {
-        var u = request.pre[Model._collection];
+        var u = request.pre[Model.collection];
         var by = request.auth.credentials.user.email;
         updateHook(u, request, by)
             .then(function (u) {

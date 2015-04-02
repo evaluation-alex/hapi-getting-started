@@ -1,6 +1,5 @@
 'use strict';
 var errors = require('./../errors');
-
 module.exports = function ensurePermissions (forAction, onObject) {
     return {
         assign: 'ensurePermissions',

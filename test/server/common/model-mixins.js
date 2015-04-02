@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-
 var _ = require('lodash');
 var Mixins = relativeToServer + 'common/model-mixins';
 //var expect = require('chai').expect;
@@ -11,9 +10,7 @@ var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
 var expect = Code.expect;
-
 describe('Model mixins', function () {
-
     describe('CommonMixinAddRemove', function () {
         describe('add', function () {
             it('should do nothing if passed in an empty or undefined list of items to add', function (done) {
@@ -44,7 +41,6 @@ describe('Model mixins', function () {
             });
         });
     });
-
     describe('CommonMixinJoinApproveReject', function () {
         it('should add directly to the appropriate list if public access is specified', function (done) {
             done();
@@ -59,7 +55,6 @@ describe('Model mixins', function () {
             done();
         });
     });
-
     describe('CommonMixinProperties', function () {
         it('should add a set property for every item sent in the parameters', function (done) {
             done();
@@ -74,7 +69,6 @@ describe('Model mixins', function () {
             done();
         });
     });
-
     describe('CommonMixinUpdate', function () {
         it('should call set for properties being updated', function (done) {
             done();
@@ -86,7 +80,6 @@ describe('Model mixins', function () {
             done();
         });
     });
-
     describe('CommonMixinIsActive', function () {
         it('should set isActive to false when you call deactivate', function (done) {
             done();
@@ -107,17 +100,14 @@ describe('Model mixins', function () {
             done();
         });
     });
-
     describe('CommonMixinSave', function () {
         it('should save all the audit entries and then the object', function (done) {
             done();
         });
     });
-
     describe('CommonMixinAudit', function () {
         it('should add an element to the audit list', function (done) {
             done();
         });
     });
-
 });

@@ -13,7 +13,6 @@ var it = lab.it;
 var before = lab.before;
 var after = lab.after;
 var expect = Code.expect;
-
 describe('Notifications Model', function () {
     before(function (done) {
         tu.setupRolesAndUsers()
@@ -21,7 +20,6 @@ describe('Notifications Model', function () {
                 done();
             });
     });
-
     describe('Notifications.create', function () {
         it('should create a new document per user passed', function (done) {
             var error = null;
@@ -43,7 +41,6 @@ describe('Notifications Model', function () {
                 });
         });
     });
-
     describe('Notifications.this.activate/deactivate', function () {
         var activated = null, deactivated = null;
         before(function (done) {
@@ -56,10 +53,7 @@ describe('Notifications Model', function () {
                 deactivated.deactivate('test').save()
                     .then(function (d) {
                         deactivated = d;
-                        Audit.deleteMany({objectChangedId: d._id}, function (err) {
-                            if (err) {
-                            }
-                        });
+                        Audit.remove({objectChangedId: d._id});
                     });
             })
                 .then(function () {
@@ -128,7 +122,6 @@ describe('Notifications Model', function () {
             done();
         });
     });
-
     describe('Notifications.this.setState', function () {
         var testnotification = null;
         before(function (done) {
@@ -180,7 +173,6 @@ describe('Notifications Model', function () {
             done();
         });
     });
-
     describe('Notifications.this.i18n', function () {
         it('should update the field with the new localised strings and do nothing if alread localised', function (done) {
             var error = null;
@@ -204,16 +196,10 @@ describe('Notifications Model', function () {
                 });
         });
     });
-
     after(function (done) {
-        Notifications.deleteMany({title: 'titles dont matter'}, function (err, doc) {
-            if (err) {
-                done(err);
-            }
-            else {
+        Notifications.remove({title: 'titles dont matter'})
+            .then(function () {
                 return tu.cleanup({}, done);
-            }
-        });
+            });
     });
-
 });

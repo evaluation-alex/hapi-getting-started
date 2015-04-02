@@ -2,21 +2,20 @@
 var saveChangeHistory = require('./save-change-history');
 var errors = require('./../errors');
 var Promise = require('bluebird');
-
 module.exports = function InsertAndAudit (idToUse, action) {
     return {
         insertAndAudit: function insertAndAudit (doc) {
             var self = this;
-            return self._insertOne(doc)
+            return self.insert(doc)
                 .then(function (obj) {
                     if (!obj) {
-                        return Promise.reject(new errors.ObjectNotCreatedError({collection: self._collection}));
+                        return Promise.reject(new errors.ObjectNotCreatedError({collection: self.collection}));
                     } else {
                         saveChangeHistory({
-                            objectChangedType: self._collection,
-                            objectChangedId: obj[0][idToUse],
-                            organisation: obj[0].organisation,
-                            by: obj[0].createdBy,
+                            objectChangedType: self.collection,
+                            objectChangedId: obj[idToUse],
+                            organisation: obj.organisation,
+                            by: obj.createdBy,
                             on: new Date(),
                             change: [{
                                 action: action,
@@ -24,7 +23,7 @@ module.exports = function InsertAndAudit (idToUse, action) {
                                 newValues: doc
                             }]
                         });
-                        return obj[0];
+                        return obj;
                     }
                 });
         }

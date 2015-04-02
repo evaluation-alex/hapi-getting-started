@@ -1,7 +1,6 @@
 'use strict';
 var relativeToServer = './../../../../server/';
 var relativeTo = './../../../../';
-
 var Config = require(relativeTo + 'config');
 var Users = require(relativeToServer + 'users/model');
 var Audit = require(relativeToServer + 'audit/model');
@@ -17,11 +16,9 @@ var it = lab.it;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
-
 describe('Session', function () {
     var server = null;
     var emails = [];
-
     beforeEach(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -40,7 +37,6 @@ describe('Session', function () {
             })
             .done();
     });
-
     describe('POST /session', function () {
         it('returns early when abuse is detected', function (done) {
             var authAttemptsConfig = Config.authAttempts;
@@ -68,7 +64,6 @@ describe('Session', function () {
                     });
                 });
         });
-
         it('returns an error when you pass incorrect credentials', function (done) {
             var request = {
                 method: 'POST',
@@ -81,7 +76,7 @@ describe('Session', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(401);
-                    AuthAttempts._find({email: 'test.users@test.api'})
+                    AuthAttempts.find({email: 'test.users@test.api'})
                         .then(function (aa) {
                             expect(aa).to.exist();
                             expect(aa.length).to.equal(1);
@@ -96,7 +91,6 @@ describe('Session', function () {
                 }
             });
         });
-
         it('returns an error when you pass non existent user', function (done) {
             var request = {
                 method: 'POST',
@@ -115,7 +109,6 @@ describe('Session', function () {
                 }
             });
         });
-
         it('returns a session successfully', function (done) {
             var request = {
                 method: 'POST',
@@ -141,7 +134,6 @@ describe('Session', function () {
             });
         });
     });
-
     describe('DELETE /session', function () {
         it('returns an error when no authorization is passed', function (done) {
             var request = {
@@ -157,7 +149,6 @@ describe('Session', function () {
                 }
             });
         });
-
         it('returns a not found when user does not exist', function (done) {
             var request = {
                 method: 'DELETE',
@@ -177,7 +168,6 @@ describe('Session', function () {
                 }
             });
         });
-
         it('returns a not found when user has already logged out', function (done) {
             var request = {
                 method: 'DELETE',
@@ -186,7 +176,7 @@ describe('Session', function () {
                     Authorization: ''
                 }
             };
-            Users._findOne({email: 'one@first.com'})
+            Users.findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
                     return foundUser.loginSuccess('test', 'test').save();
                 })
@@ -198,7 +188,7 @@ describe('Session', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(401);
-                    Users._findOne({email: 'one@first.com'})
+                    Users.findOne({email: 'one@first.com'})
                         .then(function (foundUser) {
                             foundUser.loginSuccess('test', 'test').save();
                             done();
@@ -209,9 +199,8 @@ describe('Session', function () {
                 }
             });
         });
-
         it('removes the authenticated user session successfully', function (done) {
-            Users._findOne({email: 'one@first.com'})
+            Users.findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
                     return foundUser.loginSuccess('test', 'test').save();
                 }).
@@ -230,7 +219,7 @@ describe('Session', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Users._findOne({email: 'one@first.com'})
+                            Users.findOne({email: 'one@first.com'})
                                 .then(function (foundUser) {
                                     expect(foundUser.session.length).to.equal(0);
                                     foundUser.loginSuccess('test', 'test').save();
@@ -243,7 +232,6 @@ describe('Session', function () {
                 });
         });
     });
-
     afterEach(function (done) {
         return tu.cleanup({users: emails}, done);
     });

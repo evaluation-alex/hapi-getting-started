@@ -2,7 +2,6 @@
 var _ = require('lodash');
 var traverse = require('traverse');
 var utils = require('./../utils');
-
 module.exports = function CommonMixinAddRemove (roles) {
     var rp = {};
     _.forEach(roles, function (role) {

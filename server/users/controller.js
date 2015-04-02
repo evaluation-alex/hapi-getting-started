@@ -9,7 +9,6 @@ var utils = require('./../common/utils');
 var errors = require('./../common/errors');
 var Promise = require('bluebird');
 var onlyOwnerAllowed = require('./../common/prereqs/only-owner');
-
 var Controller = new ControllerFactory(Users)
     .customNewController('signup', {
         payload: {
@@ -87,7 +86,7 @@ var Controller = new ControllerFactory(Users)
         }
     })
     .handleUsing(function loginForgotHandler (request, reply) {
-        Users._findOne({email: request.payload.email})
+        Users.findOne({email: request.payload.email})
             .then(function (user) {
                 return user ? user.resetPasswordSent(user.email).save() : user;
             })
@@ -117,7 +116,7 @@ var Controller = new ControllerFactory(Users)
         }
     })
     .handleUsing(function loginResetHandler (request, reply) {
-        Users._findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
+        Users.findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
             .then(function (user) {
                 if (!user || (request.payload.key !== user.resetPwd.token)) {
                     return Promise.reject(new errors.PasswordResetError());
@@ -132,5 +131,4 @@ var Controller = new ControllerFactory(Users)
             });
     })
     .doneConfiguring();
-
 module.exports = Controller;

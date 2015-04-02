@@ -1,7 +1,6 @@
 'use strict';
 var relativeToServer = './../../../../../server/';
 var relativeTo = './../../../../../';
-
 var Config = require(relativeTo + 'config');
 var AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
 //var expect = require('chai').expect;
@@ -15,16 +14,13 @@ var it = lab.it;
 var before = lab.before;
 var after = lab.after;
 var expect = Code.expect;
-
 describe('AuthAttempts Model', function () {
-
     before(function (done) {
         tu.setupRolesAndUsers()
             .then(function () {
                 done();
             });
     });
-
     it('returns a new instance when create succeeds', function (done) {
         var error;
         AuthAttempts.create('127.0.0.1', 'test.create@auth.attempts')
@@ -39,7 +35,6 @@ describe('AuthAttempts Model', function () {
                 tu.testComplete(done, error);
             });
     });
-
     it('should return true when abuse is detected for user + ip combo', function (done) {
         var error;
         var authAttemptsConfig = Config.authAttempts;
@@ -75,7 +70,6 @@ describe('AuthAttempts Model', function () {
                 tu.testComplete(done, error);
             });
     });
-
     it('should return true when abuse is detected for an ip and multiple users', function (done) {
         var error;
         var authAttemptsConfig = Config.authAttempts;
@@ -94,7 +88,6 @@ describe('AuthAttempts Model', function () {
                     });
             });
         };
-
         for (var i = 0; i < authAttemptsConfig.forIp + 2; i++) {
             authSpam.push(authRequest());
         }
@@ -113,9 +106,7 @@ describe('AuthAttempts Model', function () {
                 tu.testComplete(done, error);
             });
     });
-
     after(function (done) {
         return tu.cleanup({}, done);
     });
-
 });

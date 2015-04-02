@@ -3,11 +3,10 @@ var Promise = require('bluebird');
 var Notifications = require('./../../users/notifications/model');
 var _ = require('lodash');
 var utils = require('./../utils');
-
 module.exports = function CancelNotification (model, cancelAction, cancelNotificationsCb) {
     return function cancelNotifications (target, request) {
-        return Notifications._find({
-            objectType: model._collection,
+        return Notifications.find({
+            objectType: model.collection,
             objectId: target._id,
             state: 'unread',
             action: cancelAction

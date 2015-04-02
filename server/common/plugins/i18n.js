@@ -1,7 +1,6 @@
 'use strict';
 var utils = require('./../utils');
 var _ = require('lodash');
-
 module.exports.register = function register (server, options, next) {
     server.ext('onPreResponse', function internationalize (request, reply) {
         var locale = utils.locale(request);
@@ -22,7 +21,6 @@ module.exports.register = function register (server, options, next) {
     });
     next();
 };
-
 module.exports.register.attributes = {
     name: 'i18n'
 };

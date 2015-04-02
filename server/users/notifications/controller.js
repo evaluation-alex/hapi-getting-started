@@ -5,7 +5,6 @@ var Notifications = require('./model');
 var ControllerFactory = require('./../../common/controller-factory');
 var onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
 var utils = require('./../../common/utils');
-
 var Controller = new ControllerFactory(Notifications)
     .findController({
         query: {
@@ -45,5 +44,4 @@ var Controller = new ControllerFactory(Notifications)
     ], 'update',
     'update')
     .doneConfiguring();
-
 module.exports = Controller;

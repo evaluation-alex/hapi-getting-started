@@ -3,21 +3,17 @@ var Joi = require('joi');
 var Properties = require('./../../common/mixins/properties');
 var Update = require('./../../common/mixins/update');
 var _ = require('lodash');
-
 var Preferences = function Preferences () {
 };
-
 var channelSchema = Joi.object().keys({
     frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
     lastSent: Joi.date()
 });
-
 var notificationPrefSchema = Joi.object().keys({
     inapp: channelSchema,
     email: channelSchema,
     blocked: Joi.array().items(Joi.object())
 });
-
 Preferences.schema = Joi.object().keys({
     notifications: Joi.object().keys({
         blogs: notificationPrefSchema,
@@ -26,7 +22,6 @@ Preferences.schema = Joi.object().keys({
     }),
     locale: Joi.string().only('en', 'hi')
 });
-
 Preferences.arrprops = [
     'preferences.notifications.blogs.blocked',
     'preferences.notifications.posts.blocked',
@@ -65,13 +60,11 @@ _.extend(Preferences.prototype, new Update([
     'preferences.notifications.posts.blocked',
     'preferences.notifications.userGroups.blocked'
 ], 'updatePreferences'));
-
 Preferences.prototype.resetPrefs = function resetPrefsToDefault () {
     var self = this;
     self.preferences = Preferences.create();
     return self;
 };
-
 Preferences.create = function create () {
     return {
         notifications: {
@@ -112,5 +105,4 @@ Preferences.create = function create () {
         locale: 'en'
     };
 };
-
 module.exports = Preferences;

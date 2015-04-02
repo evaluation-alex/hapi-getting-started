@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-
 var Users = require(relativeToServer + 'users/model');
 var Audit = require(relativeToServer + 'audit/model');
 var Mailer = require(relativeToServer + 'common/plugins/mailer');
@@ -17,11 +16,9 @@ var after = lab.after;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
-
 describe('Users', function () {
     var server = null;
     var emails = [];
-
     beforeEach(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -42,10 +39,9 @@ describe('Users', function () {
             })
             .done();
     });
-
     it('should send back a not authorized when user is not logged in', function (done) {
         var authheader = '';
-        Users._findOne({email: 'test.users@test.api'})
+        Users.findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
                 foundUser.loginSuccess('test', 'test');
                 authheader = tu.authorizationHeader(foundUser);
@@ -69,10 +65,9 @@ describe('Users', function () {
                 });
             });
     });
-
     it('should send back a not authorized when user does not have permissions to view', function (done) {
         var authheader = '';
-        Users._findOne({email: 'test.users@test.api'})
+        Users.findOne({email: 'test.users@test.api'})
             .then(function (foundUser) {
                 return foundUser.loginSuccess('test', 'test').save();
             })
@@ -98,10 +93,9 @@ describe('Users', function () {
                 });
             });
     });
-
     it('should send back users when requestor has permissions and is authenticated, Users:GET /users', function (done) {
         var authheader = '';
-        Users._findOne({email: 'one@first.com'})
+        Users.findOne({email: 'one@first.com'})
             .then(function (foundUser) {
                 return foundUser.loginSuccess('test', 'test').save();
             })
@@ -125,11 +119,10 @@ describe('Users', function () {
                 });
             });
     });
-
     describe('GET /users', function () {
         var authheader = '';
         before(function (done) {
-            Users._findOne({email: 'one@first.com'})
+            Users.findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
                     foundUser.loginSuccess('test', 'test').save();
                     authheader = tu.authorizationHeader(foundUser);
@@ -148,7 +141,6 @@ describe('Users', function () {
                     done(err);
                 });
         });
-
         it('should give active users when isactive = true is sent', function (done) {
             var request = {
                 method: 'GET',
@@ -168,7 +160,6 @@ describe('Users', function () {
                 }
             });
         });
-
         it('should give inactive users when isactive = false is sent', function (done) {
             var request = {
                 method: 'GET',
@@ -188,7 +179,6 @@ describe('Users', function () {
                 }
             });
         });
-
         it('should give only the user whose email is sent in the parameter', function (done) {
             var request = {
                 method: 'GET',
@@ -209,7 +199,6 @@ describe('Users', function () {
                 }
             });
         });
-
         it('should return both inactive and active users when nothing is sent', function (done) {
             var request = {
                 method: 'GET',
@@ -230,18 +219,16 @@ describe('Users', function () {
                 }
             });
         });
-
         after(function (done) {
             emails.push('test.users2@test.api');
             done();
         });
     });
-
     describe('GET /users/{id}', function () {
         var authheader = '';
         var id = '';
         before(function (done) {
-            Users._findOne({email: 'one@first.com'})
+            Users.findOne({email: 'one@first.com'})
                 .then(function (foundUser) {
                     return foundUser.loginSuccess('test', 'test').save();
                 })
@@ -256,7 +243,6 @@ describe('Users', function () {
                     }
                 });
         });
-
         it('should only send back user with the id in params', function (done) {
             var request = {
                 method: 'GET',
@@ -276,7 +262,6 @@ describe('Users', function () {
                 }
             });
         });
-
         it('should send back not found when the user with the id in params is not found', function (done) {
             var request = {
                 method: 'GET',
@@ -294,9 +279,8 @@ describe('Users', function () {
                 }
             });
         });
-
         it('should send back unauthorized if the id in the url and authenticated user are different', function (done) {
-            Users._findOne({email: 'root'})
+            Users.findOne({email: 'root'})
                 .then(function (u) {
                     var request = {
                         method: 'GET',
@@ -316,12 +300,11 @@ describe('Users', function () {
                 });
         });
     });
-
     describe('PUT /users/{id}', function () {
         var authheader = '';
         var id = '';
         beforeEach(function (done) {
-            Users._findOne({email: 'root'})
+            Users.findOne({email: 'root'})
                 .then(function (foundUser) {
                     return foundUser.loginSuccess('test', 'test').save();
                 })
@@ -336,7 +319,6 @@ describe('Users', function () {
                     done();
                 });
         });
-
         it('should update is active, session should be deactivated and changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -351,7 +333,7 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Users._findOne({_id: Users.ObjectID(id)})
+                    Users.findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.isActive).to.be.false();
                             expect(foundUser.session.length).to.equal(0);
@@ -367,7 +349,6 @@ describe('Users', function () {
                 }
             });
         });
-
         it('should update roles, session should be deactivated and changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -382,7 +363,7 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Users._findOne({_id: Users.ObjectID(id)})
+                    Users.findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
                             expect(foundUser.session.length).to.equal(0);
@@ -398,7 +379,6 @@ describe('Users', function () {
                 }
             });
         });
-
         it('should update password, session should be deactivated and changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -413,7 +393,7 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Users._findOne({_id: Users.ObjectID(id)})
+                    Users.findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.session.length).to.equal(0);
                             return Audit.findAudit('users', foundUser.email, {'change.audit': 'reset password'});
@@ -428,7 +408,6 @@ describe('Users', function () {
                 }
             });
         });
-
         it('should update roles, password and is active, session should be deactivated and all changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -445,7 +424,7 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Users._findOne({_id: Users.ObjectID(id)})
+                    Users.findOne({_id: Users.ObjectID(id)})
                         .then(function (foundUser) {
                             expect(foundUser.session.length).to.equal(0);
                             expect(foundUser.roles).to.include(['readonly']);
@@ -453,15 +432,13 @@ describe('Users', function () {
                             done();
                         })
                         .done();
-
                 } catch (err) {
                     done(err);
                 }
             });
         });
-
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
-            Users._findOne({email: 'one@first.com'})
+            Users.findOne({email: 'one@first.com'})
                 .then(function (u) {
                     return u.loginSuccess('test', 'test').save();
                 })
@@ -489,7 +466,6 @@ describe('Users', function () {
                     });
                 });
         });
-
         it('should return not found if the user is not found', function (done) {
             var request = {
                 method: 'PUT',
@@ -513,7 +489,6 @@ describe('Users', function () {
             });
         });
     });
-
     describe('POST /signup', function () {
         it('returns a conflict when you try to signup with user that already exists', function (done) {
             var request = {
@@ -534,7 +509,6 @@ describe('Users', function () {
                 }
             });
         });
-
         it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records and default preferences are setup', function (done) {
             var request = {
                 method: 'POST',
@@ -548,7 +522,7 @@ describe('Users', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(201);
-                    Users._findOne({email: 'test.signup2@signup.api'})
+                    Users.findOne({email: 'test.signup2@signup.api'})
                         .then(function (foundUser) {
                             expect(foundUser).to.exist();
                             expect(foundUser.session).to.exist();
@@ -571,7 +545,6 @@ describe('Users', function () {
             });
         });
     });
-
     describe('POST /login/forgot', function () {
         it('returns an error when user does not exist', function (done) {
             var request = {
@@ -591,7 +564,6 @@ describe('Users', function () {
                 }
             });
         });
-
         it('successfully sends a reset password request', function (done) {
             var request = {
                 method: 'POST',
@@ -607,7 +579,7 @@ describe('Users', function () {
                     Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password sent'})
                         .then(function (foundAudit) {
                             expect(foundAudit).to.exist();
-                            return Users._findOne({email: 'test.users@test.api'});
+                            return Users.findOne({email: 'test.users@test.api'});
                         })
                         .then(function (foundUser) {
                             expect(foundUser.resetPwd).to.exist();
@@ -618,7 +590,6 @@ describe('Users', function () {
                 }
             });
         });
-
         it('gracefully handles errors and sends back boom message', function (done) {
             var prev = Mailer.sendEmail;
             Mailer.sendEmail = function () {
@@ -643,7 +614,6 @@ describe('Users', function () {
             });
         });
     });
-
     describe('POST /login/reset', function () {
         it('returns an error when user does not exist', function (done) {
             var request = {
@@ -664,9 +634,8 @@ describe('Users', function () {
                 }
             });
         });
-
         it('returns a bad request if the key does not match', function (done) {
-            Users._findOne({email: 'test.users@test.api'})
+            Users.findOne({email: 'test.users@test.api'})
                 .then(function (foundUser) {
                     return foundUser.resetPasswordSent('test').save();
                 })
@@ -690,10 +659,9 @@ describe('Users', function () {
                     });
                 });
         });
-
         it('successfully sets a password, invalidates session and logs user out', function (done) {
             var key = '';
-            Users._findOne({email: 'test.users@test.api'})
+            Users.findOne({email: 'test.users@test.api'})
                 .then(function (foundUser) {
                     return foundUser.resetPasswordSent('test').save();
                 })
@@ -717,7 +685,7 @@ describe('Users', function () {
                             Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password'})
                                 .then(function (foundAudit) {
                                     expect(foundAudit).to.exist();
-                                    return Users._findOne({email: 'test.users@test.api'});
+                                    return Users.findOne({email: 'test.users@test.api'});
                                 })
                                 .then(function (foundUser) {
                                     expect(foundUser.resetPwd).to.not.exist();
@@ -730,10 +698,8 @@ describe('Users', function () {
                 });
         });
     });
-
     afterEach(function (done) {
         return tu.cleanup({users: emails}, done);
     });
-
 });
 

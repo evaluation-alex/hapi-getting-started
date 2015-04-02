@@ -1,6 +1,5 @@
 'use strict';
 var _ = require('lodash');
-
 var RouteFactory = function RouteFactory () {
     var self = this;
     self.routes = [];
@@ -122,5 +121,4 @@ RouteFactory.prototype.joinApproveRejectLeaveRoutes = function joinApproveReject
     });
     return self;
 };
-
 module.exports = RouteFactory;

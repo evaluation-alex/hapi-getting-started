@@ -1,15 +1,11 @@
 'use strict';
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var BaseModel = require('./../common/model');
 var _ = require('lodash');
 var Joi = require('joi');
-var promisify = require('./../common/mixins/promisify');
-
 var Audit = function Audit (attrs) {
     _.assign(this, attrs);
 };
-
-Audit._collection = 'audit';
-
+Audit.collection = 'audit';
 Audit.schema = Joi.object().keys({
     objectChangedType: Joi.string().required(),
     objectChangedId: Joi.string().required(),
@@ -22,21 +18,16 @@ Audit.schema = Joi.object().keys({
         newValues: Joi.object()
     }))
 });
-
 Audit.indexes = [
     [{organisation: 1, objectChangedType: 1}],
     [{by: 1, on: 1}],
     [{on: 1}]
 ];
-
 _.extend(Audit, BaseModel);
-promisify(Audit, ['pagedFind', 'find']);
-
 Audit.findAudit = function findAudit (type, id, conditions) {
     var self = this;
     conditions.objectChangedType = type;
     conditions.objectChangedId = id;
-    return self._find(conditions);
+    return self.find(conditions);
 };
-
 module.exports = Audit;

@@ -2,7 +2,6 @@
 var _ = require('lodash');
 var Promise = require('bluebird');
 var utils = require('./../utils');
-
 module.exports = function CommonAreValid (property) {
     return {
         areValid: function areValid (toCheck, organisation) {
@@ -14,7 +13,7 @@ module.exports = function CommonAreValid (property) {
                 conditions[property] = {$in: toCheck};
                 conditions.isActive = true;
                 conditions.organisation = organisation;
-                return self._find(conditions)
+                return self.find(conditions)
                     .then(function (docs) {
                         var results = Object.create(null);
                         _.forEach(docs, function (doc) {

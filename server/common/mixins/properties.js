@@ -1,7 +1,6 @@
 'use strict';
 var _ = require('lodash');
 var traverse = require('traverse');
-
 module.exports = function CommonMixinProperties (properties) {
     var ret = {};
     _.forEach(properties, function (property) {

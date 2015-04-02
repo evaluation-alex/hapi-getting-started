@@ -3,10 +3,8 @@ var Joi = require('joi');
 var Properties = require('./../../common/mixins/properties');
 var Update = require('./../../common/mixins/update');
 var _ = require('lodash');
-
-var Profile = function Profile() {
+var Profile = function Profile () {
 };
-
 var addressSchema = Joi.object().keys({
     apartment: Joi.string(),
     floorHouseNo: Joi.string(),
@@ -18,7 +16,6 @@ var addressSchema = Joi.object().keys({
     state: Joi.string(),
     country: Joi.string()
 });
-
 Profile.schema = Joi.object().keys({
     firstName: Joi.string(),
     lastName: Joi.string(),
@@ -41,7 +38,6 @@ Profile.schema = Joi.object().keys({
         to: Joi.date()
     }))
 });
-
 Profile.arrprops = [
     'profile.educationalQualifications',
     'profile.employmentHistory',
@@ -106,13 +102,11 @@ _.extend(Profile.prototype, new Update([
     'profile.educationalQualifications',
     'profile.employmentHistory'
 ], 'updateProfile'));
-
 Profile.prototype.resetProfile = function resetProfileToDefault () {
     var self = this;
     self.profile = Profile.create();
     return self;
 };
-
 Profile.create = function create () {
     return {
         firstName: '',
@@ -147,5 +141,4 @@ Profile.create = function create () {
         employmentHistory: []
     };
 };
-
 module.exports = Profile;

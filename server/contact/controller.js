@@ -4,7 +4,6 @@ var Config = require('./../../config');
 var ControllerFactory = require('./../common/controller-factory');
 var mailer = require('./../common/plugins/mailer');
 var utils = require('./../common/utils');
-
 var Controller = new ControllerFactory()
     .forMethod('contact')
     .withValidation({
@@ -32,5 +31,4 @@ var Controller = new ControllerFactory()
             });
     })
     .doneConfiguring();
-
 module.exports = Controller;

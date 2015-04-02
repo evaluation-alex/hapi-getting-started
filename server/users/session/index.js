@@ -1,9 +1,7 @@
 'use strict';
 var RouteFactory = require('./../../common/route-factory');
 var Controller = require('./controller');
-
 var routeFactory = new RouteFactory();
-
 routeFactory.newRoute()
     .forMethod('POST')
     .onPath('/session')
@@ -13,5 +11,4 @@ routeFactory.newRoute()
     .onPath('/session')
     .usingAuthStrategy('simple')
     .withController(Controller.logout);
-
 module.exports = routeFactory.doneConfiguring();

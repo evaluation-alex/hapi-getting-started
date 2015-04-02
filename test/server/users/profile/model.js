@@ -13,7 +13,6 @@ var it = lab.it;
 var before = lab.before;
 var after = lab.after;
 var expect = Code.expect;
-
 describe('Profile Model', function () {
     var usersToClear = [];
     before(function (done) {
@@ -22,9 +21,7 @@ describe('Profile Model', function () {
                 done();
             });
     });
-
     after(function (done) {
         tu.cleanup({users: usersToClear}, done);
     });
-
 });

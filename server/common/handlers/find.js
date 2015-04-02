@@ -1,7 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
 var utils = require('./../utils');
-
 module.exports = function FindHandler (Model, queryBuilder, findCb) {
     var findHook = function findObjsCb (output) {
         /*jshint unused:false*/
@@ -20,7 +19,7 @@ module.exports = function FindHandler (Model, queryBuilder, findCb) {
         var sort = request.query.sort;
         var limit = request.query.limit;
         var page = request.query.page;
-        Model._pagedFind(query, fields, sort, limit, page)
+        Model.pagedFind(query, fields, sort, limit, page)
             .then(findHook)
             .then(reply)
             .catch(function (err) {

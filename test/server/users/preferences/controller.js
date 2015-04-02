@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../../server/';
-
 var Users = require(relativeToServer + 'users/model');
 var Audit = require(relativeToServer + 'audit/model');
 //var expect = require('chai').expect;
@@ -13,7 +12,6 @@ var it = lab.it;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
-
 describe('Preferences', function () {
     var rootAuthHeader = null;
     var server = null;
@@ -31,12 +29,11 @@ describe('Preferences', function () {
             })
             .done();
     });
-
     describe('PUT /preferences/{id}', function () {
         var authheader = '';
         var id = '';
         beforeEach(function (done) {
-            Users._findOne({email: 'root'})
+            Users.findOne({email: 'root'})
                 .then(function (foundUser) {
                     return foundUser.loginSuccess('test', 'test').save();
                 })
@@ -45,16 +42,15 @@ describe('Preferences', function () {
                     done();
                 });
         });
-
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
             var oneauthheader = '';
-            Users._findOne({email: 'one@first.com'})
+            Users.findOne({email: 'one@first.com'})
                 .then(function (u) {
                     return u.loginSuccess('test', 'test').save();
                 })
                 .then(function (u) {
                     oneauthheader = tu.authorizationHeader(u);
-                    return Users._findOne({email: 'root'});
+                    return Users.findOne({email: 'root'});
                 })
                 .then(function (u) {
                     id = u._id.toString();
@@ -82,7 +78,6 @@ describe('Preferences', function () {
                     });
                 });
         });
-
         it('should return not found if the preferences are not found', function (done) {
             var request = {
                 method: 'PUT',
@@ -105,9 +100,8 @@ describe('Preferences', function () {
                 }
             });
         });
-
         it('should modify preferences and audit changes', function (done) {
-            Users._findOne({email: 'root'})
+            Users.findOne({email: 'root'})
                 .then(function (p) {
                     p.preferences.notifications.blogs.blocked.push('something');
                     p.preferences.notifications.posts.blocked.push('none of them');
@@ -150,7 +144,7 @@ describe('Preferences', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Users._findOne({email: 'root'})
+                            Users.findOne({email: 'root'})
                                 .then(function (p) {
                                     expect(p.preferences.locale).to.equal('hi');
                                     expect(p.preferences.notifications.blogs.email.frequency).to.equal('daily');
@@ -173,7 +167,6 @@ describe('Preferences', function () {
                 });
         });
     });
-
     afterEach(function (done) {
         done();
     });

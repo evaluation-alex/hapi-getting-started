@@ -9,7 +9,6 @@ var describe = lab.describe;
 var it = lab.it;
 var beforeEach = lab.beforeEach;
 var expect = Code.expect;
-
 describe('Contact', function () {
     var server;
     beforeEach(function (done) {
@@ -25,7 +24,6 @@ describe('Contact', function () {
             })
             .done();
     });
-
     it('returns an error when send email fails', function (done) {
         Fs.renameSync('./server/contact/contact.hbs.md', './server/contact/contact2.hbs.md');
         var request = {
@@ -47,7 +45,6 @@ describe('Contact', function () {
             }
         });
     });
-
     it('returns success after sending an email', function (done) {
         var request = {
             method: 'POST',

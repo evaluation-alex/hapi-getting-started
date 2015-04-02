@@ -1,5 +1,4 @@
 'use strict';
-
 module.exports = function CommonMixinJoinApproveReject (toAdd, affectedRole, needsApproval) {
     return {
         join: function join (doc, by) {

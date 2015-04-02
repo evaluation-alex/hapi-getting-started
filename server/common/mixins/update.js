@@ -42,5 +42,4 @@ module.exports = function CommonMixinUpdate (properties, lists, updateMethodName
         return self;
     };
     return ret;
-
 };

@@ -11,7 +11,6 @@ var it = lab.it;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
-
 describe('Audit', function () {
     var authheader = '';
     var server = null;
@@ -30,7 +29,6 @@ describe('Audit', function () {
             })
             .done();
     });
-
     describe('GET /audit', function () {
         describe('users', function () {
             beforeEach(function (done) {
@@ -115,10 +113,8 @@ describe('Audit', function () {
             });
         });
     });
-
     afterEach(function (done) {
         return tu.cleanup({users: emails}, done);
     });
-
 });
 

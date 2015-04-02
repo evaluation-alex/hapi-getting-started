@@ -1,6 +1,5 @@
 'use strict';
 var _ = require('lodash');
-
 module.exports = function CancelJoinNotificationsBuilder (toAdd) {
     return function cancelJoinNotifications (obj, request, notification) {
         var modified = false;

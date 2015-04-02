@@ -3,7 +3,6 @@ var Joi = require('joi');
 var Audit = require('./model');
 var ControllerFactory = require('./../common/controller-factory');
 var utils = require('./../common/utils');
-
 var Controller = new ControllerFactory(Audit)
     .findController({
         query: {
@@ -26,5 +25,4 @@ var Controller = new ControllerFactory(Audit)
         return query;
     })
     .doneConfiguring();
-
 module.exports = Controller;

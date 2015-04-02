@@ -6,16 +6,13 @@ var Promise = require('bluebird');
 var moment = require('moment');
 var errors = require('./../../common/errors');
 var utils = require('./../../common/utils');
-
 var Session = function Session () {
 };
-
 Session.schema = Joi.array().items(Joi.object().keys({
     ipaddress: Joi.string(),
     key: Joi.object(),
     expires: Joi.date()
 }));
-
 Session.prototype._invalidateSession = function invalidateSession (ipaddress, by) {
     var self = this;
     var removed = _.remove(self.session, function (session) {
@@ -59,10 +56,9 @@ Session.prototype.logout = function logout (ipaddress, by) {
     self._invalidateSession(ipaddress, by);
     return self;
 };
-
 Session.findBySessionCredentials = function findBySessionCredentials (email, key) {
     var self = this;
-    return self._findOne({email: email, isActive: true})
+    return self.findOne({email: email, isActive: true})
         .then(function (user) {
             if (!user) {
                 return Promise.reject(new errors.UserNotFoundError({email: email}));
@@ -82,6 +78,5 @@ Session.findBySessionCredentials = function findBySessionCredentials (email, key
             return user;
         });
 };
-
 module.exports = Session;
 

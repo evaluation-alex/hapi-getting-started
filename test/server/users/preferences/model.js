@@ -14,7 +14,6 @@ var it = lab.it;
 var before = lab.before;
 var after = lab.after;
 var expect = Code.expect;
-
 describe('Preferences Model', function () {
     var usersToClear = [];
     before(function (done) {
@@ -23,7 +22,6 @@ describe('Preferences Model', function () {
                 done();
             });
     });
-
     describe('Preferences.this.setLocale', function () {
         var testpref = null;
         before(function (done) {
@@ -76,7 +74,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.preferences.notifications.blogs.inapp.frequency', function () {
         var testpref = null;
         before(function (done) {
@@ -133,7 +130,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.preferences.notifications.blogs.inapp.lastSent', function () {
         var testpref = null;
         before(function (done) {
@@ -190,7 +186,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.addNotificationsBlogsBlocked', function () {
         before(function (done) {
             Users.create('addNotificationsBlogsBlocked1', 'silver lining', 'password', 'en')
@@ -216,7 +211,7 @@ describe('Preferences Model', function () {
         });
         it('should add a new entry to blocked when an item is newly blocked', function (done) {
             var error = null;
-            Users._findOne({email: 'addNotificationsBlogsBlocked1', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsBlogsBlocked1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['newBlocked'], 'preferences.notifications.blogs.blocked', 'test').save();
                 })
@@ -238,7 +233,7 @@ describe('Preferences Model', function () {
         });
         it('should do nothing if the item is already in the blocked list', function (done) {
             var error = null;
-            Users._findOne({email: 'addNotificationsBlogsBlocked2', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsBlogsBlocked2', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['blocked1'], 'preferences.notifications.blogs.blocked', 'test').save();
                 })
@@ -263,7 +258,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.removeNotificationsBlogsBlocked', function () {
         before(function (done) {
             Users.create('removeNotificationsBlogsBlocked', 'silver lining', 'password', 'en')
@@ -282,7 +276,7 @@ describe('Preferences Model', function () {
         });
         it('should do nothing if the item is not present in the blocked list', function (done) {
             var error = null;
-            Users._findOne({email: 'removeNotificationsBlogsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsBlogsBlocked', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['unknownBlog'], 'preferences.notifications.blogs.blocked', 'test').save();
                 })
@@ -303,7 +297,7 @@ describe('Preferences Model', function () {
         });
         it('should remove item if present in the blocked list and audit changes', function (done) {
             var error = null;
-            Users._findOne({email: 'removeNotificationsBlogsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsBlogsBlocked', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['toBeRemoved'], 'preferences.notifications.blogs.blocked', 'test').save();
                 })
@@ -328,7 +322,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.preferences.notifications.posts.inapp.frequency', function () {
         var testpref = null;
         before(function (done) {
@@ -385,7 +378,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.preferences.notifications.posts.inapp.lastSent', function () {
         var testpref = null;
         before(function (done) {
@@ -442,7 +434,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.addNotificationsPostsBlocked', function () {
         before(function (done) {
             Users.create('addNotificationsPostsBlocked1', 'silver lining', 'password', 'en')
@@ -468,7 +459,7 @@ describe('Preferences Model', function () {
         });
         it('should add a new entry to blocked when an item is newly blocked', function (done) {
             var error = null;
-            Users._findOne({email: 'addNotificationsPostsBlocked1', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsPostsBlocked1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['newBlocked'], 'preferences.notifications.posts.blocked', 'test').save();
                 })
@@ -490,7 +481,7 @@ describe('Preferences Model', function () {
         });
         it('should do nothing if the item is already in the blocked list', function (done) {
             var error = null;
-            Users._findOne({email: 'addNotificationsPostsBlocked2', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsPostsBlocked2', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['blocked1'], 'preferences.notifications.posts.blocked', 'test').save();
                 })
@@ -515,7 +506,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.removeNotificationsPostsBlocked', function () {
         before(function (done) {
             Users.create('removeNotificationsPostsBlocked', 'silver lining', 'password', 'en')
@@ -534,7 +524,7 @@ describe('Preferences Model', function () {
         });
         it('should do nothing if the item is not present in the blocked list', function (done) {
             var error = null;
-            Users._findOne({email: 'removeNotificationsPostsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsPostsBlocked', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['unknownBlog'], 'preferences.notifications.posts.blocked', 'test').save();
                 })
@@ -555,7 +545,7 @@ describe('Preferences Model', function () {
         });
         it('should remove item if present in the blocked list and audit changes', function (done) {
             var error = null;
-            Users._findOne({email: 'removeNotificationsPostsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsPostsBlocked', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['toBeRemoved'], 'preferences.notifications.posts.blocked', 'test').save();
                 })
@@ -580,7 +570,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.preferences.notifications.userGroups.inapp.frequency', function () {
         var testpref = null;
         before(function (done) {
@@ -637,7 +626,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.preferences.notifications.userGroups.inapp.lastSent', function () {
         var testpref = null;
         before(function (done) {
@@ -694,7 +682,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.addNotificationsUserGroupsBlocked', function () {
         before(function (done) {
             Users.create('addNotificationsUserGroupsBlocked1', 'silver lining', 'password', 'hi')
@@ -720,7 +707,7 @@ describe('Preferences Model', function () {
         });
         it('should add a new entry to blocked when an item is newly blocked', function (done) {
             var error = null;
-            Users._findOne({email: 'addNotificationsUserGroupsBlocked1', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsUserGroupsBlocked1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['newBlocked'], 'preferences.notifications.userGroups.blocked', 'test').save();
                 })
@@ -742,7 +729,7 @@ describe('Preferences Model', function () {
         });
         it('should do nothing if the item is already in the blocked list', function (done) {
             var error = null;
-            Users._findOne({email: 'addNotificationsUserGroupsBlocked2', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsUserGroupsBlocked2', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['blocked1'], 'preferences.notifications.userGroups.blocked', 'test').save();
                 })
@@ -767,7 +754,6 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     describe('Preferences.this.removeNotificationsUserGroupsBlocked', function () {
         before(function (done) {
             Users.create('removeNotificationsUserGroupsBlocked', 'silver lining', 'password', 'en')
@@ -786,7 +772,7 @@ describe('Preferences Model', function () {
         });
         it('should do nothing if the item is not present in the blocked list', function (done) {
             var error = null;
-            Users._findOne({email: 'removeNotificationsUserGroupsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsUserGroupsBlocked', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['unknownBlog'], 'preferences.notifications.userGroups.blocked', 'test').save();
                 })
@@ -807,7 +793,7 @@ describe('Preferences Model', function () {
         });
         it('should remove item if present in the blocked list and audit changes', function (done) {
             var error = null;
-            Users._findOne({email: 'removeNotificationsUserGroupsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsUserGroupsBlocked', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['toBeRemoved'], 'preferences.notifications.userGroups.blocked', 'test').save();
                 })
@@ -832,9 +818,7 @@ describe('Preferences Model', function () {
             done();
         });
     });
-
     after(function (done) {
         tu.cleanup({users: usersToClear}, done);
     });
-
 });

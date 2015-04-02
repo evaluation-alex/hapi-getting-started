@@ -3,12 +3,11 @@ var Users = require('./../../users/model');
 var Roles = require('./../../users/roles/model');
 var logger = require('./../../../config').logger;
 var errors = require('./../errors');
-
 var loginValidation = function loginValidation (email, sessionkey, callback) {
     Users.findBySessionCredentials(email, sessionkey)
         .then(function (user) {
             logger.info(['auth'], {user: email, success: true});
-            Roles._find({name: {$in: user.roles}, organisation: user.organisation})
+            Roles.find({name: {$in: user.roles}, organisation: user.organisation})
                 .then(function (roles) {
                     user._roles = roles;
                     callback(null, true, {user: user});
@@ -26,7 +25,6 @@ var loginValidation = function loginValidation (email, sessionkey, callback) {
             callback(null, false);
         });
 };
-
 module.exports.register = function register (server, options, next) {
     server.connections.forEach(function (connection) {
         connection.auth.strategy('simple', 'basic', {
@@ -35,7 +33,6 @@ module.exports.register = function register (server, options, next) {
     });
     next();
 };
-
 exports.register.attributes = {
     name: 'auth'
 };

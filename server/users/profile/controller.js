@@ -3,7 +3,6 @@ var Joi = require('joi');
 var Users = require('./../model');
 var ControllerFactory = require('./../../common/controller-factory');
 var onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
-
 var addressSchema = Joi.object().keys({
     apartment: Joi.string(),
     floorHouseNo: Joi.string(),
@@ -15,7 +14,6 @@ var addressSchema = Joi.object().keys({
     state: Joi.string(),
     country: Joi.string()
 });
-
 var Controller = new ControllerFactory(Users)
     .updateController({
         payload: {
@@ -60,5 +58,4 @@ var Controller = new ControllerFactory(Users)
     ], 'update',
     'updateProfile')
     .doneConfiguring();
-
 module.exports = Controller;

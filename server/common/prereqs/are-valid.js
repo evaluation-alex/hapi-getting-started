@@ -6,7 +6,6 @@ var Users = require('./../../users/model');
 var UserGroups = require('./../../user-groups/model');
 var errors = require('./../errors');
 var utils = require('./../utils');
-
 var areValid = function areValid (Model, payloadPropertiesToLookup) {
     return function areValidObjects (request, reply) {
         var toLookup = [];
@@ -38,14 +37,12 @@ var areValid = function areValid (Model, payloadPropertiesToLookup) {
         }
     };
 };
-
 module.exports.users = function validUsers (payloadPropertiesToLookup) {
     return {
         assign: 'validUsers',
         method: areValid(Users, payloadPropertiesToLookup)
     };
 };
-
 module.exports.groups = function validGroups (payloadPropertiesToLookup) {
     return {
         assign: 'validUserGroups',

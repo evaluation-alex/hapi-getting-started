@@ -1,7 +1,6 @@
 'use strict';
 var relativeToServer = './../../../server/';
 var relativeTo = './../../../';
-
 var Config = require(relativeTo + 'config');
 var Mailer = require(relativeToServer + 'common/plugins/mailer');
 //var expect = require('chai').expect;
@@ -11,9 +10,7 @@ var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
 var expect = Code.expect;
-
 describe('Mailer', function () {
-
     it('returns error when read file fails', function (done) {
         Mailer.sendEmail({}, 'path', {})
             .then(function (info) {
@@ -26,7 +23,6 @@ describe('Mailer', function () {
             })
             .done();
     });
-
     it('sends an email, if sent repeatedly, hits the cache', function (done) {
         var options = {
             subject: 'Your ' + Config.projectName + ' account',

@@ -6,7 +6,6 @@ var ControllerFactory = require('./../../common/controller-factory');
 var utils = require('./../../common/utils');
 var errors = require('./../../common/errors');
 var Promise = require('bluebird');
-
 var abuseDetected = function abuseDetected (request, reply) {
     AuthAttempts.abuseDetected(utils.ip(request), request.payload.email)
         .then(function (detected) {
@@ -19,7 +18,6 @@ var abuseDetected = function abuseDetected (request, reply) {
             utils.logAndBoom(err, reply);
         });
 };
-
 var Controller = new ControllerFactory()
     .forMethod('login')
     .withValidation({
@@ -56,5 +54,4 @@ var Controller = new ControllerFactory()
             });
     })
     .doneConfiguring();
-
 module.exports = Controller;

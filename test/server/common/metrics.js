@@ -1,16 +1,13 @@
 'use strict';
 var relativeToServer = './../../../server/';
-
 var Hapi = require('hapi');
 var MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
-
 //var expect = require('chai').expect;
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
 var beforeEach = lab.beforeEach;
-
 describe('Metrics', function () {
     var server = null;
     beforeEach(function (done) {

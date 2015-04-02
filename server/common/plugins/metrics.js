@@ -1,7 +1,6 @@
 'use strict';
 var UserAgent = require('useragent');
 var utils = require('./../utils');
-
 var normalizePath = function normalizePath (request) {
     var specials = request.connection._router.specials;
     if (request._route === specials.notFound.route) {
@@ -12,7 +11,6 @@ var normalizePath = function normalizePath (request) {
         return request._route.path.slice(1).replace(/\//g, '.').replace(/{/g, '').replace(/}/g, '');
     }
 };
-
 var gatherPerfStats = function gatherPerfStats (request) {
     var ua = UserAgent.lookup(request.headers['user-agent']);
     var path = normalizePath(request) + '.' + request.method.toUpperCase();
@@ -32,12 +30,10 @@ var gatherPerfStats = function gatherPerfStats (request) {
             end);
     });
 };
-
 module.exports.register = function register (server, options, next) {
     server.on('tail', gatherPerfStats);
     next();
 };
-
 module.exports.register.attributes = {
     name: 'metrics'
 };

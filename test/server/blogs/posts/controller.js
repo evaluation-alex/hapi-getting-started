@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../../server/';
-
 var Users = require(relativeToServer + 'users/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
@@ -25,14 +24,12 @@ var after = lab.after;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
-
 describe('Posts', function () {
     var rootAuthHeader = null;
     var server = null;
     var blogsToClear = [];
     var postsToClear = [];
     var groupsToClear = [];
-
     beforeEach(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -47,7 +44,6 @@ describe('Posts', function () {
             })
             .done();
     });
-
     describe('GET /blogs/{blogId}/posts, GET /posts', function () {
         var blogId = null;
         before(function (done) {
@@ -85,7 +81,6 @@ describe('Posts', function () {
                     done(err);
                 });
         });
-
         it('should give posts when isactive = true is sent', function (done) {
             var request = {
                 method: 'GET',
@@ -107,7 +102,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should give inactive posts when isactive = false is sent', function (done) {
             var request = {
                 method: 'GET',
@@ -129,7 +123,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should give the posts where the title matches or partially matches the query', function (done) {
             var request = {
                 method: 'GET',
@@ -154,7 +147,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should give the posts where any tag in the post matches or partially matches the query', function (done) {
             var request = {
                 method: 'GET',
@@ -181,7 +173,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should give all posts for a given blog', function (done) {
             var request = {
                 method: 'GET',
@@ -203,7 +194,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should give all posts for a given blog2', function (done) {
             var request = {
                 method: 'GET',
@@ -225,7 +215,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should give all posts in a given time period', function (done) {
             var request = {
                 method: 'GET',
@@ -247,7 +236,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should give all posts in a given time period2', function (done) {
             var request = {
                 method: 'GET',
@@ -269,7 +257,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         after(function (done) {
             blogsToClear.push('test GET /posts1');
             blogsToClear.push('test GET /posts2 is active = false');
@@ -279,11 +266,9 @@ describe('Posts', function () {
             done();
         });
     });
-
     describe('GET /blogs/{blogId}/posts/{id}, GET /posts/{id}', function () {
         var id = '';
         var blogId = '';
-
         before(function (done) {
             Blogs.create('test GET /blogs/{blogId}/posts/{id}', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(function (b) {
@@ -300,7 +285,6 @@ describe('Posts', function () {
                     done(err);
                 });
         });
-
         it('should only send back post with the id in params', function (done) {
             var request = {
                 method: 'GET',
@@ -320,7 +304,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should only send back post with the id, blogId in params', function (done) {
             PostContent.resetCache();
             var request = {
@@ -341,7 +324,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should send back not found when the post with the id in params is not found', function (done) {
             var request = {
                 method: 'GET',
@@ -359,7 +341,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should send back not found when the post with the blogId, id in params is not found', function (done) {
             var request = {
                 method: 'GET',
@@ -377,14 +358,12 @@ describe('Posts', function () {
                 }
             });
         });
-
         after(function (done) {
             blogsToClear.push('test GET /blogs/{blogId}/posts/{id}');
             postsToClear.push('GET /posts/{id}');
             done();
         });
     });
-
     describe('PUT /blogs/{blogId}/posts/{id}, PUT /posts/{id}', function () {
         var blogId = null;
         var postId = null;
@@ -403,7 +382,6 @@ describe('Posts', function () {
                     done(err);
                 });
         });
-
         it('should send back not found error when you try to modify non existent posts', function (done) {
             var request = {
                 method: 'PUT',
@@ -421,7 +399,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should send back not found error when you try to modify non existent posts2', function (done) {
             var request = {
                 method: 'PUT',
@@ -439,11 +416,10 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should send back forbidden error when you try to modify a post of a blog you are not an owner of', function (done) {
             var request = {};
             var authHeader = '';
-            Users._findOne({email: 'one@first.com'})
+            Users.findOne({email: 'one@first.com'})
                 .then(function (u) {
                     return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
                 })
@@ -469,7 +445,6 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should activate posts and have changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -484,7 +459,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Posts._find({_id: Posts.ObjectID(postId)})
+                    Posts.find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].isActive).to.be.false();
                             return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
@@ -500,7 +475,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should deactivate posts and have changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -515,7 +489,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Posts._find({_id: Posts.ObjectID(postId)})
+                    Posts.find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].isActive).to.be.true();
                             return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
@@ -531,7 +505,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should add add/remove tags and have changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -547,7 +520,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Posts._find({_id: Posts.ObjectID(postId)})
+                    Posts.find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].tags[0]).to.equal('add some');
                             return Audit.findAudit('posts', found[0]._id, {'change.action': {$regex: /tag/}});
@@ -564,7 +537,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should update content and have changes persisted on disk', function (done) {
             var request = {
                 method: 'PUT',
@@ -579,7 +551,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Posts._find({_id: Posts.ObjectID(postId)})
+                    Posts.find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
                             var filename = PostContent.filenameForPost(found[0]);
                             var timeout = setTimeout(function () {
@@ -594,7 +566,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should update access, allowComments, needsReview and have changes audited', function (done) {
             var request = {
                 method: 'PUT',
@@ -611,7 +582,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    Posts._find({_id: Posts.ObjectID(postId)})
+                    Posts.find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
                             expect(found[0].access).to.equal('restricted');
                             expect(found[0].allowComments).to.equal(false);
@@ -631,9 +602,8 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should give an error if you try to update archived posts', function (done) {
-            Posts._findOne({_id: Posts.ObjectID(postId)})
+            Posts.findOne({_id: Posts.ObjectID(postId)})
                 .then(function (post) {
                     post.state = 'archived';
                     return post.save();
@@ -659,14 +629,12 @@ describe('Posts', function () {
                     });
                 });
         });
-
         after(function (done) {
             blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}');
             postsToClear.push('test PUT');
             done();
         });
     });
-
     describe('PUT /blogs/{blogId}/posts/{id}/publish', function () {
         var blogId = null;
         before(function (done) {
@@ -685,13 +653,12 @@ describe('Posts', function () {
                     done(err);
                 });
         });
-
         it('should publish draft / pending review posts', function (done) {
             var postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -710,7 +677,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: Posts.ObjectID(postId)})
+                            Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].access).to.equal('restricted');
                                     expect(found[0].state).to.equal('published');
@@ -724,25 +691,22 @@ describe('Posts', function () {
                                 .then(function () {
                                     //because the events from the controller may not be complete
                                     var ct = setTimeout(function () {
-                                        Notifications._find({
+                                        Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.deleteMany({
+                                                return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
-                                                }, function (err, count) {
-                                                    if (err) {
-                                                        done(err);
-                                                    } else {
-                                                        expect(count).to.equal(3);
-                                                        done();
-                                                    }
                                                 });
+                                            })
+                                            .then(function (count) {
+                                                expect(count).to.equal(3);
+                                                done();
+                                                clearTimeout(ct);
                                             });
-                                        clearTimeout(ct);
                                     }, 1000);
                                 });
                         } catch (err) {
@@ -751,13 +715,12 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should allow root to publish draft / pending review posts', function (done) {
             var postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Users._findOne({email: 'root'});
+                    return Users.findOne({email: 'root'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -776,7 +739,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: Posts.ObjectID(postId)})
+                            Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].access).to.equal('restricted');
                                     expect(found[0].state).to.equal('published');
@@ -790,25 +753,22 @@ describe('Posts', function () {
                                 .then(function () {
                                     //because the events from the controller may not be complete
                                     var ct = setTimeout(function () {
-                                        Notifications._find({
+                                        Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.deleteMany({
+                                                return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
-                                                }, function (err, count) {
-                                                    if (err) {
-                                                        done(err);
-                                                    } else {
-                                                        expect(count).to.equal(3);
-                                                        done();
-                                                    }
                                                 });
+                                            })
+                                            .then(function (count) {
+                                                expect(count).to.equal(3);
+                                                done();
+                                                clearTimeout(ct);
                                             });
-                                        clearTimeout(ct);
                                     }, 1000);
                                 });
                         } catch (err) {
@@ -817,18 +777,17 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should fail to publish draft / pending review posts if user is not an owner/contributor of the blog', function (done) {
             var postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
+                    return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -847,7 +806,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(401);
-                            Posts._find({_id: Posts.ObjectID(postId)})
+                            Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('draft');
                                     done();
@@ -858,18 +817,17 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should move draft to pending review posts if user is contributor, but not owner of the blog', function (done) {
             var postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
+                    return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').add(['owner1'], 'owners', 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -888,7 +846,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: Posts.ObjectID(postId)})
+                            Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('pending review');
                                     expect(found[0].access).to.equal('restricted');
@@ -896,25 +854,22 @@ describe('Posts', function () {
                                 .then(function () {
                                     //because the events from the controller may not be complete
                                     var ct = setTimeout(function () {
-                                        Notifications._find({
+                                        Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(1);
-                                                Notifications.deleteMany({
+                                                return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
-                                                }, function (err, count) {
-                                                    if (err) {
-                                                        done(err);
-                                                    } else {
-                                                        expect(count).to.equal(1);
-                                                        done();
-                                                    }
                                                 });
+                                            })
+                                            .then(function (count) {
+                                                expect(count).to.equal(1);
+                                                done();
+                                                clearTimeout(ct);
                                             });
-                                        clearTimeout(ct);
                                     }, 1000);
                                 });
                         } catch (err) {
@@ -923,18 +878,17 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should move draft to published posts if user is contributor, and needsReview is false', function (done) {
             var postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, false, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
+                    return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -953,7 +907,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: Posts.ObjectID(postId)})
+                            Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('published');
                                     expect(found[0].access).to.equal('restricted');
@@ -961,46 +915,41 @@ describe('Posts', function () {
                                 .then(function () {
                                     //because the events from the controller may not be complete
                                     var ct = setTimeout(function () {
-                                        Notifications._find({
+                                        Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.deleteMany({
+                                                return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
-                                                }, function (err, count) {
-                                                    if (err) {
-                                                        done(err);
-                                                    } else {
-                                                        expect(count).to.equal(3);
-                                                        done();
-                                                    }
-                                                });
+                                                })
+                                            })
+                                            .then(function (count) {
+                                                expect(count).to.equal(3);
+                                                done();
+                                                clearTimeout(ct);
                                             });
-                                        clearTimeout(ct);
                                     }, 1000);
                                 });
-
                         } catch (err) {
                             done(err);
                         }
                     });
                 });
         });
-
         it('should do nothing if the post is already published / archived', function (done) {
             var postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'archived', 'restricted', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
+                    return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -1019,7 +968,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: Posts.ObjectID(postId)})
+                            Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('archived');
                                     expect(found[0].access).to.equal('restricted');
@@ -1031,7 +980,6 @@ describe('Posts', function () {
                     });
                 });
         });
-
         after(function (done) {
             blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}/publish');
             postsToClear.push('test PUT publish');
@@ -1039,7 +987,6 @@ describe('Posts', function () {
             done();
         });
     });
-
     describe('PUT /blogs/{blogId}/posts/{id}/reject', function () {
         var blogId = null;
         before(function (done) {
@@ -1058,7 +1005,6 @@ describe('Posts', function () {
                     done(err);
                 });
         });
-
         it('should update reject draft / pending review posts and cancel review notifications', function (done) {
             var postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
@@ -1068,7 +1014,7 @@ describe('Posts', function () {
                     return Notifications.create(['one@first.com', 'subscriber1', 'subscriber2'], 'silver lining', 'posts', p._id, 'titles dont matter', 'unread', 'review', 'medium', 'content is king', 'test');
                 })
                 .then(function () {
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -1087,33 +1033,30 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: Posts.ObjectID(postId)})
+                            Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].access).to.equal('restricted');
                                     expect(found[0].state).to.equal('do not publish');
                                 })
                                 .then(function () {
                                     var ct = setTimeout(function () {
-                                        Notifications._find({
+                                        Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId),
                                             state: 'cancelled'
                                         })
                                             .then(function (notifications) {
                                                 expect(notifications.length).to.equal(3);
-                                                Notifications.deleteMany({
+                                                return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
-                                                }, function (err, count) {
-                                                    if (err) {
-                                                        done(err);
-                                                    } else {
-                                                        expect(count).to.equal(4);//because there is one notification to the author for the rejection as well
-                                                        done();
-                                                    }
                                                 });
+                                            })
+                                            .then(function (count) {
+                                                expect(count).to.equal(4);//because there is one notification to the author for the rejection as well
+                                                done();
+                                                clearTimeout(ct);
                                             });
-                                        clearTimeout(ct);
                                     }, 1000);
                                 });
                         } catch (err) {
@@ -1122,17 +1065,16 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should fail reject draft / pending review posts if user is not an owner of the blog', function (done) {
             var postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
+                    return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -1151,7 +1093,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(401);
-                            Posts._find({_id: Posts.ObjectID(postId)})
+                            Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('draft');
                                     done();
@@ -1162,21 +1104,20 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should do nothing if the post is already published / archived', function (done) {
             var postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Blogs._findOne({_id: Posts.ObjectID(blogId)});
+                    return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').save();
-                    return Posts._findOne({_id: Posts.ObjectID(postId)});
+                    return Posts.findOne({_id: Posts.ObjectID(postId)});
                 })
                 .then(function (post) {
                     post.setState('published', 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -1195,7 +1136,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: Posts.ObjectID(postId)})
+                            Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('published');
                                     done();
@@ -1206,7 +1147,6 @@ describe('Posts', function () {
                     });
                 });
         });
-
         after(function (done) {
             blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}/reject');
             postsToClear.push('test PUT reject');
@@ -1214,10 +1154,8 @@ describe('Posts', function () {
             done();
         });
     });
-
     describe('POST /blogs/{blogId}/posts', function () {
         var blogId = null;
-
         before(function (done) {
             Blogs.create('test POST /blogs/{blogId}/posts', 'silver lining', 'test POST /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
                 .then(function (blog) {
@@ -1228,7 +1166,6 @@ describe('Posts', function () {
                     done(err);
                 });
         });
-
         it('should send back conflict when you try to create a post with a title that you just created', function (done) {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test POST unique', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
@@ -1260,12 +1197,11 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should not allow you to create a post if you are not an owner / contributor to the blog', function (done) {
-            Blogs._findOne({_id: Posts.ObjectID(blogId)})
+            Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -1289,7 +1225,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(401);
-                            Posts._find({title: 'test POST blog owner'})
+                            Posts.find({title: 'test POST blog owner'})
                                 .then(function (found) {
                                     expect(found.length).to.equal(0);
                                     postsToClear.push('test POST blog owner');
@@ -1302,12 +1238,11 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should create post successfully, and publish if blog doesnt have needsReview set', function (done) {
-            Blogs._findOne({_id: Posts.ObjectID(blogId)})
+            Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'contributors', 'test').setNeedsReview(false, 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -1332,7 +1267,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(201);
-                            Posts._find({title: 'test POST needsReview and publish'})
+                            Posts.find({title: 'test POST needsReview and publish'})
                                 .then(function (found) {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('published');
@@ -1352,12 +1287,11 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should create post successfully, and mark it as pending review if blog has needsReview set', function (done) {
-            Blogs._findOne({_id: Posts.ObjectID(blogId)})
+            Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -1382,7 +1316,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(201);
-                            Posts._find({title: 'test POST needsReview and pending review'})
+                            Posts.find({title: 'test POST needsReview and pending review'})
                                 .then(function (found) {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('pending review');
@@ -1396,12 +1330,11 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should create post successfully, and mark it as draft if user has marked it as draft irrespective of whether user is owner / needsReview setting', function (done) {
-            Blogs._findOne({_id: Posts.ObjectID(blogId)})
+            Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -1426,7 +1359,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(201);
-                            Posts._find({title: 'test POST draft'})
+                            Posts.find({title: 'test POST draft'})
                                 .then(function (found) {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('draft');
@@ -1440,12 +1373,11 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should create post successfully, and mark it as published if creator is an owner of the blog', function (done) {
-            Blogs._findOne({_id: Posts.ObjectID(blogId)})
+            Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -1472,7 +1404,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(201);
-                            Posts._find({title: 'test POST needsReview, owner and published'})
+                            Posts.find({title: 'test POST needsReview, owner and published'})
                                 .then(function (found) {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('published');
@@ -1486,12 +1418,11 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should create post successfully, inherit needsReview, allowComments, access from blog if not passed', function (done) {
-            Blogs._findOne({_id: Posts.ObjectID(blogId)})
+            Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then(function (blog) {
                     blog.add(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').setAccess('restricted', 'test').setAllowComments(false, 'test').save();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -1515,7 +1446,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(201);
-                            Posts._find({title: 'test POST needsReview, access, allowComments'})
+                            Posts.find({title: 'test POST needsReview, access, allowComments'})
                                 .then(function (found) {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].needsReview).to.equal(true);
@@ -1531,13 +1462,11 @@ describe('Posts', function () {
                     });
                 });
         });
-
         after(function (done) {
             blogsToClear.push('test POST /blogs/{blogId}/posts');
             done();
         });
     });
-
     describe('DELETE /blogs/{blogId}/posts/{id}', function () {
         it('should send back not found error when you try to modify a non existent post', function (done) {
             var request = {
@@ -1556,7 +1485,6 @@ describe('Posts', function () {
                 }
             });
         });
-
         it('should send back forbidden error when you try to delete a post from a blog you are not an owner of', function (done) {
             var request = {};
             var authHeader = '';
@@ -1570,7 +1498,7 @@ describe('Posts', function () {
                 })
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (u) {
                     return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
@@ -1598,7 +1526,6 @@ describe('Posts', function () {
                     });
                 });
         });
-
         it('should deactivate blog and have changes audited', function (done) {
             var blogId = '';
             var postId = '';
@@ -1610,7 +1537,7 @@ describe('Posts', function () {
                 })
                 .then(function (p) {
                     postId = p._id.toString();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (u) {
                     return u.setRoles(['root'], 'test').loginSuccess('test', 'test').save();
@@ -1627,7 +1554,7 @@ describe('Posts', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Posts._find({_id: Posts.ObjectID(postId)})
+                            Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (p) {
                                     expect(p[0].isActive).to.be.false;
                                     return Audit.findAudit('posts', p[0]._id, {by: 'one@first.com'});
@@ -1648,11 +1575,9 @@ describe('Posts', function () {
                 });
         });
     });
-
     afterEach(function (done) {
         return tu.cleanup({blogs: blogsToClear, posts: postsToClear, userGroups: groupsToClear}, done);
     });
-
 })
 ;
 

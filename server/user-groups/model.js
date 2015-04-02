@@ -1,7 +1,6 @@
 'use strict';
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var BaseModel = require('./../common/model');
 var Joi = require('joi');
-var promisify = require('./../common/mixins/promisify');
 var Insert = require('./../common/mixins/insert');
 var AreValid = require('./../common/mixins/exist');
 var AddRemove = require('./../common/mixins/add-remove');
@@ -12,7 +11,6 @@ var IsActive = require('./../common/mixins/is-active');
 var Save = require('./../common/mixins/save');
 var CAudit = require('./../common/mixins/audit');
 var _ = require('lodash');
-
 var UserGroups = function UserGroups (attrs) {
     _.assign(this, attrs);
     Object.defineProperty(this, 'audit', {
@@ -20,9 +18,7 @@ var UserGroups = function UserGroups (attrs) {
         enumerable: false
     });
 };
-
-UserGroups._collection = 'user-groups';
-
+UserGroups.collection = 'user-groups';
 UserGroups.schema = Joi.object().keys({
     _id: Joi.object(),
     name: Joi.string().required(),
@@ -38,13 +34,10 @@ UserGroups.schema = Joi.object().keys({
     updatedBy: Joi.string(),
     updatedOn: Joi.date()
 });
-
 UserGroups.indexes = [
     [{name: 1, organisation: 1}, {unique: true}]
 ];
-
 _.extend(UserGroups, BaseModel);
-promisify(UserGroups, ['find', 'findOne', 'pagedFind', 'findOneAndReplace', 'insertOne']);
 _.extend(UserGroups, new Insert('name', 'create'));
 _.extend(UserGroups, new AreValid('name'));
 _.extend(UserGroups.prototype, new IsActive());
@@ -53,8 +46,7 @@ _.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActiv
 _.extend(UserGroups.prototype, new JoinApproveRejectLeave('addedMembers', 'members', 'needsApproval'));
 _.extend(UserGroups.prototype, new Update(['isActive', 'description', 'access'], ['owners', 'members', 'needsApproval']));
 _.extend(UserGroups.prototype, new Save(UserGroups));
-_.extend(UserGroups.prototype, new CAudit(UserGroups._collection, 'name'));
-
+_.extend(UserGroups.prototype, new CAudit(UserGroups.collection, 'name'));
 UserGroups.newObject = function newObject (doc, by) {
     var self = this;
     return self.create(doc.payload.name,
@@ -69,7 +61,6 @@ UserGroups.newObject = function newObject (doc, by) {
                 .save();
         });
 };
-
 UserGroups.create = function create (name, organisation, description, owner) {
     var self = this;
     var document = {
@@ -88,5 +79,4 @@ UserGroups.create = function create (name, organisation, description, owner) {
     };
     return self.insertAndAudit(document);
 };
-
 module.exports = UserGroups;

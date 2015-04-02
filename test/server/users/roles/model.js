@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../../server/';
-
 var Roles = require(relativeToServer + '/users/roles/model');
 //var expect = require('chai').expect;
 var tu = require('./../../testutils');
@@ -12,7 +11,6 @@ var it = lab.it;
 var before = lab.before;
 var after = lab.after;
 var expect = Code.expect;
-
 describe('Roles Model', function () {
     var rolesToClear = [];
     before(function (done) {
@@ -21,7 +19,6 @@ describe('Roles Model', function () {
                 done();
             });
     });
-
     describe('Roles.create', function () {
         it('should create a new document', function (done) {
             var error = null;
@@ -66,7 +63,6 @@ describe('Roles Model', function () {
                 });
         });
     });
-
     describe('Roles.this.hasPermissionsTo', function () {
         var role = null;
         before(function (done) {
@@ -119,7 +115,7 @@ describe('Roles Model', function () {
             }
         });
         it('should return true if you have permissions permissions on *', function (done) {
-            Roles._find({name: 'root', organisation: 'silver lining'})
+            Roles.find({name: 'root', organisation: 'silver lining'})
                 .then(function (root) {
                     expect(root[0].hasPermissionsTo('view', 'test3')).to.be.true();
                     expect(root[0].hasPermissionsTo('update', 'test3')).to.be.true();
@@ -137,7 +133,6 @@ describe('Roles Model', function () {
             done();
         });
     });
-
     after(function (done) {
         tu.cleanupRoles(rolesToClear)
             .then(function () {

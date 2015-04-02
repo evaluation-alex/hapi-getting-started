@@ -13,12 +13,11 @@ var errors = require('./../../common/errors');
 var utils = require('./../../common/utils');
 var Promise = require('bluebird');
 var Hoek = require('hoek');
-
 /*jshint unused:false*/
 var stateBasedNotificationSend = {
     'published': function onPostPublished (post, request) {
         var blog = request.pre.blogs;
-        return UserGroups._find({name: {$in: blog.subscriberGroups}, organisation: post.organisation})
+        return UserGroups.find({name: {$in: blog.subscriberGroups}, organisation: post.organisation})
             .then(function (groups) {
                 var to = [blog.owners, blog.subscribers];
                 _.forEach(groups, function (group) {
@@ -64,7 +63,6 @@ var stateBasedNotificationSend = {
     }
 };
 /*jshint unused:true*/
-
 var Controller = new ControllerFactory(Posts)
     .enableNotifications()
     .newController({
@@ -234,5 +232,4 @@ var Controller = new ControllerFactory(Posts)
         isMemberOf(Blogs, ['owners'])
     ])
     .doneConfiguring();
-
 module.exports = Controller;

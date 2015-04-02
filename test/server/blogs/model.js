@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-
 var Blogs = require(relativeToServer + 'blogs/model');
 var Audit = require(relativeToServer + 'audit/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
@@ -16,18 +15,15 @@ var it = lab.it;
 var before = lab.before;
 var after = lab.after;
 var expect = Code.expect;
-
 describe('Blogs Model', function () {
     var blogsToClear = [];
     var groupsToClear = [];
-
     before(function (done) {
         tu.setupRolesAndUsers()
             .then(function () {
                 done();
             });
     });
-
     describe('Blogs.create', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
             var error = null;
@@ -77,7 +73,6 @@ describe('Blogs Model', function () {
                 });
         });
     });
-
     describe('Blogs.this.addUsers', function () {
         before(function (done) {
             UserGroups.create('testBlogAddUsers', 'silver lining', 'testing blog.addUsers', 'test')
@@ -101,7 +96,7 @@ describe('Blogs Model', function () {
         });
         it('should add a new entry to users when user/group is newly added', function (done) {
             var error = null;
-            Blogs._findOne({title: 'addUsers1', organisation: 'silver lining'})
+            Blogs.findOne({title: 'addUsers1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['newUserGroup'], 'subscriberGroups', 'test').save();
                 })
@@ -112,7 +107,7 @@ describe('Blogs Model', function () {
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.match(/^add subscriberGroup/);
-                    return Blogs._findOne({title: 'addUsers1', organisation: 'silver lining'});
+                    return Blogs.findOne({title: 'addUsers1', organisation: 'silver lining'});
                 })
                 .then(function (found) {
                     return found.add(['newSubscriber'], 'subscribers', 'test').save();
@@ -135,7 +130,7 @@ describe('Blogs Model', function () {
         });
         it('should do nothing if the user/group is already active in the group', function (done) {
             var error = null;
-            Blogs._findOne({title: 'addUsers2', organisation: 'silver lining'})
+            Blogs.findOne({title: 'addUsers2', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['testBlogAddUsers'], 'subscriberGroups', 'test').save();
                 })
@@ -145,7 +140,7 @@ describe('Blogs Model', function () {
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
-                    return Blogs._findOne({title: 'addUsers2', organisation: 'silver lining'});
+                    return Blogs.findOne({title: 'addUsers2', organisation: 'silver lining'});
                 })
                 .then(function (found) {
                     return found.add(['directlyadded'], 'owners', 'test').save();
@@ -173,7 +168,6 @@ describe('Blogs Model', function () {
             done();
         });
     });
-
     describe('Blogs.this.removeUsers', function () {
         before(function (done) {
             Blogs.create('removeUsers1', 'silver lining', 'blog.removeUsers', ['directlyadded'], [], [], ['testBlogsRemoveUsers'], false, 'public', true, 'test')
@@ -188,7 +182,7 @@ describe('Blogs Model', function () {
         });
         it('should do nothing if the user/group is not present in the group', function (done) {
             var error = null;
-            Blogs._findOne({title: 'removeUsers1', organisation: 'silver lining'})
+            Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['unknownGroup'], 'subscriberGroups', 'test').save();
                 })
@@ -198,7 +192,7 @@ describe('Blogs Model', function () {
                 })
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(0);
-                    return Blogs._findOne({title: 'removeUsers1', organisation: 'silver lining'});
+                    return Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'});
                 })
                 .then(function (found) {
                     return found.remove(['unknownUser'], 'subscribers', 'test').save();
@@ -220,7 +214,7 @@ describe('Blogs Model', function () {
         });
         it('should remove user/group if present', function (done) {
             var error = null;
-            Blogs._findOne({title: 'removeUsers1', organisation: 'silver lining'})
+            Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['testBlogsRemoveUsers'], 'subscriberGroups', 'test').save();
                 })
@@ -231,7 +225,7 @@ describe('Blogs Model', function () {
                 .then(function (paudit) {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.match(/^remove subscriberGroup/);
-                    return Blogs._findOne({title: 'removeUsers1', organisation: 'silver lining'});
+                    return Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'});
                 })
                 .then(function (found) {
                     return found.remove(['directlyadded'], 'owners', 'test').save();
@@ -257,7 +251,6 @@ describe('Blogs Model', function () {
             done();
         });
     });
-
     describe('Blogs.this.activate/deactivate', function () {
         var activated = null, deactivated = null;
         before(function (done) {
@@ -269,10 +262,7 @@ describe('Blogs Model', function () {
                 deactivated.deactivate('test').save()
                     .then(function (d) {
                         deactivated = d;
-                        Audit.deleteMany({objectChangedId: d.title}, function (err) {
-                            if (err) {
-                            }
-                        });
+                        Audit.remove({objectChangedId: d.title});
                     });
             })
                 .then(function () {
@@ -343,7 +333,6 @@ describe('Blogs Model', function () {
             done();
         });
     });
-
     describe('Blogs.this.setDescription', function () {
         var testblog = null;
         before(function (done) {
@@ -396,7 +385,6 @@ describe('Blogs Model', function () {
             done();
         });
     });
-
     describe('Blogs.this.setAccess', function () {
         var testblog = null;
         before(function (done) {
@@ -448,7 +436,6 @@ describe('Blogs Model', function () {
             done();
         });
     });
-
     describe('Blogs.this.needsReview', function () {
         var testblog = null;
         before(function (done) {
@@ -500,7 +487,6 @@ describe('Blogs Model', function () {
             done();
         });
     });
-
     describe('Blogs.this.allowComments', function () {
         var testblog = null;
         before(function (done) {
@@ -552,7 +538,6 @@ describe('Blogs Model', function () {
             done();
         });
     });
-
     after(function (done) {
         return tu.cleanup({userGroups: groupsToClear, blogs: blogsToClear}, done);
     });

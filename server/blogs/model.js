@@ -1,7 +1,6 @@
 'use strict';
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var BaseModel = require('./../common/model');
 var Joi = require('joi');
-var promisify = require('./../common/mixins/promisify');
 var Insert = require('./../common/mixins/insert');
 var AddRemove = require('./../common/mixins/add-remove');
 var JoinApproveRejectLeave = require('./../common/mixins/join-approve-reject-leave');
@@ -15,7 +14,6 @@ var _ = require('lodash');
 var mkdirp = Promise.promisify(require('mkdirp'));
 var Config = require('./../../config');
 var utils = require('./../common/utils');
-
 var Blogs = function Blogs (attrs) {
     _.assign(this, attrs);
     Object.defineProperty(this, 'audit', {
@@ -23,9 +21,7 @@ var Blogs = function Blogs (attrs) {
         enumerable: false
     });
 };
-
-Blogs._collection = 'blogs';
-
+Blogs.collection = 'blogs';
 Blogs.schema = Joi.object().keys({
     _id: Joi.object(),
     title: Joi.string().required(),
@@ -45,14 +41,11 @@ Blogs.schema = Joi.object().keys({
     updatedBy: Joi.string(),
     updatedOn: Joi.date()
 });
-
 Blogs.indexes = [
     [{title: 1, organisation: 1}, {unique: true}],
     [{description: 1}]
 ];
-
 _.extend(Blogs, BaseModel);
-promisify(Blogs, ['find', 'findOne', 'pagedFind', 'findOneAndReplace', 'insertOne']);
 _.extend(Blogs, new Insert('title', 'create'));
 _.extend(Blogs.prototype, new IsActive());
 _.extend(Blogs.prototype, new AddRemove(['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));
@@ -60,8 +53,7 @@ _.extend(Blogs.prototype, new Properties(['description', 'isActive', 'needsRevie
 _.extend(Blogs.prototype, new JoinApproveRejectLeave('addedSubscribers', 'subscribers', 'needsApproval'));
 _.extend(Blogs.prototype, new Update(['isActive', 'description', 'needsReview', 'access', 'allowComments'], ['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));
 _.extend(Blogs.prototype, new Save(Blogs));
-_.extend(Blogs.prototype, new CAudit(Blogs._collection, 'title'));
-
+_.extend(Blogs.prototype, new CAudit(Blogs.collection, 'title'));
 Blogs.newObject = function newObject (doc, by) {
     var self = this;
     return self.create(doc.payload.title,
@@ -76,7 +68,6 @@ Blogs.newObject = function newObject (doc, by) {
         doc.payload.allowComments,
         by);
 };
-
 Blogs.create = function create (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {
     var self = this;
     var id = Blogs.ObjectID();
@@ -102,6 +93,5 @@ Blogs.create = function create (title, organisation, description, owners, contri
     };
     return self.insertAndAudit(document);
 };
-
 module.exports = Blogs;
 

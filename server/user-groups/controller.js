@@ -7,7 +7,6 @@ var isMemberOf = require('./../common/prereqs/is-member-of');
 var CreateDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
 var AddRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
 var utils = require('./../common/utils');
-
 var Controller = new ControllerFactory(UserGroups)
     .enableNotifications()
     .newController({
@@ -56,5 +55,4 @@ var Controller = new ControllerFactory(UserGroups)
     .joinLeaveController(['members'], 'owners', 'name')
     .approveRejectController('addedMembers', 'owners', 'name')
     .doneConfiguring();
-
 module.exports = Controller;

@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-
 //var expect = require('chai').expect;
 var utils = require(relativeToServer + '/common/utils');
 var Config = require(relativeToServer + '../config');
@@ -10,7 +9,6 @@ var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
 var expect = Code.expect;
-
 describe('Utils', function () {
     it('should log when errback called with', function (done) {
         var prev = Config.logger;
@@ -70,7 +68,6 @@ describe('Utils', function () {
                 g: 'inquery'
             }
         }, 'f')).to.be.undefined();
-
         done();
     });
 });

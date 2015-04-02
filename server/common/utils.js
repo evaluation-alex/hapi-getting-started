@@ -6,26 +6,21 @@ var traverse = require('traverse');
 var _ = require('lodash');
 var moment = require('moment');
 var Bcrypt = require('bcrypt');
-
 module.exports.logAndBoom = function logAndBoom (err, reply) {
     logger.error({error: err, stack: err.stack});
     reply(err.canMakeBoomError ? err : Boom.badImplementation(err));
 };
-
 module.exports.toStatsD = function toStatsD (route, statusCode, user, device, browser, start, finish) {
     var counters = [device, browser, route, route + statusCode, user];
     var timings = [route, user];
-
     statsd.increment(counters, 1);
     statsd.timing(timings, finish - start);
 };
-
 module.exports.errback = function errback (err) {
     if (err) {
         logger.error({error: err, stack: err.stack});
     }
 };
-
 module.exports.defaultcb = function defaultcb (bucket, resolve, reject) {
     var start = Date.now();
     return function mongoCb (err, res) {
@@ -39,18 +34,15 @@ module.exports.defaultcb = function defaultcb (bucket, resolve, reject) {
         statsd.timing(bucket, Date.now() - start);
     };
 };
-
 module.exports.ip = function (request) {
     var ret = request.info.remoteAddress;
     return ret === '' ? 'test' : ret;
 };
-
 module.exports.locale = function locale (request) {
     var ret = traverse(request).get(['auth', 'credentials', 'user', 'preferences', 'locale']);
     //TODO: if not found in user prefs, figure out from request headers - tbd
     return ret ? ret : 'en';
 };
-
 module.exports.lookupParamsOrPayloadOrQuery = function lookupParamsOrPayloadOrQuery (request, field) {
     var ret = request.params && request.params[field] ?
         request.params[field] :
@@ -61,11 +53,9 @@ module.exports.lookupParamsOrPayloadOrQuery = function lookupParamsOrPayloadOrQu
                 undefined;
     return ret;
 };
-
 module.exports.hasItems = function hasItems (arr) {
     return arr && arr.length > 0;
 };
-
 module.exports.buildQueryFromRequestForFields = function buildQueryFromRequestForFields (query, request, fields) {
     _.forEach(fields, function (pair) {
         if (request.query[pair[0]]) {
@@ -74,7 +64,6 @@ module.exports.buildQueryFromRequestForFields = function buildQueryFromRequestFo
     });
     return query;
 };
-
 module.exports.buildQueryFromRequestForDateFields = function buildQueryFromRequestForDateFields (query, request, field) {
     var before = field + 'Before';
     var after = field + 'After';
@@ -89,11 +78,9 @@ module.exports.buildQueryFromRequestForDateFields = function buildQueryFromReque
     }
     return query;
 };
-
 module.exports.secureHash = function secureHash (password) {
     return Bcrypt.hashSync(password, 10);
 };
-
 module.exports.secureCompare = function secureCompare (password, hash) {
     return Bcrypt.compareSync(password, hash) || password === hash;
 };

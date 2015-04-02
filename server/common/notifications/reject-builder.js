@@ -1,6 +1,5 @@
 'use strict';
 var utils = require('./../utils');
-
 module.exports = function RejectNotificationsBuilder (toAdd, idForNotificationsTitle) {
     return function rejectNotifications (obj, request) {
         return {

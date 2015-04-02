@@ -1,5 +1,4 @@
 'use strict';
-
 module.exports = function NewDeleteObjectNotificationsBuilder (type, owners, title, action) {
     var actions = {
         'new': {

@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-
 var Users = require(relativeToServer + 'users/model');
 var ensurePermissions = require(relativeToServer + 'common/prereqs/ensure-permissions');
 var Promise = require('bluebird');
@@ -15,12 +14,10 @@ var it = lab.it;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
-
 describe('Auth', function () {
     var server;
     var email = 'test.auth@plugin.auth';
     var authheader;
-
     beforeEach(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -45,7 +42,6 @@ describe('Auth', function () {
             })
             .done();
     });
-
     it('returns authentication credentials when correct authorization header is sent in the request', function (done) {
         server.route({
             method: 'GET',
@@ -60,7 +56,6 @@ describe('Auth', function () {
                 });
             }
         });
-
         var request = {
             method: 'GET',
             url: '/',
@@ -76,7 +71,6 @@ describe('Auth', function () {
             }
         });
     });
-
     it('returns an error when the session is not found', function (done) {
         server.route({
             method: 'GET',
@@ -89,7 +83,6 @@ describe('Auth', function () {
                 });
             }
         });
-
         var request = {
             method: 'GET',
             url: '/',
@@ -97,7 +90,6 @@ describe('Auth', function () {
                 Authorization: tu.authorizationHeader2(email, 'randomsessionkey')
             }
         };
-
         server.inject(request, function () {
             try {
                 done();
@@ -106,7 +98,6 @@ describe('Auth', function () {
             }
         });
     });
-
     it('returns an error when the user is not found', function (done) {
         server.route({
             method: 'GET',
@@ -119,7 +110,6 @@ describe('Auth', function () {
                 });
             }
         });
-
         var request = {
             method: 'GET',
             url: '/',
@@ -127,7 +117,6 @@ describe('Auth', function () {
                 Authorization: tu.authorizationHeader2('unknown@test.auth', 'doesnt matter')
             }
         };
-
         server.inject(request, function () {
             try {
                 done();
@@ -136,7 +125,6 @@ describe('Auth', function () {
             }
         });
     });
-
     it('returns an error when user has already logged out', function (done) {
         server.route({
             method: 'GET',
@@ -149,8 +137,7 @@ describe('Auth', function () {
                 });
             }
         });
-
-        Users._findOne({email: email})
+        Users.findOne({email: email})
             .then(function (user) {
                 return user.logout('test', 'test').save();
             })
@@ -172,7 +159,6 @@ describe('Auth', function () {
             })
             .done();
     });
-
     it('returns with 403 when the required role(s) are missing', function (done) {
         server.route({
             method: 'GET',
@@ -190,8 +176,7 @@ describe('Auth', function () {
                 reply('ok').statusCode(200);
             }
         });
-
-        Users._findOne({email: email})
+        Users.findOne({email: email})
             .then(function (user) {
                 return user.setRoles([], 'test').save();
             })
@@ -207,7 +192,6 @@ describe('Auth', function () {
                         authorization: authheader
                     }
                 };
-
                 server.inject(request, function (response) {
                     try {
                         expect(response.statusCode).to.equal(403);
@@ -219,7 +203,6 @@ describe('Auth', function () {
             })
             .done();
     });
-
     it('returns with 403 when the required permissions are missing on the role', function (done) {
         server.route({
             method: 'GET',
@@ -237,7 +220,6 @@ describe('Auth', function () {
                 reply('ok').statusCode(200).takeover();
             }
         });
-
         var request = {
             method: 'GET',
             url: '/',
@@ -245,7 +227,6 @@ describe('Auth', function () {
                 authorization: authheader
             }
         };
-
         server.inject(request, function (response) {
             try {
                 expect(response.statusCode).to.equal(403);
@@ -255,7 +236,6 @@ describe('Auth', function () {
             }
         });
     });
-
     it('returns a session expired when the session has expired', function (done) {
         server.route({
             method: 'GET',
@@ -268,8 +248,7 @@ describe('Auth', function () {
                 });
             }
         });
-
-        Users._findOne({email: email})
+        Users.findOne({email: email})
             .then(function (user) {
                 user.session[0].expires = moment().subtract(15, 'days').toDate();
                 return user.save();
@@ -292,7 +271,6 @@ describe('Auth', function () {
             })
             .done();
     });
-
     it('does adequate error handling and logging when errors occur', function (done) {
         server.route({
             method: 'GET',
@@ -305,7 +283,6 @@ describe('Auth', function () {
                 });
             }
         });
-
         var prev = Users.findBySessionCredentials;
         Users.findBySessionCredentials = function () {
             return Promise.reject(new Error('test'));
@@ -327,7 +304,6 @@ describe('Auth', function () {
             }
         });
     });
-
     afterEach(function (done) {
         return tu.cleanup({users: [email]}, done);
     });

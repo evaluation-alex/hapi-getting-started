@@ -1,7 +1,6 @@
 'use strict';
-var BaseModel = require('hapi-mongo-models').BaseModel;
+var BaseModel = require('./../../common/model');
 var Joi = require('joi');
-var promisify = require('./../../common/mixins/promisify');
 var Insert = require('./../../common/mixins/insert');
 var AddRemove = require('./../../common/mixins/add-remove');
 var IsActive = require('./../../common/mixins/is-active');
@@ -11,7 +10,6 @@ var Save = require('./../../common/mixins/save');
 var CAudit = require('./../../common/mixins/audit');
 var _ = require('lodash');
 var utils = require('./../../common/utils');
-
 var Posts = function Posts (attrs) {
     _.assign(this, attrs);
     Object.defineProperty(this, 'audit', {
@@ -19,9 +17,7 @@ var Posts = function Posts (attrs) {
         enumerable: false
     });
 };
-
-Posts._collection = 'posts';
-
+Posts.collection = 'posts';
 Posts.schema = Joi.object().keys({
     _id: Joi.object(),
     blogId: Joi.object().required(),
@@ -44,15 +40,12 @@ Posts.schema = Joi.object().keys({
     updatedBy: Joi.string(),
     updatedOn: Joi.date()
 });
-
 Posts.indexes = [
     [{organisation: 1, title: 1, blogId: 1, publishedOn: 1}],
     [{tags: 1}],
     [{state: 1, publishedOn: 1}]
 ];
-
 _.extend(Posts, BaseModel);
-promisify(Posts, ['find', 'findOne', 'pagedFind', 'findOneAndReplace', 'insertOne']);
 _.extend(Posts, new Insert('_id', 'create'));
 _.extend(Posts.prototype, new IsActive());
 _.extend(Posts.prototype, new AddRemove({
@@ -62,8 +55,7 @@ _.extend(Posts.prototype, new AddRemove({
 _.extend(Posts.prototype, new Properties(['title', 'state', 'category', 'access', 'allowComments', 'needsReview', 'isActive']));
 _.extend(Posts.prototype, new Update(['isActive', 'state', 'category', 'title', 'access', 'allowComments', 'needsReview'], ['tags', 'attachments']));
 _.extend(Posts.prototype, new Save(Posts));
-_.extend(Posts.prototype, new CAudit(Posts._collection, '_id'));
-
+_.extend(Posts.prototype, new CAudit(Posts.collection, '_id'));
 Posts.newObject = function newObject (doc, by) {
     var self = this;
     return self.create(utils.lookupParamsOrPayloadOrQuery(doc, 'blogId'),
@@ -78,7 +70,6 @@ Posts.newObject = function newObject (doc, by) {
         doc.payload.attachments,
         by);
 };
-
 Posts.create = function create (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) {
     var self = this;
     var now = new Date();
@@ -105,6 +96,5 @@ Posts.create = function create (blogId, organisation, title, state, access, allo
     };
     return self.insertAndAudit(document);
 };
-
 module.exports = Posts;
 

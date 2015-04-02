@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../server/';
-
 //var expect = require('chai').expect;
 var CreateHandler = require(relativeToServer + 'common/handlers/create');
 var FindHandler = require(relativeToServer + 'common/handlers/find');
@@ -14,7 +13,6 @@ var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
 var expect = Code.expect;
-
 describe('Handlers and Mixins', function () {
     it('create handler should log and boom errors when it encounters exceptions', function (done) {
         var reply = function reply (args) {
@@ -42,7 +40,7 @@ describe('Handlers and Mixins', function () {
     });
     it('find handler should log and boom errors when it encounters exceptions', function (done) {
         var Model = {
-            _pagedFind: function (query, fields, sort, limit, page) {
+            pagedFind: function (query, fields, sort, limit, page) {
                 expect(query).to.exist();
                 expect(fields).to.not.exist();
                 expect(sort).to.not.exist();
@@ -69,7 +67,7 @@ describe('Handlers and Mixins', function () {
     });
     it('findOne handler should log and boom exceptions when it encounters exceptions', function (done) {
         var Model = {
-            _collection: 'test'
+            collection: 'test'
         };
         var request = {
             pre: {
@@ -89,11 +87,11 @@ describe('Handlers and Mixins', function () {
     });
     it('insertAndAudit should return a not created error when _insert fails', function (done) {
         var obj = {
-            _insertOne: function (doc) {
+            insert: function (doc) {
                 expect(doc).to.exist();
                 return Promise.resolve(undefined);
             },
-            _collection: 'test'
+            collection: 'test'
         };
         _.extend(obj, new InsertAndAudit('_id', 'create'));
         obj.insertAndAudit({test: 'error'})

@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../../server/';
-
 var _ = require('lodash');
 var moment = require('moment');
 var Users = require(relativeToServer + 'users/model');
@@ -17,7 +16,6 @@ var it = lab.it;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
-
 describe('Notifications', function () {
     var rootAuthHeader = null;
     var server = null;
@@ -35,7 +33,6 @@ describe('Notifications', function () {
             })
             .done();
     });
-
     describe('GET /notifications', function () {
         beforeEach(function (done) {
             /*jshint unused:false*/
@@ -139,7 +136,6 @@ describe('Notifications', function () {
                 }
             });
         });
-
         it('should give all notifications in a given time period', function (done) {
             var request = {
                 method: 'GET',
@@ -161,7 +157,6 @@ describe('Notifications', function () {
                 }
             });
         });
-
         it('should give all posts in a given time period2', function (done) {
             var request = {
                 method: 'GET',
@@ -185,7 +180,7 @@ describe('Notifications', function () {
         });
         it('should filter out blocked notifications based on preferences', function (done) {
             var authHeader = '';
-            Users._findOne({email: 'one@first.com'})
+            Users.findOne({email: 'one@first.com'})
                 .then(function (user) {
                     user.preferences.notifications.userGroups.blocked.push('abc123');
                     return user.loginSuccess('test', 'test').save();
@@ -214,7 +209,6 @@ describe('Notifications', function () {
                 });
         });
     });
-
     describe('PUT /notifications/{id}', function () {
         it('should send back not found error when you try to modify a non existent notification', function (done) {
             var request = {
@@ -238,7 +232,7 @@ describe('Notifications', function () {
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
                 .then(function (n) {
                     id = n._id.toString();
-                    return Users._findOne({email: 'one@first.com'});
+                    return Users.findOne({email: 'one@first.com'});
                 })
                 .then(function (user) {
                     return user.loginSuccess('test', 'test').save();
@@ -281,7 +275,7 @@ describe('Notifications', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Notifications._findOne({_id: Notifications.ObjectID(id)})
+                            Notifications.findOne({_id: Notifications.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found.isActive).to.be.false();
                                     return Audit.findAudit('notifications', n._id, {'change.action': /isActive/});
@@ -313,7 +307,7 @@ describe('Notifications', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Notifications._findOne({_id: Notifications.ObjectID(id)})
+                            Notifications.findOne({_id: Notifications.ObjectID(id)})
                                 .then(function (found) {
                                     expect(found.state).to.equal('starred');
                                     return Audit.findAudit('notifications', n._id, {'change.action': /state/});
@@ -330,18 +324,11 @@ describe('Notifications', function () {
         });
     })
     ;
-
     afterEach(function (done) {
-        /*jshint unused:false*/
-        Notifications.deleteMany({title: 'titles dont matter'}, function (err, doc) {
-            if (err) {
-                done(err);
-            }
-            else {
+        Notifications.remove({title: 'titles dont matter'})
+            .then(function () {
                 return tu.cleanup({}, done);
-            }
-        });
-        /*jshint unused:true*/
+            });
     });
 });
 

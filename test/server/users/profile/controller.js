@@ -1,6 +1,5 @@
 'use strict';
 var relativeToServer = './../../../../server/';
-
 var Users = require(relativeToServer + 'users/model');
 var Audit = require(relativeToServer + 'audit/model');
 //var expect = require('chai').expect;
@@ -13,7 +12,6 @@ var it = lab.it;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var expect = Code.expect;
-
 describe('Profile', function () {
     var rootAuthHeader = null;
     var server = null;
@@ -31,12 +29,11 @@ describe('Profile', function () {
             })
             .done();
     });
-
     describe('PUT /profile/{id}', function () {
         var authheader = '';
         var id = '';
         beforeEach(function (done) {
-            Users._findOne({email: 'root'})
+            Users.findOne({email: 'root'})
                 .then(function (foundUser) {
                     return foundUser.loginSuccess('test', 'test').save();
                 })
@@ -45,16 +42,15 @@ describe('Profile', function () {
                     done();
                 });
         });
-
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
             var oneauthheader = '';
-            Users._findOne({email: 'one@first.com'})
+            Users.findOne({email: 'one@first.com'})
                 .then(function (u) {
                     return u.loginSuccess('test', 'test').save();
                 })
                 .then(function (u) {
                     oneauthheader = tu.authorizationHeader(u);
-                    return Users._findOne({email: 'root'});
+                    return Users.findOne({email: 'root'});
                 })
                 .then(function (u) {
                     id = u._id.toString();
@@ -82,7 +78,6 @@ describe('Profile', function () {
                     });
                 });
         });
-
         it('should return not found if the profile is not found', function (done) {
             var request = {
                 method: 'PUT',
@@ -105,9 +100,8 @@ describe('Profile', function () {
                 }
             });
         });
-
         it('should modify profile and audit changes', function (done) {
-            Users._findOne({email: 'root'})
+            Users.findOne({email: 'root'})
                 .then(function (p) {
                     id = p._id.toString();
                     var request = {
@@ -125,7 +119,7 @@ describe('Profile', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            Users._findOne({email: 'root'})
+                            Users.findOne({email: 'root'})
                                 .then(function (p) {
                                     expect(p.profile.preferredName).to.equal('mr. me');
                                     return Audit.findAudit('users', 'root', {'change.action': 'profile.preferredName'});
@@ -142,7 +136,6 @@ describe('Profile', function () {
                 });
         });
     });
-
     afterEach(function (done) {
         done();
     });

@@ -7,10 +7,10 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var beforeEach = lab.beforeEach;
+var before = lab.before;
 describe('Metrics', function () {
     var server = null;
-    beforeEach(function (done) {
+    before(function (done) {
         server = new Hapi.Server();
         server.connection({
             host: 'localhost',

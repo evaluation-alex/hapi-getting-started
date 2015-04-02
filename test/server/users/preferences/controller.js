@@ -9,13 +9,13 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
+var before = lab.before;
+var after = lab.after;
 var expect = Code.expect;
 describe('Preferences', function () {
     var rootAuthHeader = null;
     var server = null;
-    beforeEach(function (done) {
+    before(function (done) {
         tu.setupServer()
             .then(function (res) {
                 server = res.server;
@@ -32,7 +32,7 @@ describe('Preferences', function () {
     describe('PUT /preferences/{id}', function () {
         var authheader = '';
         var id = '';
-        beforeEach(function (done) {
+        before(function (done) {
             Users.findOne({email: 'root'})
                 .then(function (foundUser) {
                     return foundUser.loginSuccess('test', 'test').save();
@@ -167,7 +167,7 @@ describe('Preferences', function () {
                 });
         });
     });
-    afterEach(function (done) {
+    after(function (done) {
         done();
     });
 });

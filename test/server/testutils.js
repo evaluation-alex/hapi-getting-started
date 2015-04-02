@@ -199,9 +199,11 @@ function cleanupNotifications (toClear) {
 function cleanupAudit () {
     return Audit.remove({});
 }
+module.exports.cleanupAudit = cleanupAudit;
 function cleanupAuthAttempts () {
     return AuthAttempts.remove({});
 }
+module.exports.cleanupAuthAttempts = cleanupAuthAttempts;
 var cleanupRoles = function (roles) {
     return Roles.remove({name: {$in: roles}});
 };

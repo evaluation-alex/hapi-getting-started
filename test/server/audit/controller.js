@@ -8,14 +8,14 @@ var tu = require('./../testutils');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
+var before = lab.before;
+var after = lab.after;
 var expect = Code.expect;
 describe('Audit', function () {
     var authheader = '';
     var server = null;
     var emails = [];
-    beforeEach(function (done) {
+    before(function (done) {
         tu.setupServer()
             .then(function (res) {
                 server = res.server;
@@ -31,7 +31,7 @@ describe('Audit', function () {
     });
     describe('GET /audit', function () {
         describe('users', function () {
-            beforeEach(function (done) {
+            before(function (done) {
                 Users.create('test.users@test.api', 'silver lining', 'password123', 'en')
                     .then(function (newUser) {
                         return newUser.loginSuccess('test', 'test').save();
@@ -113,7 +113,7 @@ describe('Audit', function () {
             });
         });
     });
-    afterEach(function (done) {
+    after(function (done) {
         return tu.cleanup({users: emails}, done);
     });
 });

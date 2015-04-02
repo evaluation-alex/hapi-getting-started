@@ -15,15 +15,13 @@ var describe = lab.describe;
 var it = lab.it;
 var before = lab.before;
 var after = lab.after;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
 var expect = Code.expect;
 describe('Blogs', function () {
     var rootAuthHeader = null;
     var server = null;
     var blogsToClear = [];
     var groupsToClear = [];
-    beforeEach(function (done) {
+    before(function (done) {
         tu.setupServer()
             .then(function (res) {
                 server = res.server;
@@ -1564,7 +1562,7 @@ describe('Blogs', function () {
                 }).done();
         });
     });
-    afterEach(function (done) {
+    after(function (done) {
         return tu.cleanup({userGroups: groupsToClear, blogs: blogsToClear}, done);
     });
 });

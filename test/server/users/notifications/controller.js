@@ -13,13 +13,13 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
+var before = lab.before;
+var after = lab.after;
 var expect = Code.expect;
 describe('Notifications', function () {
     var rootAuthHeader = null;
     var server = null;
-    beforeEach(function (done) {
+    before(function (done) {
         tu.setupServer()
             .then(function (res) {
                 server = res.server;
@@ -34,7 +34,7 @@ describe('Notifications', function () {
             .done();
     });
     describe('GET /notifications', function () {
-        beforeEach(function (done) {
+        before(function (done) {
             /*jshint unused:false*/
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
             var n1 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root');
@@ -322,9 +322,8 @@ describe('Notifications', function () {
                     });
                 });
         });
-    })
-    ;
-    afterEach(function (done) {
+    });
+    after(function (done) {
         Notifications.remove({title: 'titles dont matter'})
             .then(function () {
                 return tu.cleanup({}, done);

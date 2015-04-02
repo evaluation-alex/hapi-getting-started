@@ -13,13 +13,11 @@ var describe = lab.describe;
 var it = lab.it;
 var before = lab.before;
 var after = lab.after;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
 var expect = Code.expect;
 describe('Users', function () {
     var server = null;
     var emails = [];
-    beforeEach(function (done) {
+    before(function (done) {
         tu.setupServer()
             .then(function (res) {
                 server = res.server;
@@ -303,15 +301,15 @@ describe('Users', function () {
     describe('PUT /users/{id}', function () {
         var authheader = '';
         var id = '';
-        beforeEach(function (done) {
+        before(function (done) {
             Users.findOne({email: 'root'})
                 .then(function (foundUser) {
                     return foundUser.loginSuccess('test', 'test').save();
                 })
                 .then(function (foundUser) {
                     authheader = tu.authorizationHeader(foundUser);
-                    emails.push('test.users2@test.api');
-                    return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
+                    emails.push('test.users3@test.api');
+                    return Users.create('test.users3@test.api', 'silver lining', 'password123', 'en');
                 })
                 .then(function (newUser) {
                     newUser.loginSuccess('test', 'test').save();
@@ -698,7 +696,7 @@ describe('Users', function () {
                 });
         });
     });
-    afterEach(function (done) {
+    after(function (done) {
         return tu.cleanup({users: emails}, done);
     });
 });

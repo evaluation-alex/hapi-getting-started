@@ -21,8 +21,6 @@ var describe = lab.describe;
 var it = lab.it;
 var before = lab.before;
 var after = lab.after;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
 var expect = Code.expect;
 describe('Posts', function () {
     var rootAuthHeader = null;
@@ -30,7 +28,7 @@ describe('Posts', function () {
     var blogsToClear = [];
     var postsToClear = [];
     var groupsToClear = [];
-    beforeEach(function (done) {
+    before(function (done) {
         tu.setupServer()
             .then(function (res) {
                 server = res.server;
@@ -468,6 +466,9 @@ describe('Posts', function () {
                             expect(foundAudit).to.exist();
                             expect(foundAudit.length).to.equal(1);
                             expect(foundAudit[0].change[0].action).to.match(/isActive/);
+                        })
+                        .then(function () {
+                            tu.cleanupAudit();
                             done();
                         });
                 } catch (err) {
@@ -498,6 +499,9 @@ describe('Posts', function () {
                             expect(foundAudit).to.exist();
                             expect(foundAudit.length).to.equal(1);
                             expect(foundAudit[0].change[0].action).to.match(/isActive/);
+                        })
+                        .then(function () {
+                            tu.cleanupAudit();
                             done();
                         });
                 } catch (err) {
@@ -530,6 +534,9 @@ describe('Posts', function () {
                             expect(foundAudit.length).to.equal(1);
                             expect(foundAudit[0].change[0].action).to.match(/add/);
                             expect(foundAudit[0].change[1].action).to.match(/remove/);
+                        })
+                        .then(function () {
+                            tu.cleanupAudit();
                             done();
                         });
                 } catch (err) {
@@ -595,6 +602,9 @@ describe('Posts', function () {
                             expect(foundAudit[0].change[0].action).to.match(/access/);
                             expect(foundAudit[0].change[1].action).to.match(/allowComments/);
                             expect(foundAudit[0].change[2].action).to.match(/needsReview/);
+                        })
+                        .then(function () {
+                            tu.cleanupAudit();
                             done();
                         });
                 } catch (err) {
@@ -689,6 +699,9 @@ describe('Posts', function () {
                                     expect(foundAudit[0].change[0].action).to.equal('state');
                                 })
                                 .then(function () {
+                                    tu.cleanupAudit();
+                                })
+                                .then(function () {
                                     //because the events from the controller may not be complete
                                     var ct = setTimeout(function () {
                                         Notifications.find({
@@ -751,6 +764,9 @@ describe('Posts', function () {
                                     expect(foundAudit[0].change[0].action).to.equal('state');
                                 })
                                 .then(function () {
+                                    tu.cleanupAudit();
+                                })
+                                .then(function () {
                                     //because the events from the controller may not be complete
                                     var ct = setTimeout(function () {
                                         Notifications.find({
@@ -809,6 +825,9 @@ describe('Posts', function () {
                             Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('draft');
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
                                     done();
                                 });
                         } catch (err) {
@@ -850,6 +869,9 @@ describe('Posts', function () {
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('pending review');
                                     expect(found[0].access).to.equal('restricted');
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
                                 })
                                 .then(function () {
                                     //because the events from the controller may not be complete
@@ -913,6 +935,9 @@ describe('Posts', function () {
                                     expect(found[0].access).to.equal('restricted');
                                 })
                                 .then(function () {
+                                    tu.cleanupAudit();
+                                })
+                                .then(function () {
                                     //because the events from the controller may not be complete
                                     var ct = setTimeout(function () {
                                         Notifications.find({
@@ -924,7 +949,7 @@ describe('Posts', function () {
                                                 return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
-                                                })
+                                                });
                                             })
                                             .then(function (count) {
                                                 expect(count).to.equal(3);
@@ -972,6 +997,9 @@ describe('Posts', function () {
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('archived');
                                     expect(found[0].access).to.equal('restricted');
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
                                     done();
                                 });
                         } catch (err) {
@@ -1039,6 +1067,9 @@ describe('Posts', function () {
                                     expect(found[0].state).to.equal('do not publish');
                                 })
                                 .then(function () {
+                                    tu.cleanupAudit();
+                                })
+                                .then(function () {
                                     var ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
@@ -1096,6 +1127,9 @@ describe('Posts', function () {
                             Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('draft');
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
                                     done();
                                 });
                         } catch (err) {
@@ -1139,6 +1173,9 @@ describe('Posts', function () {
                             Posts.find({_id: Posts.ObjectID(postId)})
                                 .then(function (found) {
                                     expect(found[0].state).to.equal('published');
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
                                     done();
                                 });
                         } catch (err) {
@@ -1275,9 +1312,12 @@ describe('Posts', function () {
                                     var timeout = setTimeout(function () {
                                         expect(fs.existsSync(Config.storage.diskPath + '/' + filename)).to.be.true();
                                         expect(fs.readFileSync(Config.storage.diskPath + '/' + filename, {}).toString()).to.equal('something. anything will do.');
-                                        done();
                                         clearTimeout(timeout);
                                     }, 1000);
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
+                                    done();
                                     postsToClear.push('test POST needsReview and publish');
                                 });
                         } catch (err) {
@@ -1320,6 +1360,9 @@ describe('Posts', function () {
                                 .then(function (found) {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('pending review');
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
                                     postsToClear.push('test POST needsReview and pending review');
                                     done();
                                 });
@@ -1363,6 +1406,9 @@ describe('Posts', function () {
                                 .then(function (found) {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('draft');
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
                                     postsToClear.push('test POST draft');
                                     done();
                                 });
@@ -1408,6 +1454,9 @@ describe('Posts', function () {
                                 .then(function (found) {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('published');
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
                                     postsToClear.push('test POST needsReview, owner and published');
                                     done();
                                 });
@@ -1452,6 +1501,9 @@ describe('Posts', function () {
                                     expect(found[0].needsReview).to.equal(true);
                                     expect(found[0].access).to.equal('restricted');
                                     expect(found[0].allowComments).to.equal(false);
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
                                     postsToClear.push('test POST needsReview, access, allowComments');
                                     done();
                                 });
@@ -1562,6 +1614,9 @@ describe('Posts', function () {
                                 .then(function (a) {
                                     expect(a).to.exist();
                                     expect(a[0].change[0].action).to.match(/isActive/);
+                                })
+                                .then(function () {
+                                    tu.cleanupAudit();
                                     blogsToClear.push('testDelPost');
                                     postsToClear.push('success DELETE /blogs/{blogId}/posts/{id}');
                                     done();
@@ -1575,9 +1630,7 @@ describe('Posts', function () {
                 });
         });
     });
-    afterEach(function (done) {
+    after(function (done) {
         return tu.cleanup({blogs: blogsToClear, posts: postsToClear, userGroups: groupsToClear}, done);
     });
-})
-;
-
+});

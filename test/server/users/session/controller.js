@@ -13,13 +13,13 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
+var before = lab.before;
+var after = lab.after;
 var expect = Code.expect;
 describe('Session', function () {
     var server = null;
     var emails = [];
-    beforeEach(function (done) {
+    before(function (done) {
         tu.setupServer()
             .then(function (res) {
                 server = res.server;
@@ -57,6 +57,7 @@ describe('Session', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(429);
+                            tu.cleanupAuthAttempts();
                             done();
                         } catch (err) {
                             done(err);
@@ -232,7 +233,7 @@ describe('Session', function () {
                 });
         });
     });
-    afterEach(function (done) {
+    after(function (done) {
         return tu.cleanup({users: emails}, done);
     });
 });

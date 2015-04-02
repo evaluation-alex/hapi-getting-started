@@ -11,14 +11,14 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var beforeEach = lab.beforeEach;
-var afterEach = lab.afterEach;
+var before = lab.before;
+var after = lab.after;
 var expect = Code.expect;
 describe('Auth', function () {
     var server;
     var email = 'test.auth@plugin.auth';
     var authheader;
-    beforeEach(function (done) {
+    before(function (done) {
         tu.setupServer()
             .then(function (res) {
                 server = res.server;
@@ -74,7 +74,7 @@ describe('Auth', function () {
     it('returns an error when the session is not found', function (done) {
         server.route({
             method: 'GET',
-            path: '/',
+            path: '/0',
             handler: function (request, reply) {
                 server.auth.test('simple', request, function (err, credentials) {
                     expect(err).to.be.an.instanceof(Error);
@@ -85,7 +85,7 @@ describe('Auth', function () {
         });
         var request = {
             method: 'GET',
-            url: '/',
+            url: '/0',
             headers: {
                 Authorization: tu.authorizationHeader2(email, 'randomsessionkey')
             }
@@ -101,7 +101,7 @@ describe('Auth', function () {
     it('returns an error when the user is not found', function (done) {
         server.route({
             method: 'GET',
-            path: '/',
+            path: '/1',
             handler: function (request, reply) {
                 server.auth.test('simple', request, function (err, credentials) {
                     expect(err).to.be.an.instanceof(Error);
@@ -112,7 +112,7 @@ describe('Auth', function () {
         });
         var request = {
             method: 'GET',
-            url: '/',
+            url: '/1',
             headers: {
                 Authorization: tu.authorizationHeader2('unknown@test.auth', 'doesnt matter')
             }
@@ -128,7 +128,7 @@ describe('Auth', function () {
     it('returns an error when user has already logged out', function (done) {
         server.route({
             method: 'GET',
-            path: '/',
+            path: '/2',
             handler: function (request, reply) {
                 server.auth.test('simple', request, function (err, credentials) {
                     expect(err).to.be.an.instanceof(Error);
@@ -144,7 +144,7 @@ describe('Auth', function () {
             .then(function () {
                 var request = {
                     method: 'GET',
-                    url: '/',
+                    url: '/2',
                     headers: {
                         Authorization: authheader
                     }
@@ -162,7 +162,7 @@ describe('Auth', function () {
     it('returns with 403 when the required role(s) are missing', function (done) {
         server.route({
             method: 'GET',
-            path: '/',
+            path: '/3',
             config: {
                 auth: {
                     strategy: 'simple'
@@ -187,7 +187,7 @@ describe('Auth', function () {
                 authheader = tu.authorizationHeader2(email, user.session[0].key);
                 var request = {
                     method: 'GET',
-                    url: '/',
+                    url: '/3',
                     headers: {
                         authorization: authheader
                     }
@@ -206,7 +206,7 @@ describe('Auth', function () {
     it('returns with 403 when the required permissions are missing on the role', function (done) {
         server.route({
             method: 'GET',
-            path: '/',
+            path: '/4',
             config: {
                 auth: {
                     strategy: 'simple'
@@ -222,7 +222,7 @@ describe('Auth', function () {
         });
         var request = {
             method: 'GET',
-            url: '/',
+            url: '/4',
             headers: {
                 authorization: authheader
             }
@@ -239,7 +239,7 @@ describe('Auth', function () {
     it('returns a session expired when the session has expired', function (done) {
         server.route({
             method: 'GET',
-            path: '/',
+            path: '/5',
             handler: function (request, reply) {
                 server.auth.test('simple', request, function (err, credentials) {
                     expect(err).to.be.an.instanceof(Error);
@@ -256,7 +256,7 @@ describe('Auth', function () {
             .then(function () {
                 var request = {
                     method: 'GET',
-                    url: '/',
+                    url: '/5',
                     headers: {
                         Authorization: authheader
                     }
@@ -274,7 +274,7 @@ describe('Auth', function () {
     it('does adequate error handling and logging when errors occur', function (done) {
         server.route({
             method: 'GET',
-            path: '/',
+            path: '/6',
             handler: function (request, reply) {
                 server.auth.test('simple', request, function (err, credentials) {
                     expect(err).to.be.an.instanceof(Error);
@@ -289,7 +289,7 @@ describe('Auth', function () {
         };
         var request = {
             method: 'GET',
-            url: '/',
+            url: '/6',
             headers: {
                 Authorization: authheader
             }
@@ -304,7 +304,7 @@ describe('Auth', function () {
             }
         });
     });
-    afterEach(function (done) {
+    after(function (done) {
         return tu.cleanup({users: [email]}, done);
     });
 });

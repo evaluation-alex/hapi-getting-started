@@ -21,6 +21,7 @@ var Roles = require(relativeToServer + 'users/roles/model');
 var Notifications = require(relativeToServer + 'users/notifications/model');
 var _ = require('lodash');
 var mongodb;
+var server;
 var authorizationHeader = function (user) {
     return 'Basic ' + (new Buffer(user.email + ':' + user.session[0].key)).toString('base64');
 };
@@ -41,7 +42,6 @@ var setupConnect = function () {
     }
 };
 exports.setupConnect = setupConnect;
-/*jshint unused:false*/
 function setupRootRole () {
     return Roles.findOne({name: 'root', organisation: 'silver lining'})
         .then(function (found) {
@@ -88,7 +88,6 @@ function setupFirstUser () {
             }
         });
 }
-/*jshint unused:true*/
 function setupRolesAndUsers () {
     return setupConnect()
         .then(setupRootRole)
@@ -120,41 +119,45 @@ var setupServer = function () {
                 return findAndLogin('root');
             })
             .then(function (foundUser) {
-                var Manifest = require('./../../server/manifest').manifest;
-                var components = [
-                    '../../server/audit',
-                    '../../server/contact',
-                    '../../server/users',
-                    '../../server/users/session',
-                    '../../server/users/session/auth-attempts',
-                    '../../server/users/notifications',
-                    '../../server/users/preferences',
-                    '../../server/users/profile',
-                    '../../server/user-groups',
-                    '../../server/blogs',
-                    '../../server/blogs/posts'
-                ];
-                var ModelsPlugin = {
-                    register: require(relativeToServer + 'common/plugins/model'),
-                    options: Manifest.plugins['./server/common/plugins/model']
-                };
-                var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, MetricsPlugin, I18NPlugin];
-                var server = new Hapi.Server();
-                server.connection({host: 'localhost', port: Config.port});
-                server.register(plugins, function (err) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        components.forEach(function (component) {
-                            try {
-                                server.route(require(component));
-                            } catch (err) {
-                                console.log(err, err.stack);
-                            }
-                        });
-                        resolve({server: server, authheader: foundUser.authheader});
-                    }
-                });
+                if (!server) {
+                    var Manifest = require('./../../server/manifest').manifest;
+                    var components = [
+                        '../../server/audit',
+                        '../../server/contact',
+                        '../../server/users',
+                        '../../server/users/session',
+                        '../../server/users/session/auth-attempts',
+                        '../../server/users/notifications',
+                        '../../server/users/preferences',
+                        '../../server/users/profile',
+                        '../../server/user-groups',
+                        '../../server/blogs',
+                        '../../server/blogs/posts'
+                    ];
+                    var ModelsPlugin = {
+                        register: require(relativeToServer + 'common/plugins/model'),
+                        options: Manifest.plugins['./server/common/plugins/model']
+                    };
+                    var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, MetricsPlugin, I18NPlugin];
+                    server = new Hapi.Server();
+                    server.connection({host: 'localhost', port: Config.port});
+                    server.register(plugins, function (err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            components.forEach(function (component) {
+                                try {
+                                    server.route(require(component));
+                                } catch (err) {
+                                    console.log(err, err.stack);
+                                }
+                            });
+                            resolve({server: server, authheader: foundUser.authheader});
+                        }
+                    });
+                } else {
+                    resolve({server: server, authheader: foundUser.authheader});
+                }
             })
             .catch(function (err) {
                 if (err) {
@@ -222,9 +225,8 @@ var cleanupRoles = function (roles) {
     return Roles.remove({name: {$in: roles}});
 };
 module.exports.cleanupRoles = cleanupRoles;
-function cleanupConnect (cb) {
+function cleanupConnect () {
     BaseModel.disconnect();
-    cb();
 }
 exports.cleanupConnect = cleanupConnect;
 var cleanup = function (toClear, cb) {
@@ -236,7 +238,10 @@ var cleanup = function (toClear, cb) {
         cleanupAudit(),
         cleanupAuthAttempts(),
         function () {
-            //cleanupConnect(cb);
+            //cleanupConnect();
+            //if (toClear.server) {
+            //    toClear.server.stop();
+            //}
             cb();
         })
         .catch(function (err) {

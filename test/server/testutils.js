@@ -10,7 +10,7 @@ var AuthPlugin = require(relativeToServer + 'common/plugins/auth');
 var MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
 var I18NPlugin = require(relativeToServer + 'common/plugins/i18n');
 var Config = require(relativeTo + 'config');
-var BaseModel = require(relativeToServer + 'common/model');
+var Model = require(relativeToServer + 'common/model');
 var Users = require(relativeToServer + 'users/model');
 var UserGroups = require(relativeToServer + 'user-groups/model');
 var Audit = require(relativeToServer + 'audit/model');
@@ -34,7 +34,7 @@ var setupConnect = function () {
     if (mongodb) {
         return Promise.resolve(mongodb);
     } else {
-        return BaseModel.connect(Config.hapiMongoModels.mongodb)
+        return Model.connect(Config.hapiMongoModels.mongodb)
             .then(function (db) {
                 mongodb = db;
                 return db;
@@ -227,7 +227,7 @@ var cleanupRoles = function (roles) {
 module.exports.cleanupRoles = cleanupRoles;
 function cleanupConnect () {
     mongodb = undefined;
-    BaseModel.disconnect();
+    Model.disconnect();
 }
 exports.cleanupConnect = cleanupConnect;
 var cleanup = function (toClear, cb) {

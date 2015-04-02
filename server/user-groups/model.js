@@ -1,5 +1,5 @@
 'use strict';
-var BaseModel = require('./../common/model');
+var Model = require('./../common/model');
 var Joi = require('joi');
 var Insert = require('./../common/mixins/insert');
 var AreValid = require('./../common/mixins/exist');
@@ -37,7 +37,7 @@ UserGroups.schema = Joi.object().keys({
 UserGroups.indexes = [
     [{name: 1, organisation: 1}, {unique: true}]
 ];
-_.extend(UserGroups, BaseModel);
+_.extend(UserGroups, Model);
 _.extend(UserGroups, new Insert('name', 'create'));
 _.extend(UserGroups, new AreValid('name'));
 _.extend(UserGroups.prototype, new IsActive());

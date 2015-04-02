@@ -1,5 +1,5 @@
 'use strict';
-var BaseModel = require('./../common/model');
+var Model = require('./../common/model');
 var Joi = require('joi');
 var Uuid = require('node-uuid');
 var Promise = require('bluebird');
@@ -52,7 +52,7 @@ Users.indexes = [
     [{email: 1}, {unique: true}],
     [{email: 1, organisation: 1}, {unique: true}]
 ];
-_.extend(Users, BaseModel);
+_.extend(Users, Model);
 _.extend(Users, new Insert('email', 'signup'));
 _.extend(Users, new AreValid('email'));
 _.extend(Users, Session);

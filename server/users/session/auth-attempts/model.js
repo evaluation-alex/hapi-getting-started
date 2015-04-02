@@ -1,5 +1,5 @@
 'use strict';
-var BaseModel = require('./../../../common/model');
+var Model = require('./../../../common/model');
 var Joi = require('joi');
 var Config = require('./../../../../config');
 var Promise = require('bluebird');
@@ -20,7 +20,7 @@ AuthAttempts.indexes = [
     [{ip: 1, email: 1}],
     [{email: 1}]
 ];
-_.extend(AuthAttempts, BaseModel);
+_.extend(AuthAttempts, Model);
 AuthAttempts.create = function create (ip, email) {
     var self = this;
     var document = {

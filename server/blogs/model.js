@@ -1,5 +1,5 @@
 'use strict';
-var BaseModel = require('./../common/model');
+var Model = require('./../common/model');
 var Joi = require('joi');
 var Insert = require('./../common/mixins/insert');
 var AddRemove = require('./../common/mixins/add-remove');
@@ -45,7 +45,7 @@ Blogs.indexes = [
     [{title: 1, organisation: 1}, {unique: true}],
     [{description: 1}]
 ];
-_.extend(Blogs, BaseModel);
+_.extend(Blogs, Model);
 _.extend(Blogs, new Insert('title', 'create'));
 _.extend(Blogs.prototype, new IsActive());
 _.extend(Blogs.prototype, new AddRemove(['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));

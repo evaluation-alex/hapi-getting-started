@@ -1,5 +1,5 @@
 'use strict';
-var BaseModel = require('./../../common/model');
+var Model = require('./../../common/model');
 var Joi = require('joi');
 var Insert = require('./../../common/mixins/insert');
 var AddRemove = require('./../../common/mixins/add-remove');
@@ -45,7 +45,7 @@ Posts.indexes = [
     [{tags: 1}],
     [{state: 1, publishedOn: 1}]
 ];
-_.extend(Posts, BaseModel);
+_.extend(Posts, Model);
 _.extend(Posts, new Insert('_id', 'create'));
 _.extend(Posts.prototype, new IsActive());
 _.extend(Posts.prototype, new AddRemove({

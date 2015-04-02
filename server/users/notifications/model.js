@@ -1,5 +1,5 @@
 'use strict';
-var BaseModel = require('./../../common/model');
+var Model = require('./../../common/model');
 var Joi = require('joi');
 var Properties = require('./../../common/mixins/properties');
 var Update = require('./../../common/mixins/update');
@@ -38,7 +38,7 @@ Notifications.indexes = [
     [{objectType: 1, objectId: 1, state: 1, action: 1}],
     [{email: 1, objectType: 1, objectId: 1, createdOn: 1}]
 ];
-_.extend(Notifications, BaseModel);
+_.extend(Notifications, Model);
 _.extend(Notifications.prototype, new IsActive());
 _.extend(Notifications.prototype, new Properties(['state', 'isActive']));
 _.extend(Notifications.prototype, new Update(['state', 'isActive'], []));

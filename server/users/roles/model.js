@@ -1,5 +1,5 @@
 'use strict';
-var BaseModel = require('./../../common/model');
+var Model = require('./../../common/model');
 var Joi = require('joi');
 var _ = require('lodash');
 var Roles = function Roles (attrs) {
@@ -18,7 +18,7 @@ Roles.schema = Joi.object().keys({
 Roles.indexes = [
     [{name: 1, organisation: 1}, {unique: true}],
 ];
-_.extend(Roles, BaseModel);
+_.extend(Roles, Model);
 Roles.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
     var self = this;
     var ret = !!_.find(self.permissions, function (p) {

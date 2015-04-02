@@ -1,5 +1,5 @@
 'use strict';
-var BaseModel = require('./../common/model');
+var Model = require('./../common/model');
 var _ = require('lodash');
 var Joi = require('joi');
 var Audit = function Audit (attrs) {
@@ -23,7 +23,7 @@ Audit.indexes = [
     [{by: 1, on: 1}],
     [{on: 1}]
 ];
-_.extend(Audit, BaseModel);
+_.extend(Audit, Model);
 Audit.findAudit = function findAudit (type, id, conditions) {
     var self = this;
     conditions.objectChangedType = type;

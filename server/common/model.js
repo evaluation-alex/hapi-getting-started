@@ -1,5 +1,4 @@
 'use strict';
-var Joi = require('joi');
 var Mongodb = require('mongodb');
 var utils = require('./utils');
 var Promise = require('bluebird');
@@ -18,17 +17,11 @@ Model.connect = function connect (config) {
 Model.disconnect = function disconnect () {
     Model.db.close();
 };
-Model.validate = function validate (input) {
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        return Joi.validate(input, self.schema, utils.defaultcb(self.collection + '.validate', resolve, reject));
-    });
-};
 Model.count = function count (query) {
     var self = this;
     var collection = Model.db.collection(self.collection);
     return new Promise(function (resolve, reject) {
-        collection.count(query, utils.defaultcb(self.collection + '.count', resolve, reject));
+        collection.count(query, utils.defaultcb(self.collection + '.count', resolve, reject, query));
     });
 };
 Model.find = function find (query, fields, sort, limit, skip) {
@@ -46,7 +39,7 @@ Model.find = function find (query, fields, sort, limit, skip) {
             } else {
                 resolve([]);
             }
-        }, reject));
+        }, reject, query));
     });
 };
 Model.findOne = function findOne (query) {
@@ -57,13 +50,13 @@ Model.findOne = function findOne (query) {
             /*jshint -W055*/
             resolve(doc ? new self(doc) : undefined);
             /*jshint +W055*/
-        }, reject));
+        }, reject, query));
     });
 };
 Model.pagedFind = function pagedFind (query, fields, sort, limit, page) {
     var self = this;
     return Promise.join(self.find(query, fields, sort, limit, (page - 1) * limit), self.count(query), function (results, count) {
-        var output = {
+        return {
             data: results,
             pages: {
                 current: page,
@@ -80,25 +73,20 @@ Model.pagedFind = function pagedFind (query, fields, sort, limit, page) {
                 total: count
             }
         };
-        return output;
     });
 };
 Model.insert = Model.update = Model.save = Model.upsert = function upsert (obj) {
     var self = this;
     var collection = Model.db.collection(self.collection);
     return new Promise(function (resolve, reject) {
-        obj._id = obj._id || Mongodb.ObjectID();
+        obj._id = obj._id || self.ObjectID();
         collection.findOneAndReplace({_id: obj._id}, obj, {
             upsert: true,
             returnOriginal: false
-        }, utils.defaultcb(self.collection + '.save', function (doc) {
-            if (doc) {
-                /*jshint -W055*/
-                resolve(new self(doc.value));
-                /*jshint +W055*/
-            } else {
-                resolve(undefined);
-            }
+        }, utils.defaultcb(self.collection + '.upsert', function (doc) {
+            /*jshint -W055*/
+            resolve(doc ? new self(doc.value) : undefined);
+            /*jshint +W055*/
         }, reject));
     });
 };
@@ -108,7 +96,7 @@ Model.remove = Model.delete = function remove (query) {
     return new Promise(function (resolve, reject) {
         collection.deleteMany(query, utils.defaultcb(self.collection + '.remove', function (doc) {
             resolve(doc.deletedCount);
-        }, reject));
+        }, reject, query));
     });
 };
 module.exports = Model;

@@ -21,7 +21,7 @@ module.exports.errback = function errback (err) {
         logger.error({error: err, stack: err.stack});
     }
 };
-module.exports.defaultcb = function defaultcb (bucket, resolve, reject) {
+module.exports.defaultcb = function defaultcb (bucket, resolve, reject, query) {
     var start = Date.now();
     return function mongoCb (err, res) {
         if (err) {
@@ -32,6 +32,9 @@ module.exports.defaultcb = function defaultcb (bucket, resolve, reject) {
             resolve(res);
         }
         statsd.timing(bucket, Date.now() - start);
+        if (query) {
+            statsd.increment(bucket + '.' + _.sortBy(_.keys(query), String).join(','), 1);
+        }
     };
 };
 module.exports.ip = function (request) {

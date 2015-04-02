@@ -2,36 +2,31 @@
 var Path = require('path');
 var Model = require('./../model');
 var _ = require('lodash');
+var utils = require('./../utils');
 module.exports.register = function (server, options, next) {
-    var models = options.models || {};
     var loadedModels = {};
-    var mongodb = options.mongodb;
-    _.forIn(models, function (file, model) {
+    _.forIn(options.models, function (file, model) {
         loadedModels[model] = require(Path.join(process.cwd(), file));
     });
-    Model.connect(mongodb)
+    Model.connect(options.mongodb)
         .then(function (db) {
             server.expose('MongoDB', db);
+            server.on('stop', function () {
+                Model.disconnect();
+            });
             return db;
         })
         .then(function (db) {
             if (options.autoIndex) {
                 _.forEach(_.values(loadedModels), function (model) {
                     _.forEach(model.indexes, function (index) {
-                        try {
-                            db.ensureIndex(model.collection, index[0], index[1] || {}, function (err, res) {
-                                if (err) {
-                                    console.log(err, err.stack);
-                                }
-                                res;
-                            });
-                        } catch (err) {
-                            console.log(err, err.stack);
-                        }
+                        db.ensureIndex(model.collection,
+                            index[0],
+                            index[1] || {},
+                            utils.defaultcb('ensureIndex', _.noop, _.noop));
                     });
                 });
             }
-            return;
         })
         .done(next, next);
 };

@@ -15,7 +15,7 @@ let expect = Code.expect;
 describe('Notifications Model', function () {
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function () {
+            .then(() =>  {
                 done();
             });
     });
@@ -24,7 +24,7 @@ describe('Notifications Model', function () {
             let error = null;
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
             Notifications.create(['one', 'two', 'three'], 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test')
-                .then(function (notifications) {
+                .then((notifications) =>  {
                     expect(notifications).to.exist();
                     expect(notifications.length).to.equal(3);
                     expect(notifications[0].email).to.equal('one');
@@ -50,33 +50,33 @@ describe('Notifications Model', function () {
                 activated = p11;
                 deactivated = p12;
                 deactivated.deactivate('test').save()
-                    .then(function (d) {
+                    .then((d) =>  {
                         deactivated = d;
                         Audit.remove({objectChangedId: d._id});
                     });
             })
-                .then(function () {
+                .then(() =>  {
                     done();
                 });
         });
         it('should do nothing if the notification is already inactive/active and you deactivate/activate', function (done) {
             let error = null;
             activated.reactivate('test').save()
-                .then(function (a) {
+                .then((a) =>  {
                     expect(a.isActive).to.be.true();
                     return Audit.findAudit('notifications', a._id, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
-                .then(function () {
+                .then(() =>  {
                     return deactivated.deactivate('test').save();
                 })
-                .then(function (d) {
+                .then((d) =>  {
                     expect(d.isActive).to.be.false();
                     return Audit.findAudit('notifications', d._id, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -90,22 +90,22 @@ describe('Notifications Model', function () {
         it('should mark the notification as inactive / active when you deactivate / activate', function (done) {
             let error = null;
             activated.deactivate('test').save()
-                .then(function (a) {
+                .then((a) =>  {
                     expect(a.isActive).to.be.false();
                     return Audit.findAudit('notifications', a._id, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.equal('isActive');
                 })
-                .then(function () {
+                .then(() =>  {
                     return deactivated.reactivate('test').save();
                 })
-                .then(function (d) {
+                .then((d) =>  {
                     expect(d.isActive).to.be.true();
                     return Audit.findAudit('notifications', d._id, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.equal('isActive');
                 })
@@ -126,7 +126,7 @@ describe('Notifications Model', function () {
         before(function (done) {
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
             Notifications.create('setState', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     testnotification = p;
                     done();
                 });
@@ -134,11 +134,11 @@ describe('Notifications Model', function () {
         it('should do nothing if there is no change in the state', function (done) {
             let error = null;
             testnotification.setState(testnotification.state, 'test').save()
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p.state).to.equal('unread');
                     return Audit.findAudit('notifications', p._id, {'change.action': {$regex: /^state/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -152,11 +152,11 @@ describe('Notifications Model', function () {
         it('should update to the new state', function (done) {
             let error = null;
             testnotification.setState('cancelled', 'test').save()
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p.state).to.equal('cancelled');
                     return Audit.findAudit('notifications', p._id, {'change.action': {$regex: /^state/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].newValues).to.equal('cancelled');
                 })
@@ -181,7 +181,7 @@ describe('Notifications Model', function () {
                 blogTitle: 'test blog',
                 publishedBy: 'test author'
             }], 'test')
-                .then(function (notification) {
+                .then((notification) =>  {
                     let localised = notification.i18n('en');
                     expect(localised.content).to.equal('New Post test post in Blog test blog published by test author');
                     expect(localised.title).to.equal('titles dont matter');
@@ -197,7 +197,7 @@ describe('Notifications Model', function () {
     });
     after(function (done) {
         Notifications.remove({title: 'titles dont matter'})
-            .then(function () {
+            .then(() =>  {
                 return tu.cleanup({}, done);
             });
     });

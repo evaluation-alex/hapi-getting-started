@@ -12,7 +12,7 @@ let expect = Code.expect;
 describe('Mailer', function () {
     it('returns error when read file fails', function (done) {
         Mailer.sendEmail({}, 'path', {})
-            .then(function (info) {
+            .then((info) =>  {
                 expect(info).to.not.exist();
                 done(info);
             })
@@ -35,13 +35,13 @@ describe('Mailer', function () {
             password: 'password'
         };
         Mailer.sendEmail(options, 'server/users/templates/welcome.hbs.md', payload)
-            .then(function (info) {
+            .then((info) =>  {
                 expect(info).to.exist();
             })
-            .then(function () {
+            .then(() =>  {
                 return Mailer.sendEmail(options, 'server/users/templates/welcome.hbs.md', payload);
             })
-            .then(function (info) {
+            .then((info) =>  {
                 expect(info).to.exist();
                 done();
             })

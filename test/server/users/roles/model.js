@@ -14,7 +14,7 @@ describe('Roles Model', function () {
     let rolesToClear = [];
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function () {
+            .then(() =>  {
                 done();
             });
     });
@@ -28,7 +28,7 @@ describe('Roles Model', function () {
                 action: 'update',
                 object: 'nooneelse'
             }])
-                .then(function (r) {
+                .then((r) =>  {
                     expect(r).to.exist();
                     expect(r).to.be.an.instanceof(Roles);
                 })
@@ -50,7 +50,7 @@ describe('Roles Model', function () {
                 action: 'update',
                 object: 'nooneelse'
             }])
-                .then(function (r) {
+                .then((r) =>  {
                     error = r;
                     expect(r).to.not.exist();
                 })
@@ -72,7 +72,7 @@ describe('Roles Model', function () {
                 action: 'update',
                 object: 'test2'
             }])
-                .then(function (r) {
+                .then((r) =>  {
                     role = r;
                     done();
                 })
@@ -115,7 +115,7 @@ describe('Roles Model', function () {
         });
         it('should return true if you have permissions permissions on *', function (done) {
             Roles.find({name: 'root', organisation: 'silver lining'})
-                .then(function (root) {
+                .then((root) =>  {
                     expect(root[0].hasPermissionsTo('view', 'test3')).to.be.true();
                     expect(root[0].hasPermissionsTo('update', 'test3')).to.be.true();
                     expect(root[0].hasPermissionsTo('update', '*')).to.be.true();
@@ -134,7 +134,7 @@ describe('Roles Model', function () {
     });
     after(function (done) {
         tu.cleanupRoles(rolesToClear)
-            .then(function () {
+            .then(() =>  {
                 tu.cleanup({}, done);
             })
             .done();

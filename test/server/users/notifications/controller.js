@@ -19,7 +19,7 @@ describe('Notifications', function () {
     let server = null;
     before(function (done) {
         tu.setupServer()
-            .then(function (res) {
+            .then((res) =>  {
                 server = res.server;
                 rootAuthHeader = res.authheader;
                 done();
@@ -43,7 +43,7 @@ describe('Notifications', function () {
                 n21[0].createdOn.setFullYear(2015, 1, 14);
                 n21[0].save();
             })
-                .then(function () {
+                .then(() =>  {
                     done();
                 }).
                 catch(function (err) {
@@ -179,12 +179,12 @@ describe('Notifications', function () {
         it('should filter out blocked notifications based on preferences', function (done) {
             let authHeader = '';
             tu.findAndLogin('one@first.com')
-                .then(function (u) {
+                .then((u) =>  {
                     authHeader = u.authheader;
                     u.user.preferences.notifications.userGroups.blocked.push('abc123');
                     return u.user.save();
                 })
-                .then(function () {
+                .then(() =>  {
                     let request = {
                         method: 'GET',
                         url: '/notifications',
@@ -228,11 +228,11 @@ describe('Notifications', function () {
         it('should return unauthorized if someone other than the owner of the notification tries to change it', function (done) {
             let id = null;
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
-                .then(function (n) {
+                .then((n) =>  {
                     id = n._id.toString();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'PUT',
@@ -256,7 +256,7 @@ describe('Notifications', function () {
         });
         it('should deactivate notification and have changes audited', function (done) {
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
-                .then(function (n) {
+                .then((n) =>  {
                     let id = n._id.toString();
                     let request = {
                         method: 'PUT',
@@ -272,11 +272,11 @@ describe('Notifications', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Notifications.findOne({_id: Notifications.ObjectID(id)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found.isActive).to.be.false();
                                     return Audit.findAudit('notifications', n._id, {'change.action': /isActive/});
                                 })
-                                .then(function (audit) {
+                                .then((audit) =>  {
                                     expect(audit.length).to.equal(1);
                                     done();
                                 });
@@ -288,7 +288,7 @@ describe('Notifications', function () {
         });
         it('should update state and have changes audited', function (done) {
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
-                .then(function (n) {
+                .then((n) =>  {
                     let id = n._id.toString();
                     let request = {
                         method: 'PUT',
@@ -304,11 +304,11 @@ describe('Notifications', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Notifications.findOne({_id: Notifications.ObjectID(id)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found.state).to.equal('starred');
                                     return Audit.findAudit('notifications', n._id, {'change.action': /state/});
                                 })
-                                .then(function (audit) {
+                                .then((audit) =>  {
                                     expect(audit.length).to.equal(1);
                                     done();
                                 });
@@ -321,7 +321,7 @@ describe('Notifications', function () {
     });
     after(function (done) {
         Notifications.remove({title: 'titles dont matter'})
-            .then(function () {
+            .then(() =>  {
                 return tu.cleanup({}, done);
             });
     });

@@ -16,7 +16,7 @@ describe('Preferences', function () {
     let server = null;
     before(function (done) {
         tu.setupServer()
-            .then(function (res) {
+            .then((res) =>  {
                 server = res.server;
                 rootAuthHeader = res.authheader;
                 done();
@@ -33,7 +33,7 @@ describe('Preferences', function () {
         let id = '';
         before(function (done) {
             tu.findAndLogin('root')
-                .then(function (u) {
+                .then((u) =>  {
                     authheader = u.authheader;
                     done();
                 });
@@ -41,14 +41,14 @@ describe('Preferences', function () {
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
             let oneauthheader = '';
             tu.findAndLogin('one@first.com')
-                .then(function (u) {
+                .then((u) =>  {
                     oneauthheader = u.authheader;
                     return Users.findOne({email: 'root'});
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     id = u._id.toString();
                 })
-                .then(function () {
+                .then(() =>  {
                     let request = {
                         method: 'PUT',
                         url: '/preferences/' + id,
@@ -95,13 +95,13 @@ describe('Preferences', function () {
         });
         it('should modify preferences and audit changes', function (done) {
             Users.findOne({email: 'root'})
-                .then(function (p) {
+                .then((p) =>  {
                     p.preferences.notifications.blogs.blocked.push('something');
                     p.preferences.notifications.posts.blocked.push('none of them');
                     id = p._id.toString();
                     return p.save();
                 })
-                .then(function () {
+                .then(() =>  {
                     let request = {
                         method: 'PUT',
                         url: '/preferences/' + id,
@@ -138,7 +138,7 @@ describe('Preferences', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Users.findOne({email: 'root'})
-                                .then(function (p) {
+                                .then((p) =>  {
                                     expect(p.preferences.locale).to.equal('hi');
                                     expect(p.preferences.notifications.blogs.email.frequency).to.equal('daily');
                                     expect(p.preferences.notifications.userGroups.email.frequency).to.equal('weekly');
@@ -148,7 +148,7 @@ describe('Preferences', function () {
                                     expect(p.preferences.notifications.posts.blocked.length).to.equal(0);
                                     return Audit.findAudit('users', 'root', {'change.action': 'preferences.locale'});
                                 })
-                                .then(function (audit) {
+                                .then((audit) =>  {
                                     expect(audit).to.exist();
                                     expect(audit.length).to.equal(1);
                                     done();

@@ -16,7 +16,7 @@ describe('Audit', function () {
     let emails = [];
     before(function (done) {
         tu.setupServer()
-            .then(function (res) {
+            .then((res) =>  {
                 server = res.server;
                 authheader = res.authheader;
                 done();
@@ -32,15 +32,15 @@ describe('Audit', function () {
         describe('users', function () {
             before(function (done) {
                 Users.create('test.users@test.api', 'silver lining', 'password123', 'en')
-                    .then(function (newUser) {
+                    .then((newUser) =>  {
                         return newUser.loginSuccess('test', 'test').save();
                     })
-                    .then(function () {
+                    .then(() =>  {
                         return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
                     })
-                    .then(function (newUser2) {
+                    .then((newUser2) =>  {
                         return newUser2.loginSuccess('test', 'test').save();
-                    }).then(function (newUser2) {
+                    }).then((newUser2) =>  {
                         newUser2.deactivate('test').save();
                         emails.push('test.users2@test.api');
                         emails.push('test.users@test.api');

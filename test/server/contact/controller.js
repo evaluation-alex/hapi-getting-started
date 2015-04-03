@@ -12,7 +12,7 @@ describe('Contact', function () {
     let server;
     before(function (done) {
         tu.setupServer()
-            .then(function (res) {
+            .then((res) =>  {
                 server = res.server;
                 done();
             })

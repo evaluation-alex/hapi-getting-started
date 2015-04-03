@@ -19,7 +19,7 @@ describe('Blogs Model', function () {
     let groupsToClear = [];
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function () {
+            .then(() =>  {
                 done();
             });
     });
@@ -27,12 +27,12 @@ describe('Blogs Model', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
             let error = null;
             Blogs.create('newBlog', 'silver lining', 'Blog.create testing', [], [], [], [], false, 'public', true, 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Blogs);
                     return Audit.findAudit('blogs', 'newBlog', {'change.action': {$regex: /create/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit).to.exist();
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0]).to.be.instanceof(Audit);
@@ -49,13 +49,13 @@ describe('Blogs Model', function () {
         it('should not allow two objects with the same title', function (done) {
             let error = null;
             Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p).to.exist();
                     expect(p).to.be.an.instanceof(Blogs);
                 })
-                .then(function () {
+                .then(() =>  {
                     Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
-                        .then(function (p) {
+                        .then((p) =>  {
                             expect(p).to.not.exist();
                         })
                         .catch(function (err) {
@@ -75,16 +75,16 @@ describe('Blogs Model', function () {
     describe('Blogs.this.addUsers', function () {
         before(function (done) {
             UserGroups.create('testBlogAddUsers', 'silver lining', 'testing blog.addUsers', 'test')
-                .then(function () {
+                .then(() =>  {
                     return Blogs.create('addUsers1', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
                 })
-                .then(function () {
+                .then(() =>  {
                     return Blogs.create('addUsers2', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
                 })
-                .then(function () {
+                .then(() =>  {
                     return Blogs.create('addUsers3', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
                 })
-                .then(function () {
+                .then(() =>  {
                     done();
                 })
                 .catch(function (err) {
@@ -96,26 +96,26 @@ describe('Blogs Model', function () {
         it('should add a new entry to users when user/group is newly added', function (done) {
             let error = null;
             Blogs.findOne({title: 'addUsers1', organisation: 'silver lining'})
-                .then(function (found) {
+                .then((found) =>  {
                     return found.add(['newUserGroup'], 'subscriberGroups', 'test').save();
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     expect(_.findWhere(p.subscriberGroups, 'newUserGroup')).to.exist();
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^add subscriberGroup/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.match(/^add subscriberGroup/);
                     return Blogs.findOne({title: 'addUsers1', organisation: 'silver lining'});
                 })
-                .then(function (found) {
+                .then((found) =>  {
                     return found.add(['newSubscriber'], 'subscribers', 'test').save();
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     expect(_.findWhere(p.subscribers, 'newSubscriber')).to.exist();
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^add subscribers/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.match(/^add subscribers/);
                 })
@@ -130,25 +130,25 @@ describe('Blogs Model', function () {
         it('should do nothing if the user/group is already active in the group', function (done) {
             let error = null;
             Blogs.findOne({title: 'addUsers2', organisation: 'silver lining'})
-                .then(function (found) {
+                .then((found) =>  {
                     return found.add(['testBlogAddUsers'], 'subscriberGroups', 'test').save();
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     expect(_.findWhere(p.subscriberGroups, 'testBlogAddUsers')).to.exist();
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^add subscriberGroup/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                     return Blogs.findOne({title: 'addUsers2', organisation: 'silver lining'});
                 })
-                .then(function (found) {
+                .then((found) =>  {
                     return found.add(['directlyadded'], 'owners', 'test').save();
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     expect(_.findWhere(p.owners, 'directlyadded')).to.exist();
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^add owner/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -170,7 +170,7 @@ describe('Blogs Model', function () {
     describe('Blogs.this.removeUsers', function () {
         before(function (done) {
             Blogs.create('removeUsers1', 'silver lining', 'blog.removeUsers', ['directlyadded'], [], [], ['testBlogsRemoveUsers'], false, 'public', true, 'test')
-                .then(function () {
+                .then(() =>  {
                     done();
                 })
                 .catch(function (err) {
@@ -182,25 +182,25 @@ describe('Blogs Model', function () {
         it('should do nothing if the user/group is not present in the group', function (done) {
             let error = null;
             Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
-                .then(function (found) {
+                .then((found) =>  {
                     return found.remove(['unknownGroup'], 'subscriberGroups', 'test').save();
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     expect(_.findWhere(p.subscriberGroups, 'unknownGroup')).to.not.exist();
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^remove subscriberGroup/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                     return Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'});
                 })
-                .then(function (found) {
+                .then((found) =>  {
                     return found.remove(['unknownUser'], 'subscribers', 'test').save();
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     expect(_.findWhere(p.subscribers, 'unknownUser')).to.not.exist();
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^remove subscriber/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -214,26 +214,26 @@ describe('Blogs Model', function () {
         it('should remove user/group if present', function (done) {
             let error = null;
             Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
-                .then(function (found) {
+                .then((found) =>  {
                     return found.remove(['testBlogsRemoveUsers'], 'subscriberGroups', 'test').save();
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     expect(_.findWhere(p.subscriberGroups, 'testBlogsRemoveUsers')).to.not.exist();
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^remove subscriberGroups/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.match(/^remove subscriberGroup/);
                     return Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'});
                 })
-                .then(function (found) {
+                .then((found) =>  {
                     return found.remove(['directlyadded'], 'owners', 'test').save();
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     expect(_.findWhere(p.owners, 'directlyadded')).to.not.exist();
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^remove owner/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.match(/^remove owner/);
                 })
@@ -259,33 +259,33 @@ describe('Blogs Model', function () {
                 activated = p11;
                 deactivated = p12;
                 deactivated.deactivate('test').save()
-                    .then(function (d) {
+                    .then((d) =>  {
                         deactivated = d;
                         Audit.remove({objectChangedId: d.title});
                     });
             })
-                .then(function () {
+                .then(() =>  {
                     done();
                 });
         });
         it('should do nothing if the blog is already inactive/active and you deactivate/activate', function (done) {
             let error = null;
             activated.reactivate('test').save()
-                .then(function (a) {
+                .then((a) =>  {
                     expect(a.isActive).to.be.true();
                     return Audit.findAudit('blogs', a.title, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
-                .then(function () {
+                .then(() =>  {
                     return deactivated.deactivate('test').save();
                 })
-                .then(function (d) {
+                .then((d) =>  {
                     expect(d.isActive).to.be.false();
                     return Audit.findAudit('blogs', d.title, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -299,22 +299,22 @@ describe('Blogs Model', function () {
         it('should mark the group as inactive / active when you deactivate / activate', function (done) {
             let error = null;
             activated.deactivate('test').save()
-                .then(function (a) {
+                .then((a) =>  {
                     expect(a.isActive).to.be.false();
                     return Audit.findAudit('blogs', a.title, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.equal('isActive');
                 })
-                .then(function () {
+                .then(() =>  {
                     return deactivated.reactivate('test').save();
                 })
-                .then(function (d) {
+                .then((d) =>  {
                     expect(d.isActive).to.be.true();
                     return Audit.findAudit('blogs', d.title, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.equal('isActive');
                 })
@@ -336,7 +336,7 @@ describe('Blogs Model', function () {
         let testblog = null;
         before(function (done) {
             Blogs.create('updateDesc1', 'silver lining', 'blog.updateDesc', [], [], [], [], false, 'public', true, 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     testblog = p;
                     done();
                 });
@@ -344,11 +344,11 @@ describe('Blogs Model', function () {
         it('should do nothing if there is no change in the description', function (done) {
             let error = null;
             testblog.setDescription(testblog.description, 'test').save()
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p.description).to.equal('blog.updateDesc');
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^description/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -362,11 +362,11 @@ describe('Blogs Model', function () {
         it('should update to the new description', function (done) {
             let error = null;
             testblog.setDescription('newDescription', 'test').save()
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p.description).to.equal('newDescription');
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^description/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].newValues).to.equal('newDescription');
                 })
@@ -388,7 +388,7 @@ describe('Blogs Model', function () {
         let testblog = null;
         before(function (done) {
             Blogs.create('setAccess', 'silver lining', 'blog.setAccess', [], [], [], [], false, 'public', true, 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     testblog = p;
                     done();
                 });
@@ -396,11 +396,11 @@ describe('Blogs Model', function () {
         it('should do nothing if there is no change in the access', function (done) {
             let error = null;
             testblog.setAccess(testblog.access, 'test').save()
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p.access).to.equal('public');
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^access/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -414,11 +414,11 @@ describe('Blogs Model', function () {
         it('should update to the new access', function (done) {
             let error = null;
             testblog.setAccess('restricted', 'test').save()
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p.access).to.equal('restricted');
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^access/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].newValues).to.equal('restricted');
                 })
@@ -439,7 +439,7 @@ describe('Blogs Model', function () {
         let testblog = null;
         before(function (done) {
             Blogs.create('needsReview', 'silver lining', 'blog.setNeedsReview', [], [], [], [], false, 'public', true, 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     testblog = p;
                     done();
                 });
@@ -447,11 +447,11 @@ describe('Blogs Model', function () {
         it('should do nothing if there is no change in the needsReview', function (done) {
             let error = null;
             testblog.setNeedsReview(testblog.needsReview, 'test').save()
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p.access).to.equal('public');
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^needsReview/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -465,11 +465,11 @@ describe('Blogs Model', function () {
         it('should update to the new needsReview', function (done) {
             let error = null;
             testblog.setNeedsReview(true, 'test').save()
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p.needsReview).to.equal(true);
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^needsReview/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].newValues).to.equal(true);
                 })
@@ -490,7 +490,7 @@ describe('Blogs Model', function () {
         let testblog = null;
         before(function (done) {
             Blogs.create('allowComments', 'silver lining', 'blog.allowComments', [], [], [], [], false, 'public', true, 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     testblog = p;
                     done();
                 });
@@ -498,11 +498,11 @@ describe('Blogs Model', function () {
         it('should do nothing if there is no change in the allowComments', function (done) {
             let error = null;
             testblog.setAllowComments(testblog.allowComments, 'test').save()
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p.allowComments).to.equal(true);
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^allowComments/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -516,11 +516,11 @@ describe('Blogs Model', function () {
         it('should update to the new allowComments', function (done) {
             let error = null;
             testblog.setAllowComments(false, 'test').save()
-                .then(function (p) {
+                .then((p) =>  {
                     expect(p.allowComments).to.equal(false);
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^allowComments/}});
                 })
-                .then(function (paudit) {
+                .then((paudit) =>  {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].newValues).to.equal(false);
                 })

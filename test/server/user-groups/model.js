@@ -15,7 +15,7 @@ describe('UserGroups Model', function () {
     let groupsToCleanup = [];
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function () {
+            .then(() =>  {
                 done();
             });
     });
@@ -23,17 +23,17 @@ describe('UserGroups Model', function () {
         it('should create a new document when it succeeds, the creator should be owner and member and have appropriate audit entries', function (done) {
             let error = null;
             UserGroups.create('test.group@test.api', 'silver lining', 'creating groups', 'test')
-                .then(function (userGroup) {
+                .then((userGroup) =>  {
                     expect(userGroup).to.exist();
                     expect(userGroup).to.be.an.instanceof(UserGroups);
                     expect(userGroup.name).to.contain('test.group@test.api');
                     expect(userGroup.isMemberOf('members', 'test')).to.be.true();
                     expect(userGroup.isMemberOf('owners', 'test')).to.be.true();
                 })
-                .then(function () {
+                .then(() =>  {
                     return Audit.findAudit('user-groups', 'test.group@test.api', {'change.action': 'create'});
                 })
-                .then(function (ugAudit) {
+                .then((ugAudit) =>  {
                     expect(ugAudit.length).to.equal(1);
                     expect(ugAudit[0].objectChangedId).to.equal('test.group@test.api');
                 })
@@ -49,9 +49,9 @@ describe('UserGroups Model', function () {
         it('should not allow two groups with the name', function (done) {
             let error = null;
             UserGroups.create('test.dupe@test.api', 'silver lining', 'testing dupes', 'test')
-                .then(function () {
+                .then(() =>  {
                     return UserGroups.create('test.dupe@test.api', 'silver lining', 'testing dupes', 'test')
-                        .then(function (dupeGroup) {
+                        .then((dupeGroup) =>  {
                             expect(dupeGroup).to.not.exist();
                         })
                         .catch(function (err) {
@@ -73,7 +73,7 @@ describe('UserGroups Model', function () {
         it('should return empty array when nothing is sent', function (done) {
             let error = null;
             UserGroups.areValid([], 'silver lining')
-                .then(function (result) {
+                .then((result) =>  {
                     expect(result).to.be.empty();
                 })
                 .catch(function (err) {
@@ -87,10 +87,10 @@ describe('UserGroups Model', function () {
         it('should return an object with as many entries as names sent, appropriately populated', function (done) {
             let error = null;
             UserGroups.create('test UserGroups.areValid', 'silver lining', 'test', 'test')
-                .then(function () {
+                .then(() =>  {
                     return UserGroups.areValid(['test UserGroups.areValid', 'bogus'], 'silver lining');
                 })
-                .then(function (result) {
+                .then((result) =>  {
                     expect(result).to.exist();
                     expect(result['test UserGroups.areValid']).to.be.true();
                     expect(result.bogus).to.be.false();
@@ -109,18 +109,18 @@ describe('UserGroups Model', function () {
         it('should do nothing if the user is already present as a member and you add user as a member', function (done) {
             let error = null;
             UserGroups.create('addUsersTest1', 'silver lining', 'UserGroups.this.addMemberAlreadyPresent', 'test3')
-                .then(function (ug) {
+                .then((ug) =>  {
                     ug.members.push('alreadyMember');
                     return ug.save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'alreadyMember')).to.be.true();
                     return ug.add(['alreadyMember'], 'members', 'test3').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add member/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -135,18 +135,18 @@ describe('UserGroups Model', function () {
         it('should do nothing if the user is already present as a owner and you add user as a owner', function (done) {
             let error = null;
             UserGroups.create('addUsersTest2', 'silver lining', 'UserGroups.this.addOwnerAlreadyPresent', 'test3')
-                .then(function (ug) {
+                .then((ug) =>  {
                     ug.owners.push('alreadyOwner');
                     return ug.save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('owners', 'alreadyOwner')).to.be.true();
                     return ug.add(['alreadyOwner'], 'owners', 'test3').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add owner/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -161,18 +161,18 @@ describe('UserGroups Model', function () {
         it('should do nothing if the user is already present as owner AND member and you add as owner AND member', function (done) {
             let error = null;
             UserGroups.create('addUsersTest3', 'silver lining', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.add(['test3'], 'owners', 'test4').add(['test3'], 'members', 'test4').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('owners', 'test3')).to.be.true();
                     expect(ug.isMemberOf('members', 'test3')).to.be.true();
                     return ug;
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -187,14 +187,14 @@ describe('UserGroups Model', function () {
         it('should add the user as a owner who was not already present and added with the owner role', function (done) {
             let error = null;
             UserGroups.create('addUsersTest4', 'silver lining', 'UserGroups.this.addOwnerNotPresent', 'test3')
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.add(['newOwner'], 'owners', 'test3').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('owners', 'newOwner')).to.be.true();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add owner/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].newValues).to.equal('newOwner');
                     expect(ugaudit[0].change[0].action).to.match(/add owner/);
@@ -211,14 +211,14 @@ describe('UserGroups Model', function () {
         it('should add the user as a member who was not already present and added with the member role', function (done) {
             let error = null;
             UserGroups.create('addUsersTest5', 'silver lining', 'UserGroups.this.addMemberNotPresent', 'test3')
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.add(['newMember'], 'members', 'test3').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'newMember')).to.be.true();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add member/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].newValues).to.equal('newMember');
                     expect(ugaudit[0].change[0].action).to.match(/add member/);
@@ -235,31 +235,31 @@ describe('UserGroups Model', function () {
         it('should add the user as a member and owner who was not already present and added with the member and owner / both role', function (done) {
             let error = null;
             UserGroups.create('addUsersTest6.0', 'silver lining', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.add(['newMemberOwner'], 'owners', 'test3').add(['newMemberOwner'], 'members', 'test3').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'newMemberOwner')).to.be.true();
                     expect(ug.isMemberOf('owners', 'newMemberOwner')).to.be.true();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].newValues).to.equal('newMemberOwner');
                     expect(ugaudit[0].change[1].newValues).to.equal('newMemberOwner');
                 })
-                .then(function () {
+                .then(() =>  {
                     return UserGroups.create('addUsersTest6.1', 'silver lining', 'UserGroups.this.addBothNotPresent', 'test3');
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.add(['newBoth'], 'owners', 'test3').add(['newBoth'], 'members', 'test3').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'newBoth')).to.be.true();
                     expect(ug.isMemberOf('owners', 'newBoth')).to.be.true();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].newValues).to.equal('newBoth');
                     expect(ugaudit[0].change[0].newValues).to.equal('newBoth');
@@ -279,21 +279,21 @@ describe('UserGroups Model', function () {
         it('should do nothing if the user is not already present as a member and you remove user as a member', function (done) {
             let error = null;
             UserGroups.create('removeUsersTest1', 'silver lining', 'UserGroups.this.removeMemberNotPresent', 'test4')
-                .then(function (ug) {
+                .then((ug) =>  {
                     ug.owners.push('notMemberButOwner');
                     return ug.save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'notMemberButOwner')).to.be.false();
                     expect(ug.isMemberOf('owners', 'notMemberButOwner')).to.be.true();
                     return ug.remove(['notMemberButOwner'], 'members', 'test4').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'notMemberButOwner')).to.be.false();
                     expect(ug.isMemberOf('owners', 'notMemberButOwner')).to.be.true();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove user/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -308,21 +308,21 @@ describe('UserGroups Model', function () {
         it('should do nothing if the user is not already present as a owner and you remove user as a owner', function (done) {
             let error = null;
             UserGroups.create('removeUsersTest2', 'silver lining', 'UserGroups.this.removeOwnerNotPresent', 'test4')
-                .then(function (ug) {
+                .then((ug) =>  {
                     ug.members.push('notOwnerButMember');
                     return ug.save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'notOwnerButMember')).to.be.true();
                     expect(ug.isMemberOf('owners', 'notOwnerButMember')).to.be.false();
                     return ug.remove(['notOwnerButMember'], 'owners', 'test4').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'notOwnerButMember')).to.be.true();
                     expect(ug.isMemberOf('owners', 'notOwnerButMember')).to.be.false();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove user/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -337,17 +337,17 @@ describe('UserGroups Model', function () {
         it('should do nothing if the user is not present as owner OR member and you remove as owner AND member', function (done) {
             let error = null;
             UserGroups.create('removeUsersTest3', 'UserGroups.this.removeBothNotPresent', 'test4')
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'neither')).to.be.false();
                     expect(ug.isMemberOf('owners', 'neither')).to.be.false();
                     return ug.remove(['neither'], 'members', 'test4').remove(['neither'], 'owners', 'test4').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'neither')).to.be.false();
                     expect(ug.isMemberOf('owners', 'neither')).to.be.false();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -362,21 +362,21 @@ describe('UserGroups Model', function () {
         it('should remove the users owner role if already present the owner role', function (done) {
             let error = null;
             UserGroups.create('removeUsersTest4.0', 'silver lining', 'UserGroups.this.removeOwner', 'test4')
-                .then(function (ug) {
+                .then((ug) =>  {
                     ug.owners.push('owners');
                     return ug.save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'owners')).to.be.false();
                     expect(ug.isMemberOf('owners', 'owners')).to.be.true();
                     return ug.remove(['owners'], 'owners', 'test4').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'owners')).to.be.false();
                     expect(ug.isMemberOf('owners', 'owners')).to.be.false();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove owner/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.match(/^remove owner/);
                 })
@@ -393,21 +393,21 @@ describe('UserGroups Model', function () {
         it('should deactivate the user as a member if already present with the member role', function (done) {
             let error = null;
             UserGroups.create('removeUsersTest5.0', 'silver lining', 'UserGroups.this.removeMember', 'test4')
-                .then(function (ug) {
+                .then((ug) =>  {
                     ug.members.push('members');
                     return ug.save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'members')).to.be.true();
                     expect(ug.isMemberOf('owners', 'members')).to.be.false();
                     return ug.remove(['members'], 'members', 'test4').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isMemberOf('members', 'members')).to.be.false();
                     expect(ug.isMemberOf('owners', 'members')).to.be.false();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove member/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.match(/^remove member/);
                 })
@@ -426,31 +426,31 @@ describe('UserGroups Model', function () {
         it('should do nothing if the user group is already inactive/active and you deactivate/activate', function (done) {
             let error = null;
             UserGroups.create('activateGroupDoNothing', 'silver lining', 'UserGroups.this.activate', 'test5')
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.reactivate('test5').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isActive).to.be.true();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
-                .then(function () {
+                .then(() =>  {
                     return UserGroups.create('deactivateGroupDoNothing', 'silver lining', 'UserGroups.this.deactivate', 'test5');
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     ug.isActive = false;
                     return ug.save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.deactivate('test5').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isActive).to.be.false();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -466,32 +466,32 @@ describe('UserGroups Model', function () {
         it('should mark the group as inactive / active when you deactivate / activate', function (done) {
             let error = null;
             UserGroups.create('deactivateGroup', 'silver lining', 'UserGroups.this.deactivate', 'test5')
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.deactivate('test5').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isActive).to.be.false();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.equal('isActive');
                 })
-                .then(function () {
+                .then(() =>  {
                     return UserGroups.create('activateGroup', 'silver lining', 'UserGroups.this.reactivate', 'test5');
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     ug.isActive = false;
                     return ug.save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.reactivate('test5').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.isActive).to.be.true();
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^isActive/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.equal('isActive');
                 })
@@ -510,14 +510,14 @@ describe('UserGroups Model', function () {
         it('should do nothing if there is no change in the description', function (done) {
             let error = null;
             UserGroups.create('updateDesc1', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.setDescription(ug.description, 'test6').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.description).to.equal('UserGroups.this.updateDesc');
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^description/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -532,14 +532,14 @@ describe('UserGroups Model', function () {
         it('should update to the new description', function (done) {
             let error = null;
             UserGroups.create('updateDesc2', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.setDescription(ug.description + 'new', 'test6').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.description).to.equal('UserGroups.this.updateDescnew');
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^description/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.equal('description');
                 })
@@ -557,14 +557,14 @@ describe('UserGroups Model', function () {
         it('should do nothing if there is no change in the access', function (done) {
             let error = null;
             UserGroups.create('updateAccess1', 'silver lining', 'UserGroups.this.setAccess', 'test6')
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.setAccess('restricted', 'test6').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.access).to.equal('restricted');
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^access/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -579,14 +579,14 @@ describe('UserGroups Model', function () {
         it('should update to the new access control', function (done) {
             let error = null;
             UserGroups.create('updateAccess2', 'silver lining', 'UserGroups.this.setAccess', 'test6')
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.setAccess('public', 'test6').save();
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     expect(ug.access).to.equal('public');
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^access/}});
                 })
-                .then(function (ugaudit) {
+                .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.equal('access');
                 })

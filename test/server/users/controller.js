@@ -18,14 +18,14 @@ describe('Users', function () {
     let emails = [];
     before(function (done) {
         tu.setupServer()
-            .then(function (res) {
+            .then((res) =>  {
                 server = res.server;
             })
-            .then(function () {
+            .then(() =>  {
                 emails.push('test.users@test.api');
                 return Users.create('test.users@test.api', 'silver lining', 'password123', 'en');
             })
-            .then(function (newUser) {
+            .then((newUser) =>  {
                 newUser.loginSuccess('test', 'test').save();
                 done();
             })
@@ -39,11 +39,11 @@ describe('Users', function () {
     it('should send back a not authorized when user is not logged in', function (done) {
         let authheader = '';
         tu.findAndLogin('test.users@test.api')
-            .then(function (u) {
+            .then((u) =>  {
                 authheader = u.authheader;
                 return u.user.logout('test', 'test').save();
             })
-            .then(function () {
+            .then(() =>  {
                 let request = {
                     method: 'GET',
                     url: '/users',
@@ -64,7 +64,7 @@ describe('Users', function () {
     it('should send back a not authorized when user does not have permissions to view', function (done) {
         let authheader = '';
         tu.findAndLogin('test.users@test.api', [])
-            .then(function (u) {
+            .then((u) =>  {
                 authheader = u.authheader;
                 let request = {
                     method: 'GET',
@@ -86,7 +86,7 @@ describe('Users', function () {
     it('should send back users when requestor has permissions and is authenticated, Users:GET /users', function (done) {
         let authheader = '';
         tu.findAndLogin('one@first.com')
-            .then(function (u) {
+            .then((u) =>  {
                 authheader = u.authheader;
                 let request = {
                     method: 'GET',
@@ -110,14 +110,14 @@ describe('Users', function () {
         let authheader = '';
         before(function (done) {
             tu.findAndLogin('one@first.com')
-                .then(function (u) {
+                .then((u) =>  {
                     authheader = u.authheader;
                     return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
                 })
-                .then(function (newUser) {
+                .then((newUser) =>  {
                     return newUser.loginSuccess('test', 'test').save();
                 })
-                .then(function (newUser) {
+                .then((newUser) =>  {
                     newUser.deactivate('test').save();
                     done();
                 })
@@ -213,7 +213,7 @@ describe('Users', function () {
         let id = '';
         before(function (done) {
             tu.findAndLogin('one@first.com')
-                .then(function (u) {
+                .then((u) =>  {
                     authheader = u.authheader;
                     id = u.user._id.toString();
                     done();
@@ -262,7 +262,7 @@ describe('Users', function () {
         });
         it('should send back unauthorized if the id in the url and authenticated user are different', function (done) {
             Users.findOne({email: 'root'})
-                .then(function (u) {
+                .then((u) =>  {
                     let request = {
                         method: 'GET',
                         url: '/users/' + u._id.toString(),
@@ -286,12 +286,12 @@ describe('Users', function () {
         let id = '';
         before(function (done) {
             tu.findAndLogin('root')
-                .then(function (u) {
+                .then((u) =>  {
                     authheader = u.authheader;
                     emails.push('test.users3@test.api');
                     return Users.create('test.users3@test.api', 'silver lining', 'password123', 'en');
                 })
-                .then(function (newUser) {
+                .then((newUser) =>  {
                     newUser.loginSuccess('test', 'test').save();
                     id = newUser._id.toString();
                     done();
@@ -312,12 +312,12 @@ describe('Users', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     Users.findOne({_id: Users.ObjectID(id)})
-                        .then(function (foundUser) {
+                        .then((foundUser) =>  {
                             expect(foundUser.isActive).to.be.false();
                             expect(foundUser.session.length).to.equal(0);
                             return Audit.findAudit('users', foundUser.email, {'change.audit': 'isActive'});
                         })
-                        .then(function (foundAudit) {
+                        .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             done();
                         })
@@ -342,12 +342,12 @@ describe('Users', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     Users.findOne({_id: Users.ObjectID(id)})
-                        .then(function (foundUser) {
+                        .then((foundUser) =>  {
                             expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
                             expect(foundUser.session.length).to.equal(0);
                             return Audit.findAudit('users', foundUser.email, {'change.audit': 'update roles'});
                         })
-                        .then(function (foundAudit) {
+                        .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             done();
                         })
@@ -372,11 +372,11 @@ describe('Users', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     Users.findOne({_id: Users.ObjectID(id)})
-                        .then(function (foundUser) {
+                        .then((foundUser) =>  {
                             expect(foundUser.session.length).to.equal(0);
                             return Audit.findAudit('users', foundUser.email, {'change.audit': 'reset password'});
                         })
-                        .then(function (foundAudit) {
+                        .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             done();
                         })
@@ -403,7 +403,7 @@ describe('Users', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     Users.findOne({_id: Users.ObjectID(id)})
-                        .then(function (foundUser) {
+                        .then((foundUser) =>  {
                             expect(foundUser.session.length).to.equal(0);
                             expect(foundUser.roles).to.include(['readonly']);
                             expect(foundUser.isActive).to.be.true();
@@ -417,7 +417,7 @@ describe('Users', function () {
         });
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
             tu.findAndLogin('one@first.com')
-                .then(function (u) {
+                .then((u) =>  {
                     authheader = u.authheader;
                     let request = {
                         method: 'PUT',
@@ -498,17 +498,17 @@ describe('Users', function () {
                 try {
                     expect(response.statusCode).to.equal(201);
                     Users.findOne({email: 'test.signup2@signup.api'})
-                        .then(function (foundUser) {
+                        .then((foundUser) =>  {
                             expect(foundUser).to.exist();
                             expect(foundUser.session).to.exist();
                             expect(foundUser.session.length).to.equal(1);
                             return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'signup'});
                         })
-                        .then(function (foundSignup) {
+                        .then((foundSignup) =>  {
                             expect(foundSignup).to.exist();
                             return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'login success'});
                         })
-                        .then(function (foundLogin) {
+                        .then((foundLogin) =>  {
                             expect(foundLogin).to.exist();
                             emails.push(request.payload.email);
                             done();
@@ -552,11 +552,11 @@ describe('Users', function () {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.contain('Success');
                     Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password sent'})
-                        .then(function (foundAudit) {
+                        .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             return Users.findOne({email: 'test.users@test.api'});
                         })
-                        .then(function (foundUser) {
+                        .then((foundUser) =>  {
                             expect(foundUser.resetPwd).to.exist();
                             done();
                         });
@@ -611,10 +611,10 @@ describe('Users', function () {
         });
         it('returns a bad request if the key does not match', function (done) {
             Users.findOne({email: 'test.users@test.api'})
-                .then(function (foundUser) {
+                .then((foundUser) =>  {
                     return foundUser.resetPasswordSent('test').save();
                 })
-                .then(function () {
+                .then(() =>  {
                     let request = {
                         method: 'POST',
                         url: '/login/reset',
@@ -637,13 +637,13 @@ describe('Users', function () {
         it('successfully sets a password, invalidates session and logs user out', function (done) {
             let key = '';
             Users.findOne({email: 'test.users@test.api'})
-                .then(function (foundUser) {
+                .then((foundUser) =>  {
                     return foundUser.resetPasswordSent('test').save();
                 })
-                .then(function (foundUser) {
+                .then((foundUser) =>  {
                     key = foundUser.resetPwd.token;
                 })
-                .then(function () {
+                .then(() =>  {
                     let request = {
                         method: 'POST',
                         url: '/login/reset',
@@ -658,11 +658,11 @@ describe('Users', function () {
                             expect(response.statusCode).to.equal(200);
                             expect(response.payload).to.contain('Success');
                             Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password'})
-                                .then(function (foundAudit) {
+                                .then((foundAudit) =>  {
                                     expect(foundAudit).to.exist();
                                     return Users.findOne({email: 'test.users@test.api'});
                                 })
-                                .then(function (foundUser) {
+                                .then((foundUser) =>  {
                                     expect(foundUser.resetPwd).to.not.exist();
                                     done();
                                 });

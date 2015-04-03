@@ -18,19 +18,19 @@ describe('Auth', function () {
     let authheader;
     before(function (done) {
         tu.setupServer()
-            .then(function (res) {
+            .then((res) =>  {
                 server = res.server;
             })
-            .then(function () {
+            .then(() =>  {
                 return Users.create(email, 'silver lining', 'auth123', 'en');
             })
-            .then(function () {
+            .then(() =>  {
                 return tu.findAndLogin(email);
             })
-            .then(function (u) {
+            .then((u) =>  {
                 authheader = u.authheader;
             })
-            .then(function () {
+            .then(() =>  {
                 done();
             })
             .catch(function (err) {
@@ -136,10 +136,10 @@ describe('Auth', function () {
             }
         });
         Users.findOne({email: email})
-            .then(function (user) {
+            .then((user) =>  {
                 return user.logout('test', 'test').save();
             })
-            .then(function () {
+            .then(() =>  {
                 let request = {
                     method: 'GET',
                     url: '/2',
@@ -170,12 +170,12 @@ describe('Auth', function () {
             }
         });
         Users.findOne({email: email})
-            .then(function (user) {
+            .then((user) =>  {
                 user.loginSuccess('test', 'test');
                 user.session[0].expires = moment().subtract(15, 'days').toDate();
                 return user.save();
             })
-            .then(function () {
+            .then(() =>  {
                 let request = {
                     method: 'GET',
                     url: '/5',

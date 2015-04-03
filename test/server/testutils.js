@@ -10,7 +10,7 @@ let AuthPlugin = require(relativeToServer + 'common/plugins/auth');
 let MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
 let I18NPlugin = require(relativeToServer + 'common/plugins/i18n');
 let Config = require(relativeTo + 'config');
-let Model = require(relativeToServer + 'common/model'); 
+let Model = require(relativeToServer + 'common/model');
 let Users = require(relativeToServer + 'users/model');
 let UserGroups = require(relativeToServer + 'user-groups/model');
 let Audit = require(relativeToServer + 'audit/model');
@@ -72,7 +72,7 @@ function setupRootUser () {
                 return found.setRoles(['root'], 'testSetup').resetPrefs().resetProfile().save();
             } else {
                 return Users.create('root', 'silver lining', 'password123', 'en')
-                    .then(function (rt) {
+                    .then((rt) =>  {
                         return rt.setRoles(['root'], 'testSetup').save();
                     });
             }
@@ -80,7 +80,7 @@ function setupRootUser () {
 }
 function setupFirstUser () {
     return Users.findOne({email: 'one@first.com'})
-        .then(function (found) {
+        .then((found) =>  {
             if (found) {
                 return found.resetPrefs().resetProfile().save();
             } else {
@@ -94,20 +94,20 @@ function setupRolesAndUsers () {
         .then(setupReadonlyRole)
         .then(setupRootUser)
         .then(setupFirstUser)
-        .then(function () {
+        .then(() =>  {
             return true;
         });
 }
 exports.setupRolesAndUsers = setupRolesAndUsers;
 function findAndLogin (user, roles) {
     return Users.findOne({email: user})
-        .then(function (foundUser) {
+        .then((foundUser) =>  {
             if (roles) {
                 foundUser.setRoles(roles, 'test');
             }
             return foundUser.loginSuccess('test', 'test').save();
         })
-        .then(function (loggedin) {
+        .then((loggedin) =>  {
             return {user: loggedin, authheader: authorizationHeader(loggedin)};
         });
 }
@@ -115,10 +115,10 @@ module.exports.findAndLogin = findAndLogin;
 let setupServer = function () {
     return new Promise(function (resolve, reject) {
         setupRolesAndUsers()
-            .then(function () {
+            .then(() =>  {
                 return findAndLogin('root');
             })
-            .then(function (foundUser) {
+            .then((foundUser) =>  {
                 if (!server) {
                     let Manifest = require('./../../server/manifest').manifest;
                     let components = [

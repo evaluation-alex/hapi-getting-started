@@ -16,7 +16,7 @@ describe('Profile Model', function () {
     let usersToClear = [];
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function () {
+            .then(() =>  {
                 done();
             });
     });

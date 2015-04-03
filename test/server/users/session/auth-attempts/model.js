@@ -16,14 +16,14 @@ let expect = Code.expect;
 describe('AuthAttempts Model', function () {
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function () {
+            .then(() =>  {
                 done();
             });
     });
     it('returns a new instance when create succeeds', function (done) {
         let error;
         AuthAttempts.create('127.0.0.1', 'test.create@auth.attempts')
-            .then(function (authAttempt) {
+            .then((authAttempt) =>  {
                 expect(authAttempt).to.be.an.instanceof(AuthAttempts);
             })
             .catch(function (err) {
@@ -41,7 +41,7 @@ describe('AuthAttempts Model', function () {
         let authRequest = function () {
             return new Promise(function (resolve/*, reject*/) {
                 AuthAttempts.create('127.0.0.1', 'test.abuse@auth.attempts')
-                    .then(function (result) {
+                    .then((result) =>  {
                         expect(result).to.be.an.instanceof(AuthAttempts);
                         resolve(true);
                     })
@@ -55,10 +55,10 @@ describe('AuthAttempts Model', function () {
             authSpam.push(authRequest());
         }
         Promise.all(authSpam)
-            .then(function () {
+            .then(() =>  {
                 return AuthAttempts.abuseDetected('127.0.0.1', 'test.abuse@auth.attempts');
             })
-            .then(function (result) {
+            .then((result) =>  {
                 expect(result).to.equal(true);
             })
             .catch(function (err) {
@@ -78,10 +78,10 @@ describe('AuthAttempts Model', function () {
             authSpam.push(AuthAttempts.create('127.0.0.2', randomUsername));
         }
         Promise.all(authSpam)
-            .then(function () {
+            .then(() =>  {
                 return AuthAttempts.abuseDetected('127.0.0.2', 'test.abusexxx@auth.attempts');
             })
-            .then(function (result) {
+            .then((result) =>  {
                 expect(result).to.equal(true);
             })
             .catch(function (err) {

@@ -29,7 +29,7 @@ describe('Posts', function () {
     let groupsToClear = [];
     before(function (done) {
         tu.setupServer()
-            .then(function (res) {
+            .then((res) =>  {
                 server = res.server;
                 rootAuthHeader = res.authheader;
                 done();
@@ -47,7 +47,7 @@ describe('Posts', function () {
             let b1 = Blogs.create('test GET /posts1', 'silver lining', 'test GET /blogs', null, null, null, null, false, 'public', true, 'test');
             let b2 = Blogs.create('test GET /posts2 is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
             Promise.join(b1, b2)
-                .then(function (b) {
+                .then((b) =>  {
                     let b1 = b[0];
                     let b2 = b[1];
                     blogId = b1._id;
@@ -57,7 +57,7 @@ describe('Posts', function () {
                     let p3 = Posts.create(b2._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, 'testing', ['testing', 'search testing'], [], 'test');
                     return Promise.join(p1, p2, p3);
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     let p1 = p[0];
                     let p2 = p[1];
                     let p3 = p[2];
@@ -71,7 +71,7 @@ describe('Posts', function () {
                         PostContent.writeContent(p3, 'p[2]');
                     });
                 })
-                .then(function () {
+                .then(() =>  {
                     done();
                 })
                 .catch(function (err) {
@@ -268,12 +268,12 @@ describe('Posts', function () {
         let blogId = '';
         before(function (done) {
             Blogs.create('test GET /blogs/{blogId}/posts/{id}', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
-                .then(function (b) {
+                .then((b) =>  {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
                     return Posts.create(b._id, 'silver lining', 'GET /posts/{id}', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     id = p._id.toString();
                     PostContent.writeContent(p, 'something to say, something to listen');
                     done();
@@ -366,12 +366,12 @@ describe('Posts', function () {
         let postId = null;
         before(function (done) {
             Blogs.create('test PUT /blogs/{blogId}/posts/{id}', 'silver lining', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
-                .then(function (b) {
+                .then((b) =>  {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
                     return Posts.create(blogId, 'silver lining', 'test PUT', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test');
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     done();
                 })
@@ -417,7 +417,7 @@ describe('Posts', function () {
             let request = {};
             let authHeader = '';
             tu.findAndLogin('one@first.com', ['root'])
-                .then(function (u) {
+                .then((u) =>  {
                     authHeader = u.authheader;
                     request = {
                         method: 'PUT',
@@ -454,16 +454,16 @@ describe('Posts', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     Posts.find({_id: Posts.ObjectID(postId)})
-                        .then(function (found) {
+                        .then((found) =>  {
                             expect(found[0].isActive).to.be.false();
                             return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
                         })
-                        .then(function (foundAudit) {
+                        .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             expect(foundAudit.length).to.equal(1);
                             expect(foundAudit[0].change[0].action).to.match(/isActive/);
                         })
-                        .then(function () {
+                        .then(() =>  {
                             tu.cleanupAudit();
                             done();
                         });
@@ -487,16 +487,16 @@ describe('Posts', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     Posts.find({_id: Posts.ObjectID(postId)})
-                        .then(function (found) {
+                        .then((found) =>  {
                             expect(found[0].isActive).to.be.true();
                             return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
                         })
-                        .then(function (foundAudit) {
+                        .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             expect(foundAudit.length).to.equal(1);
                             expect(foundAudit[0].change[0].action).to.match(/isActive/);
                         })
-                        .then(function () {
+                        .then(() =>  {
                             tu.cleanupAudit();
                             done();
                         });
@@ -521,17 +521,17 @@ describe('Posts', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     Posts.find({_id: Posts.ObjectID(postId)})
-                        .then(function (found) {
+                        .then((found) =>  {
                             expect(found[0].tags[0]).to.equal('add some');
                             return Audit.findAudit('posts', found[0]._id, {'change.action': {$regex: /tag/}});
                         })
-                        .then(function (foundAudit) {
+                        .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             expect(foundAudit.length).to.equal(1);
                             expect(foundAudit[0].change[0].action).to.match(/add/);
                             expect(foundAudit[0].change[1].action).to.match(/remove/);
                         })
-                        .then(function () {
+                        .then(() =>  {
                             tu.cleanupAudit();
                             done();
                         });
@@ -555,7 +555,7 @@ describe('Posts', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     Posts.find({_id: Posts.ObjectID(postId)})
-                        .then(function (found) {
+                        .then((found) =>  {
                             let filename = PostContent.filenameForPost(found[0]);
                             let timeout = setTimeout(function () {
                                 expect(fs.existsSync(Config.storage.diskPath + '/' + filename)).to.be.true();
@@ -586,20 +586,20 @@ describe('Posts', function () {
                 try {
                     expect(response.statusCode).to.equal(200);
                     Posts.find({_id: Posts.ObjectID(postId)})
-                        .then(function (found) {
+                        .then((found) =>  {
                             expect(found[0].access).to.equal('restricted');
                             expect(found[0].allowComments).to.equal(false);
                             expect(found[0].needsReview).to.equal(false);
                             return Audit.findAudit('posts', found[0]._id, {by: 'root'});
                         })
-                        .then(function (foundAudit) {
+                        .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             expect(foundAudit.length).to.equal(1);
                             expect(foundAudit[0].change[0].action).to.match(/access/);
                             expect(foundAudit[0].change[1].action).to.match(/allowComments/);
                             expect(foundAudit[0].change[2].action).to.match(/needsReview/);
                         })
-                        .then(function () {
+                        .then(() =>  {
                             tu.cleanupAudit();
                             done();
                         });
@@ -610,11 +610,11 @@ describe('Posts', function () {
         });
         it('should give an error if you try to update archived posts', function (done) {
             Posts.findOne({_id: Posts.ObjectID(postId)})
-                .then(function (post) {
+                .then((post) =>  {
                     post.state = 'archived';
                     return post.save();
                 })
-                .then(function () {
+                .then(() =>  {
                     let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId,
@@ -645,14 +645,14 @@ describe('Posts', function () {
         let blogId = null;
         before(function (done) {
             Blogs.create('test PUT /blogs/{blogId}/posts/{id}/publish', 'silver lining', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/publish'], false, 'public', true, 'test')
-                .then(function (b) {
+                .then((b) =>  {
                     blogId = b._id.toString();
                     return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/publish', 'silver lining', 'test notifications', 'test');
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.remove(['test'], 'members', 'test').add(['subscriber1', 'subscriber2'], 'members', 'test').save();
                 })
-                .then(function () {
+                .then(() =>  {
                     done();
                 })
                 .catch(function (err) {
@@ -662,11 +662,11 @@ describe('Posts', function () {
         it('should publish draft / pending review posts', function (done) {
             let postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
@@ -681,34 +681,34 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Posts.find({_id: Posts.ObjectID(postId)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found[0].access).to.equal('restricted');
                                     expect(found[0].state).to.equal('published');
                                     return Audit.findAudit('posts', found[0]._id, {by: 'one@first.com'});
                                 })
-                                .then(function (foundAudit) {
+                                .then((foundAudit) =>  {
                                     expect(foundAudit).to.exist();
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.equal('state');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     //because the events from the controller may not be complete
                                     let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
                                         })
-                                            .then(function (notifications) {
+                                            .then((notifications) =>  {
                                                 expect(notifications.length).to.equal(3);
                                                 return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
                                                 });
                                             })
-                                            .then(function (count) {
+                                            .then((count) =>  {
                                                 expect(count).to.equal(3);
                                                 done();
                                                 clearTimeout(ct);
@@ -724,11 +724,11 @@ describe('Posts', function () {
         it('should allow root to publish draft / pending review posts', function (done) {
             let postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     return tu.findAndLogin('root');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
@@ -743,34 +743,34 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Posts.find({_id: Posts.ObjectID(postId)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found[0].access).to.equal('restricted');
                                     expect(found[0].state).to.equal('published');
                                     return Audit.findAudit('posts', found[0]._id, {by: 'root'});
                                 })
-                                .then(function (foundAudit) {
+                                .then((foundAudit) =>  {
                                     expect(foundAudit).to.exist();
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.equal('state');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     //because the events from the controller may not be complete
                                     let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
                                         })
-                                            .then(function (notifications) {
+                                            .then((notifications) =>  {
                                                 expect(notifications.length).to.equal(3);
                                                 return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
                                                 });
                                             })
-                                            .then(function (count) {
+                                            .then((count) =>  {
                                                 expect(count).to.equal(3);
                                                 done();
                                                 clearTimeout(ct);
@@ -787,15 +787,15 @@ describe('Posts', function () {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.remove(['one@first.com'], 'owners', 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
@@ -810,10 +810,10 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(401);
                             Posts.find({_id: Posts.ObjectID(postId)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found[0].state).to.equal('draft');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                     done();
                                 });
@@ -827,15 +827,15 @@ describe('Posts', function () {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').add(['owner1'], 'owners', 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
@@ -850,28 +850,28 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Posts.find({_id: Posts.ObjectID(postId)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found[0].state).to.equal('pending review');
                                     expect(found[0].access).to.equal('restricted');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     //because the events from the controller may not be complete
                                     let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
                                         })
-                                            .then(function (notifications) {
+                                            .then((notifications) =>  {
                                                 expect(notifications.length).to.equal(1);
                                                 return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
                                                 });
                                             })
-                                            .then(function (count) {
+                                            .then((count) =>  {
                                                 expect(count).to.equal(1);
                                                 done();
                                                 clearTimeout(ct);
@@ -888,15 +888,15 @@ describe('Posts', function () {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, false, 'testing put', ['testing'], [], 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
@@ -911,28 +911,28 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Posts.find({_id: Posts.ObjectID(postId)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found[0].state).to.equal('published');
                                     expect(found[0].access).to.equal('restricted');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     //because the events from the controller may not be complete
                                     let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
                                         })
-                                            .then(function (notifications) {
+                                            .then((notifications) =>  {
                                                 expect(notifications.length).to.equal(3);
                                                 return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
                                                 });
                                             })
-                                            .then(function (count) {
+                                            .then((count) =>  {
                                                 expect(count).to.equal(3);
                                                 done();
                                                 clearTimeout(ct);
@@ -949,15 +949,15 @@ describe('Posts', function () {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'archived', 'restricted', true, true, 'testing put', ['testing'], [], 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.add(['one@first.com'], 'owners', 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
@@ -972,11 +972,11 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Posts.find({_id: Posts.ObjectID(postId)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found[0].state).to.equal('archived');
                                     expect(found[0].access).to.equal('restricted');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                     done();
                                 });
@@ -997,14 +997,14 @@ describe('Posts', function () {
         let blogId = null;
         before(function (done) {
             Blogs.create('test PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/reject'], false, 'public', true, 'test')
-                .then(function (b) {
+                .then((b) =>  {
                     blogId = b._id.toString();
                     return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test notifications', 'test');
                 })
-                .then(function (ug) {
+                .then((ug) =>  {
                     return ug.remove(['test'], 'members', 'test').add(['subscriber1', 'subscriber2'], 'members', 'test').save();
                 })
-                .then(function () {
+                .then(() =>  {
                     done();
                 })
                 .catch(function (err) {
@@ -1014,15 +1014,15 @@ describe('Posts', function () {
         it('should update reject draft / pending review posts and cancel review notifications', function (done) {
             let postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
                     return Notifications.create(['one@first.com', 'subscriber1', 'subscriber2'], 'silver lining', 'posts', p._id, 'titles dont matter', 'unread', 'review', 'medium', 'content is king', 'test');
                 })
-                .then(function () {
+                .then(() =>  {
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'PUT',
@@ -1038,28 +1038,28 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Posts.find({_id: Posts.ObjectID(postId)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found[0].access).to.equal('restricted');
                                     expect(found[0].state).to.equal('do not publish');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId),
                                             state: 'cancelled'
                                         })
-                                            .then(function (notifications) {
+                                            .then((notifications) =>  {
                                                 expect(notifications.length).to.equal(3);
                                                 return Notifications.remove({
                                                     objectType: 'posts',
                                                     objectId: Posts.ObjectID(postId)
                                                 });
                                             })
-                                            .then(function (count) {
+                                            .then((count) =>  {
                                                 expect(count).to.equal(4);//because there is one notification to the author for the rejection as well
                                                 done();
                                                 clearTimeout(ct);
@@ -1075,15 +1075,15 @@ describe('Posts', function () {
         it('should fail reject draft / pending review posts if user is not an owner of the blog', function (done) {
             let postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.remove(['one@first.com'], 'owners', 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'PUT',
@@ -1099,10 +1099,10 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(401);
                             Posts.find({_id: Posts.ObjectID(postId)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found[0].state).to.equal('draft');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                     done();
                                 });
@@ -1115,19 +1115,19 @@ describe('Posts', function () {
         it('should do nothing if the post is already published / archived', function (done) {
             let postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.add(['one@first.com'], 'owners', 'test').save();
                     return Posts.findOne({_id: Posts.ObjectID(postId)});
                 })
-                .then(function (post) {
+                .then((post) =>  {
                     post.setState('published', 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'PUT',
@@ -1143,10 +1143,10 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Posts.find({_id: Posts.ObjectID(postId)})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found[0].state).to.equal('published');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                     done();
                                 });
@@ -1167,7 +1167,7 @@ describe('Posts', function () {
         let blogId = null;
         before(function (done) {
             Blogs.create('test POST /blogs/{blogId}/posts', 'silver lining', 'test POST /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
-                .then(function (blog) {
+                .then((blog) =>  {
                     blogId = blog._id.toString();
                     done();
                 })
@@ -1178,7 +1178,7 @@ describe('Posts', function () {
         it('should send back conflict when you try to create a post with a title that you just created', function (done) {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test POST unique', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
-                .then(function () {
+                .then(() =>  {
                     let request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
@@ -1208,11 +1208,11 @@ describe('Posts', function () {
         });
         it('should not allow you to create a post if you are not an owner / contributor to the blog', function (done) {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.remove(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
@@ -1233,7 +1233,7 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(401);
                             Posts.find({title: 'test POST blog owner'})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found.length).to.equal(0);
                                     postsToClear.push('test POST blog owner');
                                     done();
@@ -1247,11 +1247,11 @@ describe('Posts', function () {
         });
         it('should create post successfully, and publish if blog doesnt have needsReview set', function (done) {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.add(['one@first.com'], 'contributors', 'test').setNeedsReview(false, 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
@@ -1273,7 +1273,7 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(201);
                             Posts.find({title: 'test POST needsReview and publish'})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('published');
                                     let filename = PostContent.filenameForPost(found[0]);
@@ -1283,7 +1283,7 @@ describe('Posts', function () {
                                         clearTimeout(timeout);
                                     }, 1000);
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                     done();
                                     postsToClear.push('test POST needsReview and publish');
@@ -1297,11 +1297,11 @@ describe('Posts', function () {
         });
         it('should create post successfully, and mark it as pending review if blog has needsReview set', function (done) {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
@@ -1323,11 +1323,11 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(201);
                             Posts.find({title: 'test POST needsReview and pending review'})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('pending review');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                     postsToClear.push('test POST needsReview and pending review');
                                     done();
@@ -1341,11 +1341,11 @@ describe('Posts', function () {
         });
         it('should create post successfully, and mark it as draft if user has marked it as draft irrespective of whether user is owner / needsReview setting', function (done) {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
@@ -1367,11 +1367,11 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(201);
                             Posts.find({title: 'test POST draft'})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('draft');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                     postsToClear.push('test POST draft');
                                     done();
@@ -1385,11 +1385,11 @@ describe('Posts', function () {
         });
         it('should create post successfully, and mark it as published if creator is an owner of the blog', function (done) {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.add(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
@@ -1413,11 +1413,11 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(201);
                             Posts.find({title: 'test POST needsReview, owner and published'})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('published');
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                     postsToClear.push('test POST needsReview, owner and published');
                                     done();
@@ -1431,11 +1431,11 @@ describe('Posts', function () {
         });
         it('should create post successfully, inherit needsReview, allowComments, access from blog if not passed', function (done) {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
-                .then(function (blog) {
+                .then((blog) =>  {
                     blog.add(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').setAccess('restricted', 'test').setAllowComments(false, 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
@@ -1456,13 +1456,13 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(201);
                             Posts.find({title: 'test POST needsReview, access, allowComments'})
-                                .then(function (found) {
+                                .then((found) =>  {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].needsReview).to.equal(true);
                                     expect(found[0].access).to.equal('restricted');
                                     expect(found[0].allowComments).to.equal(false);
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                     postsToClear.push('test POST needsReview, access, allowComments');
                                     done();
@@ -1503,16 +1503,16 @@ describe('Posts', function () {
             let blogId = '';
             let postId = '';
             Blogs.create('testDelPostNotOwner', 'silver lining', 'test DELETE /posts', [], [], [], [], false, 'public', true, 'test')
-                .then(function (b) {
+                .then((b) =>  {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
                     return Posts.create(b._id, 'silver lining', 'DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, 'testing', ['testing', 'controller testing'], [], 'test');
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     return tu.findAndLogin('one@first.com', ['root']);
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     request = {
                         method: 'DELETE',
@@ -1539,16 +1539,16 @@ describe('Posts', function () {
             let blogId = '';
             let postId = '';
             Blogs.create('testDelPost', 'silver lining', 'test DELETE /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
-                .then(function (b) {
+                .then((b) =>  {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
                     return Posts.create(b._id, 'silver lining', 'success DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, 'testing', ['testing', 'controller testing'], [], 'test');
                 })
-                .then(function (p) {
+                .then((p) =>  {
                     postId = p._id.toString();
                     return tu.findAndLogin('one@first.com', ['root']);
                 })
-                .then(function (u) {
+                .then((u) =>  {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'DELETE',
@@ -1561,15 +1561,15 @@ describe('Posts', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Posts.find({_id: Posts.ObjectID(postId)})
-                                .then(function (p) {
+                                .then((p) =>  {
                                     expect(p[0].isActive).to.be.false;
                                     return Audit.findAudit('posts', p[0]._id, {by: 'one@first.com'});
                                 })
-                                .then(function (a) {
+                                .then((a) =>  {
                                     expect(a).to.exist();
                                     expect(a[0].change[0].action).to.match(/isActive/);
                                 })
-                                .then(function () {
+                                .then(() =>  {
                                     tu.cleanupAudit();
                                     blogsToClear.push('testDelPost');
                                     postsToClear.push('success DELETE /blogs/{blogId}/posts/{id}');

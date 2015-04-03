@@ -17,7 +17,7 @@ describe('Users Model', function () {
     let secondEmail = 'test.search@users.module';
     before(function (done) {
         tu.setupRolesAndUsers()
-            .then(function () {
+            .then(() =>  {
                 done();
             });
     });
@@ -25,7 +25,7 @@ describe('Users Model', function () {
         it('should create a new instance when create succeeds', function (done) {
             let error = null;
             Users.create(firstEmail, 'silver lining', 'test123', 'en')
-                .then(function (result) {
+                .then((result) =>  {
                     expect(result).to.be.an.instanceof(Users);
                     expect(result.roles).to.be.an.instanceof(Array);
                     expect(result.roles).to.deep.equal(['readonly']);
@@ -40,7 +40,7 @@ describe('Users Model', function () {
         });
         it('should throw an error when create fails if you try to create with the same email', function (done) {
             Users.create(firstEmail, 'silver lining', 'test123', 'en')
-                .then(function (result) {
+                .then((result) =>  {
                     expect(result).to.not.exist();
                 })
                 .catch(function (err) {
@@ -55,15 +55,15 @@ describe('Users Model', function () {
         it('should returns a result when finding by login and by credentials correctly', function (done) {
             let error = null;
             Users.create(secondEmail, 'silver lining', 'test1234', 'en')
-                .then(function (user) {
+                .then((user) =>  {
                     return Users.findOne({email: user.email});
                 })
-                .then(function (foundUser) {
+                .then((foundUser) =>  {
                     expect(foundUser).to.be.an.instanceof(Users);
                     expect(foundUser.email).to.equal(secondEmail);
                     return Users.findByCredentials(secondEmail, 'test1234');
                 })
-                .then(function (foundUser2) {
+                .then((foundUser2) =>  {
                     expect(foundUser2).to.be.an.instanceof(Users);
                     expect(foundUser2.email).to.equal(secondEmail);
                 })
@@ -78,7 +78,7 @@ describe('Users Model', function () {
         it('should returns error and user for find by credentials when password match fails', function (done) {
             let error = null;
             Users.findByCredentials(secondEmail, 'wrongpassword')
-                .then(function (foundUser) {
+                .then((foundUser) =>  {
                     error = foundUser;
                     expect(foundUser).to.not.exist();
                 })
@@ -92,7 +92,7 @@ describe('Users Model', function () {
         it('should returns error for find by credentials when user does not exist', function (done) {
             let error = null;
             Users.findByCredentials('test.search.fail@users.module', 'unknownuser')
-                .then(function (foundUser) {
+                .then((foundUser) =>  {
                     error = foundUser;
                     expect(foundUser).to.not.exist();
                 })
@@ -108,7 +108,7 @@ describe('Users Model', function () {
         it('should return empty array when nothing is sent', function (done) {
             let error = null;
             Users.areValid([], 'silver lining')
-                .then(function (result) {
+                .then((result) =>  {
                     expect(result).to.be.empty();
                 })
                 .catch(function (err) {
@@ -122,7 +122,7 @@ describe('Users Model', function () {
         it('should return an object with as many entries as emails sent, appropriately populated', function (done) {
             let error = null;
             Users.areValid([firstEmail, secondEmail, 'bogus'], 'silver lining')
-                .then(function (result) {
+                .then((result) =>  {
                     expect(result).to.exist();
                     expect(result[firstEmail]).to.be.true();
                     expect(result[secondEmail]).to.be.true();
@@ -141,14 +141,14 @@ describe('Users Model', function () {
         it('should return true for view users and false for modifying them by default users', function (done) {
             let error = null;
             Users.findOne({email: firstEmail})
-                .then(function (user) {
+                .then((user) =>  {
                     return Roles.find({name: {$in: user.roles}})
-                        .then(function (roles) {
+                        .then((roles) =>  {
                             user._roles = roles;
                             return user;
                         });
                 })
-                .then(function (decoratedUser) {
+                .then((decoratedUser) =>  {
                     expect(decoratedUser.hasPermissionsTo('view', '*')).to.be.true();
                     expect(decoratedUser.hasPermissionsTo('update', '*')).to.be.false();
                 })
@@ -163,14 +163,14 @@ describe('Users Model', function () {
         it('should return true for all operations for root', function (done) {
             let error = null;
             Users.findOne({email: 'root'})
-                .then(function (user) {
+                .then((user) =>  {
                     return Roles.find({name: {$in: user.roles}})
-                        .then(function (roles) {
+                        .then((roles) =>  {
                             user._roles = roles;
                             return user;
                         });
                 })
-                .then(function (decoratedUser) {
+                .then((decoratedUser) =>  {
                     expect(decoratedUser.hasPermissionsTo('view', '*')).to.be.true();
                     expect(decoratedUser.hasPermissionsTo('update', '*')).to.be.true();
                 })
@@ -187,13 +187,13 @@ describe('Users Model', function () {
         it('resetPasswordsSent should create audit entries', function (done) {
             let error = null;
             Users.findOne({email: firstEmail})
-                .then(function (user) {
+                .then((user) =>  {
                     return user.resetPasswordSent('test').save();
                 })
-                .then(function (user) {
+                .then((user) =>  {
                     return Audit.findAudit('users', user.email, {'change.action': 'reset password sent'});
                 })
-                .then(function (userAudit) {
+                .then((userAudit) =>  {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                 })
                 .catch(function (err) {
@@ -207,13 +207,13 @@ describe('Users Model', function () {
         it('resetPassword should create audit entries and invalidate sessions', function (done) {
             let error = null;
             Users.findOne({email: firstEmail})
-                .then(function (user) {
+                .then((user) =>  {
                     return user.setPassword('new password confirm', 'test').save();
                 })
-                .then(function (user) {
+                .then((user) =>  {
                     return Audit.findAudit('users', user.email, {'change.action': 'reset password'});
                 })
-                .then(function (userAudit) {
+                .then((userAudit) =>  {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                 })
                 .catch(function (err) {
@@ -227,16 +227,16 @@ describe('Users Model', function () {
         it('setPassword should do nothing if called with a falsy password', function (done) {
             let error = null;
             Audit.remove({objectChangedId: firstEmail})
-                .then(function () {
+                .then(() =>  {
                     return Users.findOne({email: firstEmail});
                 })
-                .then(function (user) {
+                .then((user) =>  {
                     return user.setPassword(undefined, 'test').save();
                 })
-                .then(function (user) {
+                .then((user) =>  {
                     return Audit.findAudit('users', user.email, {'change.action': 'reset password'});
                 })
-                .then(function (userAudit) {
+                .then((userAudit) =>  {
                     expect(userAudit.length).to.equal(0);
                 })
                 .catch(function (err) {
@@ -252,13 +252,13 @@ describe('Users Model', function () {
         it('update Roles should create audit entries and invalidate sessions', function (done) {
             let error = null;
             Users.findOne({email: firstEmail})
-                .then(function (user) {
+                .then((user) =>  {
                     return user.setRoles(['root'], 'test').save();
-                }).then(function (user) {
+                }).then((user) =>  {
                     expect(user.roles).to.include(['root']);
                     return Audit.findAudit('users', user.email, {'change.action': 'roles'});
                 })
-                .then(function (userAudit) {
+                .then((userAudit) =>  {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                     expect(userAudit[0].change[0].origValues).to.include(['readonly']);
                 })
@@ -275,14 +275,14 @@ describe('Users Model', function () {
         it('deactivate should create audit entries and invalidate sessions and mark user as inactive', function (done) {
             let error = null;
             Users.findOne({email: firstEmail})
-                .then(function (user) {
+                .then((user) =>  {
                     return user.deactivate('test').save();
                 })
-                .then(function (user) {
+                .then((user) =>  {
                     expect(user.isActive).to.be.false();
                     return Audit.findAudit('users', user.email, {'change.action': 'isActive'});
                 })
-                .then(function (userAudit) {
+                .then((userAudit) =>  {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                     expect(userAudit[0].change[0].origValues).to.be.true();
                 })
@@ -297,14 +297,14 @@ describe('Users Model', function () {
         it('reactivate should create audit entries and the user should be active again', function (done) {
             let error = null;
             Users.findOne({email: firstEmail})
-                .then(function (user) {
+                .then((user) =>  {
                     return user.reactivate('test').save();
                 })
-                .then(function (user) {
+                .then((user) =>  {
                     expect(user.isActive).to.be.true();
                     return Audit.findAudit('users', user.email, {'change.action': 'isActive'});
                 })
-                .then(function (userAudit) {
+                .then((userAudit) =>  {
                     expect(userAudit.length).to.equal(2);
                 })
                 .catch(function (err) {

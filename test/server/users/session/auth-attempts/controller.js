@@ -16,7 +16,7 @@ describe('AuthAttempts', function () {
     let server = null;
     before(function (done) {
         tu.setupServer()
-            .then(function (res) {
+            .then((res) =>  {
                 server = res.server;
                 authheader = res.authheader;
                 done();
@@ -31,7 +31,7 @@ describe('AuthAttempts', function () {
     describe('GET /auth-attempts', function () {
         it('should give auth-attempts of only the ip and email sent in the parameters', function (done) {
             AuthAttempts.create('127.0.0.2', 'test.abuse.find@auth.attempts')
-                .then(function () {
+                .then(() =>  {
                     let request = {
                         method: 'GET',
                         url: '/auth-attempts?ip=127.0.0.2&email=test.abuse.find',
@@ -59,7 +59,7 @@ describe('AuthAttempts', function () {
                 authSpam.push(AuthAttempts.create('127.0.0.2', randomUsername));
             }
             Promise.all(authSpam)
-                .then(function () {
+                .then(() =>  {
                     let request = {
                         method: 'GET',
                         url: '/auth-attempts',

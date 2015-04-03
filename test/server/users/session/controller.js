@@ -20,14 +20,14 @@ describe('Session', function () {
     let emails = [];
     before(function (done) {
         tu.setupServer()
-            .then(function (res) {
+            .then((res) =>  {
                 server = res.server;
             })
-            .then(function () {
+            .then(() =>  {
                 emails.push('test.users@test.api');
                 return Users.create('test.users@test.api', 'silver lining', 'password123', 'en');
             })
-            .then(function (newUser) {
+            .then((newUser) =>  {
                 newUser.loginSuccess('test', 'test').save();
                 done();
             })
@@ -44,7 +44,7 @@ describe('Session', function () {
                 authSpam.push(AuthAttempts.create('test', 'test.users@test.api'));
             }
             Promise.all(authSpam)
-                .then(function () {
+                .then(() =>  {
                     let request = {
                         method: 'POST',
                         url: '/session',
@@ -77,12 +77,12 @@ describe('Session', function () {
                 try {
                     expect(response.statusCode).to.equal(401);
                     AuthAttempts.find({email: 'test.users@test.api'})
-                        .then(function (aa) {
+                        .then((aa) =>  {
                             expect(aa).to.exist();
                             expect(aa.length).to.equal(1);
                             return Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login fail'});
                         })
-                        .then(function (foundAudit) {
+                        .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             done();
                         });
@@ -124,7 +124,7 @@ describe('Session', function () {
                     expect(response.payload).to.exist();
                     expect(response.payload).to.contain('test.users@test.api');
                     Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login success'})
-                        .then(function (foundAudit) {
+                        .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             done();
                         });
@@ -177,7 +177,7 @@ describe('Session', function () {
                 }
             };
             tu.findAndLogin('one@first.com')
-                .then(function (u) {
+                .then((u) =>  {
                     request.headers.Authorization = u.authheader;
                     return u.user.logout('test', 'test').save();
                 })
@@ -186,7 +186,7 @@ describe('Session', function () {
                 try {
                     expect(response.statusCode).to.equal(401);
                     Users.findOne({email: 'one@first.com'})
-                        .then(function (foundUser) {
+                        .then((foundUser) =>  {
                             foundUser.loginSuccess('test', 'test').save();
                             done();
                         })
@@ -198,7 +198,7 @@ describe('Session', function () {
         });
         it('removes the authenticated user session successfully', function (done) {
             tu.findAndLogin('one@first.com')
-                .then(function (u) {
+                .then((u) =>  {
                     let request = {
                         method: 'DELETE',
                         url: '/session',
@@ -211,7 +211,7 @@ describe('Session', function () {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Users.findOne({email: 'one@first.com'})
-                                .then(function (foundUser) {
+                                .then((foundUser) =>  {
                                     expect(foundUser.session.length).to.equal(0);
                                     foundUser.loginSuccess('test', 'test').save();
                                     done();

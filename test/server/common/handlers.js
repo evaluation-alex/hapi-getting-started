@@ -86,7 +86,7 @@ describe('Handlers and Mixins', () => {
     });
     it('insertAndAudit should return a not created error when _insert fails', (done) =>  {
         let obj = {
-            insert: function (doc) {
+            insert: (doc) => {
                 expect(doc).to.exist();
                 return Promise.resolve(undefined);
             },

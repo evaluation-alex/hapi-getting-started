@@ -224,7 +224,7 @@ describe('Posts', () => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
-                    _.forEach(p.data, function (d) {
+                    _.forEach(p.data, (d) => {
                         expect(moment(d.publishedOn).format('YYYYMMDD')).to.equal('20150214');
                     });
                     done();

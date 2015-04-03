@@ -2,7 +2,6 @@
 let relativeToServer = './../../../server/';
 let Hapi = require('hapi');
 let MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
-//let expect = require('chai').expect;
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

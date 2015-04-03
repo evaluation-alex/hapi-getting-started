@@ -3,10 +3,9 @@ let relativeToServer = './../../../../server/';
 let Posts = require(relativeToServer + 'blogs/posts/model');
 let Audit = require(relativeToServer + 'audit/model');
 let _ = require('lodash');
-//let expect = require('chai').expect;
 let tu = require('./../../testutils');
 let Promise = require('bluebird');
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

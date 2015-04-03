@@ -6,9 +6,8 @@ let UserGroups = require(relativeToServer + 'user-groups/model');
 let Audit = require(relativeToServer + 'audit/model');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let _ = require('lodash');
-//let expect = require('chai').expect;
 let tu = require('./../testutils');
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

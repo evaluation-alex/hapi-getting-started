@@ -4,10 +4,9 @@ let _ = require('lodash');
 let moment = require('moment');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let Audit = require(relativeToServer + 'audit/model');
-let Promise = require('bluebird');
-//let expect = require('chai').expect;
+var Promise = require('bluebird');
 let tu = require('./../../testutils');
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

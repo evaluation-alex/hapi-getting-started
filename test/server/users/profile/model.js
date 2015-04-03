@@ -3,9 +3,8 @@ let relativeToServer = './../../../../server/';
 let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
 let _ = require('lodash');
-//let expect = require('chai').expect;
 let tu = require('./../../testutils');
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

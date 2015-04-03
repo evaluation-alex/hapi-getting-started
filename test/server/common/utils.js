@@ -1,9 +1,8 @@
 'use strict';
 let relativeToServer = './../../../server/';
-//let expect = require('chai').expect;
 let utils = require(relativeToServer + '/common/utils');
 let Config = require(relativeToServer + '../config');
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

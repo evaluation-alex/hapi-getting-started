@@ -1,13 +1,12 @@
 'use strict';
 let relativeToServer = './../../../server/';
-//let expect = require('chai').expect;
 let CreateHandler = require(relativeToServer + 'common/handlers/create');
 let FindHandler = require(relativeToServer + 'common/handlers/find');
 let FindOneHandler = require(relativeToServer + 'common/handlers/find-one');
 let InsertAndAudit = require(relativeToServer + 'common/mixins/insert');
 let Promise = require('bluebird');
 let _ = require('lodash');
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

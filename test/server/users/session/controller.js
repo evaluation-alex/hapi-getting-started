@@ -4,11 +4,10 @@ let relativeTo = './../../../../';
 let Config = require(relativeTo + 'config');
 let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
-let Promise = require('bluebird');
+var Promise = require('bluebird');
 let AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
-//let expect = require('chai').expect;
 let tu = require('./../../testutils');
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

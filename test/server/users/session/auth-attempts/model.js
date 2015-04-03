@@ -3,10 +3,9 @@ let relativeToServer = './../../../../../server/';
 let relativeTo = './../../../../../';
 let Config = require(relativeTo + 'config');
 let AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
-//let expect = require('chai').expect;
 let tu = require('./../../../testutils');
 let Promise = require('bluebird');
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;
@@ -74,22 +73,9 @@ describe('AuthAttempts Model', function () {
         let error;
         let authAttemptsConfig = Config.authAttempts;
         let authSpam = [];
-        let authRequest = function () {
-            return new Promise(function (resolve/*, reject*/) {
-                let randomUsername = 'test.abuse' + i + '@auth.attempts';
-                AuthAttempts.create('127.0.0.2', randomUsername)
-                    .then(function (result) {
-                        expect(result).to.be.an.instanceof(AuthAttempts);
-                        resolve(true);
-                    })
-                    .catch(function (err) {
-                        expect(err).to.not.exist();
-                        resolve(false);
-                    });
-            });
-        };
         for (let i = 0; i < authAttemptsConfig.forIp + 2; i++) {
-            authSpam.push(authRequest());
+            let randomUsername = 'test.abuse' + i + '@auth.attempts';
+            authSpam.push(AuthAttempts.create('127.0.0.2', randomUsername));
         }
         Promise.all(authSpam)
             .then(function () {

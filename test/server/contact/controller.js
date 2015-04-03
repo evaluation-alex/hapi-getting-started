@@ -1,8 +1,7 @@
 'use strict';
 let tu = require('./../testutils');
 let Fs = require('fs');
-//let expect = require('chai').expect;
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

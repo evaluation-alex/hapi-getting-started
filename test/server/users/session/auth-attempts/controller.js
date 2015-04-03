@@ -2,8 +2,7 @@
 let relativeToServer = './../../../../../server/';
 let AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
 var Promise = require('bluebird');
-//let expect = require('chai').expect;
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let tu = require('./../../../testutils');
 let lab = exports.lab = Lab.script();

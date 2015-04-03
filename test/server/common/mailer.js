@@ -3,8 +3,7 @@ let relativeToServer = './../../../server/';
 let relativeTo = './../../../';
 let Config = require(relativeTo + 'config');
 let Mailer = require(relativeToServer + 'common/plugins/mailer');
-//let expect = require('chai').expect;
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

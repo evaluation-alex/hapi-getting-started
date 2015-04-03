@@ -1,11 +1,10 @@
 'use strict';
 let relativeToServer = './../../../server/';
 let Users = require(relativeToServer + 'users/model');
-let Promise = require('bluebird');
+var Promise = require('bluebird');
 let moment = require('moment');
-//let expect = require('chai').expect;
 let tu = require('./../testutils');
-let Code = require('code');   // assertion library
+let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;

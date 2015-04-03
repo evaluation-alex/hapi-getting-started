@@ -1,18 +1,18 @@
 'use strict';
-var relativeToServer = './../../../../server/';
-var Promise = require('bluebird');
-var Notifications = require(relativeToServer + 'users/notifications/model');
-var Audit = require(relativeToServer + 'audit/model');
-//var expect = require('chai').expect;
-var tu = require('./../../testutils');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../../server/';
+let Promise = require('bluebird');
+let Notifications = require(relativeToServer + 'users/notifications/model');
+let Audit = require(relativeToServer + 'audit/model');
+//let expect = require('chai').expect;
+let tu = require('./../../testutils');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Notifications Model', function () {
     before(function (done) {
         tu.setupRolesAndUsers()
@@ -22,7 +22,7 @@ describe('Notifications Model', function () {
     });
     describe('Notifications.create', function () {
         it('should create a new document per user passed', function (done) {
-            var error = null;
+            let error = null;
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
             Notifications.create(['one', 'two', 'three'], 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test')
                 .then(function (notifications) {
@@ -42,11 +42,11 @@ describe('Notifications Model', function () {
         });
     });
     describe('Notifications.this.activate/deactivate', function () {
-        var activated = null, deactivated = null;
+        let activated = null, deactivated = null;
         before(function (done) {
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
-            var p1 = Notifications.create('activated', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');
-            var p2 = Notifications.create('deactivated', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');
+            let p1 = Notifications.create('activated', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');
+            let p2 = Notifications.create('deactivated', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');
             Promise.join(p1, p2, function (p11, p12) {
                 activated = p11;
                 deactivated = p12;
@@ -61,7 +61,7 @@ describe('Notifications Model', function () {
                 });
         });
         it('should do nothing if the notification is already inactive/active and you deactivate/activate', function (done) {
-            var error = null;
+            let error = null;
             activated.reactivate('test').save()
                 .then(function (a) {
                     expect(a.isActive).to.be.true();
@@ -89,7 +89,7 @@ describe('Notifications Model', function () {
                 });
         });
         it('should mark the notification as inactive / active when you deactivate / activate', function (done) {
-            var error = null;
+            let error = null;
             activated.deactivate('test').save()
                 .then(function (a) {
                     expect(a.isActive).to.be.false();
@@ -123,7 +123,7 @@ describe('Notifications Model', function () {
         });
     });
     describe('Notifications.this.setState', function () {
-        var testnotification = null;
+        let testnotification = null;
         before(function (done) {
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
             Notifications.create('setState', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test')
@@ -133,7 +133,7 @@ describe('Notifications Model', function () {
                 });
         });
         it('should do nothing if there is no change in the state', function (done) {
-            var error = null;
+            let error = null;
             testnotification.setState(testnotification.state, 'test').save()
                 .then(function (p) {
                     expect(p.state).to.equal('unread');
@@ -151,7 +151,7 @@ describe('Notifications Model', function () {
                 });
         });
         it('should update to the new state', function (done) {
-            var error = null;
+            let error = null;
             testnotification.setState('cancelled', 'test').save()
                 .then(function (p) {
                     expect(p.state).to.equal('cancelled');
@@ -175,7 +175,7 @@ describe('Notifications Model', function () {
     });
     describe('Notifications.this.i18n', function () {
         it('should update the field with the new localised strings and do nothing if alread localised', function (done) {
-            var error = null;
+            let error = null;
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
             Notifications.create('i18n', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', ['New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}', {
                 postTitle: 'test post',
@@ -183,7 +183,7 @@ describe('Notifications Model', function () {
                 publishedBy: 'test author'
             }], 'test')
                 .then(function (notification) {
-                    var localised = notification.i18n('en');
+                    let localised = notification.i18n('en');
                     expect(localised.content).to.equal('New Post test post in Blog test blog published by test author');
                     expect(localised.title).to.equal('titles dont matter');
                 })

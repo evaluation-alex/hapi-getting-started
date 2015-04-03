@@ -1,24 +1,24 @@
 'use strict';
-var relativeToServer = './../../../server/';
-//var expect = require('chai').expect;
-var CreateHandler = require(relativeToServer + 'common/handlers/create');
-var FindHandler = require(relativeToServer + 'common/handlers/find');
-var FindOneHandler = require(relativeToServer + 'common/handlers/find-one');
-var InsertAndAudit = require(relativeToServer + 'common/mixins/insert');
-var Promise = require('bluebird');
-var _ = require('lodash');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+let relativeToServer = './../../../server/';
+//let expect = require('chai').expect;
+let CreateHandler = require(relativeToServer + 'common/handlers/create');
+let FindHandler = require(relativeToServer + 'common/handlers/find');
+let FindOneHandler = require(relativeToServer + 'common/handlers/find-one');
+let InsertAndAudit = require(relativeToServer + 'common/mixins/insert');
+let Promise = require('bluebird');
+let _ = require('lodash');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let expect = Code.expect;
 describe('Handlers and Mixins', function () {
     it('create handler should log and boom errors when it encounters exceptions', function (done) {
-        var reply = function reply (args) {
+        let reply = function reply (args) {
             expect(args).to.be.an.instanceof(Error);
         };
-        var request = {
+        let request = {
             auth: {
                 credentials: {
                     user: {
@@ -27,19 +27,19 @@ describe('Handlers and Mixins', function () {
                 }
             }
         };
-        var Model = {
+        let Model = {
             newObject: function (request, by) {
                 expect(request).to.exist();
                 expect(by).to.equal('test');
                 return Promise.reject(new Error('test'));
             }
         };
-        var handler = new CreateHandler(Model, undefined, undefined);
+        let handler = new CreateHandler(Model, undefined, undefined);
         handler(request, reply);
         done();
     });
     it('find handler should log and boom errors when it encounters exceptions', function (done) {
-        var Model = {
+        let Model = {
             pagedFind: function (query, fields, sort, limit, page) {
                 expect(query).to.exist();
                 expect(fields).to.not.exist();
@@ -49,44 +49,44 @@ describe('Handlers and Mixins', function () {
                 return Promise.reject(new Error('test'));
             }
         };
-        var queryBuilder = function (request) {
+        let queryBuilder = function (request) {
             expect(request).to.exist();
             return {
                 organisation: '*'
             };
         };
-        var request = {
+        let request = {
             query: {}
         };
-        var reply = function reply (args) {
+        let reply = function reply (args) {
             expect(args).to.be.an.instanceof(Error);
         };
-        var handler = new FindHandler(Model, queryBuilder, undefined);
+        let handler = new FindHandler(Model, queryBuilder, undefined);
         handler(request, reply);
         done();
     });
     it('findOne handler should log and boom exceptions when it encounters exceptions', function (done) {
-        var Model = {
+        let Model = {
             collection: 'test'
         };
-        var request = {
+        let request = {
             pre: {
                 test: 'something'
             }
         };
-        var reply = function reply (args) {
+        let reply = function reply (args) {
             expect(args).to.be.an.instanceof(Error);
         };
-        var findOneCb = function (obj) {
+        let findOneCb = function (obj) {
             expect(obj).to.equal('test');
             return Promise.reject(new Error('test'));
         };
-        var handler = new FindOneHandler(Model, findOneCb);
+        let handler = new FindOneHandler(Model, findOneCb);
         handler(request, reply);
         done();
     });
     it('insertAndAudit should return a not created error when _insert fails', function (done) {
-        var obj = {
+        let obj = {
             insert: function (doc) {
                 expect(doc).to.exist();
                 return Promise.resolve(undefined);

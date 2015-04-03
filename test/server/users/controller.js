@@ -1,22 +1,22 @@
 'use strict';
-var relativeToServer = './../../../server/';
-var Users = require(relativeToServer + 'users/model');
-var Audit = require(relativeToServer + 'audit/model');
-var Mailer = require(relativeToServer + 'common/plugins/mailer');
-var Promise = require('bluebird');
-//var expect = require('chai').expect;
-var tu = require('./../testutils');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../server/';
+let Users = require(relativeToServer + 'users/model');
+let Audit = require(relativeToServer + 'audit/model');
+let Mailer = require(relativeToServer + 'common/plugins/mailer');
+let Promise = require('bluebird');
+//let expect = require('chai').expect;
+let tu = require('./../testutils');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Users', function () {
-    var server = null;
-    var emails = [];
+    let server = null;
+    let emails = [];
     before(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -38,14 +38,14 @@ describe('Users', function () {
             .done();
     });
     it('should send back a not authorized when user is not logged in', function (done) {
-        var authheader = '';
+        let authheader = '';
         tu.findAndLogin('test.users@test.api')
             .then(function (u) {
                 authheader = u.authheader;
                 return u.user.logout('test', 'test').save();
             })
             .then(function () {
-                var request = {
+                let request = {
                     method: 'GET',
                     url: '/users',
                     headers: {
@@ -63,11 +63,11 @@ describe('Users', function () {
             });
     });
     it('should send back a not authorized when user does not have permissions to view', function (done) {
-        var authheader = '';
+        let authheader = '';
         tu.findAndLogin('test.users@test.api', [])
             .then(function (u) {
                 authheader = u.authheader;
-                var request = {
+                let request = {
                     method: 'GET',
                     url: '/users',
                     headers: {
@@ -85,11 +85,11 @@ describe('Users', function () {
             });
     });
     it('should send back users when requestor has permissions and is authenticated, Users:GET /users', function (done) {
-        var authheader = '';
+        let authheader = '';
         tu.findAndLogin('one@first.com')
             .then(function (u) {
                 authheader = u.authheader;
-                var request = {
+                let request = {
                     method: 'GET',
                     url: '/users',
                     headers: {
@@ -108,7 +108,7 @@ describe('Users', function () {
             });
     });
     describe('GET /users', function () {
-        var authheader = '';
+        let authheader = '';
         before(function (done) {
             tu.findAndLogin('one@first.com')
                 .then(function (u) {
@@ -127,7 +127,7 @@ describe('Users', function () {
                 });
         });
         it('should give active users when isactive = true is sent', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/users?isActive="true"',
                 headers: {
@@ -146,7 +146,7 @@ describe('Users', function () {
             });
         });
         it('should give inactive users when isactive = false is sent', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/users?isActive="false"',
                 headers: {
@@ -165,7 +165,7 @@ describe('Users', function () {
             });
         });
         it('should give only the user whose email is sent in the parameter', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/users?email=one@first.com',
                 headers: {
@@ -185,7 +185,7 @@ describe('Users', function () {
             });
         });
         it('should return both inactive and active users when nothing is sent', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/users',
                 headers: {
@@ -210,8 +210,8 @@ describe('Users', function () {
         });
     });
     describe('GET /users/{id}', function () {
-        var authheader = '';
-        var id = '';
+        let authheader = '';
+        let id = '';
         before(function (done) {
             tu.findAndLogin('one@first.com')
                 .then(function (u) {
@@ -226,7 +226,7 @@ describe('Users', function () {
                 });
         });
         it('should only send back user with the id in params', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/users/' + id,
                 headers: {
@@ -245,7 +245,7 @@ describe('Users', function () {
             });
         });
         it('should send back not found when the user with the id in params is not found', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/users/abcdefabcdefabcdefabcdef',
                 headers: {
@@ -264,7 +264,7 @@ describe('Users', function () {
         it('should send back unauthorized if the id in the url and authenticated user are different', function (done) {
             Users.findOne({email: 'root'})
                 .then(function (u) {
-                    var request = {
+                    let request = {
                         method: 'GET',
                         url: '/users/' + u._id.toString(),
                         headers: {
@@ -283,8 +283,8 @@ describe('Users', function () {
         });
     });
     describe('PUT /users/{id}', function () {
-        var authheader = '';
-        var id = '';
+        let authheader = '';
+        let id = '';
         before(function (done) {
             tu.findAndLogin('root')
                 .then(function (u) {
@@ -299,7 +299,7 @@ describe('Users', function () {
                 });
         });
         it('should update is active, session should be deactivated and changes audited', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/users/' + id,
                 headers: {
@@ -329,7 +329,7 @@ describe('Users', function () {
             });
         });
         it('should update roles, session should be deactivated and changes audited', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/users/' + id,
                 headers: {
@@ -359,7 +359,7 @@ describe('Users', function () {
             });
         });
         it('should update password, session should be deactivated and changes audited', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/users/' + id,
                 headers: {
@@ -388,7 +388,7 @@ describe('Users', function () {
             });
         });
         it('should update roles, password and is active, session should be deactivated and all changes audited', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/users/' + id,
                 headers: {
@@ -420,7 +420,7 @@ describe('Users', function () {
             tu.findAndLogin('one@first.com')
                 .then(function (u) {
                     authheader = u.authheader;
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/users/' + id,
                         headers: {
@@ -443,7 +443,7 @@ describe('Users', function () {
                 });
         });
         it('should return not found if the user is not found', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/users/54d4430eed61ad701cc7a721',
                 headers: {
@@ -467,7 +467,7 @@ describe('Users', function () {
     });
     describe('POST /signup', function () {
         it('returns a conflict when you try to signup with user that already exists', function (done) {
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/signup',
                 payload: {
@@ -486,7 +486,7 @@ describe('Users', function () {
             });
         });
         it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records and default preferences are setup', function (done) {
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/signup',
                 payload: {
@@ -523,7 +523,7 @@ describe('Users', function () {
     });
     describe('POST /login/forgot', function () {
         it('returns an error when user does not exist', function (done) {
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/login/forgot',
                 payload: {
@@ -541,7 +541,7 @@ describe('Users', function () {
             });
         });
         it('successfully sends a reset password request', function (done) {
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/login/forgot',
                 payload: {
@@ -567,11 +567,11 @@ describe('Users', function () {
             });
         });
         it('gracefully handles errors and sends back boom message', function (done) {
-            var prev = Mailer.sendEmail;
+            let prev = Mailer.sendEmail;
             Mailer.sendEmail = function () {
                 return Promise.reject(new Error('test'));
             };
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/login/forgot',
                 payload: {
@@ -592,7 +592,7 @@ describe('Users', function () {
     });
     describe('POST /login/reset', function () {
         it('returns an error when user does not exist', function (done) {
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/login/reset',
                 payload: {
@@ -616,7 +616,7 @@ describe('Users', function () {
                     return foundUser.resetPasswordSent('test').save();
                 })
                 .then(function () {
-                    var request = {
+                    let request = {
                         method: 'POST',
                         url: '/login/reset',
                         payload: {
@@ -636,7 +636,7 @@ describe('Users', function () {
                 });
         });
         it('successfully sets a password, invalidates session and logs user out', function (done) {
-            var key = '';
+            let key = '';
             Users.findOne({email: 'test.users@test.api'})
                 .then(function (foundUser) {
                     return foundUser.resetPasswordSent('test').save();
@@ -645,7 +645,7 @@ describe('Users', function () {
                     key = foundUser.resetPwd.token;
                 })
                 .then(function () {
-                    var request = {
+                    let request = {
                         method: 'POST',
                         url: '/login/reset',
                         payload: {

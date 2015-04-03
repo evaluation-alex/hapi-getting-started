@@ -1,33 +1,33 @@
 'use strict';
-var relativeToServer = './../../../../server/';
-var Users = require(relativeToServer + 'users/model');
-var UserGroups = require(relativeToServer + 'user-groups/model');
-var Notifications = require(relativeToServer + 'users/notifications/model');
-var Blogs = require(relativeToServer + 'blogs/model');
-var Posts = require(relativeToServer + 'blogs/posts/model');
-var PostContent = require(relativeToServer + 'blogs/posts/post-content');
-var Audit = require(relativeToServer + 'audit/model');
-var Config = require(relativeToServer + '../config');
-var fs = require('fs');
-var _ = require('lodash');
-var moment = require('moment');
-var Promise = require('bluebird');
-//var expect = require('chai').expect;
-var tu = require('./../../testutils');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../../server/';
+let Users = require(relativeToServer + 'users/model');
+let UserGroups = require(relativeToServer + 'user-groups/model');
+let Notifications = require(relativeToServer + 'users/notifications/model');
+let Blogs = require(relativeToServer + 'blogs/model');
+let Posts = require(relativeToServer + 'blogs/posts/model');
+let PostContent = require(relativeToServer + 'blogs/posts/post-content');
+let Audit = require(relativeToServer + 'audit/model');
+let Config = require(relativeToServer + '../config');
+let fs = require('fs');
+let _ = require('lodash');
+let moment = require('moment');
+let Promise = require('bluebird');
+//let expect = require('chai').expect;
+let tu = require('./../../testutils');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Posts', function () {
-    var rootAuthHeader = null;
-    var server = null;
-    var blogsToClear = [];
-    var postsToClear = [];
-    var groupsToClear = [];
+    let rootAuthHeader = null;
+    let server = null;
+    let blogsToClear = [];
+    let postsToClear = [];
+    let groupsToClear = [];
     before(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -43,26 +43,26 @@ describe('Posts', function () {
             .done();
     });
     describe('GET /blogs/{blogId}/posts, GET /posts', function () {
-        var blogId = null;
+        let blogId = null;
         before(function (done) {
-            var b1 = Blogs.create('test GET /posts1', 'silver lining', 'test GET /blogs', null, null, null, null, false, 'public', true, 'test');
-            var b2 = Blogs.create('test GET /posts2 is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
+            let b1 = Blogs.create('test GET /posts1', 'silver lining', 'test GET /blogs', null, null, null, null, false, 'public', true, 'test');
+            let b2 = Blogs.create('test GET /posts2 is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
             Promise.join(b1, b2)
                 .then(function (b) {
-                    var b1 = b[0];
-                    var b2 = b[1];
+                    let b1 = b[0];
+                    let b2 = b[1];
                     blogId = b1._id;
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-                    var p1 = Posts.create(b1._id, 'silver lining', 'searchByTitle', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
-                    var p2 = Posts.create(b1._id, 'silver lining', 'searchByTitle2', 'published', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
-                    var p3 = Posts.create(b2._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, 'testing', ['testing', 'search testing'], [], 'test');
+                    let p1 = Posts.create(b1._id, 'silver lining', 'searchByTitle', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
+                    let p2 = Posts.create(b1._id, 'silver lining', 'searchByTitle2', 'published', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
+                    let p3 = Posts.create(b2._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, 'testing', ['testing', 'search testing'], [], 'test');
                     return Promise.join(p1, p2, p3);
                 })
                 .then(function (p) {
-                    var p1 = p[0];
-                    var p2 = p[1];
-                    var p3 = p[2];
-                    var pubDt = new Date();
+                    let p1 = p[0];
+                    let p2 = p[1];
+                    let p3 = p[2];
+                    let pubDt = new Date();
                     pubDt.setFullYear(2015, 1, 14);
                     p3.publishedOn = pubDt;
                     p2.isActive = false;
@@ -80,7 +80,7 @@ describe('Posts', function () {
                 });
         });
         it('should give posts when isactive = true is sent', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/posts?isActive="true"',
                 headers: {
@@ -90,7 +90,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     _.forEach(p.data, function (d) {
                         expect(d.isActive).to.be.true();
                     });
@@ -101,7 +101,7 @@ describe('Posts', function () {
             });
         });
         it('should give inactive posts when isactive = false is sent', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/posts?isActive="false"',
                 headers: {
@@ -111,7 +111,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     _.forEach(p.data, function (d) {
                         expect(d.isActive).to.be.false();
                     });
@@ -122,7 +122,7 @@ describe('Posts', function () {
             });
         });
         it('should give the posts where the title matches or partially matches the query', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/posts?title=search',
                 headers: {
@@ -132,10 +132,10 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
-                    var patt = /search/i;
+                    let p = JSON.parse(response.payload);
+                    let patt = /search/i;
                     _.forEach(p.data, function (d) {
-                        var match = false;
+                        let match = false;
                         match = match || patt.test(d.title);
                         expect(match).to.be.true();
                     });
@@ -146,7 +146,7 @@ describe('Posts', function () {
             });
         });
         it('should give the posts where any tag in the post matches or partially matches the query', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/posts?tag=controller',
                 headers: {
@@ -156,10 +156,10 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
-                    var patt = /controller/i;
+                    let p = JSON.parse(response.payload);
+                    let patt = /controller/i;
                     _.forEach(p.data, function (d) {
-                        var match = false;
+                        let match = false;
                         _.forEach(d.tags, function (t) {
                             match = match || patt.test(t);
                         });
@@ -172,7 +172,7 @@ describe('Posts', function () {
             });
         });
         it('should give all posts for a given blog', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/posts?blogId=' + blogId.toString(),
                 headers: {
@@ -182,7 +182,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     _.forEach(p.data, function (d) {
                         expect(d.blogId.toString()).to.equal(blogId.toString());
                     });
@@ -193,7 +193,7 @@ describe('Posts', function () {
             });
         });
         it('should give all posts for a given blog2', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/blogs/' + blogId.toString() + '/posts?isActive="true"',
                 headers: {
@@ -203,7 +203,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     _.forEach(p.data, function (d) {
                         expect(d.blogId.toString()).to.equal(blogId.toString());
                     });
@@ -214,7 +214,7 @@ describe('Posts', function () {
             });
         });
         it('should give all posts in a given time period', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/posts?publishedOnBefore=2015-02-15&publishedOnAfter=2015-02-13',
                 headers: {
@@ -224,7 +224,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     _.forEach(p.data, function (d) {
                         expect(moment(d.publishedOn).format('YYYYMMDD')).to.equal('20150214');
                     });
@@ -235,7 +235,7 @@ describe('Posts', function () {
             });
         });
         it('should give all posts in a given time period2', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/posts?publishedOnAfter=2015-02-13',
                 headers: {
@@ -245,7 +245,7 @@ describe('Posts', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     _.forEach(p.data, function (d) {
                         expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true();
                     });
@@ -265,8 +265,8 @@ describe('Posts', function () {
         });
     });
     describe('GET /blogs/{blogId}/posts/{id}, GET /posts/{id}', function () {
-        var id = '';
-        var blogId = '';
+        let id = '';
+        let blogId = '';
         before(function (done) {
             Blogs.create('test GET /blogs/{blogId}/posts/{id}', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(function (b) {
@@ -284,7 +284,7 @@ describe('Posts', function () {
                 });
         });
         it('should only send back post with the id in params', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/posts/' + id,
                 headers: {
@@ -304,7 +304,7 @@ describe('Posts', function () {
         });
         it('should only send back post with the id, blogId in params', function (done) {
             PostContent.resetCache();
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/blogs/' + blogId + '/posts/' + id,
                 headers: {
@@ -323,7 +323,7 @@ describe('Posts', function () {
             });
         });
         it('should send back not found when the post with the id in params is not found', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/posts/54d4430eed61ad701cc7a721',
                 headers: {
@@ -340,7 +340,7 @@ describe('Posts', function () {
             });
         });
         it('should send back not found when the post with the blogId, id in params is not found', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/blogs/54d4430eed61ad701cc7a721/posts/54d4430eed61ad701cc7a721',
                 headers: {
@@ -363,8 +363,8 @@ describe('Posts', function () {
         });
     });
     describe('PUT /blogs/{blogId}/posts/{id}, PUT /posts/{id}', function () {
-        var blogId = null;
-        var postId = null;
+        let blogId = null;
+        let postId = null;
         before(function (done) {
             Blogs.create('test PUT /blogs/{blogId}/posts/{id}', 'silver lining', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
@@ -381,7 +381,7 @@ describe('Posts', function () {
                 });
         });
         it('should send back not found error when you try to modify non existent posts', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/54d4430eed61ad701cc7a721/posts/54d4430eed61ad701cc7a721',
                 headers: {
@@ -398,7 +398,7 @@ describe('Posts', function () {
             });
         });
         it('should send back not found error when you try to modify non existent posts2', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/posts/54d4430eed61ad701cc7a721',
                 headers: {
@@ -415,8 +415,8 @@ describe('Posts', function () {
             });
         });
         it('should send back forbidden error when you try to modify a post of a blog you are not an owner of', function (done) {
-            var request = {};
-            var authHeader = '';
+            let request = {};
+            let authHeader = '';
             tu.findAndLogin('one@first.com', ['root'])
                 .then(function (u) {
                     authHeader = u.authheader;
@@ -441,7 +441,7 @@ describe('Posts', function () {
                 });
         });
         it('should activate posts and have changes audited', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/' + blogId + '/posts/' + postId,
                 headers: {
@@ -474,7 +474,7 @@ describe('Posts', function () {
             });
         });
         it('should deactivate posts and have changes audited', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/' + blogId + '/posts/' + postId,
                 headers: {
@@ -507,7 +507,7 @@ describe('Posts', function () {
             });
         });
         it('should add add/remove tags and have changes audited', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/' + blogId + '/posts/' + postId,
                 headers: {
@@ -542,7 +542,7 @@ describe('Posts', function () {
             });
         });
         it('should update content and have changes persisted on disk', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/' + blogId + '/posts/' + postId,
                 headers: {
@@ -557,8 +557,8 @@ describe('Posts', function () {
                     expect(response.statusCode).to.equal(200);
                     Posts.find({_id: Posts.ObjectID(postId)})
                         .then(function (found) {
-                            var filename = PostContent.filenameForPost(found[0]);
-                            var timeout = setTimeout(function () {
+                            let filename = PostContent.filenameForPost(found[0]);
+                            let timeout = setTimeout(function () {
                                 expect(fs.existsSync(Config.storage.diskPath + '/' + filename)).to.be.true();
                                 expect(fs.readFileSync(Config.storage.diskPath + '/' + filename, {}).toString()).to.equal('updated');
                                 done();
@@ -571,7 +571,7 @@ describe('Posts', function () {
             });
         });
         it('should update access, allowComments, needsReview and have changes audited', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/' + blogId + '/posts/' + postId,
                 headers: {
@@ -616,7 +616,7 @@ describe('Posts', function () {
                     return post.save();
                 })
                 .then(function () {
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId,
                         headers: {
@@ -643,7 +643,7 @@ describe('Posts', function () {
         });
     });
     describe('PUT /blogs/{blogId}/posts/{id}/publish', function () {
-        var blogId = null;
+        let blogId = null;
         before(function (done) {
             Blogs.create('test PUT /blogs/{blogId}/posts/{id}/publish', 'silver lining', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/publish'], false, 'public', true, 'test')
                 .then(function (b) {
@@ -661,14 +661,14 @@ describe('Posts', function () {
                 });
         });
         it('should publish draft / pending review posts', function (done) {
-            var postId = null;
+            let postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
@@ -697,7 +697,7 @@ describe('Posts', function () {
                                 })
                                 .then(function () {
                                     //because the events from the controller may not be complete
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
@@ -723,14 +723,14 @@ describe('Posts', function () {
                 });
         });
         it('should allow root to publish draft / pending review posts', function (done) {
-            var postId = null;
+            let postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
                     return tu.findAndLogin('root');
                 })
                 .then(function (u) {
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
@@ -759,7 +759,7 @@ describe('Posts', function () {
                                 })
                                 .then(function () {
                                     //because the events from the controller may not be complete
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
@@ -785,7 +785,7 @@ describe('Posts', function () {
                 });
         });
         it('should fail to publish draft / pending review posts if user is not an owner/contributor of the blog', function (done) {
-            var postId = null;
+            let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
@@ -797,7 +797,7 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
@@ -825,7 +825,7 @@ describe('Posts', function () {
                 });
         });
         it('should move draft to pending review posts if user is contributor, but not owner of the blog', function (done) {
-            var postId = null;
+            let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
@@ -837,7 +837,7 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
@@ -860,7 +860,7 @@ describe('Posts', function () {
                                 })
                                 .then(function () {
                                     //because the events from the controller may not be complete
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
@@ -886,7 +886,7 @@ describe('Posts', function () {
                 });
         });
         it('should move draft to published posts if user is contributor, and needsReview is false', function (done) {
-            var postId = null;
+            let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, false, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
@@ -898,7 +898,7 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
@@ -921,7 +921,7 @@ describe('Posts', function () {
                                 })
                                 .then(function () {
                                     //because the events from the controller may not be complete
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId)
@@ -947,7 +947,7 @@ describe('Posts', function () {
                 });
         });
         it('should do nothing if the post is already published / archived', function (done) {
-            var postId = null;
+            let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test PUT publish', 'archived', 'restricted', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
@@ -959,7 +959,7 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
                         headers: {
@@ -995,7 +995,7 @@ describe('Posts', function () {
         });
     });
     describe('PUT /blogs/{blogId}/posts/{id}/reject', function () {
-        var blogId = null;
+        let blogId = null;
         before(function (done) {
             Blogs.create('test PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/reject'], false, 'public', true, 'test')
                 .then(function (b) {
@@ -1013,7 +1013,7 @@ describe('Posts', function () {
                 });
         });
         it('should update reject draft / pending review posts and cancel review notifications', function (done) {
-            var postId = null;
+            let postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
@@ -1024,8 +1024,8 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
                         headers: {
@@ -1047,7 +1047,7 @@ describe('Posts', function () {
                                     tu.cleanupAudit();
                                 })
                                 .then(function () {
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'posts',
                                             objectId: Posts.ObjectID(postId),
@@ -1074,7 +1074,7 @@ describe('Posts', function () {
                 });
         });
         it('should fail reject draft / pending review posts if user is not an owner of the blog', function (done) {
-            var postId = null;
+            let postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
@@ -1085,8 +1085,8 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
                         headers: {
@@ -1114,7 +1114,7 @@ describe('Posts', function () {
                 });
         });
         it('should do nothing if the post is already published / archived', function (done) {
-            var postId = null;
+            let postId = null;
             Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function (p) {
                     postId = p._id.toString();
@@ -1129,8 +1129,8 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
                         headers: {
@@ -1165,7 +1165,7 @@ describe('Posts', function () {
         });
     });
     describe('POST /blogs/{blogId}/posts', function () {
-        var blogId = null;
+        let blogId = null;
         before(function (done) {
             Blogs.create('test POST /blogs/{blogId}/posts', 'silver lining', 'test POST /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
                 .then(function (blog) {
@@ -1180,7 +1180,7 @@ describe('Posts', function () {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'test POST unique', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
                 .then(function () {
-                    var request = {
+                    let request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
@@ -1214,8 +1214,8 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
@@ -1253,8 +1253,8 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
@@ -1277,8 +1277,8 @@ describe('Posts', function () {
                                 .then(function (found) {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('published');
-                                    var filename = PostContent.filenameForPost(found[0]);
-                                    var timeout = setTimeout(function () {
+                                    let filename = PostContent.filenameForPost(found[0]);
+                                    let timeout = setTimeout(function () {
                                         expect(fs.existsSync(Config.storage.diskPath + '/' + filename)).to.be.true();
                                         expect(fs.readFileSync(Config.storage.diskPath + '/' + filename, {}).toString()).to.equal('something. anything will do.');
                                         clearTimeout(timeout);
@@ -1303,8 +1303,8 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
@@ -1347,8 +1347,8 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
@@ -1391,8 +1391,8 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
@@ -1437,8 +1437,8 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'POST',
                         url: '/blogs/' + blogId + '/posts',
                         headers: {
@@ -1482,7 +1482,7 @@ describe('Posts', function () {
     });
     describe('DELETE /blogs/{blogId}/posts/{id}', function () {
         it('should send back not found error when you try to modify a non existent post', function (done) {
-            var request = {
+            let request = {
                 method: 'DELETE',
                 url: '/blogs/54d4430eed61ad701cc7a721/posts/54d4430eed61ad701cc7a721',
                 headers: {
@@ -1499,10 +1499,10 @@ describe('Posts', function () {
             });
         });
         it('should send back forbidden error when you try to delete a post from a blog you are not an owner of', function (done) {
-            var request = {};
-            var authHeader = '';
-            var blogId = '';
-            var postId = '';
+            let request = {};
+            let authHeader = '';
+            let blogId = '';
+            let postId = '';
             Blogs.create('testDelPostNotOwner', 'silver lining', 'test DELETE /posts', [], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     blogId = b._id.toString();
@@ -1514,7 +1514,7 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
+                    let authHeader = u.authheader;
                     request = {
                         method: 'DELETE',
                         url: '/blogs/' + blogId + '/posts/' + postId,
@@ -1537,8 +1537,8 @@ describe('Posts', function () {
                 });
         });
         it('should deactivate blog and have changes audited', function (done) {
-            var blogId = '';
-            var postId = '';
+            let blogId = '';
+            let postId = '';
             Blogs.create('testDelPost', 'silver lining', 'test DELETE /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     blogId = b._id.toString();
@@ -1550,8 +1550,8 @@ describe('Posts', function () {
                     return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'DELETE',
                         url: '/blogs/' + blogId + '/posts/' + postId,
                         headers: {

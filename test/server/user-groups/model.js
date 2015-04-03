@@ -1,19 +1,19 @@
 'use strict';
-var relativeToServer = './../../../server/';
-var UserGroups = require(relativeToServer + 'user-groups/model');
-var Audit = require(relativeToServer + 'audit/model');
-//var expect = require('chai').expect;
-var tu = require('./../testutils');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../server/';
+let UserGroups = require(relativeToServer + 'user-groups/model');
+let Audit = require(relativeToServer + 'audit/model');
+//let expect = require('chai').expect;
+let tu = require('./../testutils');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('UserGroups Model', function () {
-    var groupsToCleanup = [];
+    let groupsToCleanup = [];
     before(function (done) {
         tu.setupRolesAndUsers()
             .then(function () {
@@ -22,7 +22,7 @@ describe('UserGroups Model', function () {
     });
     describe('UserGroups.create', function () {
         it('should create a new document when it succeeds, the creator should be owner and member and have appropriate audit entries', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('test.group@test.api', 'silver lining', 'creating groups', 'test')
                 .then(function (userGroup) {
                     expect(userGroup).to.exist();
@@ -48,7 +48,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should not allow two groups with the name', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('test.dupe@test.api', 'silver lining', 'testing dupes', 'test')
                 .then(function () {
                     return UserGroups.create('test.dupe@test.api', 'silver lining', 'testing dupes', 'test')
@@ -72,7 +72,7 @@ describe('UserGroups Model', function () {
     });
     describe('UserGroups.areValid', function () {
         it('should return empty array when nothing is sent', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.areValid([], 'silver lining')
                 .then(function (result) {
                     expect(result).to.be.empty();
@@ -86,7 +86,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should return an object with as many entries as names sent, appropriately populated', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('test UserGroups.areValid', 'silver lining', 'test', 'test')
                 .then(function () {
                     return UserGroups.areValid(['test UserGroups.areValid', 'bogus'], 'silver lining');
@@ -108,7 +108,7 @@ describe('UserGroups Model', function () {
     });
     describe('UserGroups.this.addUsers', function () {
         it('should do nothing if the user is already present as a member and you add user as a member', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('addUsersTest1', 'silver lining', 'UserGroups.this.addMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
                     ug.members.push('alreadyMember');
@@ -134,7 +134,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should do nothing if the user is already present as a owner and you add user as a owner', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('addUsersTest2', 'silver lining', 'UserGroups.this.addOwnerAlreadyPresent', 'test3')
                 .then(function (ug) {
                     ug.owners.push('alreadyOwner');
@@ -160,7 +160,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should do nothing if the user is already present as owner AND member and you add as owner AND member', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('addUsersTest3', 'silver lining', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
                 .then(function (ug) {
                     return ug.add(['test3'], 'owners', 'test4').add(['test3'], 'members', 'test4').save();
@@ -186,7 +186,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should add the user as a owner who was not already present and added with the owner role', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('addUsersTest4', 'silver lining', 'UserGroups.this.addOwnerNotPresent', 'test3')
                 .then(function (ug) {
                     return ug.add(['newOwner'], 'owners', 'test3').save();
@@ -210,7 +210,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should add the user as a member who was not already present and added with the member role', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('addUsersTest5', 'silver lining', 'UserGroups.this.addMemberNotPresent', 'test3')
                 .then(function (ug) {
                     return ug.add(['newMember'], 'members', 'test3').save();
@@ -234,7 +234,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should add the user as a member and owner who was not already present and added with the member and owner / both role', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('addUsersTest6.0', 'silver lining', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
                 .then(function (ug) {
                     return ug.add(['newMemberOwner'], 'owners', 'test3').add(['newMemberOwner'], 'members', 'test3').save();
@@ -278,7 +278,7 @@ describe('UserGroups Model', function () {
     });
     describe('UserGroups.this.removeUsers', function () {
         it('should do nothing if the user is not already present as a member and you remove user as a member', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('removeUsersTest1', 'silver lining', 'UserGroups.this.removeMemberNotPresent', 'test4')
                 .then(function (ug) {
                     ug.owners.push('notMemberButOwner');
@@ -307,7 +307,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should do nothing if the user is not already present as a owner and you remove user as a owner', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('removeUsersTest2', 'silver lining', 'UserGroups.this.removeOwnerNotPresent', 'test4')
                 .then(function (ug) {
                     ug.members.push('notOwnerButMember');
@@ -336,7 +336,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should do nothing if the user is not present as owner OR member and you remove as owner AND member', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('removeUsersTest3', 'UserGroups.this.removeBothNotPresent', 'test4')
                 .then(function (ug) {
                     expect(ug.isMemberOf('members', 'neither')).to.be.false();
@@ -361,7 +361,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should remove the users owner role if already present the owner role', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('removeUsersTest4.0', 'silver lining', 'UserGroups.this.removeOwner', 'test4')
                 .then(function (ug) {
                     ug.owners.push('owners');
@@ -392,7 +392,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should deactivate the user as a member if already present with the member role', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('removeUsersTest5.0', 'silver lining', 'UserGroups.this.removeMember', 'test4')
                 .then(function (ug) {
                     ug.members.push('members');
@@ -425,7 +425,7 @@ describe('UserGroups Model', function () {
     });
     describe('UserGroups.this.activate/deactivate', function () {
         it('should do nothing if the user group is already inactive/active and you deactivate/activate', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('activateGroupDoNothing', 'silver lining', 'UserGroups.this.activate', 'test5')
                 .then(function (ug) {
                     return ug.reactivate('test5').save();
@@ -465,7 +465,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should mark the group as inactive / active when you deactivate / activate', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('deactivateGroup', 'silver lining', 'UserGroups.this.deactivate', 'test5')
                 .then(function (ug) {
                     return ug.deactivate('test5').save();
@@ -509,7 +509,7 @@ describe('UserGroups Model', function () {
     });
     describe('UserGroups.this.setDescription', function () {
         it('should do nothing if there is no change in the description', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('updateDesc1', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
                 .then(function (ug) {
                     return ug.setDescription(ug.description, 'test6').save();
@@ -531,7 +531,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should update to the new description', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('updateDesc2', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
                 .then(function (ug) {
                     return ug.setDescription(ug.description + 'new', 'test6').save();
@@ -556,7 +556,7 @@ describe('UserGroups Model', function () {
     });
     describe('UserGroups.this.setAccess', function () {
         it('should do nothing if there is no change in the access', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('updateAccess1', 'silver lining', 'UserGroups.this.setAccess', 'test6')
                 .then(function (ug) {
                     return ug.setAccess('restricted', 'test6').save();
@@ -578,7 +578,7 @@ describe('UserGroups Model', function () {
                 });
         });
         it('should update to the new access control', function (done) {
-            var error = null;
+            let error = null;
             UserGroups.create('updateAccess2', 'silver lining', 'UserGroups.this.setAccess', 'test6')
                 .then(function (ug) {
                     return ug.setAccess('public', 'test6').save();

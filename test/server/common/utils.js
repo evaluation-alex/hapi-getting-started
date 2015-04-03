@@ -1,17 +1,17 @@
 'use strict';
-var relativeToServer = './../../../server/';
-//var expect = require('chai').expect;
-var utils = require(relativeToServer + '/common/utils');
-var Config = require(relativeToServer + '../config');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+let relativeToServer = './../../../server/';
+//let expect = require('chai').expect;
+let utils = require(relativeToServer + '/common/utils');
+let Config = require(relativeToServer + '../config');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let expect = Code.expect;
 describe('Utils', function () {
     it('should log when errback called with', function (done) {
-        var prev = Config.logger;
+        let prev = Config.logger;
         Config.logger = {
             error: function (args) {
                 expect(args.error).to.be.an.instanceof(Error);
@@ -22,7 +22,7 @@ describe('Utils', function () {
         done();
     });
     it('should do nothing when no error passed', function (done) {
-        var prev = Config.logger;
+        let prev = Config.logger;
         Config.logger = {
             error: function () {
                 expect(true).to.be.false();

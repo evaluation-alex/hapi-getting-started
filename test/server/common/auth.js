@@ -1,22 +1,22 @@
 'use strict';
-var relativeToServer = './../../../server/';
-var Users = require(relativeToServer + 'users/model');
-var Promise = require('bluebird');
-var moment = require('moment');
-//var expect = require('chai').expect;
-var tu = require('./../testutils');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../server/';
+let Users = require(relativeToServer + 'users/model');
+let Promise = require('bluebird');
+let moment = require('moment');
+//let expect = require('chai').expect;
+let tu = require('./../testutils');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Auth', function () {
-    var server;
-    var email = 'test.auth@plugin.auth';
-    var authheader;
+    let server;
+    let email = 'test.auth@plugin.auth';
+    let authheader;
     before(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -55,7 +55,7 @@ describe('Auth', function () {
                 });
             }
         });
-        var request = {
+        let request = {
             method: 'GET',
             url: '/',
             headers: {
@@ -82,7 +82,7 @@ describe('Auth', function () {
                 });
             }
         });
-        var request = {
+        let request = {
             method: 'GET',
             url: '/0',
             headers: {
@@ -109,7 +109,7 @@ describe('Auth', function () {
                 });
             }
         });
-        var request = {
+        let request = {
             method: 'GET',
             url: '/1',
             headers: {
@@ -141,7 +141,7 @@ describe('Auth', function () {
                 return user.logout('test', 'test').save();
             })
             .then(function () {
-                var request = {
+                let request = {
                     method: 'GET',
                     url: '/2',
                     headers: {
@@ -177,7 +177,7 @@ describe('Auth', function () {
                 return user.save();
             })
             .then(function () {
-                var request = {
+                let request = {
                     method: 'GET',
                     url: '/5',
                     headers: {
@@ -206,11 +206,11 @@ describe('Auth', function () {
                 });
             }
         });
-        var prev = Users.findBySessionCredentials;
+        let prev = Users.findBySessionCredentials;
         Users.findBySessionCredentials = function () {
             return Promise.reject(new Error('test'));
         };
-        var request = {
+        let request = {
             method: 'GET',
             url: '/6',
             headers: {

@@ -1,24 +1,24 @@
 'use strict';
-var relativeToServer = './../../../../server/';
-var relativeTo = './../../../../';
-var Config = require(relativeTo + 'config');
-var Users = require(relativeToServer + 'users/model');
-var Audit = require(relativeToServer + 'audit/model');
-var Promise = require('bluebird');
-var AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
-//var expect = require('chai').expect;
-var tu = require('./../../testutils');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../../server/';
+let relativeTo = './../../../../';
+let Config = require(relativeTo + 'config');
+let Users = require(relativeToServer + 'users/model');
+let Audit = require(relativeToServer + 'audit/model');
+let Promise = require('bluebird');
+let AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
+//let expect = require('chai').expect;
+let tu = require('./../../testutils');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Session', function () {
-    var server = null;
-    var emails = [];
+    let server = null;
+    let emails = [];
     before(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -39,14 +39,14 @@ describe('Session', function () {
     });
     describe('POST /session', function () {
         it('returns early when abuse is detected', function (done) {
-            var authAttemptsConfig = Config.authAttempts;
-            var authSpam = [];
-            for (var i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
+            let authAttemptsConfig = Config.authAttempts;
+            let authSpam = [];
+            for (let i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
                 authSpam.push(AuthAttempts.create('test', 'test.users@test.api'));
             }
             Promise.all(authSpam)
                 .then(function () {
-                    var request = {
+                    let request = {
                         method: 'POST',
                         url: '/session',
                         payload: {
@@ -66,7 +66,7 @@ describe('Session', function () {
                 });
         });
         it('returns an error when you pass incorrect credentials', function (done) {
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/session',
                 payload: {
@@ -93,7 +93,7 @@ describe('Session', function () {
             });
         });
         it('returns an error when you pass non existent user', function (done) {
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/session',
                 payload: {
@@ -111,7 +111,7 @@ describe('Session', function () {
             });
         });
         it('returns a session successfully', function (done) {
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/session',
                 payload: {
@@ -137,7 +137,7 @@ describe('Session', function () {
     });
     describe('DELETE /session', function () {
         it('returns an error when no authorization is passed', function (done) {
-            var request = {
+            let request = {
                 method: 'DELETE',
                 url: '/session'
             };
@@ -151,7 +151,7 @@ describe('Session', function () {
             });
         });
         it('returns a not found when user does not exist', function (done) {
-            var request = {
+            let request = {
                 method: 'DELETE',
                 url: '/session',
                 headers: {
@@ -170,7 +170,7 @@ describe('Session', function () {
             });
         });
         it('returns a not found when user has already logged out', function (done) {
-            var request = {
+            let request = {
                 method: 'DELETE',
                 url: '/session',
                 headers: {
@@ -200,7 +200,7 @@ describe('Session', function () {
         it('removes the authenticated user session successfully', function (done) {
             tu.findAndLogin('one@first.com')
                 .then(function (u) {
-                    var request = {
+                    let request = {
                         method: 'DELETE',
                         url: '/session',
                         headers: {

@@ -1,16 +1,16 @@
 'use strict';
-var tu = require('./../testutils');
-var Fs = require('fs');
-//var expect = require('chai').expect;
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var expect = Code.expect;
+let tu = require('./../testutils');
+let Fs = require('fs');
+//let expect = require('chai').expect;
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let expect = Code.expect;
 describe('Contact', function () {
-    var server;
+    let server;
     before(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -26,7 +26,7 @@ describe('Contact', function () {
     });
     it('returns an error when send email fails', function (done) {
         Fs.renameSync('./server/contact/contact.hbs.md', './server/contact/contact2.hbs.md');
-        var request = {
+        let request = {
             method: 'POST',
             url: '/contact',
             payload: {
@@ -46,7 +46,7 @@ describe('Contact', function () {
         });
     });
     it('returns success after sending an email', function (done) {
-        var request = {
+        let request = {
             method: 'POST',
             url: '/contact',
             payload: {

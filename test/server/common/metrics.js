@@ -1,15 +1,15 @@
 'use strict';
-var relativeToServer = './../../../server/';
-var Hapi = require('hapi');
-var MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
-//var expect = require('chai').expect;
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
+let relativeToServer = './../../../server/';
+let Hapi = require('hapi');
+let MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
+//let expect = require('chai').expect;
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
 describe('Metrics', function () {
-    var server = null;
+    let server = null;
     before(function (done) {
         server = new Hapi.Server();
         server.connection({
@@ -17,10 +17,10 @@ describe('Metrics', function () {
             port: 8085,
             routes: {cors: true}
         });
-        var get = function (request, reply) {
+        let get = function (request, reply) {
             reply('Success!');
         };
-        var err = function (request, reply) {
+        let err = function (request, reply) {
             reply(new Error());
         };
         server.route({method: 'GET', path: '/', handler: get});

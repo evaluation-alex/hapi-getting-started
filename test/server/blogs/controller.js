@@ -1,26 +1,26 @@
 'use strict';
-var relativeToServer = './../../../server/';
-var Users = require(relativeToServer + 'users/model');
-var Blogs = require(relativeToServer + 'blogs/model');
-var UserGroups = require(relativeToServer + 'user-groups/model');
-var Audit = require(relativeToServer + 'audit/model');
-var Notifications = require(relativeToServer + 'users/notifications/model');
-var _ = require('lodash');
-//var expect = require('chai').expect;
-var tu = require('./../testutils');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../server/';
+let Users = require(relativeToServer + 'users/model');
+let Blogs = require(relativeToServer + 'blogs/model');
+let UserGroups = require(relativeToServer + 'user-groups/model');
+let Audit = require(relativeToServer + 'audit/model');
+let Notifications = require(relativeToServer + 'users/notifications/model');
+let _ = require('lodash');
+//let expect = require('chai').expect;
+let tu = require('./../testutils');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Blogs', function () {
-    var rootAuthHeader = null;
-    var server = null;
-    var blogsToClear = [];
-    var groupsToClear = [];
+    let rootAuthHeader = null;
+    let server = null;
+    let blogsToClear = [];
+    let groupsToClear = [];
     before(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -48,7 +48,7 @@ describe('Blogs', function () {
                 });
         });
         it('should give blogs when isactive = true is sent', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/blogs?isActive="true"',
                 headers: {
@@ -58,7 +58,7 @@ describe('Blogs', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     _.forEach(p.data, function (d) {
                         expect(d.isActive).to.be.true();
                     });
@@ -69,7 +69,7 @@ describe('Blogs', function () {
             });
         });
         it('should give inactive blogs when isactive = false is sent', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/blogs?isActive="false"',
                 headers: {
@@ -79,7 +79,7 @@ describe('Blogs', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     _.forEach(p.data, function (d) {
                         expect(d.isActive).to.be.false();
                     });
@@ -90,7 +90,7 @@ describe('Blogs', function () {
             });
         });
         it('should give the blogs where the user sent is a member of the owners list', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/blogs?owner=owner1',
                 headers: {
@@ -100,10 +100,10 @@ describe('Blogs', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
-                    var patt = /owner1/i;
+                    let p = JSON.parse(response.payload);
+                    let patt = /owner1/i;
                     _.forEach(p.data, function (d) {
-                        var match = false;
+                        let match = false;
                         _.find(d.owners, function (u) {
                             match = match || patt.test(u);
                         });
@@ -116,7 +116,7 @@ describe('Blogs', function () {
             });
         });
         it('should return both inactive and active blogs when nothing is sent', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/blogs',
                 headers: {
@@ -139,7 +139,7 @@ describe('Blogs', function () {
         });
     });
     describe('GET /blogs/{id}', function () {
-        var id = '';
+        let id = '';
         before(function (done) {
             Blogs.create('test GET /blogs/id', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(function (p) {
@@ -148,7 +148,7 @@ describe('Blogs', function () {
                 });
         });
         it('should only send back blog with the id in params', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/blogs/' + id,
                 headers: {
@@ -166,7 +166,7 @@ describe('Blogs', function () {
             });
         });
         it('should send back not found when the blog with the id in params is not found', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/blogs/54d4430eed61ad701cc7a721',
                 headers: {
@@ -189,7 +189,7 @@ describe('Blogs', function () {
     });
     describe('PUT /blogs/{id}', function () {
         it('should send back not found error when you try to modify non existent blogs', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/54d4430eed61ad701cc7a721',
                 headers: {
@@ -208,8 +208,8 @@ describe('Blogs', function () {
         it('should send back error if any of the users to be added are not valid', function (done) {
             Blogs.create('test PUT /blogs invalidusers', 'silver lining', 'test PUT /blogs invalidusers', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
                         headers: {
@@ -236,8 +236,8 @@ describe('Blogs', function () {
         it('should send back error if any of the groups to be added are not valid', function (done) {
             Blogs.create('test PUT /blogs invalidgroups', 'silver lining', 'test PUT /blogs invalidgroups', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
                         headers: {
@@ -262,9 +262,9 @@ describe('Blogs', function () {
                 .done();
         });
         it('should send back forbidden error when you try to modify a blog you are not an owner of', function (done) {
-            var request = {};
-            var authHeader = '';
-            var id = '';
+            let request = {};
+            let authHeader = '';
+            let id = '';
             Blogs.create('testPutBlogNotOwner', 'silver lining', 'test PUT /blogs not owner', [], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
@@ -299,8 +299,8 @@ describe('Blogs', function () {
                 .then(function (p) {
                     p.isActive = false;
                     p.save();
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
                         headers: {
@@ -336,8 +336,8 @@ describe('Blogs', function () {
         it('should deactivate blogs and have changes audited', function (done) {
             Blogs.create('test PUT /blogs isActive=false', 'silver lining', 'test PUT /blogs isActive=false', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
                         headers: {
@@ -376,8 +376,8 @@ describe('Blogs', function () {
                     return Blogs.create('test PUT /blogs add subscribers and subscriber groups', 'silver lining', 'test PUT /blogs add subscribers and subscriber groups', [], [], [], [], false, 'public', true, 'test');
                 })
                 .then(function (p) {
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
                         headers: {
@@ -418,8 +418,8 @@ describe('Blogs', function () {
         it('should remove subscribers / subscriber groups and have changes audited', function (done) {
             Blogs.create('test PUT /blogs remove subscribers and sub groups', 'silver lining', 'test PUT /blogs remove subscribers and sub groups', [], [], ['toRemove'], ['toRemove'], false, 'public', true, 'test')
                 .then(function (p) {
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
                         headers: {
@@ -456,8 +456,8 @@ describe('Blogs', function () {
                 .done();
         });
         it('should add/remove subscribers / owners and have changes audited and notifications sent to owners', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('test PUT /blogs add remove subscribers and owners', 'silver lining', 'test PUT /blogs add remove subscribers and owners', ['one@first.com'], [], ['root'], [], false, 'public', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
@@ -496,7 +496,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[3].action).to.match(/add|remove/);
                                 })
                                 .then(function () {
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id)
@@ -529,8 +529,8 @@ describe('Blogs', function () {
         it('should update description and have changes audited', function (done) {
             Blogs.create('test PUT /blogs update desc', 'silver lining', 'test PUT /blogs update desc', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
                         headers: {
@@ -568,8 +568,8 @@ describe('Blogs', function () {
         it('should update access and have changes audited', function (done) {
             Blogs.create('test PUT /blogs access', 'silver lining', 'test PUT /blogs access', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
                         headers: {
@@ -605,8 +605,8 @@ describe('Blogs', function () {
         it('should update needsReview and have changes audited', function (done) {
             Blogs.create('test PUT /blogs needsReview', 'silver lining', 'test PUT /blogs needsReview', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
                         headers: {
@@ -642,8 +642,8 @@ describe('Blogs', function () {
         it('should update allowComments and have changes audited', function (done) {
             Blogs.create('test PUT /blogs allowComments', 'silver lining', 'test PUT /blogs allowComments', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
                         headers: {
@@ -679,7 +679,7 @@ describe('Blogs', function () {
     });
     describe('PUT /blogs/{id}/subscribe', function () {
         it('should send back not found error when you try to join a non existent blog', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/join',
                 headers: {
@@ -698,15 +698,15 @@ describe('Blogs', function () {
             });
         });
         it('should add user who has joined to the needsApproval list and create notifications for all the owners to approve', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('testPutSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
+                    let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/join',
@@ -728,7 +728,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
                                 })
                                 .then(function () {
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id),
@@ -756,15 +756,15 @@ describe('Blogs', function () {
                 });
         });
         it('should add to members if the group access is public and have changes audited and notifications sent to owners as fyi', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('testPutSubscribePublicGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
+                    let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/join',
@@ -786,7 +786,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
                                 })
                                 .then(function () {
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id),
@@ -817,7 +817,7 @@ describe('Blogs', function () {
     });
     describe('PUT /blogs/{id}/unsubscribe', function () {
         it('should send back not found error when you try to leave a non existent blog', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/leave',
                 headers: {
@@ -836,15 +836,15 @@ describe('Blogs', function () {
             });
         });
         it('should send an error when user leaving is not a subscriber', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('testPutUnSubscribeGroupNotPart', 'silver lining', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
+                    let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/leave',
@@ -865,15 +865,15 @@ describe('Blogs', function () {
                 });
         });
         it('should remove user from subscribers list and create notifications for all the owners', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('testPutUnSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], ['one@first.com'], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
+                    let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/leave',
@@ -895,7 +895,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[0].action).to.match(/remove subscriber/);
                                 })
                                 .then(function () {
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id),
@@ -925,7 +925,7 @@ describe('Blogs', function () {
     });
     describe('PUT /blogs/{id}/approve', function () {
         it('should send back not found error when you try to approve a non existent blog', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/approve',
                 headers: {
@@ -944,11 +944,11 @@ describe('Blogs', function () {
             });
         });
         it('should send back error if any of the users being approved to subscribe are not valid', function (done) {
-            var id = '';
+            let id = '';
             Blogs.create('testBlogUserExistPUTApprove', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/approve',
                         headers: {
@@ -971,8 +971,8 @@ describe('Blogs', function () {
                 });
         });
         it('should add users who have been approved to the subscribers list and cancel the approval notifications for that user only', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('testBlogPutApproveAddUser', 'silver lining', 'test PUT /blogs/approve', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
@@ -1012,7 +1012,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
                                 })
                                 .then(function () {
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id),
@@ -1042,8 +1042,8 @@ describe('Blogs', function () {
                 });
         });
         it('should do nothing if the approved list is empty', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('testBlogPutApproveAddUserEmpty', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
@@ -1083,8 +1083,8 @@ describe('Blogs', function () {
                 });
         });
         it('should send error if the user approving is not an owner of the blog', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('testPutApproveBlogNotOwner', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
@@ -1094,7 +1094,7 @@ describe('Blogs', function () {
                     return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
+                    let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/approve',
@@ -1130,7 +1130,7 @@ describe('Blogs', function () {
     });
     describe('PUT /blogs/{id}/reject', function () {
         it('should send back not found error when you try to reject a non existent blog', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/reject',
                 headers: {
@@ -1149,11 +1149,11 @@ describe('Blogs', function () {
             });
         });
         it('should send back error if any of the users being rejected to join are not valid', function (done) {
-            var id = '';
+            let id = '';
             Blogs.create('testBlogUserExistPUTReject', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/reject',
                         headers: {
@@ -1176,8 +1176,8 @@ describe('Blogs', function () {
                 });
         });
         it('should remove users who have been rejected from the needsApproval list and cancel the approval notifications', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('testPutRejectBlogAddUser', 'silver lining', 'test PUT /blogs/reject', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
@@ -1212,7 +1212,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
                                 })
                                 .then(function () {
-                                    var ct = setTimeout(function () {
+                                    let ct = setTimeout(function () {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id),
@@ -1243,8 +1243,8 @@ describe('Blogs', function () {
                 });
         });
         it('should do nothing if the reject list is empty', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('testPutRejectBlogAddUserEmpty', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
@@ -1283,8 +1283,8 @@ describe('Blogs', function () {
                 });
         });
         it('should send error if the user rejecting is not an owner of the blog', function (done) {
-            var request = {};
-            var id = '';
+            let request = {};
+            let id = '';
             Blogs.create('testPutRejectBlogNotOwner', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
@@ -1294,7 +1294,7 @@ describe('Blogs', function () {
                     return tu.findAndLogin('one@first.com', ['root']);
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
+                    let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/reject',
@@ -1328,7 +1328,7 @@ describe('Blogs', function () {
         it('should send back conflict when you try to create a blog with a title that already exists', function (done) {
             Blogs.create('test POST /blogs dupe', 'silver lining', 'test POST /blogs dupe', [], [], [], [], false, 'public', true, 'test')
                 .then(function () {
-                    var request = {
+                    let request = {
                         method: 'POST',
                         url: '/blogs',
                         headers: {
@@ -1357,7 +1357,7 @@ describe('Blogs', function () {
                 .done();
         });
         it('should send back error if any user sent in the request does not exist', function (done) {
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/blogs',
                 headers: {
@@ -1385,7 +1385,7 @@ describe('Blogs', function () {
             });
         });
         it('should send back error if any group sent in the request does not exist', function (done) {
-            var request = {
+            let request = {
                 method: 'POST',
                 url: '/blogs',
                 headers: {
@@ -1415,7 +1415,7 @@ describe('Blogs', function () {
         it('should create blog successfully', function (done) {
             UserGroups.create('test post /blogs', 'silver lining', 'success', 'test')
                 .then(function () {
-                    var request = {
+                    let request = {
                         method: 'POST',
                         url: '/blogs',
                         headers: {
@@ -1459,7 +1459,7 @@ describe('Blogs', function () {
     });
     describe('DELETE /blogs/{id}', function () {
         it('should send back not found error when you try to modify a non existent blog', function (done) {
-            var request = {
+            let request = {
                 method: 'DELETE',
                 url: '/blogs/54d4430eed61ad701cc7a721',
                 headers: {
@@ -1476,9 +1476,9 @@ describe('Blogs', function () {
             });
         });
         it('should send back forbidden error when you try to delete a blog you are not an owner of', function (done) {
-            var request = {};
-            var authHeader = '';
-            var id = '';
+            let request = {};
+            let authHeader = '';
+            let id = '';
             Blogs.create('testDelBlogNotOwner', 'silver lining', 'test DELETE /blogs', [], [], [], [], false, 'public', true, 'test')
                 .then(function (b) {
                     id = b._id.toString();
@@ -1508,8 +1508,8 @@ describe('Blogs', function () {
         it('should deactivate blog and have changes audited', function (done) {
             Blogs.create('test DELETE /blogs/id', 'silver lining', 'test DELETE /blogs/id', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
-                    var id = p._id.toString();
-                    var request = {
+                    let id = p._id.toString();
+                    let request = {
                         method: 'DELETE',
                         url: '/blogs/' + id,
                         headers: {

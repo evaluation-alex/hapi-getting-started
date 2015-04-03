@@ -1,23 +1,23 @@
 'use strict';
-var relativeToServer = './../../../server/';
-var Blogs = require(relativeToServer + 'blogs/model');
-var Audit = require(relativeToServer + 'audit/model');
-var UserGroups = require(relativeToServer + 'user-groups/model');
-var _ = require('lodash');
-//var expect = require('chai').expect;
-var tu = require('./../testutils');
-var Promise = require('bluebird');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../server/';
+let Blogs = require(relativeToServer + 'blogs/model');
+let Audit = require(relativeToServer + 'audit/model');
+let UserGroups = require(relativeToServer + 'user-groups/model');
+let _ = require('lodash');
+//let expect = require('chai').expect;
+let tu = require('./../testutils');
+let Promise = require('bluebird');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Blogs Model', function () {
-    var blogsToClear = [];
-    var groupsToClear = [];
+    let blogsToClear = [];
+    let groupsToClear = [];
     before(function (done) {
         tu.setupRolesAndUsers()
             .then(function () {
@@ -26,7 +26,7 @@ describe('Blogs Model', function () {
     });
     describe('Blogs.create', function () {
         it('should create a new document and audit entry when it succeeds', function (done) {
-            var error = null;
+            let error = null;
             Blogs.create('newBlog', 'silver lining', 'Blog.create testing', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     expect(p).to.exist();
@@ -48,7 +48,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should not allow two objects with the same title', function (done) {
-            var error = null;
+            let error = null;
             Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
                     expect(p).to.exist();
@@ -95,7 +95,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should add a new entry to users when user/group is newly added', function (done) {
-            var error = null;
+            let error = null;
             Blogs.findOne({title: 'addUsers1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['newUserGroup'], 'subscriberGroups', 'test').save();
@@ -129,7 +129,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should do nothing if the user/group is already active in the group', function (done) {
-            var error = null;
+            let error = null;
             Blogs.findOne({title: 'addUsers2', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.add(['testBlogAddUsers'], 'subscriberGroups', 'test').save();
@@ -181,7 +181,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should do nothing if the user/group is not present in the group', function (done) {
-            var error = null;
+            let error = null;
             Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['unknownGroup'], 'subscriberGroups', 'test').save();
@@ -213,7 +213,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should remove user/group if present', function (done) {
-            var error = null;
+            let error = null;
             Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
                 .then(function (found) {
                     return found.remove(['testBlogsRemoveUsers'], 'subscriberGroups', 'test').save();
@@ -252,10 +252,10 @@ describe('Blogs Model', function () {
         });
     });
     describe('Blogs.this.activate/deactivate', function () {
-        var activated = null, deactivated = null;
+        let activated = null, deactivated = null;
         before(function (done) {
-            var p1 = Blogs.create('activated', 'silver lining', 'blog.activate, deactivate', [], [], [], [], false, 'public', true, 'test');
-            var p2 = Blogs.create('deactivated', 'silver lining', 'blog.deactive, activate', [], [], [], [], false, 'public', true, 'test');
+            let p1 = Blogs.create('activated', 'silver lining', 'blog.activate, deactivate', [], [], [], [], false, 'public', true, 'test');
+            let p2 = Blogs.create('deactivated', 'silver lining', 'blog.deactive, activate', [], [], [], [], false, 'public', true, 'test');
             Promise.join(p1, p2, function (p11, p12) {
                 activated = p11;
                 deactivated = p12;
@@ -270,7 +270,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should do nothing if the blog is already inactive/active and you deactivate/activate', function (done) {
-            var error = null;
+            let error = null;
             activated.reactivate('test').save()
                 .then(function (a) {
                     expect(a.isActive).to.be.true();
@@ -298,7 +298,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should mark the group as inactive / active when you deactivate / activate', function (done) {
-            var error = null;
+            let error = null;
             activated.deactivate('test').save()
                 .then(function (a) {
                     expect(a.isActive).to.be.false();
@@ -334,7 +334,7 @@ describe('Blogs Model', function () {
         });
     });
     describe('Blogs.this.setDescription', function () {
-        var testblog = null;
+        let testblog = null;
         before(function (done) {
             Blogs.create('updateDesc1', 'silver lining', 'blog.updateDesc', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
@@ -343,7 +343,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should do nothing if there is no change in the description', function (done) {
-            var error = null;
+            let error = null;
             testblog.setDescription(testblog.description, 'test').save()
                 .then(function (p) {
                     expect(p.description).to.equal('blog.updateDesc');
@@ -361,7 +361,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should update to the new description', function (done) {
-            var error = null;
+            let error = null;
             testblog.setDescription('newDescription', 'test').save()
                 .then(function (p) {
                     expect(p.description).to.equal('newDescription');
@@ -386,7 +386,7 @@ describe('Blogs Model', function () {
         });
     });
     describe('Blogs.this.setAccess', function () {
-        var testblog = null;
+        let testblog = null;
         before(function (done) {
             Blogs.create('setAccess', 'silver lining', 'blog.setAccess', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
@@ -395,7 +395,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should do nothing if there is no change in the access', function (done) {
-            var error = null;
+            let error = null;
             testblog.setAccess(testblog.access, 'test').save()
                 .then(function (p) {
                     expect(p.access).to.equal('public');
@@ -413,7 +413,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should update to the new access', function (done) {
-            var error = null;
+            let error = null;
             testblog.setAccess('restricted', 'test').save()
                 .then(function (p) {
                     expect(p.access).to.equal('restricted');
@@ -437,7 +437,7 @@ describe('Blogs Model', function () {
         });
     });
     describe('Blogs.this.needsReview', function () {
-        var testblog = null;
+        let testblog = null;
         before(function (done) {
             Blogs.create('needsReview', 'silver lining', 'blog.setNeedsReview', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
@@ -446,7 +446,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should do nothing if there is no change in the needsReview', function (done) {
-            var error = null;
+            let error = null;
             testblog.setNeedsReview(testblog.needsReview, 'test').save()
                 .then(function (p) {
                     expect(p.access).to.equal('public');
@@ -464,7 +464,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should update to the new needsReview', function (done) {
-            var error = null;
+            let error = null;
             testblog.setNeedsReview(true, 'test').save()
                 .then(function (p) {
                     expect(p.needsReview).to.equal(true);
@@ -488,7 +488,7 @@ describe('Blogs Model', function () {
         });
     });
     describe('Blogs.this.allowComments', function () {
-        var testblog = null;
+        let testblog = null;
         before(function (done) {
             Blogs.create('allowComments', 'silver lining', 'blog.allowComments', [], [], [], [], false, 'public', true, 'test')
                 .then(function (p) {
@@ -497,7 +497,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should do nothing if there is no change in the allowComments', function (done) {
-            var error = null;
+            let error = null;
             testblog.setAllowComments(testblog.allowComments, 'test').save()
                 .then(function (p) {
                     expect(p.allowComments).to.equal(true);
@@ -515,7 +515,7 @@ describe('Blogs Model', function () {
                 });
         });
         it('should update to the new allowComments', function (done) {
-            var error = null;
+            let error = null;
             testblog.setAllowComments(false, 'test').save()
                 .then(function (p) {
                     expect(p.allowComments).to.equal(false);

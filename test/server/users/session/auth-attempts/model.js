@@ -1,19 +1,19 @@
 'use strict';
-var relativeToServer = './../../../../../server/';
-var relativeTo = './../../../../../';
-var Config = require(relativeTo + 'config');
-var AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
-//var expect = require('chai').expect;
-var tu = require('./../../../testutils');
-var Promise = require('bluebird');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../../../server/';
+let relativeTo = './../../../../../';
+let Config = require(relativeTo + 'config');
+let AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
+//let expect = require('chai').expect;
+let tu = require('./../../../testutils');
+let Promise = require('bluebird');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('AuthAttempts Model', function () {
     before(function (done) {
         tu.setupRolesAndUsers()
@@ -22,7 +22,7 @@ describe('AuthAttempts Model', function () {
             });
     });
     it('returns a new instance when create succeeds', function (done) {
-        var error;
+        let error;
         AuthAttempts.create('127.0.0.1', 'test.create@auth.attempts')
             .then(function (authAttempt) {
                 expect(authAttempt).to.be.an.instanceof(AuthAttempts);
@@ -36,10 +36,10 @@ describe('AuthAttempts Model', function () {
             });
     });
     it('should return true when abuse is detected for user + ip combo', function (done) {
-        var error;
-        var authAttemptsConfig = Config.authAttempts;
-        var authSpam = [];
-        var authRequest = function () {
+        let error;
+        let authAttemptsConfig = Config.authAttempts;
+        let authSpam = [];
+        let authRequest = function () {
             return new Promise(function (resolve/*, reject*/) {
                 AuthAttempts.create('127.0.0.1', 'test.abuse@auth.attempts')
                     .then(function (result) {
@@ -52,7 +52,7 @@ describe('AuthAttempts Model', function () {
                     });
             });
         };
-        for (var i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
+        for (let i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
             authSpam.push(authRequest());
         }
         Promise.all(authSpam)
@@ -71,12 +71,12 @@ describe('AuthAttempts Model', function () {
             });
     });
     it('should return true when abuse is detected for an ip and multiple users', function (done) {
-        var error;
-        var authAttemptsConfig = Config.authAttempts;
-        var authSpam = [];
-        var authRequest = function () {
+        let error;
+        let authAttemptsConfig = Config.authAttempts;
+        let authSpam = [];
+        let authRequest = function () {
             return new Promise(function (resolve/*, reject*/) {
-                var randomUsername = 'test.abuse' + i + '@auth.attempts';
+                let randomUsername = 'test.abuse' + i + '@auth.attempts';
                 AuthAttempts.create('127.0.0.2', randomUsername)
                     .then(function (result) {
                         expect(result).to.be.an.instanceof(AuthAttempts);
@@ -88,7 +88,7 @@ describe('AuthAttempts Model', function () {
                     });
             });
         };
-        for (var i = 0; i < authAttemptsConfig.forIp + 2; i++) {
+        for (let i = 0; i < authAttemptsConfig.forIp + 2; i++) {
             authSpam.push(authRequest());
         }
         Promise.all(authSpam)

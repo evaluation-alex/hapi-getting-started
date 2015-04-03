@@ -1,15 +1,15 @@
 'use strict';
-var relativeToServer = './../../../server/';
-var relativeTo = './../../../';
-var Config = require(relativeTo + 'config');
-var Mailer = require(relativeToServer + 'common/plugins/mailer');
-//var expect = require('chai').expect;
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+let relativeToServer = './../../../server/';
+let relativeTo = './../../../';
+let Config = require(relativeTo + 'config');
+let Mailer = require(relativeToServer + 'common/plugins/mailer');
+//let expect = require('chai').expect;
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let expect = Code.expect;
 describe('Mailer', function () {
     it('returns error when read file fails', function (done) {
         Mailer.sendEmail({}, 'path', {})
@@ -24,14 +24,14 @@ describe('Mailer', function () {
             .done();
     });
     it('sends an email, if sent repeatedly, hits the cache', function (done) {
-        var options = {
+        let options = {
             subject: 'Your ' + Config.projectName + ' account',
             to: {
                 name: Config.smtpUsername,
                 address: Config.smtpUsername
             }
         };
-        var payload = {
+        let payload = {
             email: 'email',
             password: 'password'
         };

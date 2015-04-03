@@ -1,20 +1,20 @@
 'use strict';
-var relativeToServer = './../../../../server/';
-var Users = require(relativeToServer + 'users/model');
-var Audit = require(relativeToServer + 'audit/model');
-//var expect = require('chai').expect;
-var tu = require('./../../testutils');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../../server/';
+let Users = require(relativeToServer + 'users/model');
+let Audit = require(relativeToServer + 'audit/model');
+//let expect = require('chai').expect;
+let tu = require('./../../testutils');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Preferences', function () {
-    var rootAuthHeader = null;
-    var server = null;
+    let rootAuthHeader = null;
+    let server = null;
     before(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -30,8 +30,8 @@ describe('Preferences', function () {
             .done();
     });
     describe('PUT /preferences/{id}', function () {
-        var authheader = '';
-        var id = '';
+        let authheader = '';
+        let id = '';
         before(function (done) {
             tu.findAndLogin('root')
                 .then(function (u) {
@@ -40,7 +40,7 @@ describe('Preferences', function () {
                 });
         });
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
-            var oneauthheader = '';
+            let oneauthheader = '';
             tu.findAndLogin('one@first.com')
                 .then(function (u) {
                     oneauthheader = u.authheader;
@@ -50,7 +50,7 @@ describe('Preferences', function () {
                     id = u._id.toString();
                 })
                 .then(function () {
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/preferences/' + id,
                         headers: {
@@ -73,7 +73,7 @@ describe('Preferences', function () {
                 });
         });
         it('should return not found if the preferences are not found', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/preferences/54d4430eed61ad701cc7a721',
                 headers: {
@@ -103,7 +103,7 @@ describe('Preferences', function () {
                     return p.save();
                 })
                 .then(function () {
-                    var request = {
+                    let request = {
                         method: 'PUT',
                         url: '/preferences/' + id,
                         headers: {

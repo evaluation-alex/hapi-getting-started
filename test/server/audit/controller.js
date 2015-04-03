@@ -1,20 +1,20 @@
 'use strict';
-var relativeToServer = './../../../server/';
-var Users = require(relativeToServer + 'users/model');
-//var expect = require('chai').expect;
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var tu = require('./../testutils');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../server/';
+let Users = require(relativeToServer + 'users/model');
+//let expect = require('chai').expect;
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let tu = require('./../testutils');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Audit', function () {
-    var authheader = '';
-    var server = null;
-    var emails = [];
+    let authheader = '';
+    let server = null;
+    let emails = [];
     before(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -55,7 +55,7 @@ describe('Audit', function () {
                     .done();
             });
             it('should give audit of only the user whose email is sent in the parameter', function (done) {
-                var request = {
+                let request = {
                     method: 'GET',
                     url: '/audit?objectChangedId=test.users2@test.api&objectType=users',
                     headers: {
@@ -75,7 +75,7 @@ describe('Audit', function () {
                 });
             });
             it('should give audit of all changes done by user', function (done) {
-                var request = {
+                let request = {
                     method: 'GET',
                     url: '/audit?by=test&objectType=users',
                     headers: {
@@ -94,7 +94,7 @@ describe('Audit', function () {
                 });
             });
             it('should give audit of all changes', function (done) {
-                var request = {
+                let request = {
                     method: 'GET',
                     url: '/audit',
                     headers: {

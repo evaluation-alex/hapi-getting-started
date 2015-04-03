@@ -1,18 +1,18 @@
 'use strict';
-var relativeToServer = './../../../../server/';
-var Roles = require(relativeToServer + '/users/roles/model');
-//var expect = require('chai').expect;
-var tu = require('./../../testutils');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../../server/';
+let Roles = require(relativeToServer + '/users/roles/model');
+//let expect = require('chai').expect;
+let tu = require('./../../testutils');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Roles Model', function () {
-    var rolesToClear = [];
+    let rolesToClear = [];
     before(function (done) {
         tu.setupRolesAndUsers()
             .then(function () {
@@ -21,7 +21,7 @@ describe('Roles Model', function () {
     });
     describe('Roles.create', function () {
         it('should create a new document', function (done) {
-            var error = null;
+            let error = null;
             Roles.create('newRole', 'silver lining', [{
                 action: 'view',
                 object: 'self'
@@ -43,7 +43,7 @@ describe('Roles Model', function () {
                 });
         });
         it('should not allow two objects with the same name', function (done) {
-            var error = null;
+            let error = null;
             Roles.create('newRole', 'silver lining', [{
                 action: 'view',
                 object: 'self'
@@ -64,7 +64,7 @@ describe('Roles Model', function () {
         });
     });
     describe('Roles.this.hasPermissionsTo', function () {
-        var role = null;
+        let role = null;
         before(function (done) {
             Roles.create('hasPermissions', 'silver lining', [{
                 action: 'view',

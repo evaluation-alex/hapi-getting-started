@@ -1,36 +1,36 @@
 'use strict';
-var relativeTo = './../../';
-var relativeToServer = './../../server/';
-var Hapi = require('hapi');
-var HapiAuthBasic = require('hapi-auth-basic');
-var Promise = require('bluebird');
+let relativeTo = './../../';
+let relativeToServer = './../../server/';
+let Hapi = require('hapi');
+let HapiAuthBasic = require('hapi-auth-basic');
+let Promise = require('bluebird');
 Promise.longStackTraces();
-var utils = require(relativeToServer + 'common/utils');
-var AuthPlugin = require(relativeToServer + 'common/plugins/auth');
-var MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
-var I18NPlugin = require(relativeToServer + 'common/plugins/i18n');
-var Config = require(relativeTo + 'config');
-var Model = require(relativeToServer + 'common/model');
-var Users = require(relativeToServer + 'users/model');
-var UserGroups = require(relativeToServer + 'user-groups/model');
-var Audit = require(relativeToServer + 'audit/model');
-var Blogs = require(relativeToServer + 'blogs/model');
-var Posts = require(relativeToServer + 'blogs/posts/model');
-var AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
-var Roles = require(relativeToServer + 'users/roles/model');
-var Notifications = require(relativeToServer + 'users/notifications/model');
-var _ = require('lodash');
-var mongodb;
-var server;
-var authorizationHeader = function (user) {
+let utils = require(relativeToServer + 'common/utils');
+let AuthPlugin = require(relativeToServer + 'common/plugins/auth');
+let MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
+let I18NPlugin = require(relativeToServer + 'common/plugins/i18n');
+let Config = require(relativeTo + 'config');
+let Model = require(relativeToServer + 'common/model');
+let Users = require(relativeToServer + 'users/model');
+let UserGroups = require(relativeToServer + 'user-groups/model');
+let Audit = require(relativeToServer + 'audit/model');
+let Blogs = require(relativeToServer + 'blogs/model');
+let Posts = require(relativeToServer + 'blogs/posts/model');
+let AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
+let Roles = require(relativeToServer + 'users/roles/model');
+let Notifications = require(relativeToServer + 'users/notifications/model');
+let _ = require('lodash');
+let mongodb;
+let server;
+let authorizationHeader = function (user) {
     return 'Basic ' + (new Buffer(user.email + ':' + user.session[0].key)).toString('base64');
 };
 exports.authorizationHeader = authorizationHeader;
-var authorizationHeader2 = function (user, password) {
+let authorizationHeader2 = function (user, password) {
     return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
 };
 exports.authorizationHeader2 = authorizationHeader2;
-var setupConnect = function () {
+let setupConnect = function () {
     if (mongodb) {
         return Promise.resolve(mongodb);
     } else {
@@ -112,7 +112,7 @@ function findAndLogin (user, roles) {
         });
 }
 module.exports.findAndLogin = findAndLogin;
-var setupServer = function () {
+let setupServer = function () {
     return new Promise(function (resolve, reject) {
         setupRolesAndUsers()
             .then(function () {
@@ -120,8 +120,8 @@ var setupServer = function () {
             })
             .then(function (foundUser) {
                 if (!server) {
-                    var Manifest = require('./../../server/manifest').manifest;
-                    var components = [
+                    let Manifest = require('./../../server/manifest').manifest;
+                    let components = [
                         '../../server/audit',
                         '../../server/contact',
                         '../../server/users',
@@ -134,11 +134,11 @@ var setupServer = function () {
                         '../../server/blogs',
                         '../../server/blogs/posts'
                     ];
-                    var ModelsPlugin = {
+                    let ModelsPlugin = {
                         register: require(relativeToServer + 'common/plugins/model'),
                         options: Manifest.plugins['./server/common/plugins/model']
                     };
-                    var plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, MetricsPlugin, I18NPlugin];
+                    let plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, MetricsPlugin, I18NPlugin];
                     server = new Hapi.Server();
                     server.connection({host: 'localhost', port: Config.port});
                     server.register(plugins, function (err) {
@@ -156,7 +156,6 @@ var setupServer = function () {
                         }
                     });
                 } else {
-                    server.start();
                     resolve({server: server, authheader: foundUser.authheader});
                 }
             })
@@ -197,7 +196,7 @@ function cleanupPosts (postsToCleanup) {
     }
 }
 function cleanupNotifications (toClear) {
-    var notificationsToCleanup = _.flatten(_.map(['userGroups', 'blogs', 'posts'], function (a) {
+    let notificationsToCleanup = _.flatten(_.map(['userGroups', 'blogs', 'posts'], function (a) {
         return _.map(toClear[a], function (i) {
             return new RegExp(i, 'g');
         });
@@ -222,7 +221,7 @@ function cleanupAuthAttempts () {
     return AuthAttempts.remove({});
 }
 module.exports.cleanupAuthAttempts = cleanupAuthAttempts;
-var cleanupRoles = function (roles) {
+let cleanupRoles = function (roles) {
     return Roles.remove({name: {$in: roles}});
 };
 module.exports.cleanupRoles = cleanupRoles;
@@ -231,7 +230,7 @@ function cleanupConnect () {
     Model.disconnect();
 }
 exports.cleanupConnect = cleanupConnect;
-var cleanup = function (toClear, cb) {
+let cleanup = function (toClear, cb) {
     Promise.join(cleanupUsers(toClear.users),
         cleanupUserGroups(toClear.userGroups),
         cleanupBlogs(toClear.blogs),
@@ -240,7 +239,6 @@ var cleanup = function (toClear, cb) {
         cleanupAudit(),
         cleanupAuthAttempts(),
         function () {
-            server.stop();
             cb();
         })
         .catch(function (err) {
@@ -249,7 +247,7 @@ var cleanup = function (toClear, cb) {
         .done();
 };
 exports.cleanup = cleanup;
-var testComplete = function (notify, err) {
+let testComplete = function (notify, err) {
     if (notify) {
         if (err) {
             notify(err);

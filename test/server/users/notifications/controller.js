@@ -1,23 +1,23 @@
 'use strict';
-var relativeToServer = './../../../../server/';
-var _ = require('lodash');
-var moment = require('moment');
-var Notifications = require(relativeToServer + 'users/notifications/model');
-var Audit = require(relativeToServer + 'audit/model');
-var Promise = require('bluebird');
-//var expect = require('chai').expect;
-var tu = require('./../../testutils');
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var after = lab.after;
-var expect = Code.expect;
+let relativeToServer = './../../../../server/';
+let _ = require('lodash');
+let moment = require('moment');
+let Notifications = require(relativeToServer + 'users/notifications/model');
+let Audit = require(relativeToServer + 'audit/model');
+let Promise = require('bluebird');
+//let expect = require('chai').expect;
+let tu = require('./../../testutils');
+let Code = require('code');   // assertion library
+let Lab = require('lab');
+let lab = exports.lab = Lab.script();
+let describe = lab.describe;
+let it = lab.it;
+let before = lab.before;
+let after = lab.after;
+let expect = Code.expect;
 describe('Notifications', function () {
-    var rootAuthHeader = null;
-    var server = null;
+    let rootAuthHeader = null;
+    let server = null;
     before(function (done) {
         tu.setupServer()
             .then(function (res) {
@@ -36,9 +36,9 @@ describe('Notifications', function () {
         before(function (done) {
             /*jshint unused:false*/
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
-            var n1 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root');
-            var n2 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abc1234', 'titles dont matter', 'starred', 'fyi', 'low', 'content is useful', 'root');
-            var n3 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abcd1234', 'titles dont matter', 'cancelled', 'fyi', 'low', 'content is useful', 'root');
+            let n1 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root');
+            let n2 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abc1234', 'titles dont matter', 'starred', 'fyi', 'low', 'content is useful', 'root');
+            let n3 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abcd1234', 'titles dont matter', 'cancelled', 'fyi', 'low', 'content is useful', 'root');
             Promise.join(n1, n2, n3, function (n11, n21, n31) {
                 n31[0].deactivate('test').save();
                 n21[0].createdOn.setFullYear(2015, 1, 14);
@@ -53,7 +53,7 @@ describe('Notifications', function () {
             /*jshint unused:true*/
         });
         it('should give active notifications when isactive = true is sent', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/notifications?isActive="true"',
                 headers: {
@@ -63,7 +63,7 @@ describe('Notifications', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     expect(p.data.length).to.equal(2);
                     expect(p.data[0].isActive).to.be.true();
                     expect(p.data[1].isActive).to.be.true();
@@ -74,7 +74,7 @@ describe('Notifications', function () {
             });
         });
         it('should give inactive notifications when isactive = false is sent', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/notifications?isActive="false"',
                 headers: {
@@ -84,7 +84,7 @@ describe('Notifications', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     expect(p.data.length).to.equal(1);
                     expect(p.data[0].isActive).to.be.false();
                     done();
@@ -94,7 +94,7 @@ describe('Notifications', function () {
             });
         });
         it('should give only the notifications whose state is sent in the parameter', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/notifications?state=unread',
                 headers: {
@@ -104,7 +104,7 @@ describe('Notifications', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     expect(p.data.length).to.equal(1);
                     expect(p.data[0].objectId).to.match(/abc123/);
                     done();
@@ -114,7 +114,7 @@ describe('Notifications', function () {
             });
         });
         it('should give only the notifications of the user making the query', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/notifications',
                 headers: {
@@ -124,7 +124,7 @@ describe('Notifications', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     expect(p.data.length).to.equal(3);
                     expect(p.data[0].email).to.match(/root/);
                     expect(p.data[1].email).to.match(/root/);
@@ -136,7 +136,7 @@ describe('Notifications', function () {
             });
         });
         it('should give all notifications in a given time period', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/notifications?createdOnBefore=2015-02-15&createdOnAfter=2015-02-13',
                 headers: {
@@ -146,7 +146,7 @@ describe('Notifications', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     _.forEach(p.data, function (d) {
                         expect(moment(d.publishedOn).format('YYYYMMDD')).to.equal('20150214');
                     });
@@ -157,7 +157,7 @@ describe('Notifications', function () {
             });
         });
         it('should give all posts in a given time period2', function (done) {
-            var request = {
+            let request = {
                 method: 'GET',
                 url: '/notifications?createdOnAfter=2015-02-13',
                 headers: {
@@ -167,7 +167,7 @@ describe('Notifications', function () {
             server.inject(request, function (response) {
                 try {
                     expect(response.statusCode).to.equal(200);
-                    var p = JSON.parse(response.payload);
+                    let p = JSON.parse(response.payload);
                     _.forEach(p.data, function (d) {
                         expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true();
                     });
@@ -178,7 +178,7 @@ describe('Notifications', function () {
             });
         });
         it('should filter out blocked notifications based on preferences', function (done) {
-            var authHeader = '';
+            let authHeader = '';
             tu.findAndLogin('one@first.com')
                 .then(function (u) {
                     authHeader = u.authheader;
@@ -186,7 +186,7 @@ describe('Notifications', function () {
                     return u.user.save();
                 })
                 .then(function () {
-                    var request = {
+                    let request = {
                         method: 'GET',
                         url: '/notifications',
                         headers: {
@@ -196,7 +196,7 @@ describe('Notifications', function () {
                     server.inject(request, function (response) {
                         try {
                             expect(response.statusCode).to.equal(200);
-                            var p = JSON.parse(response.payload);
+                            let p = JSON.parse(response.payload);
                             _.forEach(p.data, function (d) {
                                 expect(d.objectId).to.not.equal(/abc123/);
                             });
@@ -210,7 +210,7 @@ describe('Notifications', function () {
     });
     describe('PUT /notifications/{id}', function () {
         it('should send back not found error when you try to modify a non existent notification', function (done) {
-            var request = {
+            let request = {
                 method: 'PUT',
                 url: '/notifications/54c894fe1d1d4ab4032ed94e',
                 headers: {
@@ -227,15 +227,15 @@ describe('Notifications', function () {
             });
         });
         it('should return unauthorized if someone other than the owner of the notification tries to change it', function (done) {
-            var id = null;
+            let id = null;
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
                 .then(function (n) {
                     id = n._id.toString();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then(function (u) {
-                    var authHeader = u.authheader;
-                    var request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'PUT',
                         url: '/notifications/' + id,
                         headers: {
@@ -258,8 +258,8 @@ describe('Notifications', function () {
         it('should deactivate notification and have changes audited', function (done) {
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
                 .then(function (n) {
-                    var id = n._id.toString();
-                    var request = {
+                    let id = n._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/notifications/' + id,
                         headers: {
@@ -290,8 +290,8 @@ describe('Notifications', function () {
         it('should update state and have changes audited', function (done) {
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
                 .then(function (n) {
-                    var id = n._id.toString();
-                    var request = {
+                    let id = n._id.toString();
+                    let request = {
                         method: 'PUT',
                         url: '/notifications/' + id,
                         headers: {

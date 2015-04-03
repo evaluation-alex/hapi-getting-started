@@ -8,7 +8,4 @@ before_script:
   - mkdir ./test/artifacts
   - mkdir ./logs
 after_script:
-  - npm run test-coverage
-  - npm run coveralls
-  - npm run climate
   - npm run jshint

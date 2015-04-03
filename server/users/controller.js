@@ -17,22 +17,20 @@ var Controller = new ControllerFactory(Users)
             locale: Joi.string().only(['en', 'hi']).default('en'),
             password: Joi.string().required()
         }
-    }, function uniqueCheckQuery (request) {
+    }, (request) => {
         return {
             email: request.payload.email,
             organisation: request.payload.organisation
         };
-    }, function newUser (request) {
+    }, (request) => {
         let email = request.payload.email;
         let password = request.payload.password;
         let organisation = request.payload.organisation;
         let locale = request.payload.locale;
         let ip = utils.ip(request);
         return Users.create(email, organisation, password, locale)
-            .then(function (user) {
-                return user.loginSuccess(ip, user.email).save();
-            })
-            .then(function (user) {
+            .then((user) => user.loginSuccess(ip, user.email).save())
+            .then((user) => {
                 let options = {
                     subject: 'Your ' + Config.projectName + ' account',
                     to: {
@@ -40,12 +38,11 @@ var Controller = new ControllerFactory(Users)
                         address: email
                     }
                 };
-                user = user.afterLogin(ip);
-                let m = Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload);
                 /*jshint unused:false*/
-                return Promise.join(user, m, function (user, m) {
-                    return user;
-                });
+                return Promise.join(user.afterLogin(ip),
+                    Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload),
+                    (user, m) => user
+                );
                 /*jshint unused:true*/
             });
     })
@@ -54,13 +51,9 @@ var Controller = new ControllerFactory(Users)
             email: Joi.string(),
             isActive: Joi.string()
         }
-    }, function buildFindQuery (request) {
-        return utils.buildQueryFromRequestForFields({}, request, [['email', 'email']]);
-    },
-    function stripPrivateData (output) {
-        output.data = _.map(output.data, function (user) {
-            return user.stripPrivateData();
-        });
+    }, (request) => utils.buildQueryFromRequestForFields({}, request, [['email', 'email']]),
+    (output) => {
+        output.data = _.map(output.data, (user) => user.stripPrivateData());
         return output;
     })
     .findOneController([
@@ -76,21 +69,17 @@ var Controller = new ControllerFactory(Users)
         onlyOwnerAllowed(Users, 'email')
     ],
     'update',
-    function updateUser (user, request, by) {
-        return user._invalidateSession(utils.ip(request), by).updateUser(request, by);
-    })
+    (user, request, by) => user._invalidateSession(utils.ip(request), by).updateUser(request, by))
     .forMethod('loginForgot')
     .withValidation({
         payload: {
             email: Joi.string().email().required()
         }
     })
-    .handleUsing(function loginForgotHandler (request, reply) {
+    .handleUsing((request, reply) => {
         Users.findOne({email: request.payload.email})
-            .then(function (user) {
-                return user ? user.resetPasswordSent(user.email).save() : user;
-            })
-            .then(function (user) {
+            .then((user) => user ? user.resetPasswordSent(user.email).save() : user)
+            .then((user) => {
                 if (user) {
                     let options = {
                         subject: 'Reset your ' + Config.projectName + ' password',
@@ -100,12 +89,8 @@ var Controller = new ControllerFactory(Users)
                 }
                 return undefined;
             })
-            .then(function () {
-                reply({message: 'Success.'});
-            })
-            .catch(function (err) {
-                utils.logAndBoom(err, reply);
-            });
+            .then(() => reply({message: 'Success.'}))
+            .catch((err) => utils.logAndBoom(err, reply));
     })
     .forMethod('loginReset')
     .withValidation({
@@ -115,20 +100,16 @@ var Controller = new ControllerFactory(Users)
             password: Joi.string().required()
         }
     })
-    .handleUsing(function loginResetHandler (request, reply) {
+    .handleUsing((request, reply) => {
         Users.findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
-            .then(function (user) {
+            .then((user) => {
                 if (!user || (request.payload.key !== user.resetPwd.token)) {
                     return Promise.reject(new errors.PasswordResetError());
                 }
                 return user._invalidateSession(utils.ip(request), user.email).setPassword(request.payload.password, user.email).save();
             })
-            .then(function () {
-                reply({message: 'Success.'});
-            })
-            .catch(function (err) {
-                utils.logAndBoom(err, reply);
-            });
+            .then(() => reply({message: 'Success.'}))
+            .catch((err) => utils.logAndBoom(err, reply));
     })
     .doneConfiguring();
 module.exports = Controller;

@@ -4,10 +4,10 @@ let errors = require('./../errors');
 var Promise = require('bluebird');
 module.exports = function InsertAndAudit (idToUse, action) {
     return {
-        insertAndAudit: function insertAndAudit (doc) {
+        insertAndAudit: (doc) => {
             let self = this;
             return self.insert(doc)
-                .then(function (obj) {
+                .then((obj) => {
                     if (!obj) {
                         return Promise.reject(new errors.ObjectNotCreatedError({collection: self.collection}));
                     } else {

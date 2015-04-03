@@ -13,7 +13,7 @@ var Controller = new ControllerFactory()
             message: Joi.string().required()
         }
     })
-    .handleUsing(function contactHandler (request, reply) {
+    .handleUsing((request, reply) => {
         let options = {
             subject: Config.projectName + ' contact form',
             to: Config.system.toAddress,
@@ -23,12 +23,8 @@ var Controller = new ControllerFactory()
             }
         };
         mailer.sendEmail(options, __dirname + '/contact.hbs.md', request.payload)
-            .then(function () {
-                reply({message: 'Success.'});
-            })
-            .catch(function (err) {
-                utils.logAndBoom(err, reply);
-            });
+            .then(() => reply({message: 'Success.'}))
+            .catch((err) => utils.logAndBoom(err, reply));
     })
     .doneConfiguring();
 module.exports = Controller;

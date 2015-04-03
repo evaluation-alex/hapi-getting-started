@@ -5,20 +5,20 @@ let utils = require('./../utils');
 let Users = require('./../../users/model');
 let UserGroups = require('./../../user-groups/model');
 let errors = require('./../errors');
-var areValid = function areValid (Model, payloadPropertiesToLookup) {
-    return function areValidObjects (request, reply) {
+var areValid = (Model, pldPropToLookup) => {
+    return (request, reply) => {
         let toLookup = [];
-        payloadPropertiesToLookup.forEach(function (payloadPropertyToLookup) {
-            if (utils.hasItems(request.payload[payloadPropertyToLookup])) {
-                toLookup.push(request.payload[payloadPropertyToLookup]);
+        _.forEach(pldPropToLookup, (pldProp) => {
+            if (utils.hasItems(request.payload[pldProp])) {
+                toLookup.push(request.payload[pldProp]);
             }
         });
         toLookup = _.flatten(toLookup);
         if (utils.hasItems(toLookup)) {
             Model.areValid(toLookup, request.auth.credentials.user.organisation)
-                .then(function (validated) {
+                .then((validated) => {
                     let msg = '';
-                    _.forEach(toLookup, function (a) {
+                    _.forEach(toLookup, (a) => {
                         if (!validated[a]) {
                             msg += a + ',';
                         }
@@ -28,21 +28,19 @@ var areValid = function areValid (Model, payloadPropertiesToLookup) {
                     }
                     reply(true);
                 })
-                .catch(function (err) {
-                    utils.logAndBoom(err, reply);
-                });
+                .catch((err) => utils.logAndBoom(err, reply));
         } else {
             reply(true);
         }
     };
 };
-module.exports.users = function validUsers (payloadPropertiesToLookup) {
+module.exports.users = (payloadPropertiesToLookup) => {
     return {
         assign: 'validUsers',
         method: areValid(Users, payloadPropertiesToLookup)
     };
 };
-module.exports.groups = function validGroups (payloadPropertiesToLookup) {
+module.exports.groups = (payloadPropertiesToLookup) => {
     return {
         assign: 'validUserGroups',
         method: areValid(UserGroups, payloadPropertiesToLookup)

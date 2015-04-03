@@ -56,7 +56,7 @@ _.extend(Posts.prototype, new Properties(['title', 'state', 'category', 'access'
 _.extend(Posts.prototype, new Update(['isActive', 'state', 'category', 'title', 'access', 'allowComments', 'needsReview'], ['tags', 'attachments']));
 _.extend(Posts.prototype, new Save(Posts));
 _.extend(Posts.prototype, new CAudit(Posts.collection, '_id'));
-Posts.newObject = function newObject (doc, by) {
+Posts.newObject = (doc, by) => {
     var self = this;
     return self.create(utils.lookupParamsOrPayloadOrQuery(doc, 'blogId'),
         doc.auth.credentials.user.organisation,
@@ -70,7 +70,7 @@ Posts.newObject = function newObject (doc, by) {
         doc.payload.attachments,
         by);
 };
-Posts.create = function create (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) {
+Posts.create = (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) => {
     let self = this;
     let now = new Date();
     let document = {

@@ -1,9 +1,9 @@
 'use strict';
 let errors = require('./../errors');
-module.exports = function ensurePermissions (forAction, onObject) {
+module.exports = (forAction, onObject) => {
     return {
         assign: 'ensurePermissions',
-        method: function userRoleHasPerms (request, reply) {
+        method: (request, reply) => {
             let ret = request.auth.credentials.user.hasPermissionsTo(forAction, onObject);
             if (!ret) {
                 return reply(new errors.NoPermissionsForActionError({

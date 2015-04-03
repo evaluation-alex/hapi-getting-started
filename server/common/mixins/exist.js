@@ -2,9 +2,9 @@
 let _ = require('lodash');
 var Promise = require('bluebird');
 let utils = require('./../utils');
-module.exports = function CommonAreValid (property) {
+module.exports = function AreValid(property) {
     return {
-        areValid: function areValid (toCheck, organisation) {
+        areValid: (toCheck, organisation) => {
             let self = this;
             if (!utils.hasItems(toCheck)) {
                 return Promise.resolve({});
@@ -15,16 +15,10 @@ module.exports = function CommonAreValid (property) {
                 };
                 conditions[property] = {$in: toCheck};
                 return self.find(conditions)
-                    .then(function (docs) {
+                    .then((docs) => {
                         let results = Object.create(null);
-                        _.forEach(docs, function (doc) {
-                            results[doc[property]] = true;
-                        });
-                        _.forEach(toCheck, function (e) {
-                            if (!results[e]) {
-                                results[e] = false;
-                            }
-                        });
+                        _.forEach(docs, (doc) => { results[doc[property]] = true; });
+                        _.forEach(toCheck, (e) => { results[e] = !!results[e]; });
                         return results;
                     });
             }

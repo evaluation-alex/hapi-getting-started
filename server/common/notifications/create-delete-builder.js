@@ -1,5 +1,5 @@
 'use strict';
-module.exports = function NewDeleteObjectNotificationsBuilder (type, owners, title, action) {
+module.exports = function ObjectCreateDeleteNotificationBuilder(type, owners, title, action) {
     const actions = {
         'new': {
             title: type + ' {{title}} created.',
@@ -10,7 +10,7 @@ module.exports = function NewDeleteObjectNotificationsBuilder (type, owners, tit
             description: type + ' {{title}} deleted by {{updatedBy}}'
         }
     };
-    return function notify (obj, request) {
+    return (obj, request) => {
         return {
             to: obj[owners],
             title: [actions[action].title, {title: obj[title]}],

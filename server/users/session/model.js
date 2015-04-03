@@ -13,15 +13,13 @@ Session.schema = Joi.array().items(Joi.object().keys({
     key: Joi.object(),
     expires: Joi.date()
 }));
-Session.prototype._invalidateSession = function invalidateSession (ipaddress, by) {
+Session.prototype._invalidateSession = (ipaddress, by) => {
     let self = this;
-    let removed = _.remove(self.session, function (session) {
-        return session.ipaddress === ipaddress;
-    });
+    let removed = _.remove(self.session, (session) => session.ipaddress === ipaddress);
     self.trackChanges('user.session', removed, null, by);
     return self;
 };
-Session.prototype._newSession = function newSession (ipaddress, by) {
+Session.prototype._newSession = (ipaddress, by) => {
     let self = this;
     let session = {
         ipaddress: ipaddress,
@@ -32,11 +30,9 @@ Session.prototype._newSession = function newSession (ipaddress, by) {
     self.trackChanges('user.session', null, session, by);
     return self;
 };
-Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
+Session.prototype.loginSuccess = (ipaddress, by) => {
     let self = this;
-    let found = _.find(self.session, function (session) {
-        return session.ipaddress === ipaddress;
-    });
+    let found = _.find(self.session, (session) => session.ipaddress === ipaddress);
     if (!found) {
         self._newSession(ipaddress, by);
     } else {
@@ -47,28 +43,26 @@ Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
     }
     return self;
 };
-Session.prototype.loginFail = function loginFail (ipaddress, by) {
+Session.prototype.loginFail = (ipaddress, by) => {
     let self = this;
     return self.trackChanges('login fail', null, ipaddress, by);
 };
-Session.prototype.logout = function logout (ipaddress, by) {
+Session.prototype.logout = (ipaddress, by) => {
     let self = this;
     self._invalidateSession(ipaddress, by);
     return self;
 };
-Session.findBySessionCredentials = function findBySessionCredentials (email, key) {
+Session.findBySessionCredentials = (email, key) => {
     let self = this;
     return self.findOne({email: email, isActive: true})
-        .then(function (user) {
+        .then((user) => {
             if (!user) {
                 return Promise.reject(new errors.UserNotFoundError({email: email}));
             }
             if (!utils.hasItems(user.session)) {
                 return Promise.reject(new errors.UserNotLoggedInError({email: email}));
             }
-            var matchingSession = _.find(user.session, function (session) {
-                return utils.secureCompare(key, session.key);
-            });
+            var matchingSession = _.find(user.session, (session) => utils.secureCompare(key, session.key));
             if (!matchingSession) {
                 return Promise.reject(new errors.SessionCredentialsNotMatchingError({email: email}));
             }
@@ -79,4 +73,3 @@ Session.findBySessionCredentials = function findBySessionCredentials (email, key
         });
 };
 module.exports = Session;
-

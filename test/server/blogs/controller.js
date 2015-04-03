@@ -1,6 +1,5 @@
 'use strict';
 let relativeToServer = './../../../server/';
-let Users = require(relativeToServer + 'users/model');
 let Blogs = require(relativeToServer + 'blogs/model');
 let UserGroups = require(relativeToServer + 'user-groups/model');
 let Audit = require(relativeToServer + 'audit/model');

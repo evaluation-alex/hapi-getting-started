@@ -15,12 +15,12 @@ let Promise = require('bluebird');
 let Hoek = require('hoek');
 /*jshint unused:false*/
 let stateBasedNotificationSend = {
-    'published': function onPostPublished (post, request) {
+    'published': (post, request) => {
         let blog = request.pre.blogs;
         return UserGroups.find({name: {$in: blog.subscriberGroups}, organisation: post.organisation})
-            .then(function (groups) {
+            .then((groups) => {
                 let to = [blog.owners, blog.subscribers];
-                _.forEach(groups, function (group) {
+                _.forEach(groups, (group) => {
                     to.push(group.members);
                 });
                 return {
@@ -31,7 +31,7 @@ let stateBasedNotificationSend = {
                 };
             });
     },
-    'pending review': function onNeedsApproval (post, request) {
+    'pending review': (post, request) => {
         let blog = request.pre.blogs;
         return {
             to: blog.owners,
@@ -42,7 +42,7 @@ let stateBasedNotificationSend = {
             priority: 'medium'
         };
     },
-    'do not publish': function onReject (post, request) {
+    'do not publish': (post, request) => {
         let blog = request.pre.blogs;
         return {
             to: post.publishedBy,
@@ -51,12 +51,12 @@ let stateBasedNotificationSend = {
                 {postTitle: post.title, reviewedBy: post.reviewedBy, blogTitle: blog.title}]
         };
     },
-    'draft': function onDraft (post, request) {
+    'draft': (post, request) => {
         return {
             to: []
         };
     },
-    'archived': function onArchived (post, request) {
+    'archived': (post, request) => {
         return {
             to: []
         };
@@ -81,14 +81,14 @@ var Controller = new ControllerFactory(Posts)
     }, [
         prePopulate(Blogs, 'blogId'),
         isMemberOf(Blogs, ['contributors', 'owners'])
-    ], function uniqueCheckQuery (request) {
+    ], (request) => {
         return {
             blogId: utils.lookupParamsOrPayloadOrQuery(request, 'blogId'),
             organisation: request.auth.credentials.user.organisation,
             title: request.payload.title,
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
         };
-    }, function newPost (request, by) {
+    }, (request, by) => {
         let blog = request.pre.blogs;
         request.payload = Hoek.applyToDefaults(request.payload, {
             access: blog.access,
@@ -101,15 +101,13 @@ var Controller = new ControllerFactory(Posts)
             }
         }
         return Posts.newObject(request, by)
-            .then(function (post) {
+            .then((post) => {
                 PostContent.writeContent(post, request.payload.content);
                 post.content = request.payload.content;
                 return post;
             });
     })
-    .sendNotifications(function onNewPost (post, request) {
-        return stateBasedNotificationSend[post.state](post, request);
-    })
+    .sendNotifications((post, request) => stateBasedNotificationSend[post.state](post, request))
     .findController({
         query: {
             title: Joi.string(),
@@ -121,33 +119,27 @@ var Controller = new ControllerFactory(Posts)
             isActive: Joi.string(),
             state: Joi.string()
         }
-    }, function buildFindQuery (request) {
+    }, (request) => {
         let query = utils.buildQueryFromRequestForDateFields(
             utils.buildQueryFromRequestForFields({},
                 request,
                 [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]
             ), request, 'publishedOn');
-        var blogId = utils.lookupParamsOrPayloadOrQuery(request, 'blogId');
+        let blogId = utils.lookupParamsOrPayloadOrQuery(request, 'blogId');
         if (blogId) {
             query.blogId = Blogs.ObjectID(blogId);
         }
         return query;
-    }, function enrichPosts (output) {
-        return Promise.all(PostContent.readContentMultiple(output.data)
-            .map(function (content, indx) {
-                output.data[indx].content = content;
-            }))
-            .then(function () {
-                return output;
-            });
-    })
-    .findOneController([], function enrichPost (post) {
-        return PostContent.readContent(post)
-            .then(function (content) {
+    }, (output) => Promise.all(PostContent.readContentMultiple(output.data)
+        .map((content, indx) => output.data[indx].content = content))
+        .then(() => output)
+    )
+    .findOneController([], (post) => PostContent.readContent(post)
+            .then((content) => {
                 post.content = content;
                 return post;
-            });
-    })
+            })
+    )
     .updateController({
         payload: {
             blogId: Joi.string(),
@@ -166,7 +158,7 @@ var Controller = new ControllerFactory(Posts)
         isMemberOf(Blogs, ['contributors', 'owners'])
     ],
     'update',
-    function update (post, request, by) {
+    (post, request, by) => {
         if (post.state !== 'archived') {
             PostContent.writeContent(post, request.payload.content);
             return post.update(request, by);
@@ -184,7 +176,7 @@ var Controller = new ControllerFactory(Posts)
         isMemberOf(Blogs, ['owners', 'contributors'])
     ],
     'publish',
-    function publish (post, request, by) {
+    (post, request, by) => {
         if (['draft', 'pending review'].indexOf(post.state) !== -1) {
             let blog = request.pre.blogs;
             if ((blog.isMemberOf('owners', by) || by === 'root') || (!post.needsReview)) {
@@ -199,9 +191,7 @@ var Controller = new ControllerFactory(Posts)
         }
         return post;
     })
-    .sendNotifications(function onPublish (post, request) {
-        return stateBasedNotificationSend[post.state](post, request);
-    })
+    .sendNotifications((post, request) => stateBasedNotificationSend[post.state](post, request))
     .cancelNotifications('review')
     .updateController({
         payload: {
@@ -214,7 +204,7 @@ var Controller = new ControllerFactory(Posts)
         isMemberOf(Blogs, ['owners', 'contributors'])
     ],
     'reject',
-    function reject (post, request, by) {
+    (post, request, by) => {
         if (['draft', 'pending review'].indexOf(post.state) !== -1) {
             request.payload.state = 'do not publish';
             post.reviewedBy = by;
@@ -223,9 +213,7 @@ var Controller = new ControllerFactory(Posts)
         }
         return post;
     })
-    .sendNotifications(function onReject (post, request) {
-        return stateBasedNotificationSend[post.state](post, request);
-    })
+    .sendNotifications((post, request) => stateBasedNotificationSend[post.state](post, request))
     .cancelNotifications('review')
     .deleteController([
         prePopulate(Blogs, 'blogId'),

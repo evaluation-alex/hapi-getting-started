@@ -54,7 +54,7 @@ _.extend(Blogs.prototype, new JoinApproveRejectLeave('addedSubscribers', 'subscr
 _.extend(Blogs.prototype, new Update(['isActive', 'description', 'needsReview', 'access', 'allowComments'], ['owners', 'contributors', 'subscribers', 'subscriberGroups', 'needsApproval']));
 _.extend(Blogs.prototype, new Save(Blogs));
 _.extend(Blogs.prototype, new CAudit(Blogs.collection, 'title'));
-Blogs.newObject = function newObject (doc, by) {
+Blogs.newObject = (doc, by) => {
     let self = this;
     return self.create(doc.payload.title,
         doc.auth.credentials.user.organisation,
@@ -68,7 +68,7 @@ Blogs.newObject = function newObject (doc, by) {
         doc.payload.allowComments,
         by);
 };
-Blogs.create = function create (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {
+Blogs.create = (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) => {
     let self = this;
     let id = Blogs.ObjectID();
     mkdirp((Config.storage.diskPath + '/' + organisation + '/blogs/' + id.toString()).replace(' ', '-'), {});

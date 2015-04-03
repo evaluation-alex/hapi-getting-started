@@ -3,16 +3,12 @@ var Promise = require('bluebird');
 let Notifications = require('./../../users/notifications/model');
 let utils = require('./../utils');
 module.exports = function SendNotifications (model, notifyCb) {
-    return function onNotify (target, request) {
-        var notifyHook = function notifyCbHook (target, request) {
-            /*jshint unused:false*/
-            return new Promise(function (resolve, reject) {
-                resolve(notifyCb(target, request));
-            });
-            /*jshint unused:true*/
-        };
+    return (target, request) => {
+        /*jshint unused:false*/
+        var notifyHook = (target, request) => new Promise((resolve, reject) => resolve(notifyCb(target, request)));
+        /*jshint unused:true*/
         return notifyHook(target, request)
-            .then(function (args) {
+            .then((args) => {
                 if (utils.hasItems(args.to)) {
                     return Notifications.create(args.to,
                         target.organisation,

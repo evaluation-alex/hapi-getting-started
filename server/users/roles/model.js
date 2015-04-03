@@ -19,14 +19,13 @@ Roles.indexes = [
     [{name: 1, organisation: 1}, {unique: true}],
 ];
 _.extend(Roles, Model);
-Roles.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
+Roles.prototype.hasPermissionsTo = (performAction, onObject) => {
     let self = this;
-    const ret = !!_.find(self.permissions, function (p) {
-        return ((p.object === onObject || p.object === '*') && (p.action === performAction || p.action === 'update'));
-    });
-    return ret;
+    return !!_.find(self.permissions,
+        (p) => ((p.object === onObject || p.object === '*') && (p.action === performAction || p.action === 'update'))
+    );
 };
-Roles.create = function create (name, organisation, permissions) {
+Roles.create = (name, organisation, permissions) => {
     let self = this;
     let document = {
         name: name,

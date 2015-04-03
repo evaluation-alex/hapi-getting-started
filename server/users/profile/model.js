@@ -102,12 +102,12 @@ _.extend(Profile.prototype, new Update([
     'profile.educationalQualifications',
     'profile.employmentHistory'
 ], 'updateProfile'));
-Profile.prototype.resetProfile = function resetProfileToDefault () {
+Profile.prototype.resetProfile = () => {
     var self = this;
     self.profile = Profile.create();
     return self;
 };
-Profile.create = function create () {
+Profile.create = () => {
     var emptyAddress = {
         apartment: '',
         floorHouseNo: '',

@@ -10,21 +10,21 @@ let transport = Promise.promisifyAll(Nodemailer.createTransport(Hoek.clone(Confi
 transport.use('compile', markdown({useEmbeddedImages: true}));
 let readFile = Promise.promisify(Fs.readFile);
 let templateCache = {};
-var renderTemplate = function renderTemplate (template, context) {
+var renderTemplate = (template, context) => {
     context.projectName = Config.projectName;
     if (templateCache[template]) {
         return Promise.resolve(templateCache[template](context));
     } else {
         return readFile(template, {encoding: 'utf-8'})
-            .then(function (source) {
+            .then((source) => {
                 templateCache[template] = Handlebars.compile(source);
                 return templateCache[template](context);
             });
     }
 };
-module.exports.sendEmail = function sendEmail (options, template, context) {
+module.exports.sendEmail = (options, template, context) => {
     return renderTemplate(template, context)
-        .then(function (content) {
+        .then((content) => {
             options = Hoek.applyToDefaults(options, {
                 from: Config.system.fromAddress,
                 markdown: content

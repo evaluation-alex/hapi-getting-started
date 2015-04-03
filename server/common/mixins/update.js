@@ -1,14 +1,14 @@
 'use strict';
 let _ = require('lodash');
 let traverse = require('traverse');
-module.exports = function CommonMixinUpdate (properties, lists, updateMethodName) {
-    const props = _.map(properties, function (p) {
+module.exports = function Update(properties, lists, updateMethodName) {
+    const props = _.map(properties, (p) => {
         return {
             path: p.split('.'),
             method: 'set' + p.split('.').map(_.capitalize).join('')
         };
     });
-    const arrs = _.map(lists, function (l) {
+    const arrs = _.map(lists, (l) => {
         let pathadd = l.split('.');
         pathadd[pathadd.length - 1] = 'added' + _.capitalize(pathadd[pathadd.length - 1]);
         let pathrem = l.split('.');
@@ -21,15 +21,15 @@ module.exports = function CommonMixinUpdate (properties, lists, updateMethodName
     });
     updateMethodName = updateMethodName || 'update';
     let ret = {};
-    ret[updateMethodName] = function update (doc, by) {
+    ret[updateMethodName] = (doc, by) => {
         let self = this;
-        _.forEach(props, function (p) {
+        _.forEach(props, (p) => {
             let u = traverse(doc.payload).get(p.path);
             if (!_.isUndefined(u)) {
                 self[p.method](u, by);
             }
         });
-        _.forEach(arrs, function (arr) {
+        _.forEach(arrs, (arr) => {
             let ua = traverse(doc.payload).get(arr.added);
             if (!_.isUndefined(ua)) {
                 self.add(ua, arr.prop, by);

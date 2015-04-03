@@ -12,8 +12,8 @@ var Controller = new ControllerFactory(Audit)
             onBefore: Joi.date(),
             onAfter: Joi.date()
         }
-    }, function buildFindQuery (request) {
-        var query = utils.buildQueryFromRequestForDateFields(
+    }, (request) => {
+        let query = utils.buildQueryFromRequestForDateFields(
             utils.buildQueryFromRequestForFields({}, request, [['by', 'by']]),
             request, 'on');
         if (request.query.objectType) {

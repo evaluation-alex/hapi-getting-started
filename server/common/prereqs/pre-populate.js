@@ -3,13 +3,13 @@ let _ = require('lodash');
 let utils = require('./../utils');
 let errors = require('./../errors');
 var Promise = require('bluebird');
-module.exports = function prePopulate (Model, idToUse) {
+module.exports = (Model, idToUse) => {
     return {
         assign: Model.collection,
-        method: function prePopulateObject (request, reply) {
+        method: (request, reply) => {
             let id = utils.lookupParamsOrPayloadOrQuery(request, idToUse);
             Model.findOne({_id: Model.ObjectID(id)})
-                .then(function (obj) {
+                .then((obj) => {
                     if (!obj) {
                         return Promise.reject(new errors.ObjectNotFoundError({
                             type: _.capitalize(Model.collection),
@@ -18,9 +18,7 @@ module.exports = function prePopulate (Model, idToUse) {
                     }
                     reply(obj);
                 })
-                .catch(function (err) {
-                    utils.logAndBoom(err, reply);
-                });
+                .catch((err) => utils.logAndBoom(err, reply));
         }
     };
 };

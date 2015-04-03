@@ -24,7 +24,7 @@ var Controller = new ControllerFactory(Blogs)
     }, [
         areValid.users(['owners', 'contributors', 'subscribers']),
         areValid.groups(['subscriberGroups'])
-    ], function uniqueCheckQuery (request) {
+    ], (request) => {
         return {
             title: request.payload.title,
             organisation: request.auth.credentials.user.organisation
@@ -40,9 +40,12 @@ var Controller = new ControllerFactory(Blogs)
             subGroup: Joi.string(),
             isActive: Joi.string()
         }
-    }, function buildFindQuery (request) {
-        return utils.buildQueryFromRequestForFields({}, request, [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'], ['subGroup', 'subscriberGroups']]);
-    })
+    }, (request) => utils.buildQueryFromRequestForFields({},
+        request,
+        [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
+            ['subGroup', 'subscriberGroups']
+        ])
+)
     .findOneController()
     .updateController({
         payload: {

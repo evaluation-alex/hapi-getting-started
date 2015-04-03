@@ -1,7 +1,7 @@
 'use strict';
 let utils = require('./../utils');
-module.exports = function RejectNotificationsBuilder (toAdd, idForNotificationsTitle) {
-    return function rejectNotifications (obj, request) {
+module.exports = function RejectNotificationBuilder(toAdd, idForNotificationsTitle) {
+    return (obj, request) => {
         return {
             to: utils.hasItems(request.payload[toAdd]) ? request.payload[toAdd] : [],
             title: ['Your request to follow {{title}} was denied', {

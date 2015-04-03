@@ -9,7 +9,7 @@ var Controller = new ControllerFactory(AuthAttempts)
             ip: Joi.string(),
             email: Joi.string()
         }
-    }, function buildFindQuery (request) {
+    }, (request) => {
         let query = utils.buildQueryFromRequestForFields({}, request, [['ip', 'ip'], ['email', 'email']]);
         query.organisation = '*';
         return query;

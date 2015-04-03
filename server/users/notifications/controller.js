@@ -15,7 +15,7 @@ var Controller = new ControllerFactory(Notifications)
             createdOnAfter: Joi.date(),
             isActive: Joi.string()
         }
-    }, function buildFindQuery (request) {
+    }, (request) => {
         let query = utils.buildQueryFromRequestForDateFields(
             utils.buildQueryFromRequestForFields({},
                 request,

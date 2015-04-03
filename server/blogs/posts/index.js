@@ -5,7 +5,7 @@ let _ = require('lodash');
 var routeFactory = new RouteFactory();
 routeFactory.discoverDefaultRoutes('posts', Controller, '/blogs/{blogId}');
 routeFactory.discoverDefaultRoutes('posts', Controller);
-_.forEach(['publish', 'reject'], function (action) {
+_.forEach(['publish', 'reject'], (action) => {
     routeFactory.newRoute()
         .forMethod('PUT')
         .onPath('/blogs/{blogId}/posts/{id}/' + action)

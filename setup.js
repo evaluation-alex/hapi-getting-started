@@ -27,7 +27,7 @@ var fromStdIn = function (results, property, message, opts) {
             results[property] = test[property];
             resolve(results);
         } else {
-            Promptly.prompt(message, opts, function (err, out) {
+            Promptly.prompt(message, opts, (err, out) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -43,7 +43,7 @@ var fromStdIn = function (results, property, message, opts) {
     });
 };
 
-var handleErr = function (err) {
+var handleErr = (err) => {
     if (err) {
         console.error('Setup failed.');
         console.error(err);
@@ -51,48 +51,28 @@ var handleErr = function (err) {
     }
 };
 
-fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'})
-    .then(function (results) {
-        return fromStdIn(results, 'mongodbUrl', 'MongoDB URL: (mongodb://localhost:27017/' + results.projectName + ') ', {default: 'mongodb://localhost:27017/' + results.projectName});
-    })
-    .then(function (results) {
+fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistart'})
+    .then((results) => fromStdIn(results,
+        'mongodbUrl',
+        'MongoDB URL: (mongodb://localhost:27017/' + results.projectName + ') ',
+        {'default': 'mongodb://localhost:27017/' + results.projectName}
+    ))
+    .then((results) => {
         results.rootEmail = 'root';
         return results;
     })
-    .then(function (results) {
-        return fromStdIn(results, 'rootPassword', 'Root user password: ', {default: ''});
-    })
-    .then(function (results) {
-        return fromStdIn(results, 'smtpHost', 'SMTP host: (smtp.gmail.com) ', {default: 'smtp.gmail.com'});
-    }).
-    then(function (results) {
-        return fromStdIn(results, 'smtpPort', 'SMTP port: (465) ', {default: 465});
-    })
-    .then(function (results) {
-        return fromStdIn(results, 'smtpUsername', 'SMTP username: (' + results.rootEmail + ') ', {default: results.systemEmail});
-    })
-    .then(function (results) {
-        return fromStdIn(results, 'smtpPassword', 'SMTP password: ', {default: ''});
-    })
-    .then(function (results) {
-        return fromStdIn(results, 'port', 'port: ', {default: 3000});
-    })
-    .then(function (results) {
-        return fromStdIn(results, 'logdir', 'log directory: ', {default: './logs'});
-    })
-    .then(function (results) {
-        return fromStdIn(results, 'logMetrics', 'capture metrics: ', {default: true});
-    })
-    .then(function (results) {
-        return fromStdIn(results, 'diskStoragePath', 'disk storage path: ', {default: './'});
-    })
-    .then(function (results) {
-        return fromStdIn(results, 'statsdhost', 'statsd host: ', {default: '127.0.0.1'});
-    })
-    .then(function (results) {
-        return fromStdIn(results, 'statsdport', 'statsd port: ', {default: 8125});
-    })
-    .then(function (results) {
+    .then((results) => fromStdIn(results, 'rootPassword', 'Root user password: ', {'default': ''}))
+    .then((results) => fromStdIn(results, 'smtpHost', 'SMTP host: (smtp.gmail.com) ', {'default': 'smtp.gmail.com'}))
+    .then((results) => fromStdIn(results, 'smtpPort', 'SMTP port: (465) ', {'default': 465}))
+    .then((results) => fromStdIn(results, 'smtpUsername', 'SMTP username: (' + results.rootEmail + ') ', {'default': results.systemEmail}))
+    .then((results) => fromStdIn(results, 'smtpPassword', 'SMTP password: ', {'default': ''}))
+    .then((results) => fromStdIn(results, 'port', 'port: ', {'default': 3000}))
+    .then((results) => fromStdIn(results, 'logdir', 'log directory: ', {'default': './logs'}))
+    .then((results) => fromStdIn(results, 'logMetrics', 'capture metrics: ', {'default': true}))
+    .then((results) => fromStdIn(results, 'diskStoragePath', 'disk storage path: ', {'default': './'}))
+    .then((results) => fromStdIn(results, 'statsdhost', 'statsd host: ', {'default': '127.0.0.1'}))
+    .then((results) => fromStdIn(results, 'statsdport', 'statsd port: ', {'default': 8125}))
+    .then((results) => {
         console.log('setting up with - ' + JSON.stringify(results));
         var opts = {
             env: 'dev',
@@ -126,7 +106,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {default: 'hapistart'
         return results;
     })
     .catch(handleErr)
-    .done(function () {
+    .done(() => {
         console.log('Setup complete.');
         process.exit(0);
     });

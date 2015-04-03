@@ -1,12 +1,12 @@
 'use strict';
 let _ = require('lodash');
 let traverse = require('traverse');
-module.exports = function CommonMixinProperties (properties) {
+module.exports = function Properties(properties) {
     let ret = {};
-    _.forEach(properties, function (property) {
+    _.forEach(properties, (property) => {
         const path = property.split('.');
         const name = path.map(_.capitalize).join('');
-        ret['set' + name] = function (newValue, by) {
+        ret['set' + name] = (newValue, by) => {
             let self = this;
             let origval = traverse(self).get(path);
             if (!_.isUndefined(newValue) && !_.isEqual(origval, newValue)) {

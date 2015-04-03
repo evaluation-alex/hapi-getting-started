@@ -3,12 +3,12 @@ let Users = require('./../../users/model');
 let Roles = require('./../../users/roles/model');
 let logger = require('./../../../config').logger;
 let errors = require('./../errors');
-var loginValidation = function loginValidation (email, sessionkey, callback) {
+var loginValidation = (email, sessionkey, callback) => {
     Users.findBySessionCredentials(email, sessionkey)
-        .then(function (user) {
+        .then((user) => {
             logger.info(['auth'], {user: email, success: true});
             Roles.find({name: {$in: user.roles}, organisation: user.organisation})
-                .then(function (roles) {
+                .then((roles) => {
                     user._roles = roles;
                     callback(null, true, {user: user});
                 });
@@ -17,16 +17,16 @@ var loginValidation = function loginValidation (email, sessionkey, callback) {
         errors.UserNotLoggedInError,
         errors.SessionExpiredError,
         errors.SessionCredentialsNotMatchingError,
-        function (err) {
+        (err) => {
             callback(err.i18nError('en'), false);
         })
-        .catch(function (err) {
+        .catch((err) => {
             logger.info(['auth', 'error'], {user: email, success: false, error: JSON.stringify(err)});
             callback(null, false);
         });
 };
-module.exports.register = function register (server, options, next) {
-    server.connections.forEach(function (connection) {
+module.exports.register = (server, options, next) => {
+    server.connections.forEach((connection) => {
         connection.auth.strategy('simple', 'basic', {
             validateFunc: loginValidation
         });

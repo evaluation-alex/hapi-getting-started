@@ -1,12 +1,12 @@
 'use strict';
 let utils = require('./../utils');
 let _ = require('lodash');
-module.exports = function AddRemoveNotificationsBuilder (type, roles, owners, idForNotificationsTitle) {
-    return function updateNotificationBuilder (obj, request) {
+module.exports = function AddRemoveNotificationBuilder(type, roles, owners, idForNotificationsTitle) {
+    return (obj, request) => {
         let description = {};
         let shouldNotify = false;
-        _.forEach(roles, function (toInspect) {
-            _.forEach(['added', 'removed'], function (t) {
+        _.forEach(roles, (toInspect) => {
+            _.forEach(['added', 'removed'], (t) => {
                 const p = t + _.capitalize(toInspect);
                 if (utils.hasItems(request.payload[p])) {
                     shouldNotify = true;

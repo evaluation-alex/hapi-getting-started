@@ -47,13 +47,13 @@ _.extend(UserGroups.prototype, new JoinApproveRejectLeave('addedMembers', 'membe
 _.extend(UserGroups.prototype, new Update(['isActive', 'description', 'access'], ['owners', 'members', 'needsApproval']));
 _.extend(UserGroups.prototype, new Save(UserGroups));
 _.extend(UserGroups.prototype, new CAudit(UserGroups.collection, 'name'));
-UserGroups.newObject = function newObject (doc, by) {
+UserGroups.newObject = (doc, by) => {
     let self = this;
     return self.create(doc.payload.name,
         doc.auth.credentials.user.organisation,
         doc.payload.description,
         by)
-        .then(function (userGroup) {
+        .then((userGroup) => {
             return userGroup
                 .add(doc.payload.members, 'members', by)
                 .add(doc.payload.owners, 'owners', by)
@@ -61,7 +61,7 @@ UserGroups.newObject = function newObject (doc, by) {
                 .save();
         });
 };
-UserGroups.create = function create (name, organisation, description, owner) {
+UserGroups.create = (name, organisation, description, owner) => {
     let self = this;
     let document = {
         name: name,

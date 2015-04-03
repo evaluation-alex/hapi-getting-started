@@ -1,19 +1,19 @@
 'use strict';
-module.exports = function CommonMixinJoinApproveReject (toAdd, affectedRole, needsApproval) {
+module.exports = function JoinApproveRejectLeave(toAdd, affectedRole, needsApproval) {
     return {
-        join: function join (doc, by) {
+        join: (doc, by) => {
             let self = this;
             return self.add([by], self.access === 'public' ? affectedRole : needsApproval, by);
         },
-        approve: function approve (doc, by) {
+        approve: (doc, by) => {
             let self = this;
             return self.add(doc.payload[toAdd], affectedRole, by).remove(doc.payload[toAdd], needsApproval, by);
         },
-        reject: function reject (doc, by) {
+        reject: (doc, by) => {
             let self = this;
             return self.remove(doc.payload[toAdd], needsApproval, by);
         },
-        leave: function leave (doc, by) {
+        leave: (doc, by) => {
             let self = this;
             return self.remove([by], affectedRole, by);
         }

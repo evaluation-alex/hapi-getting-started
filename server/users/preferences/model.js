@@ -60,12 +60,12 @@ _.extend(Preferences.prototype, new Update([
     'preferences.notifications.posts.blocked',
     'preferences.notifications.userGroups.blocked'
 ], 'updatePreferences'));
-Preferences.prototype.resetPrefs = function resetPrefsToDefault () {
+Preferences.prototype.resetPrefs = () => {
     let self = this;
     self.preferences = Preferences.create();
     return self;
 };
-Preferences.create = function create () {
+Preferences.create = () => {
     return {
         notifications: {
             blogs: {

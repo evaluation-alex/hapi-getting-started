@@ -71,13 +71,11 @@ _.extend(Users.prototype, new Update([
 ], [], 'updateUser'));
 _.extend(Users.prototype, new Save(Users));
 _.extend(Users.prototype, new CAudit(Users.collection, 'email'));
-Users.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
+Users.prototype.hasPermissionsTo = (performAction, onObject) => {
     let self = this;
-    return !!_.find(self._roles, function (role) {
-        return role.hasPermissionsTo(performAction, onObject);
-    });
+    return !!_.find(self._roles, (role) => role.hasPermissionsTo(performAction, onObject));
 };
-Users.prototype.resetPasswordSent = function resetPasswordSent (by) {
+Users.prototype.resetPasswordSent = (by) => {
     let self = this;
     self.resetPwd = {
         token: Uuid.v4(),
@@ -85,7 +83,7 @@ Users.prototype.resetPasswordSent = function resetPasswordSent (by) {
     };
     return self.trackChanges('reset password sent', null, self.resetPwd, by);
 };
-Users.prototype.setPassword = function setPassword (newPassword, by) {
+Users.prototype.setPassword = (newPassword, by) => {
     let self = this;
     if (newPassword) {
         let oldPassword = self.password;
@@ -96,17 +94,15 @@ Users.prototype.setPassword = function setPassword (newPassword, by) {
     }
     return self;
 };
-Users.prototype.stripPrivateData = function stripData () {
+Users.prototype.stripPrivateData = () => {
     let self = this;
     return {
         email: self.email
     };
 };
-Users.prototype.afterLogin = function afterLogin (ipaddress) {
+Users.prototype.afterLogin = (ipaddress) => {
     let self = this;
-    let session = _.find(self.session, function (session) {
-        return session.ipaddress === ipaddress;
-    });
+    let session = _.find(self.session, (session) => session.ipaddress === ipaddress);
     return {
         user: self.email,
         session: session,
@@ -114,7 +110,7 @@ Users.prototype.afterLogin = function afterLogin (ipaddress) {
         preferences: self.preferences
     };
 };
-Users.create = function create (email, organisation, password, locale) {
+Users.create = (email, organisation, password, locale) => {
     let self = this;
     let document = {
         email: email,
@@ -133,15 +129,14 @@ Users.create = function create (email, organisation, password, locale) {
     document.preferences.locale = locale;
     return self.insertAndAudit(document);
 };
-Users.findByCredentials = function findByCredentials (email, password) {
+Users.findByCredentials = (email, password) => {
     let self = this;
     return self.findOne({email: email, isActive: true})
-        .then(function (user) {
+        .then((user) => {
             if (!user) {
                 return Promise.reject(new errors.UserNotFoundError({email: email}));
             }
-            var passwordMatch = utils.secureCompare(password, user.password);
-            if (!passwordMatch) {
+            if (!utils.secureCompare(password, user.password)) {
                 return Promise.reject(new errors.IncorrectPasswordError({email: email}));
             }
             return user;

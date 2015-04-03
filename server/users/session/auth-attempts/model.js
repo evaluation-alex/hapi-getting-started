@@ -21,7 +21,7 @@ AuthAttempts.indexes = [
     [{email: 1}]
 ];
 _.extend(AuthAttempts, Model);
-AuthAttempts.create = function create (ip, email) {
+AuthAttempts.create = (ip, email) => {
     let self = this;
     let document = {
         ip: ip,
@@ -31,12 +31,14 @@ AuthAttempts.create = function create (ip, email) {
     };
     return self.insert(document);
 };
-AuthAttempts.abuseDetected = function abuseDetected (ip, email) {
+AuthAttempts.abuseDetected = (ip, email) => {
     let self = this;
-    return Promise.join(self.count({ip: ip}), self.count({ip: ip, email: email}),
-        function (abusiveIpCount, abusiveIpUserCount) {
-            var ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;
-            var ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
+    return Promise.join(
+        self.count({ip: ip}),
+        self.count({ip: ip, email: email}),
+        (abusiveIpCount, abusiveIpUserCount) => {
+            let ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;
+            let ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
             return (ipLimitReached || ipUserLimitReached);
         });
 };

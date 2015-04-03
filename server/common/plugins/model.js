@@ -3,23 +3,21 @@ let Path = require('path');
 let Model = require('./../model');
 let _ = require('lodash');
 let utils = require('./../utils');
-module.exports.register = function (server, options, next) {
+module.exports.register = (server, options, next) => {
     let loadedModels = {};
-    _.forIn(options.models, function (file, model) {
+    _.forIn(options.models, (file, model) => {
         loadedModels[model] = require(Path.join(process.cwd(), file));
     });
     Model.connect(options.mongodb)
-        .then(function (db) {
+        .then((db) => {
             server.expose('MongoDB', db);
-            server.on('stop', function () {
-                Model.disconnect();
-            });
+            server.on('stop', () => Model.disconnect());
             return db;
         })
-        .then(function (db) {
+        .then((db) => {
             if (options.autoIndex) {
-                _.forEach(_.values(loadedModels), function (model) {
-                    _.forEach(model.indexes, function (index) {
+                _.forEach(_.values(loadedModels), (model) => {
+                    _.forEach(model.indexes, (index) => {
                         db.ensureIndex(model.collection,
                             index[0],
                             index[1] || {},

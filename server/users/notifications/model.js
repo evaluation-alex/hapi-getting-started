@@ -45,12 +45,12 @@ _.extend(Notifications.prototype, new Update(['state', 'isActive'], []));
 _.extend(Notifications.prototype, new Save(Notifications));
 _.extend(Notifications.prototype, new CAudit(Notifications.collection, '_id'));
 _.extend(Notifications.prototype, new I18N(['title', 'content']));
-Notifications.create = function create (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
+Notifications.create = (email, organisation, objectType, objectId, title, state, action, priority, content, by) => {
     let self = this;
     if (_.isArray(email)) {
-        return Promise.all(_.map(_.unique(_.flatten(email)), function (e) {
-            return self.create(e, organisation, objectType, objectId, title, state, action, priority, content, by);
-        }));
+        return Promise.all(_.map(_.unique(_.flatten(email)),
+            (e) => self.create(e, organisation, objectType, objectId, title, state, action, priority, content, by))
+        );
     } else {
         let document = {
             email: email,

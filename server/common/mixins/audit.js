@@ -1,7 +1,7 @@
 'use strict';
-module.exports = function CommonMixinAudit (type, idToUse) {
+module.exports = function TrackChanges(type, idToUse) {
     return {
-        trackChanges: function trackChanges (action, oldValues, newValues, by) {
+        trackChanges: (action, oldValues, newValues, by) => {
             let self = this;
             self.audit = self.audit || {
                 objectChangedType: type,

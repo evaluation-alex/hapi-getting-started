@@ -26,12 +26,12 @@ var ControllerFactory = function ControllerFactory (model) {
     }
     return self;
 };
-ControllerFactory.prototype.enableNotifications = function enableNotifications () {
+ControllerFactory.prototype.enableNotifications = () => {
     let self = this;
     self.notify = true;
     return self;
 };
-ControllerFactory.prototype.forMethod = function forMethod (method) {
+ControllerFactory.prototype.forMethod = (method) => {
     let self = this;
     self.method = method;
     self.controller[self.method] = {
@@ -42,15 +42,15 @@ ControllerFactory.prototype.forMethod = function forMethod (method) {
     }
     return self;
 };
-ControllerFactory.prototype.withValidation = function withValidation (validator) {
+ControllerFactory.prototype.withValidation = (validator) => {
     let self = this;
     self.controller[self.method].validate = validator;
     return self;
 };
-ControllerFactory.prototype.preProcessWith = function preProcessWith (preProcess) {
+ControllerFactory.prototype.preProcessWith = (preProcess) => {
     let self = this;
     if (_.isArray(preProcess)) {
-        _.forEach(preProcess, function (pre) {
+        _.forEach(preProcess, (pre) => {
             self.controller[self.method].pre.push(pre);
         });
     } else {
@@ -58,26 +58,26 @@ ControllerFactory.prototype.preProcessWith = function preProcessWith (preProcess
     }
     return self;
 };
-ControllerFactory.prototype.handleUsing = function handleUsing (handler) {
+ControllerFactory.prototype.handleUsing = (handler) => {
     let self = this;
     self.controller[self.method].handler = handler;
     return self;
 };
-ControllerFactory.prototype.sendNotifications = function sendNotifications (notifyCb) {
+ControllerFactory.prototype.sendNotifications = (notifyCb) => {
     let self = this;
     self.controller[self.method].on('invoked', new SendNotifications(self.model, notifyCb));
     return self;
 };
-ControllerFactory.prototype.cancelNotifications = function cancelNotifications (cancelAction, cancelNotificationsCb) {
+ControllerFactory.prototype.cancelNotifications = (cancelAction, cancelNotificationsCb) => {
     let self = this;
     self.controller[self.method].on('invoked', new CancelNotifications(self.model, cancelAction, cancelNotificationsCb));
     return self;
 };
-ControllerFactory.prototype.doneConfiguring = function doneConfiguring () {
+ControllerFactory.prototype.doneConfiguring = () => {
     let self = this;
     return self.controller;
 };
-ControllerFactory.prototype.newController = function newController (validator, prereqs, uniqueCheck, newCb) {
+ControllerFactory.prototype.newController = (validator, prereqs, uniqueCheck, newCb) => {
     let self = this;
     var pre = _.flatten([ensurePermissions('update', self.component),
         isUnique(self.model, uniqueCheck),
@@ -87,14 +87,14 @@ ControllerFactory.prototype.newController = function newController (validator, p
         .handleUsing(new NewHandler(self.model, self.controller.new, newCb));
     return self;
 };
-ControllerFactory.prototype.customNewController = function customNewController (method, validator, uniqueCheck, newCb) {
+ControllerFactory.prototype.customNewController = (method, validator, uniqueCheck, newCb) => {
     let self = this;
     self.forMethod(method)
         .preProcessWith([isUnique(self.model, uniqueCheck)])
         .handleUsing(new NewHandler(self.model, self.controller[method], newCb));
     return self;
 };
-ControllerFactory.prototype.findController = function findController (validator, queryBuilder, findCb) {
+ControllerFactory.prototype.findController = (validator, queryBuilder, findCb) => {
     var self = this;
     validator.query.fields = Joi.string();
     validator.query.sort = Joi.string();
@@ -106,33 +106,29 @@ ControllerFactory.prototype.findController = function findController (validator,
         .handleUsing(new FindHandler(self.model, queryBuilder, findCb));
     return self;
 };
-ControllerFactory.prototype.findOneController = function findOneController (prereqs, findOneCb) {
+ControllerFactory.prototype.findOneController = (prereqs, findOneCb) => {
     let self = this;
     let pre = _.filter(_.flatten([ensurePermissions('view', self.component), prePopulate(self.model, 'id'), prereqs]),
-        function (f) {
-            return !!f;
-        });
+        (f) => !!f);
     self.forMethod('findOne')
         .preProcessWith(pre)
         .handleUsing(new FindOneHandler(self.model, findOneCb));
     return self;
 };
-ControllerFactory.prototype.updateController = function updateController (validator, prereqs, methodName, updateCb) {
+ControllerFactory.prototype.updateController = (validator, prereqs, methodName, updateCb) => {
     let self = this;
-    let perms = _.find(prereqs, function (prereq) {
-        return prereq.assign === 'ensurePermissions';
-    });
+    let perms = _.find(prereqs, (prereq) => prereq.assign === 'ensurePermissions');
     let pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prePopulate(self.model, 'id'), prereqs]);
     self.forMethod(methodName)
         .preProcessWith(pre)
         .handleUsing(new UpdateHandler(self.model, self.controller[methodName], updateCb));
     return self;
 };
-ControllerFactory.prototype.deleteController = function deleteController (pre) {
+ControllerFactory.prototype.deleteController = (pre) => {
     let self = this;
     return self.updateController(undefined, pre, 'delete', 'del');
 };
-ControllerFactory.prototype.joinLeaveController = function joinController (group, approvers, idForNotificationTitle) {
+ControllerFactory.prototype.joinLeaveController = (group, approvers, idForNotificationTitle) => {
     let self = this;
     self.updateController(undefined, [
             ensurePermissions('view', self.component)
@@ -161,13 +157,13 @@ ControllerFactory.prototype.joinLeaveController = function joinController (group
     }));
     return self;
 };
-ControllerFactory.prototype.approveRejectController = function approveRejectController (toAdd, approvers, idForNotificationsTitle) {
+ControllerFactory.prototype.approveRejectController = (toAdd, approvers, idForNotificationsTitle) => {
     let self = this;
     let validator = {
         payload: {}
     };
     validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
-    _.forEach(['approve', 'reject'], function (action) {
+    _.forEach(['approve', 'reject'], (action) => {
         self.updateController(validator, [
                 isMemberOf(self.model, [approvers]),
                 areValid.users([toAdd])

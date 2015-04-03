@@ -2,20 +2,18 @@
 let _ = require('lodash');
 let traverse = require('traverse');
 let utils = require('./../utils');
-module.exports = function CommonMixinAddRemove (roles) {
+module.exports = function AddRemove(roles) {
     let rp = {};
-    _.forEach(roles, function (role) {
-        rp[role] = role.split('.');
-    });
+    _.forEach(roles, (role) => { rp[role] = role.split('.'); });
     return {
-        isMemberOf: function isMemberOf (role, email) {
+        isMemberOf: (role, email) => {
             let self = this;
             return !!_.findWhere(traverse(self).get(rp[role]), email);
         },
-        add: function add (toAdd, role, by) {
+        add: (toAdd, role, by) => {
             let self = this;
             let list = traverse(self).get(rp[role]);
-            _.forEach(toAdd, function (memberToAdd) {
+            _.forEach(toAdd, (memberToAdd) => {
                 let found = _.findWhere(list, memberToAdd);
                 if (!found) {
                     list.push(memberToAdd);
@@ -24,13 +22,11 @@ module.exports = function CommonMixinAddRemove (roles) {
             });
             return self;
         },
-        remove: function remove (toRemove, role, by) {
+        remove: (toRemove, role, by) => {
             let self = this;
             let list = traverse(self).get(rp[role]);
-            _.forEach(toRemove, function (memberToRemove) {
-                let found = _.remove(list, function (m) {
-                    return m === memberToRemove;
-                });
+            _.forEach(toRemove, (memberToRemove) => {
+                let found = _.remove(list, (m) => m === memberToRemove);
                 if (utils.hasItems(found)) {
                     self.trackChanges('remove ' + role, memberToRemove, null, by);
                 }

@@ -24,7 +24,7 @@ Audit.indexes = [
     [{on: 1}]
 ];
 _.extend(Audit, Model);
-Audit.findAudit = function findAudit (type, id, conditions) {
+Audit.findAudit = (type, id, conditions) => {
     let self = this;
     conditions.objectChangedType = type;
     conditions.objectChangedId = id;

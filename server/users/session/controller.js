@@ -6,17 +6,15 @@ let ControllerFactory = require('./../../common/controller-factory');
 let utils = require('./../../common/utils');
 let errors = require('./../../common/errors');
 var Promise = require('bluebird');
-var abuseDetected = function abuseDetected (request, reply) {
+var abuseDetected = (request, reply) => {
     AuthAttempts.abuseDetected(utils.ip(request), request.payload.email)
-        .then(function (detected) {
+        .then((detected) => {
             if (detected) {
                 return Promise.reject(new errors.AbusiveLoginAttemptsError());
             }
             reply(false);
         })
-        .catch(function (err) {
-            utils.logAndBoom(err, reply);
-        });
+        .catch((err) => utils.logAndBoom(err, reply));
 };
 var Controller = new ControllerFactory()
     .forMethod('login')
@@ -29,29 +27,23 @@ var Controller = new ControllerFactory()
     .preProcessWith([
         {assign: 'abuseDetected', method: abuseDetected}
     ])
-    .handleUsing(function loginHandler (request, reply) {
+    .handleUsing((request, reply) => {
         let email = request.payload.email;
         let password = request.payload.password;
         let ip = utils.ip(request);
         Users.findByCredentials(email, password)
-            .then(function (user) {
-                return user.loginSuccess(ip, user.email).save();
-            })
-            .then(function (user) {
-                reply(user.afterLogin(ip));
-            })
-            .catch(function (err) {
+            .then((user) => user.loginSuccess(ip, user.email).save())
+            .then((user) => reply(user.afterLogin(ip)))
+            .catch((err) => {
                 AuthAttempts.create(ip, email);
                 utils.logAndBoom(err, reply);
             });
     })
     .forMethod('logout')
-    .handleUsing(function logoutHandler (request, reply) {
+    .handleUsing((request, reply) => {
         let user = request.auth.credentials.user;
         user.logout(utils.ip(request), user.email).save()
-            .then(function () {
-                reply({message: 'Success.'});
-            });
+            .then(() => reply({message: 'Success.'}));
     })
     .doneConfiguring();
 module.exports = Controller;

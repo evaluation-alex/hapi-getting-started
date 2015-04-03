@@ -167,7 +167,7 @@ describe('Notifications', () => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
-                    _.forEach(p.data, function (d) {
+                    _.forEach(p.data, (d) => {
                         expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true();
                     });
                     done();

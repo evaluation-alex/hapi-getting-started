@@ -27,7 +27,7 @@ describe('Handlers and Mixins', () => {
             }
         };
         let Model = {
-            newObject: function (request, by) {
+            newObject: (request, by) => {
                 expect(request).to.exist();
                 expect(by).to.equal('test');
                 return Promise.reject(new Error('test'));
@@ -73,7 +73,7 @@ describe('Handlers and Mixins', () => {
                 test: 'something'
             }
         };
-        let reply = function reply (args) {
+        let reply = (args) => {
             expect(args).to.be.an.instanceof(Error);
         };
         let findOneCb = (obj) => {

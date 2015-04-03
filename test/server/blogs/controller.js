@@ -78,7 +78,7 @@ describe('Blogs', () => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
-                    _.forEach(p.data, function (d) {
+                    _.forEach(p.data, (d) => {
                         expect(d.isActive).to.be.false();
                     });
                     done();

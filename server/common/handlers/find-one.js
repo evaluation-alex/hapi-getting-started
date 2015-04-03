@@ -1,8 +1,8 @@
 'use strict';
 var Promise = require('bluebird');
-var utils = require('./../utils');
+let utils = require('./../utils');
 module.exports = function FindOneHandler (Model, findOneCb) {
-    var findOneHook = function findOneObjCb (output) {
+    let findOneHook = function findOneObjCb (output) {
         /*jshint unused:false*/
         return new Promise(function (resolve, reject) {
             resolve(findOneCb ? findOneCb(output) : output);

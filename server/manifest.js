@@ -1,6 +1,6 @@
 'use strict';
-var Config = require('./../config');
-var server = {
+const Config = require('./../config');
+const server = {
     connections: {
         routes: {
             security: true
@@ -14,7 +14,7 @@ var connections = [{
 if (Config.tls) {
     connections[0].tls = Config.tls;
 }
-var plugins = {
+const plugins = {
     'hapi-bunyan': {logger: Config.logger, mergeData: true, includeTags: true, joinTags: ','},
     'lout': {},
     'poop': {logPath: Config.logs.logDir},
@@ -38,7 +38,7 @@ var plugins = {
     './server/common/plugins/auth': {},
     './server/common/plugins/metrics': {}
 };
-var components = [
+const components = [
     './server/contact',
     './server/users',
     './server/users/session',
@@ -52,7 +52,7 @@ var components = [
     './server/audit'
 ];
 module.exports.components = components;
-var manifest = {
+const manifest = {
     server: server,
     connections: connections,
     plugins: plugins

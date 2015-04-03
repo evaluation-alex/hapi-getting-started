@@ -1,7 +1,7 @@
 'use strict';
-var Fs = require('fs');
-var devnull = require('dev-null');
-var Bunyan = require('bunyan');
+let Fs = require('fs');
+let devnull = require('dev-null');
+let Bunyan = require('bunyan');
 var StatsD = require('node-statsd');
 var i18n = require('i18n');
 
@@ -10,8 +10,8 @@ if (!Fs.existsSync('.opts')) {
     process.exit(1);
 }
 
-var args = JSON.parse(Fs.readFileSync('.opts'));
-var nodemailer = {};
+let args = JSON.parse(Fs.readFileSync('.opts'));
+let nodemailer = {};
 if (!args.sendemails) {
     nodemailer = {
         name: 'minimal',
@@ -36,7 +36,7 @@ if (!args.sendemails) {
     };
 }
 
-var logOptions = {
+let logOptions = {
     name: 'main',
     streams: [{
         type: 'rotating-file',
@@ -48,13 +48,13 @@ var logOptions = {
     }]
 };
 
-var statsdOptions = {
+let statsdOptions = {
     host: args.statsd.host,
     port: args.statsd.port,
     mock: !args.statsd.logmetrics
 };
 
-var i18nOptions = {
+let i18nOptions = {
     locales: ['en'],
     defaultLocale: 'en',
     directory: './i18n'

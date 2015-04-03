@@ -1,7 +1,7 @@
 'use strict';
 var RouteFactory = require('./../../common/route-factory');
 var Controller = require('./controller');
-var _ = require('lodash');
+let _ = require('lodash');
 var routeFactory = new RouteFactory();
 routeFactory.discoverDefaultRoutes('posts', Controller, '/blogs/{blogId}');
 routeFactory.discoverDefaultRoutes('posts', Controller);

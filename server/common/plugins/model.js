@@ -1,10 +1,10 @@
 'use strict';
-var Path = require('path');
-var Model = require('./../model');
-var _ = require('lodash');
-var utils = require('./../utils');
+let Path = require('path');
+let Model = require('./../model');
+let _ = require('lodash');
+let utils = require('./../utils');
 module.exports.register = function (server, options, next) {
-    var loadedModels = {};
+    let loadedModels = {};
     _.forIn(options.models, function (file, model) {
         loadedModels[model] = require(Path.join(process.cwd(), file));
     });

@@ -1,21 +1,22 @@
 'use strict';
-var _ = require('lodash');
+let _ = require('lodash');
 var Promise = require('bluebird');
-var utils = require('./../utils');
+let utils = require('./../utils');
 module.exports = function CommonAreValid (property) {
     return {
         areValid: function areValid (toCheck, organisation) {
-            var self = this;
+            let self = this;
             if (!utils.hasItems(toCheck)) {
                 return Promise.resolve({});
             } else {
-                var conditions = {};
+                let conditions = {
+                    isActive: true,
+                    organisation: organisation
+                };
                 conditions[property] = {$in: toCheck};
-                conditions.isActive = true;
-                conditions.organisation = organisation;
                 return self.find(conditions)
                     .then(function (docs) {
-                        var results = Object.create(null);
+                        let results = Object.create(null);
                         _.forEach(docs, function (doc) {
                             results[doc[property]] = true;
                         });

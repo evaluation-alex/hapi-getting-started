@@ -1,8 +1,8 @@
 'use strict';
 var Promise = require('bluebird');
-var Notifications = require('./../../users/notifications/model');
-var _ = require('lodash');
-var utils = require('./../utils');
+let Notifications = require('./../../users/notifications/model');
+let _ = require('lodash');
+let utils = require('./../utils');
 module.exports = function CancelNotification (model, cancelAction, cancelNotificationsCb) {
     return function cancelNotifications (target, request) {
         return Notifications.find({

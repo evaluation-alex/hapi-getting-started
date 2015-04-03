@@ -1,11 +1,11 @@
 'use strict';
-var Joi = require('joi');
-var _ = require('lodash');
-var Uuid = require('node-uuid');
+let Joi = require('joi');
+let _ = require('lodash');
+let Uuid = require('node-uuid');
 var Promise = require('bluebird');
-var moment = require('moment');
-var errors = require('./../../common/errors');
-var utils = require('./../../common/utils');
+let moment = require('moment');
+let errors = require('./../../common/errors');
+let utils = require('./../../common/utils');
 var Session = function Session () {
 };
 Session.schema = Joi.array().items(Joi.object().keys({
@@ -14,16 +14,16 @@ Session.schema = Joi.array().items(Joi.object().keys({
     expires: Joi.date()
 }));
 Session.prototype._invalidateSession = function invalidateSession (ipaddress, by) {
-    var self = this;
-    var removed = _.remove(self.session, function (session) {
+    let self = this;
+    let removed = _.remove(self.session, function (session) {
         return session.ipaddress === ipaddress;
     });
     self.trackChanges('user.session', removed, null, by);
     return self;
 };
 Session.prototype._newSession = function newSession (ipaddress, by) {
-    var self = this;
-    var session = {
+    let self = this;
+    let session = {
         ipaddress: ipaddress,
         key: utils.secureHash(Uuid.v4().toString()),
         expires: moment().add(1, 'month').toDate()
@@ -33,8 +33,8 @@ Session.prototype._newSession = function newSession (ipaddress, by) {
     return self;
 };
 Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
-    var self = this;
-    var found = _.find(self.session, function (session) {
+    let self = this;
+    let found = _.find(self.session, function (session) {
         return session.ipaddress === ipaddress;
     });
     if (!found) {
@@ -48,16 +48,16 @@ Session.prototype.loginSuccess = function loginSuccess (ipaddress, by) {
     return self;
 };
 Session.prototype.loginFail = function loginFail (ipaddress, by) {
-    var self = this;
+    let self = this;
     return self.trackChanges('login fail', null, ipaddress, by);
 };
 Session.prototype.logout = function logout (ipaddress, by) {
-    var self = this;
+    let self = this;
     self._invalidateSession(ipaddress, by);
     return self;
 };
 Session.findBySessionCredentials = function findBySessionCredentials (email, key) {
-    var self = this;
+    let self = this;
     return self.findOne({email: email, isActive: true})
         .then(function (user) {
             if (!user) {

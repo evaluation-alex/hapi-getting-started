@@ -1,11 +1,11 @@
 'use strict';
-var saveChangeHistory = require('./save-change-history');
-var errors = require('./../errors');
+let saveChangeHistory = require('./save-change-history');
+let errors = require('./../errors');
 var Promise = require('bluebird');
 module.exports = function InsertAndAudit (idToUse, action) {
     return {
         insertAndAudit: function insertAndAudit (doc) {
-            var self = this;
+            let self = this;
             return self.insert(doc)
                 .then(function (obj) {
                     if (!obj) {

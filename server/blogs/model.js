@@ -1,19 +1,19 @@
 'use strict';
-var Model = require('./../common/model');
-var Joi = require('joi');
-var Insert = require('./../common/mixins/insert');
-var AddRemove = require('./../common/mixins/add-remove');
-var JoinApproveRejectLeave = require('./../common/mixins/join-approve-reject-leave');
-var Update = require('./../common/mixins/update');
-var Properties = require('./../common/mixins/properties');
-var IsActive = require('./../common/mixins/is-active');
-var Save = require('./../common/mixins/save');
-var CAudit = require('./../common/mixins/audit');
-var Promise = require('bluebird');
-var _ = require('lodash');
-var mkdirp = Promise.promisify(require('mkdirp'));
-var Config = require('./../../config');
-var utils = require('./../common/utils');
+let Model = require('./../common/model');
+let Joi = require('joi');
+let Insert = require('./../common/mixins/insert');
+let AddRemove = require('./../common/mixins/add-remove');
+let JoinApproveRejectLeave = require('./../common/mixins/join-approve-reject-leave');
+let Update = require('./../common/mixins/update');
+let Properties = require('./../common/mixins/properties');
+let IsActive = require('./../common/mixins/is-active');
+let Save = require('./../common/mixins/save');
+let CAudit = require('./../common/mixins/audit');
+let Promise = require('bluebird');
+let _ = require('lodash');
+let mkdirp = Promise.promisify(require('mkdirp'));
+let Config = require('./../../config');
+let utils = require('./../common/utils');
 var Blogs = function Blogs (attrs) {
     _.assign(this, attrs);
     Object.defineProperty(this, 'audit', {
@@ -55,7 +55,7 @@ _.extend(Blogs.prototype, new Update(['isActive', 'description', 'needsReview', 
 _.extend(Blogs.prototype, new Save(Blogs));
 _.extend(Blogs.prototype, new CAudit(Blogs.collection, 'title'));
 Blogs.newObject = function newObject (doc, by) {
-    var self = this;
+    let self = this;
     return self.create(doc.payload.title,
         doc.auth.credentials.user.organisation,
         doc.payload.description,
@@ -69,10 +69,10 @@ Blogs.newObject = function newObject (doc, by) {
         by);
 };
 Blogs.create = function create (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {
-    var self = this;
-    var id = Blogs.ObjectID();
+    let self = this;
+    let id = Blogs.ObjectID();
     mkdirp((Config.storage.diskPath + '/' + organisation + '/blogs/' + id.toString()).replace(' ', '-'), {});
-    var document = {
+    let document = {
         _id: id,
         title: title,
         organisation: organisation,
@@ -94,4 +94,3 @@ Blogs.create = function create (title, organisation, description, owners, contri
     return self.insertAndAudit(document);
 };
 module.exports = Blogs;
-

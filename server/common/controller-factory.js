@@ -1,24 +1,24 @@
 'use strict';
-var Joi = require('joi');
-var _ = require('lodash');
-var EventEmitter = require('events');
-var ensurePermissions = require('./prereqs/ensure-permissions');
-var isMemberOf = require('./prereqs/is-member-of');
-var isUnique = require('./prereqs/is-unique');
-var areValid = require('./prereqs/are-valid');
-var prePopulate = require('./prereqs/pre-populate');
-var NewHandler = require('./handlers/create');
-var FindHandler = require('./handlers/find');
-var FindOneHandler = require('./handlers/find-one');
-var UpdateHandler = require('./handlers/update');
-var SendNotifications = require('./handlers/send-notifications');
-var CancelNotifications = require('./handlers/cancel-notifications');
-var JoinLeaveNotificationsBuilder = require('./notifications/join-leave-builder');
-var CancelJoinNotificationsBuilder = require('./notifications/cancel-join-builder');
-var ApproveNotificationsBuilder = require('./notifications/approve-builder');
-var RejectNotificationsBuilder = require('./notifications/reject-builder');
+let Joi = require('joi');
+let _ = require('lodash');
+let EventEmitter = require('events');
+let ensurePermissions = require('./prereqs/ensure-permissions');
+let isMemberOf = require('./prereqs/is-member-of');
+let isUnique = require('./prereqs/is-unique');
+let areValid = require('./prereqs/are-valid');
+let prePopulate = require('./prereqs/pre-populate');
+let NewHandler = require('./handlers/create');
+let FindHandler = require('./handlers/find');
+let FindOneHandler = require('./handlers/find-one');
+let UpdateHandler = require('./handlers/update');
+let SendNotifications = require('./handlers/send-notifications');
+let CancelNotifications = require('./handlers/cancel-notifications');
+let JoinLeaveNotificationsBuilder = require('./notifications/join-leave-builder');
+let CancelJoinNotificationsBuilder = require('./notifications/cancel-join-builder');
+let ApproveNotificationsBuilder = require('./notifications/approve-builder');
+let RejectNotificationsBuilder = require('./notifications/reject-builder');
 var ControllerFactory = function ControllerFactory (model) {
-    var self = this;
+    let self = this;
     self.controller = {};
     if (model) {
         self.model = model;
@@ -27,12 +27,12 @@ var ControllerFactory = function ControllerFactory (model) {
     return self;
 };
 ControllerFactory.prototype.enableNotifications = function enableNotifications () {
-    var self = this;
+    let self = this;
     self.notify = true;
     return self;
 };
 ControllerFactory.prototype.forMethod = function forMethod (method) {
-    var self = this;
+    let self = this;
     self.method = method;
     self.controller[self.method] = {
         pre: []
@@ -43,12 +43,12 @@ ControllerFactory.prototype.forMethod = function forMethod (method) {
     return self;
 };
 ControllerFactory.prototype.withValidation = function withValidation (validator) {
-    var self = this;
+    let self = this;
     self.controller[self.method].validate = validator;
     return self;
 };
 ControllerFactory.prototype.preProcessWith = function preProcessWith (preProcess) {
-    var self = this;
+    let self = this;
     if (_.isArray(preProcess)) {
         _.forEach(preProcess, function (pre) {
             self.controller[self.method].pre.push(pre);
@@ -59,26 +59,26 @@ ControllerFactory.prototype.preProcessWith = function preProcessWith (preProcess
     return self;
 };
 ControllerFactory.prototype.handleUsing = function handleUsing (handler) {
-    var self = this;
+    let self = this;
     self.controller[self.method].handler = handler;
     return self;
 };
 ControllerFactory.prototype.sendNotifications = function sendNotifications (notifyCb) {
-    var self = this;
+    let self = this;
     self.controller[self.method].on('invoked', new SendNotifications(self.model, notifyCb));
     return self;
 };
 ControllerFactory.prototype.cancelNotifications = function cancelNotifications (cancelAction, cancelNotificationsCb) {
-    var self = this;
+    let self = this;
     self.controller[self.method].on('invoked', new CancelNotifications(self.model, cancelAction, cancelNotificationsCb));
     return self;
 };
 ControllerFactory.prototype.doneConfiguring = function doneConfiguring () {
-    var self = this;
+    let self = this;
     return self.controller;
 };
 ControllerFactory.prototype.newController = function newController (validator, prereqs, uniqueCheck, newCb) {
-    var self = this;
+    let self = this;
     var pre = _.flatten([ensurePermissions('update', self.component),
         isUnique(self.model, uniqueCheck),
         prereqs]);
@@ -88,7 +88,7 @@ ControllerFactory.prototype.newController = function newController (validator, p
     return self;
 };
 ControllerFactory.prototype.customNewController = function customNewController (method, validator, uniqueCheck, newCb) {
-    var self = this;
+    let self = this;
     self.forMethod(method)
         .preProcessWith([isUnique(self.model, uniqueCheck)])
         .handleUsing(new NewHandler(self.model, self.controller[method], newCb));
@@ -107,32 +107,33 @@ ControllerFactory.prototype.findController = function findController (validator,
     return self;
 };
 ControllerFactory.prototype.findOneController = function findOneController (prereqs, findOneCb) {
-    var self = this;
-    var pre = _.filter(_.flatten([ensurePermissions('view', self.component), prePopulate(self.model, 'id'), prereqs]), function (f) {
-        return !!f;
-    });
+    let self = this;
+    let pre = _.filter(_.flatten([ensurePermissions('view', self.component), prePopulate(self.model, 'id'), prereqs]),
+        function (f) {
+            return !!f;
+        });
     self.forMethod('findOne')
         .preProcessWith(pre)
         .handleUsing(new FindOneHandler(self.model, findOneCb));
     return self;
 };
 ControllerFactory.prototype.updateController = function updateController (validator, prereqs, methodName, updateCb) {
-    var self = this;
-    var perms = _.find(prereqs, function (prereq) {
+    let self = this;
+    let perms = _.find(prereqs, function (prereq) {
         return prereq.assign === 'ensurePermissions';
     });
-    var pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prePopulate(self.model, 'id'), prereqs]);
+    let pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prePopulate(self.model, 'id'), prereqs]);
     self.forMethod(methodName)
         .preProcessWith(pre)
         .handleUsing(new UpdateHandler(self.model, self.controller[methodName], updateCb));
     return self;
 };
 ControllerFactory.prototype.deleteController = function deleteController (pre) {
-    var self = this;
+    let self = this;
     return self.updateController(undefined, pre, 'delete', 'del');
 };
 ControllerFactory.prototype.joinLeaveController = function joinController (group, approvers, idForNotificationTitle) {
-    var self = this;
+    let self = this;
     self.updateController(undefined, [
             ensurePermissions('view', self.component)
         ],
@@ -161,8 +162,8 @@ ControllerFactory.prototype.joinLeaveController = function joinController (group
     return self;
 };
 ControllerFactory.prototype.approveRejectController = function approveRejectController (toAdd, approvers, idForNotificationsTitle) {
-    var self = this;
-    var validator = {
+    let self = this;
+    let validator = {
         payload: {}
     };
     validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();

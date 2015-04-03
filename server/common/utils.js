@@ -1,18 +1,18 @@
 'use strict';
-var Boom = require('boom');
-var logger = require('./../../config').logger;
-var statsd = require('./../../config').statsd;
-var traverse = require('traverse');
-var _ = require('lodash');
-var moment = require('moment');
-var Bcrypt = require('bcrypt');
+let Boom = require('boom');
+let logger = require('./../../config').logger;
+let statsd = require('./../../config').statsd;
+let traverse = require('traverse');
+let _ = require('lodash');
+let moment = require('moment');
+let Bcrypt = require('bcrypt');
 module.exports.logAndBoom = function logAndBoom (err, reply) {
     logger.error({error: err, stack: err.stack});
     reply(err.canMakeBoomError ? err : Boom.badImplementation(err));
 };
 module.exports.toStatsD = function toStatsD (route, statusCode, user, device, browser, start, finish) {
-    var counters = [device, browser, route, route + statusCode, user];
-    var timings = [route, user];
+    let counters = [device, browser, route, route + statusCode, user];
+    let timings = [route, user];
     statsd.increment(counters, 1);
     statsd.timing(timings, finish - start);
 };
@@ -22,7 +22,7 @@ module.exports.errback = function errback (err) {
     }
 };
 module.exports.defaultcb = function defaultcb (bucket, resolve, reject, query) {
-    var start = Date.now();
+    const start = Date.now();
     return function mongoCb (err, res) {
         if (err) {
             logger.error({error: err, stack: err.stack});
@@ -38,7 +38,7 @@ module.exports.defaultcb = function defaultcb (bucket, resolve, reject, query) {
     };
 };
 module.exports.ip = function (request) {
-    var ret = request.info.remoteAddress;
+    const ret = request.info.remoteAddress;
     return ret === '' ? 'test' : ret;
 };
 module.exports.locale = function locale (request) {
@@ -47,7 +47,7 @@ module.exports.locale = function locale (request) {
     return ret ? ret : 'en';
 };
 module.exports.lookupParamsOrPayloadOrQuery = function lookupParamsOrPayloadOrQuery (request, field) {
-    var ret = request.params && request.params[field] ?
+    const ret = request.params && request.params[field] ?
         request.params[field] :
         request.payload && request.payload[field] ?
             request.payload[field] :
@@ -68,8 +68,8 @@ module.exports.buildQueryFromRequestForFields = function buildQueryFromRequestFo
     return query;
 };
 module.exports.buildQueryFromRequestForDateFields = function buildQueryFromRequestForDateFields (query, request, field) {
-    var before = field + 'Before';
-    var after = field + 'After';
+    const before = field + 'Before';
+    const after = field + 'After';
     if (request.query[before]) {
         query[field] = {
             $lte: moment(request.query[before], ['YYYY-MM-DD']).toDate()

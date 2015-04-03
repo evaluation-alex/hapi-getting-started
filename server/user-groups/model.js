@@ -1,16 +1,16 @@
 'use strict';
-var Model = require('./../common/model');
-var Joi = require('joi');
-var Insert = require('./../common/mixins/insert');
-var AreValid = require('./../common/mixins/exist');
-var AddRemove = require('./../common/mixins/add-remove');
-var JoinApproveRejectLeave = require('./../common/mixins/join-approve-reject-leave');
-var Update = require('./../common/mixins/update');
-var Properties = require('./../common/mixins/properties');
-var IsActive = require('./../common/mixins/is-active');
-var Save = require('./../common/mixins/save');
-var CAudit = require('./../common/mixins/audit');
-var _ = require('lodash');
+let Model = require('./../common/model');
+let Joi = require('joi');
+let Insert = require('./../common/mixins/insert');
+let AreValid = require('./../common/mixins/exist');
+let AddRemove = require('./../common/mixins/add-remove');
+let JoinApproveRejectLeave = require('./../common/mixins/join-approve-reject-leave');
+let Update = require('./../common/mixins/update');
+let Properties = require('./../common/mixins/properties');
+let IsActive = require('./../common/mixins/is-active');
+let Save = require('./../common/mixins/save');
+let CAudit = require('./../common/mixins/audit');
+let _ = require('lodash');
 var UserGroups = function UserGroups (attrs) {
     _.assign(this, attrs);
     Object.defineProperty(this, 'audit', {
@@ -48,7 +48,7 @@ _.extend(UserGroups.prototype, new Update(['isActive', 'description', 'access'],
 _.extend(UserGroups.prototype, new Save(UserGroups));
 _.extend(UserGroups.prototype, new CAudit(UserGroups.collection, 'name'));
 UserGroups.newObject = function newObject (doc, by) {
-    var self = this;
+    let self = this;
     return self.create(doc.payload.name,
         doc.auth.credentials.user.organisation,
         doc.payload.description,
@@ -62,8 +62,8 @@ UserGroups.newObject = function newObject (doc, by) {
         });
 };
 UserGroups.create = function create (name, organisation, description, owner) {
-    var self = this;
-    var document = {
+    let self = this;
+    let document = {
         name: name,
         organisation: organisation,
         description: description,

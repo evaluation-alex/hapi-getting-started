@@ -1,13 +1,12 @@
 'use strict';
 var Promise = require('bluebird');
-var utils = require('./../utils');
-var errors = require('./../errors');
+let utils = require('./../utils');
+let errors = require('./../errors');
 module.exports = function isUnique (Model, queryBuilder) {
     return {
         assign: 'uniqueCheck',
         method: function uniqueCheck (request, reply) {
-            var query = queryBuilder(request);
-            Model.findOne(query)
+            Model.findOne(queryBuilder(request))
                 .then(function (f) {
                     if (f) {
                         return Promise.reject(new errors.ObjectAlreadyExistsError());

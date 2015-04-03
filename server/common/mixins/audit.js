@@ -2,7 +2,7 @@
 module.exports = function CommonMixinAudit (type, idToUse) {
     return {
         trackChanges: function trackChanges (action, oldValues, newValues, by) {
-            var self = this;
+            let self = this;
             self.audit = self.audit || {
                 objectChangedType: type,
                 objectChangedId: self[idToUse],

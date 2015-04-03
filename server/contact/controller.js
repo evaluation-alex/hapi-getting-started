@@ -1,9 +1,9 @@
 'use strict';
-var Joi = require('joi');
-var Config = require('./../../config');
-var ControllerFactory = require('./../common/controller-factory');
-var mailer = require('./../common/plugins/mailer');
-var utils = require('./../common/utils');
+let Joi = require('joi');
+let Config = require('./../../config');
+let ControllerFactory = require('./../common/controller-factory');
+let mailer = require('./../common/plugins/mailer');
+let utils = require('./../common/utils');
 var Controller = new ControllerFactory()
     .forMethod('contact')
     .withValidation({
@@ -14,7 +14,7 @@ var Controller = new ControllerFactory()
         }
     })
     .handleUsing(function contactHandler (request, reply) {
-        var options = {
+        let options = {
             subject: Config.projectName + ' contact form',
             to: Config.system.toAddress,
             replyTo: {

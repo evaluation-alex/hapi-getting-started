@@ -1,13 +1,13 @@
 'use strict';
-var Model = require('./../../common/model');
-var Joi = require('joi');
-var Properties = require('./../../common/mixins/properties');
-var Update = require('./../../common/mixins/update');
-var IsActive = require('./../../common/mixins/is-active');
-var Save = require('./../../common/mixins/save');
-var CAudit = require('./../../common/mixins/audit');
-var I18N = require('./../../common/mixins/i18n');
-var _ = require('lodash');
+let Model = require('./../../common/model');
+let Joi = require('joi');
+let Properties = require('./../../common/mixins/properties');
+let Update = require('./../../common/mixins/update');
+let IsActive = require('./../../common/mixins/is-active');
+let Save = require('./../../common/mixins/save');
+let CAudit = require('./../../common/mixins/audit');
+let I18N = require('./../../common/mixins/i18n');
+let _ = require('lodash');
 var Promise = require('bluebird');
 var Notifications = function Notifications (attrs) {
     _.assign(this, attrs);
@@ -46,13 +46,13 @@ _.extend(Notifications.prototype, new Save(Notifications));
 _.extend(Notifications.prototype, new CAudit(Notifications.collection, '_id'));
 _.extend(Notifications.prototype, new I18N(['title', 'content']));
 Notifications.create = function create (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
-    var self = this;
+    let self = this;
     if (_.isArray(email)) {
         return Promise.all(_.map(_.unique(_.flatten(email)), function (e) {
             return self.create(e, organisation, objectType, objectId, title, state, action, priority, content, by);
         }));
     } else {
-        var document = {
+        let document = {
             email: email,
             organisation: organisation,
             objectType: objectType,

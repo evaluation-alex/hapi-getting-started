@@ -1,10 +1,10 @@
 'use strict';
-var Joi = require('joi');
-var Users = require('./../model');
-var AuthAttempts = require('./auth-attempts/model');
-var ControllerFactory = require('./../../common/controller-factory');
-var utils = require('./../../common/utils');
-var errors = require('./../../common/errors');
+let Joi = require('joi');
+let Users = require('./../model');
+let AuthAttempts = require('./auth-attempts/model');
+let ControllerFactory = require('./../../common/controller-factory');
+let utils = require('./../../common/utils');
+let errors = require('./../../common/errors');
 var Promise = require('bluebird');
 var abuseDetected = function abuseDetected (request, reply) {
     AuthAttempts.abuseDetected(utils.ip(request), request.payload.email)
@@ -30,9 +30,9 @@ var Controller = new ControllerFactory()
         {assign: 'abuseDetected', method: abuseDetected}
     ])
     .handleUsing(function loginHandler (request, reply) {
-        var email = request.payload.email;
-        var password = request.payload.password;
-        var ip = utils.ip(request);
+        let email = request.payload.email;
+        let password = request.payload.password;
+        let ip = utils.ip(request);
         Users.findByCredentials(email, password)
             .then(function (user) {
                 return user.loginSuccess(ip, user.email).save();
@@ -47,7 +47,7 @@ var Controller = new ControllerFactory()
     })
     .forMethod('logout')
     .handleUsing(function logoutHandler (request, reply) {
-        var user = request.auth.credentials.user;
+        let user = request.auth.credentials.user;
         user.logout(utils.ip(request), user.email).save()
             .then(function () {
                 reply({message: 'Success.'});

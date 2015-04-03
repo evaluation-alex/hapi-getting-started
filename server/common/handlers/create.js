@@ -1,8 +1,8 @@
 'use strict';
-var utils = require('./../utils');
+let utils = require('./../utils');
 var Promise = require('bluebird');
 module.exports = function NewHandler (Model, notify, newCb) {
-    var newObjHook = function newObjCb (request, by) {
+    let newObjHook = function newObjCb (request, by) {
         /*jshint unused:false*/
         return new Promise(function (resolve, reject) {
             resolve(newCb ? newCb(request, by) : Model.newObject(request, by));
@@ -10,7 +10,7 @@ module.exports = function NewHandler (Model, notify, newCb) {
         /*jshint unused:true*/
     };
     return function createHandler (request, reply) {
-        var by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
+        let by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
         newObjHook(request, by)
             .then(function (n) {
                 if (notify.emit) {

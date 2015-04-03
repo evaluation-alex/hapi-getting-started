@@ -1,25 +1,25 @@
 'use strict';
-var Joi = require('joi');
-var _ = require('lodash');
-var moment = require('moment');
-var Posts = require('./model');
-var Blogs = require('./../model');
-var UserGroups = require('./../../user-groups/model');
-var ControllerFactory = require('./../../common/controller-factory');
-var isMemberOf = require('./../../common/prereqs/is-member-of');
-var prePopulate = require('./../../common/prereqs/pre-populate');
-var PostContent = require('./post-content');
-var errors = require('./../../common/errors');
-var utils = require('./../../common/utils');
-var Promise = require('bluebird');
-var Hoek = require('hoek');
+let Joi = require('joi');
+let _ = require('lodash');
+let moment = require('moment');
+let Posts = require('./model');
+let Blogs = require('./../model');
+let UserGroups = require('./../../user-groups/model');
+let ControllerFactory = require('./../../common/controller-factory');
+let isMemberOf = require('./../../common/prereqs/is-member-of');
+let prePopulate = require('./../../common/prereqs/pre-populate');
+let PostContent = require('./post-content');
+let errors = require('./../../common/errors');
+let utils = require('./../../common/utils');
+let Promise = require('bluebird');
+let Hoek = require('hoek');
 /*jshint unused:false*/
-var stateBasedNotificationSend = {
+let stateBasedNotificationSend = {
     'published': function onPostPublished (post, request) {
-        var blog = request.pre.blogs;
+        let blog = request.pre.blogs;
         return UserGroups.find({name: {$in: blog.subscriberGroups}, organisation: post.organisation})
             .then(function (groups) {
-                var to = [blog.owners, blog.subscribers];
+                let to = [blog.owners, blog.subscribers];
                 _.forEach(groups, function (group) {
                     to.push(group.members);
                 });
@@ -32,7 +32,7 @@ var stateBasedNotificationSend = {
             });
     },
     'pending review': function onNeedsApproval (post, request) {
-        var blog = request.pre.blogs;
+        let blog = request.pre.blogs;
         return {
             to: blog.owners,
             title: ['New Post {{postTitle}} needs your approval to be published.', {postTitle: post.title}],
@@ -43,7 +43,7 @@ var stateBasedNotificationSend = {
         };
     },
     'do not publish': function onReject (post, request) {
-        var blog = request.pre.blogs;
+        let blog = request.pre.blogs;
         return {
             to: post.publishedBy,
             title: ['Post {{postTitle}} not approved for publication.', {postTitle: post.title}],
@@ -89,7 +89,7 @@ var Controller = new ControllerFactory(Posts)
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
         };
     }, function newPost (request, by) {
-        var blog = request.pre.blogs;
+        let blog = request.pre.blogs;
         request.payload = Hoek.applyToDefaults(request.payload, {
             access: blog.access,
             allowComments: blog.allowComments,
@@ -122,7 +122,7 @@ var Controller = new ControllerFactory(Posts)
             state: Joi.string()
         }
     }, function buildFindQuery (request) {
-        var query = utils.buildQueryFromRequestForDateFields(
+        let query = utils.buildQueryFromRequestForDateFields(
             utils.buildQueryFromRequestForFields({},
                 request,
                 [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]
@@ -186,7 +186,7 @@ var Controller = new ControllerFactory(Posts)
     'publish',
     function publish (post, request, by) {
         if (['draft', 'pending review'].indexOf(post.state) !== -1) {
-            var blog = request.pre.blogs;
+            let blog = request.pre.blogs;
             if ((blog.isMemberOf('owners', by) || by === 'root') || (!post.needsReview)) {
                 request.payload.state = 'published';
                 post.reviewedBy = by;

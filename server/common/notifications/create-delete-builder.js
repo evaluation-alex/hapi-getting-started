@@ -1,6 +1,6 @@
 'use strict';
 module.exports = function NewDeleteObjectNotificationsBuilder (type, owners, title, action) {
-    var actions = {
+    const actions = {
         'new': {
             title: type + ' {{title}} created.',
             description: type + ' {{title}} created and you have been designated owner by {{createdBy}}'

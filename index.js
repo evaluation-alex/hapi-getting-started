@@ -1,6 +1,6 @@
 'use strict';
-var Glue = require('glue');
-var Manifest = require('./server/manifest');
+let Glue = require('glue');
+let Manifest = require('./server/manifest');
 
 Glue.compose(Manifest.manifest, {relativeTo: __dirname}, function (err, server) {
     if (err) {
@@ -13,4 +13,3 @@ Glue.compose(Manifest.manifest, {relativeTo: __dirname}, function (err, server) 
         console.log('engage');
     });
 });
-

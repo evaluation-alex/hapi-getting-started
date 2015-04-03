@@ -1,14 +1,14 @@
 'use strict';
-var Joi = require('joi');
-var _ = require('lodash');
-var Config = require('./../../config');
-var Users = require('./model');
-var Mailer = require('./../common/plugins/mailer');
-var ControllerFactory = require('./../common/controller-factory');
-var utils = require('./../common/utils');
-var errors = require('./../common/errors');
+let Joi = require('joi');
+let _ = require('lodash');
+let Config = require('./../../config');
+let Users = require('./model');
+let Mailer = require('./../common/plugins/mailer');
+let ControllerFactory = require('./../common/controller-factory');
+let utils = require('./../common/utils');
+let errors = require('./../common/errors');
 var Promise = require('bluebird');
-var onlyOwnerAllowed = require('./../common/prereqs/only-owner');
+let onlyOwnerAllowed = require('./../common/prereqs/only-owner');
 var Controller = new ControllerFactory(Users)
     .customNewController('signup', {
         payload: {
@@ -23,17 +23,17 @@ var Controller = new ControllerFactory(Users)
             organisation: request.payload.organisation
         };
     }, function newUser (request) {
-        var email = request.payload.email;
-        var password = request.payload.password;
-        var organisation = request.payload.organisation;
-        var locale = request.payload.locale;
-        var ip = utils.ip(request);
+        let email = request.payload.email;
+        let password = request.payload.password;
+        let organisation = request.payload.organisation;
+        let locale = request.payload.locale;
+        let ip = utils.ip(request);
         return Users.create(email, organisation, password, locale)
             .then(function (user) {
                 return user.loginSuccess(ip, user.email).save();
             })
             .then(function (user) {
-                var options = {
+                let options = {
                     subject: 'Your ' + Config.projectName + ' account',
                     to: {
                         name: request.payload.email,
@@ -41,7 +41,7 @@ var Controller = new ControllerFactory(Users)
                     }
                 };
                 user = user.afterLogin(ip);
-                var m = Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload);
+                let m = Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload);
                 /*jshint unused:false*/
                 return Promise.join(user, m, function (user, m) {
                     return user;
@@ -92,7 +92,7 @@ var Controller = new ControllerFactory(Users)
             })
             .then(function (user) {
                 if (user) {
-                    var options = {
+                    let options = {
                         subject: 'Reset your ' + Config.projectName + ' password',
                         to: request.payload.email
                     };

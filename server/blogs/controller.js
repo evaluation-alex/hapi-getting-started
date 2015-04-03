@@ -1,12 +1,12 @@
 'use strict';
-var Joi = require('joi');
-var Blogs = require('./model');
-var ControllerFactory = require('./../common/controller-factory');
-var areValid = require('./../common/prereqs/are-valid');
-var isMemberOf = require('./../common/prereqs/is-member-of');
-var CreateDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
-var AddRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
-var utils = require('./../common/utils');
+let Joi = require('joi');
+let Blogs = require('./model');
+let ControllerFactory = require('./../common/controller-factory');
+let areValid = require('./../common/prereqs/are-valid');
+let isMemberOf = require('./../common/prereqs/is-member-of');
+let CreateDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
+let AddRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
+let utils = require('./../common/utils');
 var Controller = new ControllerFactory(Blogs)
     .enableNotifications()
     .newController({

@@ -1,15 +1,15 @@
 'use strict';
-var Joi = require('joi');
-var Properties = require('./../../common/mixins/properties');
-var Update = require('./../../common/mixins/update');
-var _ = require('lodash');
+let Joi = require('joi');
+let Properties = require('./../../common/mixins/properties');
+let Update = require('./../../common/mixins/update');
+let _ = require('lodash');
 var Preferences = function Preferences () {
 };
-var channelSchema = Joi.object().keys({
+let channelSchema = Joi.object().keys({
     frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
     lastSent: Joi.date()
 });
-var notificationPrefSchema = Joi.object().keys({
+let notificationPrefSchema = Joi.object().keys({
     inapp: channelSchema,
     email: channelSchema,
     blocked: Joi.array().items(Joi.object())
@@ -61,7 +61,7 @@ _.extend(Preferences.prototype, new Update([
     'preferences.notifications.userGroups.blocked'
 ], 'updatePreferences'));
 Preferences.prototype.resetPrefs = function resetPrefsToDefault () {
-    var self = this;
+    let self = this;
     self.preferences = Preferences.create();
     return self;
 };

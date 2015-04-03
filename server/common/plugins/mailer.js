@@ -1,15 +1,15 @@
 'use strict';
-var Hoek = require('hoek');
-var Fs = require('fs');
-var Handlebars = require('handlebars');
-var Nodemailer = require('nodemailer');
-var markdown = require('nodemailer-markdown').markdown;
-var Config = require('./../../../config');
-var Promise = require('bluebird');
-var transport = Promise.promisifyAll(Nodemailer.createTransport(Hoek.clone(Config.nodemailer)));
+let Hoek = require('hoek');
+let Fs = require('fs');
+let Handlebars = require('handlebars');
+let Nodemailer = require('nodemailer');
+let markdown = require('nodemailer-markdown').markdown;
+let Config = require('./../../../config');
+let Promise = require('bluebird');
+let transport = Promise.promisifyAll(Nodemailer.createTransport(Hoek.clone(Config.nodemailer)));
 transport.use('compile', markdown({useEmbeddedImages: true}));
-var readFile = Promise.promisify(Fs.readFile);
-var templateCache = {};
+let readFile = Promise.promisify(Fs.readFile);
+let templateCache = {};
 var renderTemplate = function renderTemplate (template, context) {
     context.projectName = Config.projectName;
     if (templateCache[template]) {

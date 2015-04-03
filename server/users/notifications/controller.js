@@ -1,10 +1,10 @@
 'use strict';
-var Joi = require('joi');
-var _ = require('lodash');
-var Notifications = require('./model');
-var ControllerFactory = require('./../../common/controller-factory');
-var onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
-var utils = require('./../../common/utils');
+let Joi = require('joi');
+let _ = require('lodash');
+let Notifications = require('./model');
+let ControllerFactory = require('./../../common/controller-factory');
+let onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
+let utils = require('./../../common/utils');
 var Controller = new ControllerFactory(Notifications)
     .findController({
         query: {
@@ -16,15 +16,15 @@ var Controller = new ControllerFactory(Notifications)
             isActive: Joi.string()
         }
     }, function buildFindQuery (request) {
-        var query = utils.buildQueryFromRequestForDateFields(
+        let query = utils.buildQueryFromRequestForDateFields(
             utils.buildQueryFromRequestForFields({},
                 request,
                 [['state', 'state'], ['objectType', 'objectType']]
             ), request,
             'createdOn');
         query.email = request.auth.credentials.user.email;
-        var prefs = request.auth.credentials.user.preferences;
-        var blocked = _.flatten([
+        let prefs = request.auth.credentials.user.preferences;
+        let blocked = _.flatten([
             prefs.notifications.blogs.blocked,
             prefs.notifications.posts.blocked,
             prefs.notifications.userGroups.blocked

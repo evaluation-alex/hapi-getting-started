@@ -1,14 +1,13 @@
 'use strict';
-var _ = require('lodash');
+let _ = require('lodash');
 var Promise = require('bluebird');
-var utils = require('./../utils');
-var Users = require('./../../users/model');
-var UserGroups = require('./../../user-groups/model');
-var errors = require('./../errors');
-var utils = require('./../utils');
+let utils = require('./../utils');
+let Users = require('./../../users/model');
+let UserGroups = require('./../../user-groups/model');
+let errors = require('./../errors');
 var areValid = function areValid (Model, payloadPropertiesToLookup) {
     return function areValidObjects (request, reply) {
-        var toLookup = [];
+        let toLookup = [];
         payloadPropertiesToLookup.forEach(function (payloadPropertyToLookup) {
             if (utils.hasItems(request.payload[payloadPropertyToLookup])) {
                 toLookup.push(request.payload[payloadPropertyToLookup]);
@@ -18,7 +17,7 @@ var areValid = function areValid (Model, payloadPropertiesToLookup) {
         if (utils.hasItems(toLookup)) {
             Model.areValid(toLookup, request.auth.credentials.user.organisation)
                 .then(function (validated) {
-                    var msg = '';
+                    let msg = '';
                     _.forEach(toLookup, function (a) {
                         if (!validated[a]) {
                             msg += a + ',';

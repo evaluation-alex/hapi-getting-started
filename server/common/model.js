@@ -1,8 +1,8 @@
 'use strict';
-var Mongodb = require('mongodb');
-var utils = require('./utils');
+let Mongodb = require('mongodb');
+let utils = require('./utils');
 var Promise = require('bluebird');
-var _ = require('lodash');
+let _ = require('lodash');
 var Model = function Model () {
 };
 Model.ObjectId = Model.ObjectID = Mongodb.ObjectID;
@@ -18,17 +18,17 @@ Model.disconnect = function disconnect () {
     Model.db.close();
 };
 Model.count = function count (query) {
-    var self = this;
-    var collection = Model.db.collection(self.collection);
+    let self = this;
+    let collection = Model.db.collection(self.collection);
     return new Promise(function (resolve, reject) {
         collection.count(query, utils.defaultcb(self.collection + '.count', resolve, reject, query));
     });
 };
 Model.find = function find (query, fields, sort, limit, skip) {
-    var self = this;
-    var collection = Model.db.collection(self.collection);
+    let self = this;
+    let collection = Model.db.collection(self.collection);
     return new Promise(function (resolve, reject) {
-        var opts = {fields: fields, sort: sort, limit: limit, skip: skip};
+        let opts = {fields: fields, sort: sort, limit: limit, skip: skip};
         collection.find(query, opts).toArray(utils.defaultcb(self.collection + '.find', function (docs) {
             if (utils.hasItems(docs)) {
                 resolve(_.map(docs, function (doc) {
@@ -43,8 +43,8 @@ Model.find = function find (query, fields, sort, limit, skip) {
     });
 };
 Model.findOne = function findOne (query) {
-    var self = this;
-    var collection = Model.db.collection(self.collection);
+    let self = this;
+    let collection = Model.db.collection(self.collection);
     return new Promise(function (resolve, reject) {
         collection.findOne(query, {}, utils.defaultcb(self.collection + '.findOne', function (doc) {
             /*jshint -W055*/
@@ -54,7 +54,7 @@ Model.findOne = function findOne (query) {
     });
 };
 Model.pagedFind = function pagedFind (query, fields, sort, limit, page) {
-    var self = this;
+    let self = this;
     return Promise.join(self.find(query, fields, sort, limit, (page - 1) * limit), self.count(query), function (results, count) {
         return {
             data: results,
@@ -76,8 +76,8 @@ Model.pagedFind = function pagedFind (query, fields, sort, limit, page) {
     });
 };
 Model.insert = Model.update = Model.save = Model.upsert = function upsert (obj) {
-    var self = this;
-    var collection = Model.db.collection(self.collection);
+    let self = this;
+    let collection = Model.db.collection(self.collection);
     return new Promise(function (resolve, reject) {
         obj._id = obj._id || self.ObjectID();
         collection.findOneAndReplace({_id: obj._id}, obj, {
@@ -91,8 +91,8 @@ Model.insert = Model.update = Model.save = Model.upsert = function upsert (obj) 
     });
 };
 Model.remove = Model.delete = function remove (query) {
-    var self = this;
-    var collection = Model.db.collection(self.collection);
+    let self = this;
+    let collection = Model.db.collection(self.collection);
     return new Promise(function (resolve, reject) {
         collection.deleteMany(query, utils.defaultcb(self.collection + '.remove', function (doc) {
             resolve(doc.deletedCount);

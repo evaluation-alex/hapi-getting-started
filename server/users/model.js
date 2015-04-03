@@ -1,22 +1,22 @@
 'use strict';
-var Model = require('./../common/model');
-var Joi = require('joi');
-var Uuid = require('node-uuid');
+let Model = require('./../common/model');
+let Joi = require('joi');
+let Uuid = require('node-uuid');
 var Promise = require('bluebird');
-var Insert = require('./../common/mixins/insert');
-var AreValid = require('./../common/mixins/exist');
-var Properties = require('./../common/mixins/properties');
-var IsActive = require('./../common/mixins/is-active');
-var AddRemove = require('./../common/mixins/add-remove');
-var Update = require('./../common/mixins/update');
-var Save = require('./../common/mixins/save');
-var CAudit = require('./../common/mixins/audit');
-var Session = require('./session/model');
-var Preferences = require('./preferences/model');
-var Profile = require('./profile/model');
-var _ = require('lodash');
-var errors = require('./../common/errors');
-var utils = require('./../common/utils');
+let Insert = require('./../common/mixins/insert');
+let AreValid = require('./../common/mixins/exist');
+let Properties = require('./../common/mixins/properties');
+let IsActive = require('./../common/mixins/is-active');
+let AddRemove = require('./../common/mixins/add-remove');
+let Update = require('./../common/mixins/update');
+let Save = require('./../common/mixins/save');
+let CAudit = require('./../common/mixins/audit');
+let Session = require('./session/model');
+let Preferences = require('./preferences/model');
+let Profile = require('./profile/model');
+let _ = require('lodash');
+let errors = require('./../common/errors');
+let utils = require('./../common/utils');
 var Users = function Users (attrs) {
     _.assign(this, attrs);
     Object.defineProperty(this, '_roles', {
@@ -72,13 +72,13 @@ _.extend(Users.prototype, new Update([
 _.extend(Users.prototype, new Save(Users));
 _.extend(Users.prototype, new CAudit(Users.collection, 'email'));
 Users.prototype.hasPermissionsTo = function hasPermissionsTo (performAction, onObject) {
-    var self = this;
+    let self = this;
     return !!_.find(self._roles, function (role) {
         return role.hasPermissionsTo(performAction, onObject);
     });
 };
 Users.prototype.resetPasswordSent = function resetPasswordSent (by) {
-    var self = this;
+    let self = this;
     self.resetPwd = {
         token: Uuid.v4(),
         expires: Date.now() + 10000000
@@ -86,10 +86,10 @@ Users.prototype.resetPasswordSent = function resetPasswordSent (by) {
     return self.trackChanges('reset password sent', null, self.resetPwd, by);
 };
 Users.prototype.setPassword = function setPassword (newPassword, by) {
-    var self = this;
+    let self = this;
     if (newPassword) {
-        var oldPassword = self.password;
-        var newHashedPassword = utils.secureHash(newPassword);
+        let oldPassword = self.password;
+        let newHashedPassword = utils.secureHash(newPassword);
         self.password = newHashedPassword;
         delete self.resetPwd;
         self.trackChanges('reset password', oldPassword, newHashedPassword, by);
@@ -97,14 +97,14 @@ Users.prototype.setPassword = function setPassword (newPassword, by) {
     return self;
 };
 Users.prototype.stripPrivateData = function stripData () {
-    var self = this;
+    let self = this;
     return {
         email: self.email
     };
 };
 Users.prototype.afterLogin = function afterLogin (ipaddress) {
-    var self = this;
-    var session = _.find(self.session, function (session) {
+    let self = this;
+    let session = _.find(self.session, function (session) {
         return session.ipaddress === ipaddress;
     });
     return {
@@ -115,11 +115,10 @@ Users.prototype.afterLogin = function afterLogin (ipaddress) {
     };
 };
 Users.create = function create (email, organisation, password, locale) {
-    var self = this;
-    var hash = utils.secureHash(password);
-    var document = {
+    let self = this;
+    let document = {
         email: email,
-        password: hash,
+        password: utils.secureHash(password),
         organisation: organisation,
         roles: ['readonly'],
         session: [],
@@ -135,7 +134,7 @@ Users.create = function create (email, organisation, password, locale) {
     return self.insertAndAudit(document);
 };
 Users.findByCredentials = function findByCredentials (email, password) {
-    var self = this;
+    let self = this;
     return self.findOne({email: email, isActive: true})
         .then(function (user) {
             if (!user) {

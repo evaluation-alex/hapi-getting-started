@@ -1,8 +1,8 @@
 'use strict';
-var Joi = require('joi');
-var AuthAttempts = require('./model');
-var ControllerFactory = require('./../../../common/controller-factory');
-var utils = require('./../../../common/utils');
+let Joi = require('joi');
+let AuthAttempts = require('./model');
+let ControllerFactory = require('./../../../common/controller-factory');
+let utils = require('./../../../common/utils');
 var Controller = new ControllerFactory(AuthAttempts)
     .findController({
         query: {
@@ -10,7 +10,7 @@ var Controller = new ControllerFactory(AuthAttempts)
             email: Joi.string()
         }
     }, function buildFindQuery (request) {
-        var query = utils.buildQueryFromRequestForFields({}, request, [['ip', 'ip'], ['email', 'email']]);
+        let query = utils.buildQueryFromRequestForFields({}, request, [['ip', 'ip'], ['email', 'email']]);
         query.organisation = '*';
         return query;
     })

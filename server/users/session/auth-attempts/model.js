@@ -1,10 +1,10 @@
 'use strict';
-var Model = require('./../../../common/model');
-var Joi = require('joi');
-var Config = require('./../../../../config');
+let Model = require('./../../../common/model');
+let Joi = require('joi');
+let Config = require('./../../../../config');
 var Promise = require('bluebird');
-var _ = require('lodash');
-var authAttemptsConfig = Config.authAttempts;
+let _ = require('lodash');
+let authAttemptsConfig = Config.authAttempts;
 var AuthAttempts = function AuthAttempts (attrs) {
     _.assign(this, attrs);
 };
@@ -22,8 +22,8 @@ AuthAttempts.indexes = [
 ];
 _.extend(AuthAttempts, Model);
 AuthAttempts.create = function create (ip, email) {
-    var self = this;
-    var document = {
+    let self = this;
+    let document = {
         ip: ip,
         email: email,
         organisation: '*',
@@ -32,7 +32,7 @@ AuthAttempts.create = function create (ip, email) {
     return self.insert(document);
 };
 AuthAttempts.abuseDetected = function abuseDetected (ip, email) {
-    var self = this;
+    let self = this;
     return Promise.join(self.count({ip: ip}), self.count({ip: ip, email: email}),
         function (abusiveIpCount, abusiveIpUserCount) {
             var ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;

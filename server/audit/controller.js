@@ -1,8 +1,8 @@
 'use strict';
-var Joi = require('joi');
-var Audit = require('./model');
-var ControllerFactory = require('./../common/controller-factory');
-var utils = require('./../common/utils');
+let Joi = require('joi');
+let Audit = require('./model');
+let ControllerFactory = require('./../common/controller-factory');
+let utils = require('./../common/utils');
 var Controller = new ControllerFactory(Audit)
     .findController({
         query: {

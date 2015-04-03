@@ -1,10 +1,10 @@
 'use strict';
-var utils = require('./../utils');
-var _ = require('lodash');
+let utils = require('./../utils');
+let _ = require('lodash');
 module.exports.register = function register (server, options, next) {
     server.ext('onPreResponse', function internationalize (request, reply) {
-        var locale = utils.locale(request);
-        var response = request.response;
+        const locale = utils.locale(request);
+        let response = request.response;
         if (response.canMakeBoomError) {
             return reply(response.i18nError(locale));
         }
@@ -24,4 +24,3 @@ module.exports.register = function register (server, options, next) {
 module.exports.register.attributes = {
     name: 'i18n'
 };
-

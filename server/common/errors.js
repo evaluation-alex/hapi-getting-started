@@ -1,8 +1,8 @@
 'use strict';
-var Boom = require('boom');
-var i18n = require('./../../config').i18n;
+let Boom = require('boom');
+let i18n = require('./../../config').i18n;
 var CustomErrorFactory = function CustomErrorFactory (message, name, errorType, phrase) {
-    var CustomError = function CustomError (data) {
+    let CustomError = function CustomError (data) {
         this.message = message;
         this.name = name;
         this.errorType = errorType;
@@ -78,4 +78,3 @@ module.exports.NotObjectOwnerError = new CustomErrorFactory('NotObjectOwner',
     'NotObjectOwnerError',
     'unauthorized',
     '{{email}} does not have permission to modify');
-

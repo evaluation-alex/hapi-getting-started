@@ -1,8 +1,8 @@
 'use strict';
 module.exports = function JoinLeaveNotificationBuilder (approvers, idForNotificationTitle, action, title, notifyAction) {
     return function joinLeaveNotify (obj, request) {
-        var u = request.auth.credentials.email;
-        var ret = {
+        let u = request.auth.credentials.email;
+        let ret = {
             to: obj[approvers],
             description: {},
             title: [title[obj.access], {

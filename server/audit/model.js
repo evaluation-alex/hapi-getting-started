@@ -1,6 +1,6 @@
 'use strict';
-var Model = require('./../common/model');
-var _ = require('lodash');
+let Model = require('./../common/model');
+let _ = require('lodash');
 var Joi = require('joi');
 var Audit = function Audit (attrs) {
     _.assign(this, attrs);
@@ -25,7 +25,7 @@ Audit.indexes = [
 ];
 _.extend(Audit, Model);
 Audit.findAudit = function findAudit (type, id, conditions) {
-    var self = this;
+    let self = this;
     conditions.objectChangedType = type;
     conditions.objectChangedId = id;
     return self.find(conditions);

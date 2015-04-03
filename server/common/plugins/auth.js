@@ -1,8 +1,8 @@
 'use strict';
-var Users = require('./../../users/model');
-var Roles = require('./../../users/roles/model');
-var logger = require('./../../../config').logger;
-var errors = require('./../errors');
+let Users = require('./../../users/model');
+let Roles = require('./../../users/roles/model');
+let logger = require('./../../../config').logger;
+let errors = require('./../errors');
 var loginValidation = function loginValidation (email, sessionkey, callback) {
     Users.findBySessionCredentials(email, sessionkey)
         .then(function (user) {

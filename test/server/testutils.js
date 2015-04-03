@@ -156,6 +156,7 @@ var setupServer = function () {
                         }
                     });
                 } else {
+                    server.start();
                     resolve({server: server, authheader: foundUser.authheader});
                 }
             })
@@ -239,10 +240,7 @@ var cleanup = function (toClear, cb) {
         cleanupAudit(),
         cleanupAuthAttempts(),
         function () {
-            //cleanupConnect();
-            //if (toClear.server) {
-            //    toClear.server.stop();
-            //}
+            server.stop();
             cb();
         })
         .catch(function (err) {

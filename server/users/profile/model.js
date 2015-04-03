@@ -108,6 +108,17 @@ Profile.prototype.resetProfile = function resetProfileToDefault () {
     return self;
 };
 Profile.create = function create () {
+    var emptyAddress = {
+        apartment: '',
+        floorHouseNo: '',
+        street: '',
+        landmark: '',
+        area: '',
+        city: '',
+        pincode: '',
+        state: '',
+        country: ''
+    };
     return {
         firstName: '',
         lastName: '',
@@ -115,28 +126,8 @@ Profile.create = function create () {
         title: '',
         dateOfBirth: new Date(1900, 1, 1),
         phone: [],
-        permanentAddress: {
-            apartment: '',
-            floorHouseNo: '',
-            street: '',
-            landmark: '',
-            area: '',
-            city: '',
-            pincode: '',
-            state: '',
-            country: ''
-        },
-        currentAddress: {
-            apartment: '',
-            floorHouseNo: '',
-            street: '',
-            landmark: '',
-            area: '',
-            city: '',
-            pincode: '',
-            state: '',
-            country: ''
-        },
+        permanentAddress: emptyAddress,
+        currentAddress: emptyAddress,
         educationalQualification: [],
         employmentHistory: []
     };

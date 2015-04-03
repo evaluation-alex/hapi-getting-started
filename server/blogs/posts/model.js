@@ -1,15 +1,15 @@
 'use strict';
-var Model = require('./../../common/model');
-var Joi = require('joi');
-var Insert = require('./../../common/mixins/insert');
-var AddRemove = require('./../../common/mixins/add-remove');
-var IsActive = require('./../../common/mixins/is-active');
-var Update = require('./../../common/mixins/update');
-var Properties = require('./../../common/mixins/properties');
-var Save = require('./../../common/mixins/save');
-var CAudit = require('./../../common/mixins/audit');
-var _ = require('lodash');
-var utils = require('./../../common/utils');
+let Model = require('./../../common/model');
+let Joi = require('joi');
+let Insert = require('./../../common/mixins/insert');
+let AddRemove = require('./../../common/mixins/add-remove');
+let IsActive = require('./../../common/mixins/is-active');
+let Update = require('./../../common/mixins/update');
+let Properties = require('./../../common/mixins/properties');
+let Save = require('./../../common/mixins/save');
+let CAudit = require('./../../common/mixins/audit');
+let _ = require('lodash');
+let utils = require('./../../common/utils');
 var Posts = function Posts (attrs) {
     _.assign(this, attrs);
     Object.defineProperty(this, 'audit', {
@@ -71,9 +71,9 @@ Posts.newObject = function newObject (doc, by) {
         by);
 };
 Posts.create = function create (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) {
-    var self = this;
-    var now = new Date();
-    var document = {
+    let self = this;
+    let now = new Date();
+    let document = {
         blogId: blogId,
         organisation: organisation,
         title: title,

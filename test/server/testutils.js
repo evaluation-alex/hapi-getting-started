@@ -10,7 +10,7 @@ let AuthPlugin = require(relativeToServer + 'common/plugins/auth');
 let MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
 let I18NPlugin = require(relativeToServer + 'common/plugins/i18n');
 let Config = require(relativeTo + 'config');
-let Model = require(relativeToServer + 'common/model');
+let Model = require(relativeToServer + 'common/model'); 
 let Users = require(relativeToServer + 'users/model');
 let UserGroups = require(relativeToServer + 'user-groups/model');
 let Audit = require(relativeToServer + 'audit/model');
@@ -35,7 +35,7 @@ let setupConnect = function () {
         return Promise.resolve(mongodb);
     } else {
         return Model.connect(Config.hapiMongoModels.mongodb)
-            .then(function (db) {
+            .then((db) => {
                 mongodb = db;
                 return db;
             });
@@ -44,7 +44,7 @@ let setupConnect = function () {
 exports.setupConnect = setupConnect;
 function setupRootRole () {
     return Roles.findOne({name: 'root', organisation: 'silver lining'})
-        .then(function (found) {
+        .then((found) => {
             if (found) {
                 return found;
             } else {
@@ -57,7 +57,7 @@ function setupRootRole () {
 }
 function setupReadonlyRole () {
     return Roles.findOne({name: 'readonly', organisation: 'silver lining'})
-        .then(function (found) {
+        .then((found) => {
             if (found) {
                 return found;
             } else {
@@ -67,7 +67,7 @@ function setupReadonlyRole () {
 }
 function setupRootUser () {
     return Users.findOne({email: 'root'})
-        .then(function (found) {
+        .then((found) => {
             if (found) {
                 return found.setRoles(['root'], 'testSetup').resetPrefs().resetProfile().save();
             } else {

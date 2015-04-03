@@ -8,11 +8,11 @@ let lab = exports.lab = Lab.script();
 let describe = lab.describe;
 let it = lab.it;
 let expect = Code.expect;
-describe('Utils', function () {
-    it('should log when errback called with', function (done) {
+describe('Utils', () => {
+    it('should log when errback called with', (done) =>  {
         let prev = Config.logger;
         Config.logger = {
-            error: function (args) {
+            error: (args) => {
                 expect(args.error).to.be.an.instanceof(Error);
             }
         };
@@ -20,10 +20,10 @@ describe('Utils', function () {
         Config.logger = prev;
         done();
     });
-    it('should do nothing when no error passed', function (done) {
+    it('should do nothing when no error passed', (done) =>  {
         let prev = Config.logger;
         Config.logger = {
-            error: function () {
+            error: () => {
                 expect(true).to.be.false();
             }
         };
@@ -31,11 +31,11 @@ describe('Utils', function () {
         Config.logger = prev;
         done();
     });
-    it('should return the proper ip address from the request', function (done) {
+    it('should return the proper ip address from the request', (done) =>  {
         expect(utils.ip({info: {remoteAddress: '127.0.0.1'}})).to.equal('127.0.0.1');
         done();
     });
-    it('should lookup params first, then payload, then query', function (done) {
+    it('should lookup params first, then payload, then query', (done) =>  {
         expect(utils.lookupParamsOrPayloadOrQuery({}, 'f')).to.be.undefined();
         expect(utils.lookupParamsOrPayloadOrQuery({
             params: {

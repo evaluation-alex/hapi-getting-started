@@ -9,20 +9,20 @@ let lab = exports.lab = Lab.script();
 let describe = lab.describe;
 let it = lab.it;
 let expect = Code.expect;
-describe('Mailer', function () {
-    it('returns error when read file fails', function (done) {
+describe('Mailer', () => {
+    it('returns error when read file fails', (done) =>  {
         Mailer.sendEmail({}, 'path', {})
             .then((info) =>  {
                 expect(info).to.not.exist();
                 done(info);
             })
-            .catch(function (err) {
+            .catch((err) =>  {
                 expect(err).to.be.an.instanceof(Error);
                 done();
             })
             .done();
     });
-    it('sends an email, if sent repeatedly, hits the cache', function (done) {
+    it('sends an email, if sent repeatedly, hits the cache', (done) =>  {
         let options = {
             subject: 'Your ' + Config.projectName + ' account',
             to: {
@@ -45,7 +45,7 @@ describe('Mailer', function () {
                 expect(info).to.exist();
                 done();
             })
-            .catch(function (err) {
+            .catch((err) =>  {
                 expect(err).to.not.exist();
                 done(err);
             });

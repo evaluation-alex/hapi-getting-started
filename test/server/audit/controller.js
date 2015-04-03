@@ -10,27 +10,27 @@ let it = lab.it;
 let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
-describe('Audit', function () {
+describe('Audit', () => {
     let authheader = '';
     let server = null;
     let emails = [];
-    before(function (done) {
+    before((done) =>  {
         tu.setupServer()
             .then((res) =>  {
                 server = res.server;
                 authheader = res.authheader;
                 done();
             })
-            .catch(function (err) {
+            .catch((err) =>  {
                 if (err) {
                     done(err);
                 }
             })
             .done();
     });
-    describe('GET /audit', function () {
-        describe('users', function () {
-            before(function (done) {
+    describe('GET /audit', () => {
+        describe('users', () => {
+            before((done) =>  {
                 Users.create('test.users@test.api', 'silver lining', 'password123', 'en')
                     .then((newUser) =>  {
                         return newUser.loginSuccess('test', 'test').save();
@@ -46,14 +46,14 @@ describe('Audit', function () {
                         emails.push('test.users@test.api');
                         done();
                     })
-                    .catch(function (err) {
+                    .catch((err) =>  {
                         emails.push('test.users2@test.api');
                         emails.push('test.users@test.api');
                         done(err);
                     })
                     .done();
             });
-            it('should give audit of only the user whose email is sent in the parameter', function (done) {
+            it('should give audit of only the user whose email is sent in the parameter', (done) =>  {
                 let request = {
                     method: 'GET',
                     url: '/audit?objectChangedId=test.users2@test.api&objectType=users',
@@ -61,7 +61,7 @@ describe('Audit', function () {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, function (response) {
+                server.inject(request, (response) =>  {
                     try {
                         expect(response.statusCode).to.equal(200);
                         expect(response.payload).to.exist();
@@ -73,7 +73,7 @@ describe('Audit', function () {
                     }
                 });
             });
-            it('should give audit of all changes done by user', function (done) {
+            it('should give audit of all changes done by user', (done) =>  {
                 let request = {
                     method: 'GET',
                     url: '/audit?by=test&objectType=users',
@@ -81,7 +81,7 @@ describe('Audit', function () {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, function (response) {
+                server.inject(request, (response) =>  {
                     try {
                         expect(response.statusCode).to.equal(200);
                         expect(response.payload).to.exist();
@@ -92,7 +92,7 @@ describe('Audit', function () {
                     }
                 });
             });
-            it('should give audit of all changes', function (done) {
+            it('should give audit of all changes', (done) =>  {
                 let request = {
                     method: 'GET',
                     url: '/audit',
@@ -100,7 +100,7 @@ describe('Audit', function () {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, function (response) {
+                server.inject(request, (response) =>  {
                     try {
                         expect(response.statusCode).to.equal(200);
                         expect(response.payload).to.exist();
@@ -112,7 +112,7 @@ describe('Audit', function () {
             });
         });
     });
-    after(function (done) {
+    after((done) =>  {
         return tu.cleanup({users: emails}, done);
     });
 });

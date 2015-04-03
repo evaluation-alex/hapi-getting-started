@@ -14,27 +14,27 @@ let it = lab.it;
 let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
-describe('Blogs', function () {
+describe('Blogs', () => {
     let rootAuthHeader = null;
     let server = null;
     let blogsToClear = [];
     let groupsToClear = [];
-    before(function (done) {
+    before((done) =>  {
         tu.setupServer()
             .then((res) =>  {
                 server = res.server;
                 rootAuthHeader = res.authheader;
                 done();
             })
-            .catch(function (err) {
+            .catch((err) =>  {
                 if (err) {
                     done(err);
                 }
             })
             .done();
     });
-    describe('GET /blogs', function () {
-        before(function (done) {
+    describe('GET /blogs', () => {
+        before((done) =>  {
             Blogs.create('test GET /blogs is active', 'silver lining', 'test GET /blogs', ['owner1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(() =>  {
                     return Blogs.create('test GET /blogs is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
@@ -45,7 +45,7 @@ describe('Blogs', function () {
                     done();
                 });
         });
-        it('should give blogs when isactive = true is sent', function (done) {
+        it('should give blogs when isactive = true is sent', (done) =>  {
             let request = {
                 method: 'GET',
                 url: '/blogs?isActive="true"',
@@ -53,11 +53,11 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
-                    _.forEach(p.data, function (d) {
+                    _.forEach(p.data, (d) => {
                         expect(d.isActive).to.be.true();
                     });
                     done();
@@ -66,7 +66,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should give inactive blogs when isactive = false is sent', function (done) {
+        it('should give inactive blogs when isactive = false is sent', (done) =>  {
             let request = {
                 method: 'GET',
                 url: '/blogs?isActive="false"',
@@ -74,7 +74,7 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -87,7 +87,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should give the blogs where the user sent is a member of the owners list', function (done) {
+        it('should give the blogs where the user sent is a member of the owners list', (done) =>  {
             let request = {
                 method: 'GET',
                 url: '/blogs?owner=owner1',
@@ -95,14 +95,14 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
                     let patt = /owner1/i;
-                    _.forEach(p.data, function (d) {
+                    _.forEach(p.data, (d) => {
                         let match = false;
-                        _.find(d.owners, function (u) {
+                        _.find(d.owners, (u) => {
                             match = match || patt.test(u);
                         });
                         expect(match).to.be.true();
@@ -113,7 +113,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should return both inactive and active blogs when nothing is sent', function (done) {
+        it('should return both inactive and active blogs when nothing is sent', (done) =>  {
             let request = {
                 method: 'GET',
                 url: '/blogs',
@@ -121,7 +121,7 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(200);
                     done();
@@ -130,22 +130,22 @@ describe('Blogs', function () {
                 }
             });
         });
-        after(function (done) {
+        after((done) =>  {
             blogsToClear.push('test GET /blogs is active');
             blogsToClear.push('test GET /blogs is active = false');
             done();
         });
     });
-    describe('GET /blogs/{id}', function () {
+    describe('GET /blogs/{id}', () => {
         let id = '';
-        before(function (done) {
+        before((done) =>  {
             Blogs.create('test GET /blogs/id', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then((p) =>  {
                     id = p._id.toString();
                     done();
                 });
         });
-        it('should only send back blog with the id in params', function (done) {
+        it('should only send back blog with the id in params', (done) =>  {
             let request = {
                 method: 'GET',
                 url: '/blogs/' + id,
@@ -153,7 +153,7 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.match(/blog/);
@@ -163,7 +163,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should send back not found when the blog with the id in params is not found', function (done) {
+        it('should send back not found when the blog with the id in params is not found', (done) =>  {
             let request = {
                 method: 'GET',
                 url: '/blogs/54d4430eed61ad701cc7a721',
@@ -171,7 +171,7 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(404);
                     done();
@@ -180,13 +180,13 @@ describe('Blogs', function () {
                 }
             });
         });
-        after(function (done) {
+        after((done) =>  {
             blogsToClear.push('test GET /blogs/id');
             done();
         });
     });
-    describe('PUT /blogs/{id}', function () {
-        it('should send back not found error when you try to modify non existent blogs', function (done) {
+    describe('PUT /blogs/{id}', () => {
+        it('should send back not found error when you try to modify non existent blogs', (done) =>  {
             let request = {
                 method: 'PUT',
                 url: '/blogs/54d4430eed61ad701cc7a721',
@@ -194,7 +194,7 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(404);
                     done();
@@ -203,7 +203,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should send back error if any of the users to be added are not valid', function (done) {
+        it('should send back error if any of the users to be added are not valid', (done) =>  {
             Blogs.create('test PUT /blogs invalidusers', 'silver lining', 'test PUT /blogs invalidusers', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     let id = p._id.toString();
@@ -217,7 +217,7 @@ describe('Blogs', function () {
                             addedOwners: ['one@first.com', 'bogus']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(422);
                             expect(response.payload).to.match(/bogus/);
@@ -231,7 +231,7 @@ describe('Blogs', function () {
                 })
                 .done();
         });
-        it('should send back error if any of the groups to be added are not valid', function (done) {
+        it('should send back error if any of the groups to be added are not valid', (done) =>  {
             Blogs.create('test PUT /blogs invalidgroups', 'silver lining', 'test PUT /blogs invalidgroups', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     let id = p._id.toString();
@@ -245,7 +245,7 @@ describe('Blogs', function () {
                             addedSubscriberGroups: ['bogus']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(422);
                             expect(response.payload).to.match(/bogus/);
@@ -259,7 +259,7 @@ describe('Blogs', function () {
                 })
                 .done();
         });
-        it('should send back forbidden error when you try to modify a blog you are not an owner of', function (done) {
+        it('should send back forbidden error when you try to modify a blog you are not an owner of', (done) =>  {
             let request = {};
             let authHeader = '';
             let id = '';
@@ -280,7 +280,7 @@ describe('Blogs', function () {
                             description: '    test PUT /blogs'
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(401);
                             blogsToClear.push('testPutBlogNotOwner');
@@ -292,7 +292,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should activate blogs and have changes audited', function (done) {
+        it('should activate blogs and have changes audited', (done) =>  {
             Blogs.create('test PUT /blogs isActive=true', 'silver lining', 'test PUT /blogs isActive=true', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     p.isActive = false;
@@ -308,7 +308,7 @@ describe('Blogs', function () {
                             isActive: true
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({_id: Blogs.ObjectID(id)})
@@ -331,7 +331,7 @@ describe('Blogs', function () {
                 })
                 .done();
         });
-        it('should deactivate blogs and have changes audited', function (done) {
+        it('should deactivate blogs and have changes audited', (done) =>  {
             Blogs.create('test PUT /blogs isActive=false', 'silver lining', 'test PUT /blogs isActive=false', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     let id = p._id.toString();
@@ -345,7 +345,7 @@ describe('Blogs', function () {
                             isActive: false
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({_id: Blogs.ObjectID(id)})
@@ -368,7 +368,7 @@ describe('Blogs', function () {
                 })
                 .done();
         });
-        it('should add subscriber / subscriber groups and have changes audited', function (done) {
+        it('should add subscriber / subscriber groups and have changes audited', (done) =>  {
             UserGroups.create('testBlogsAddGroup', 'silver lining', 'test PUT /blogs', 'test')
                 .then(() =>  {
                     return Blogs.create('test PUT /blogs add subscribers and subscriber groups', 'silver lining', 'test PUT /blogs add subscribers and subscriber groups', [], [], [], [], false, 'public', true, 'test');
@@ -386,7 +386,7 @@ describe('Blogs', function () {
                             addedSubscriberGroups: ['testBlogsAddGroup']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({_id: Blogs.ObjectID(id)})
@@ -413,7 +413,7 @@ describe('Blogs', function () {
                 })
                 .done();
         });
-        it('should remove subscribers / subscriber groups and have changes audited', function (done) {
+        it('should remove subscribers / subscriber groups and have changes audited', (done) =>  {
             Blogs.create('test PUT /blogs remove subscribers and sub groups', 'silver lining', 'test PUT /blogs remove subscribers and sub groups', [], [], ['toRemove'], ['toRemove'], false, 'public', true, 'test')
                 .then((p) =>  {
                     let id = p._id.toString();
@@ -428,7 +428,7 @@ describe('Blogs', function () {
                             removedSubscriberGroups: ['toRemove']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({_id: Blogs.ObjectID(id)})
@@ -453,7 +453,7 @@ describe('Blogs', function () {
                 })
                 .done();
         });
-        it('should add/remove subscribers / owners and have changes audited and notifications sent to owners', function (done) {
+        it('should add/remove subscribers / owners and have changes audited and notifications sent to owners', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('test PUT /blogs add remove subscribers and owners', 'silver lining', 'test PUT /blogs add remove subscribers and owners', ['one@first.com'], [], ['root'], [], false, 'public', true, 'test')
@@ -474,7 +474,7 @@ describe('Blogs', function () {
                             addedSubscribers: ['one@first.com']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({title: 'test PUT /blogs add remove subscribers and owners'})
@@ -494,7 +494,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[3].action).to.match(/add|remove/);
                                 })
                                 .then(() =>  {
-                                    let ct = setTimeout(function () {
+                                    let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id)
@@ -524,7 +524,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should update description and have changes audited', function (done) {
+        it('should update description and have changes audited', (done) =>  {
             Blogs.create('test PUT /blogs update desc', 'silver lining', 'test PUT /blogs update desc', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     let id = p._id.toString();
@@ -538,7 +538,7 @@ describe('Blogs', function () {
                             description: 'updated'
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({_id: Blogs.ObjectID(id)})
@@ -563,7 +563,7 @@ describe('Blogs', function () {
                 })
                 .done();
         });
-        it('should update access and have changes audited', function (done) {
+        it('should update access and have changes audited', (done) =>  {
             Blogs.create('test PUT /blogs access', 'silver lining', 'test PUT /blogs access', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     let id = p._id.toString();
@@ -577,7 +577,7 @@ describe('Blogs', function () {
                             access: 'restricted'
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({_id: Blogs.ObjectID(id)})
@@ -600,7 +600,7 @@ describe('Blogs', function () {
                 })
                 .done();
         });
-        it('should update needsReview and have changes audited', function (done) {
+        it('should update needsReview and have changes audited', (done) =>  {
             Blogs.create('test PUT /blogs needsReview', 'silver lining', 'test PUT /blogs needsReview', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     let id = p._id.toString();
@@ -614,7 +614,7 @@ describe('Blogs', function () {
                             needsReview: true
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({_id: Blogs.ObjectID(id)})
@@ -637,7 +637,7 @@ describe('Blogs', function () {
                 })
                 .done();
         });
-        it('should update allowComments and have changes audited', function (done) {
+        it('should update allowComments and have changes audited', (done) =>  {
             Blogs.create('test PUT /blogs allowComments', 'silver lining', 'test PUT /blogs allowComments', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     let id = p._id.toString();
@@ -651,7 +651,7 @@ describe('Blogs', function () {
                             allowComments: false
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({_id: Blogs.ObjectID(id)})
@@ -675,8 +675,8 @@ describe('Blogs', function () {
                 .done();
         });
     });
-    describe('PUT /blogs/{id}/subscribe', function () {
-        it('should send back not found error when you try to join a non existent blog', function (done) {
+    describe('PUT /blogs/{id}/subscribe', () => {
+        it('should send back not found error when you try to join a non existent blog', (done) =>  {
             let request = {
                 method: 'PUT',
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/join',
@@ -684,7 +684,7 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(404);
                     blogsToClear.push('testBlogsPutSubscribeNotFound');
@@ -695,7 +695,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should add user who has joined to the needsApproval list and create notifications for all the owners to approve', function (done) {
+        it('should add user who has joined to the needsApproval list and create notifications for all the owners to approve', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('testPutSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
@@ -712,7 +712,7 @@ describe('Blogs', function () {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({title: 'testPutSubscribeGroupAddUser'})
@@ -726,7 +726,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
                                 })
                                 .then(() =>  {
-                                    let ct = setTimeout(function () {
+                                    let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id),
@@ -753,7 +753,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should add to members if the group access is public and have changes audited and notifications sent to owners as fyi', function (done) {
+        it('should add to members if the group access is public and have changes audited and notifications sent to owners as fyi', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('testPutSubscribePublicGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'public', true, 'test')
@@ -770,7 +770,7 @@ describe('Blogs', function () {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({title: 'testPutSubscribePublicGroupAddUser'})
@@ -784,7 +784,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
                                 })
                                 .then(() =>  {
-                                    let ct = setTimeout(function () {
+                                    let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id),
@@ -813,8 +813,8 @@ describe('Blogs', function () {
                 });
         });
     });
-    describe('PUT /blogs/{id}/unsubscribe', function () {
-        it('should send back not found error when you try to leave a non existent blog', function (done) {
+    describe('PUT /blogs/{id}/unsubscribe', () => {
+        it('should send back not found error when you try to leave a non existent blog', (done) =>  {
             let request = {
                 method: 'PUT',
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/leave',
@@ -822,7 +822,7 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(404);
                     blogsToClear.push('testBlogsPutUnSubscribeNotFound');
@@ -833,7 +833,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should send an error when user leaving is not a subscriber', function (done) {
+        it('should send an error when user leaving is not a subscriber', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('testPutUnSubscribeGroupNotPart', 'silver lining', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
@@ -850,7 +850,7 @@ describe('Blogs', function () {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(401);
                             blogsToClear.push('testPutUnSubscribeGroupNotPart');
@@ -862,7 +862,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should remove user from subscribers list and create notifications for all the owners', function (done) {
+        it('should remove user from subscribers list and create notifications for all the owners', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('testPutUnSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], ['one@first.com'], [], false, 'restricted', true, 'test')
@@ -879,7 +879,7 @@ describe('Blogs', function () {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({title: 'testPutUnSubscribeGroupAddUser'})
@@ -893,7 +893,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[0].action).to.match(/remove subscriber/);
                                 })
                                 .then(() =>  {
-                                    let ct = setTimeout(function () {
+                                    let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id),
@@ -921,8 +921,8 @@ describe('Blogs', function () {
                 });
         });
     });
-    describe('PUT /blogs/{id}/approve', function () {
-        it('should send back not found error when you try to approve a non existent blog', function (done) {
+    describe('PUT /blogs/{id}/approve', () => {
+        it('should send back not found error when you try to approve a non existent blog', (done) =>  {
             let request = {
                 method: 'PUT',
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/approve',
@@ -930,7 +930,7 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(404);
                     blogsToClear.push('testBlogsPutApproveNotFound');
@@ -941,7 +941,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should send back error if any of the users being approved to subscribe are not valid', function (done) {
+        it('should send back error if any of the users being approved to subscribe are not valid', (done) =>  {
             let id = '';
             Blogs.create('testBlogUserExistPUTApprove', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
                 .then((b) =>  {
@@ -956,7 +956,7 @@ describe('Blogs', function () {
                             addedSubscribers: ['unknown']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(422);
                             blogsToClear.push('testBlogUserExistPUTApprove');
@@ -968,7 +968,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should add users who have been approved to the subscribers list and cancel the approval notifications for that user only', function (done) {
+        it('should add users who have been approved to the subscribers list and cancel the approval notifications for that user only', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('testBlogPutApproveAddUser', 'silver lining', 'test PUT /blogs/approve', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
@@ -995,7 +995,7 @@ describe('Blogs', function () {
                             addedSubscribers: ['one@first.com']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({title: 'testBlogPutApproveAddUser'})
@@ -1010,7 +1010,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
                                 })
                                 .then(() =>  {
-                                    let ct = setTimeout(function () {
+                                    let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id),
@@ -1039,7 +1039,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should do nothing if the approved list is empty', function (done) {
+        it('should do nothing if the approved list is empty', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('testBlogPutApproveAddUserEmpty', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
@@ -1058,7 +1058,7 @@ describe('Blogs', function () {
                             addedSubscribers: []
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({title: 'testBlogPutApproveAddUserEmpty'})
@@ -1080,7 +1080,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should send error if the user approving is not an owner of the blog', function (done) {
+        it('should send error if the user approving is not an owner of the blog', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('testPutApproveBlogNotOwner', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
@@ -1103,7 +1103,7 @@ describe('Blogs', function () {
                             addedSubscribers: ['one@first.com']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             u.user.setRoles(['readonly'], 'test').save();
                             expect(response.statusCode).to.equal(401);
@@ -1126,8 +1126,8 @@ describe('Blogs', function () {
                 });
         });
     });
-    describe('PUT /blogs/{id}/reject', function () {
-        it('should send back not found error when you try to reject a non existent blog', function (done) {
+    describe('PUT /blogs/{id}/reject', () => {
+        it('should send back not found error when you try to reject a non existent blog', (done) =>  {
             let request = {
                 method: 'PUT',
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/reject',
@@ -1135,7 +1135,7 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(404);
                     blogsToClear.push('testBlogPutRejectNotFound');
@@ -1146,7 +1146,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should send back error if any of the users being rejected to join are not valid', function (done) {
+        it('should send back error if any of the users being rejected to join are not valid', (done) =>  {
             let id = '';
             Blogs.create('testBlogUserExistPUTReject', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
                 .then((b) =>  {
@@ -1161,7 +1161,7 @@ describe('Blogs', function () {
                             addedSubscribers: ['unknown']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(422);
                             blogsToClear.push('testBlogUserExistPUTReject');
@@ -1173,7 +1173,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should remove users who have been rejected from the needsApproval list and cancel the approval notifications', function (done) {
+        it('should remove users who have been rejected from the needsApproval list and cancel the approval notifications', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('testPutRejectBlogAddUser', 'silver lining', 'test PUT /blogs/reject', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
@@ -1196,7 +1196,7 @@ describe('Blogs', function () {
                             addedSubscribers: ['one@first.com']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({title: 'testPutRejectBlogAddUser'})
@@ -1210,7 +1210,7 @@ describe('Blogs', function () {
                                     expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
                                 })
                                 .then(() =>  {
-                                    let ct = setTimeout(function () {
+                                    let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'blogs',
                                             objectId: Blogs.ObjectID(id),
@@ -1240,7 +1240,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should do nothing if the reject list is empty', function (done) {
+        it('should do nothing if the reject list is empty', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('testPutRejectBlogAddUserEmpty', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
@@ -1259,7 +1259,7 @@ describe('Blogs', function () {
                             addedSubscribers: []
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({title: 'testPutRejectBlogAddUserEmpty'})
@@ -1280,7 +1280,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should send error if the user rejecting is not an owner of the blog', function (done) {
+        it('should send error if the user rejecting is not an owner of the blog', (done) =>  {
             let request = {};
             let id = '';
             Blogs.create('testPutRejectBlogNotOwner', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
@@ -1303,7 +1303,7 @@ describe('Blogs', function () {
                             addedSubscribers: ['one@first.com']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             u.user.setRoles(['readonly'], 'test').save();
                             expect(response.statusCode).to.equal(401);
@@ -1322,8 +1322,8 @@ describe('Blogs', function () {
                 });
         });
     });
-    describe('POST /blogs', function () {
-        it('should send back conflict when you try to create a blog with a title that already exists', function (done) {
+    describe('POST /blogs', () => {
+        it('should send back conflict when you try to create a blog with a title that already exists', (done) =>  {
             Blogs.create('test POST /blogs dupe', 'silver lining', 'test POST /blogs dupe', [], [], [], [], false, 'public', true, 'test')
                 .then(() =>  {
                     let request = {
@@ -1341,7 +1341,7 @@ describe('Blogs', function () {
                             subscriberGroups: []
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(409);
                             blogsToClear.push('test POST /blogs dupe');
@@ -1354,7 +1354,7 @@ describe('Blogs', function () {
                 })
                 .done();
         });
-        it('should send back error if any user sent in the request does not exist', function (done) {
+        it('should send back error if any user sent in the request does not exist', (done) =>  {
             let request = {
                 method: 'POST',
                 url: '/blogs',
@@ -1370,7 +1370,7 @@ describe('Blogs', function () {
                     subscriberGroups: []
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(422);
                     expect(response.payload).to.match(/unknown/);
@@ -1382,7 +1382,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should send back error if any group sent in the request does not exist', function (done) {
+        it('should send back error if any group sent in the request does not exist', (done) =>  {
             let request = {
                 method: 'POST',
                 url: '/blogs',
@@ -1398,7 +1398,7 @@ describe('Blogs', function () {
                     subscriberGroups: ['madeup']
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(422);
                     expect(response.payload).to.match(/madeup/);
@@ -1410,7 +1410,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should create blog successfully', function (done) {
+        it('should create blog successfully', (done) =>  {
             UserGroups.create('test post /blogs', 'silver lining', 'success', 'test')
                 .then(() =>  {
                     let request = {
@@ -1428,7 +1428,7 @@ describe('Blogs', function () {
                             subscriberGroups: ['test post /blogs']
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(201);
                             Blogs.find({title: 'test post /blogs success'})
@@ -1455,8 +1455,8 @@ describe('Blogs', function () {
                 .done();
         });
     });
-    describe('DELETE /blogs/{id}', function () {
-        it('should send back not found error when you try to modify a non existent blog', function (done) {
+    describe('DELETE /blogs/{id}', () => {
+        it('should send back not found error when you try to modify a non existent blog', (done) =>  {
             let request = {
                 method: 'DELETE',
                 url: '/blogs/54d4430eed61ad701cc7a721',
@@ -1464,7 +1464,7 @@ describe('Blogs', function () {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(404);
                     done();
@@ -1473,7 +1473,7 @@ describe('Blogs', function () {
                 }
             });
         });
-        it('should send back forbidden error when you try to delete a blog you are not an owner of', function (done) {
+        it('should send back forbidden error when you try to delete a blog you are not an owner of', (done) =>  {
             let request = {};
             let authHeader = '';
             let id = '';
@@ -1491,7 +1491,7 @@ describe('Blogs', function () {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(401);
                             blogsToClear.push('testDelBlogNotOwner');
@@ -1503,7 +1503,7 @@ describe('Blogs', function () {
                     });
                 });
         });
-        it('should deactivate blog and have changes audited', function (done) {
+        it('should deactivate blog and have changes audited', (done) =>  {
             Blogs.create('test DELETE /blogs/id', 'silver lining', 'test DELETE /blogs/id', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     let id = p._id.toString();
@@ -1514,7 +1514,7 @@ describe('Blogs', function () {
                             Authorization: rootAuthHeader
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Blogs.find({_id: Blogs.ObjectID(id)})
@@ -1536,7 +1536,7 @@ describe('Blogs', function () {
                 }).done();
         });
     });
-    after(function (done) {
+    after((done) =>  {
         return tu.cleanup({userGroups: groupsToClear, blogs: blogsToClear}, done);
     });
 });

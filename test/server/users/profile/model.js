@@ -12,15 +12,15 @@ let it = lab.it;
 let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
-describe('Profile Model', function () {
+describe('Profile Model', () => {
     let usersToClear = [];
-    before(function (done) {
+    before((done) =>  {
         tu.setupRolesAndUsers()
             .then(() =>  {
                 done();
             });
     });
-    after(function (done) {
+    after((done) =>  {
         tu.cleanup({users: usersToClear}, done);
     });
 });

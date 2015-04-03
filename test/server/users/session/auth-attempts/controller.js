@@ -11,25 +11,25 @@ let it = lab.it;
 let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
-describe('AuthAttempts', function () {
+describe('AuthAttempts', () => {
     let authheader = '';
     let server = null;
-    before(function (done) {
+    before((done) =>  {
         tu.setupServer()
             .then((res) =>  {
                 server = res.server;
                 authheader = res.authheader;
                 done();
             })
-            .catch(function (err) {
+            .catch((err) =>  {
                 if (err) {
                     done(err);
                 }
             })
             .done();
     });
-    describe('GET /auth-attempts', function () {
-        it('should give auth-attempts of only the ip and email sent in the parameters', function (done) {
+    describe('GET /auth-attempts', () => {
+        it('should give auth-attempts of only the ip and email sent in the parameters', (done) =>  {
             AuthAttempts.create('127.0.0.2', 'test.abuse.find@auth.attempts')
                 .then(() =>  {
                     let request = {
@@ -39,7 +39,7 @@ describe('AuthAttempts', function () {
                             Authorization: authheader
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             expect(response.payload).to.exist();
@@ -52,7 +52,7 @@ describe('AuthAttempts', function () {
                     });
                 });
         });
-        it('should give all auth-attempts if nothing is passed', function (done) {
+        it('should give all auth-attempts if nothing is passed', (done) =>  {
             let authSpam = [];
             for (let i = 0; i < 50; i++) {
                 let randomUsername = 'test.abuse' + i + '@auth.attempts';
@@ -67,7 +67,7 @@ describe('AuthAttempts', function () {
                             Authorization: authheader
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             expect(response.payload).to.exist();
@@ -81,7 +81,7 @@ describe('AuthAttempts', function () {
                 });
         });
     });
-    after(function (done) {
+    after((done) =>  {
         return tu.cleanup({}, done);
     });
 });

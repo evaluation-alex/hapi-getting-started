@@ -12,9 +12,9 @@ let lab = exports.lab = Lab.script();
 let describe = lab.describe;
 let it = lab.it;
 let expect = Code.expect;
-describe('Handlers and Mixins', function () {
-    it('create handler should log and boom errors when it encounters exceptions', function (done) {
-        let reply = function reply (args) {
+describe('Handlers and Mixins', () => {
+    it('create handler should log and boom errors when it encounters exceptions', (done) =>  {
+        let reply = (args) => {
             expect(args).to.be.an.instanceof(Error);
         };
         let request = {
@@ -37,9 +37,9 @@ describe('Handlers and Mixins', function () {
         handler(request, reply);
         done();
     });
-    it('find handler should log and boom errors when it encounters exceptions', function (done) {
+    it('find handler should log and boom errors when it encounters exceptions', (done) =>  {
         let Model = {
-            pagedFind: function (query, fields, sort, limit, page) {
+            pagedFind: (query, fields, sort, limit, page) => {
                 expect(query).to.exist();
                 expect(fields).to.not.exist();
                 expect(sort).to.not.exist();
@@ -48,23 +48,23 @@ describe('Handlers and Mixins', function () {
                 return Promise.reject(new Error('test'));
             }
         };
-        let queryBuilder = function (request) {
+        let request = {
+            query: {}
+        };
+        let queryBuilder = (request) => {
             expect(request).to.exist();
             return {
                 organisation: '*'
             };
         };
-        let request = {
-            query: {}
-        };
-        let reply = function reply (args) {
+        let reply = (args) => {
             expect(args).to.be.an.instanceof(Error);
         };
         let handler = new FindHandler(Model, queryBuilder, undefined);
         handler(request, reply);
         done();
     });
-    it('findOne handler should log and boom exceptions when it encounters exceptions', function (done) {
+    it('findOne handler should log and boom exceptions when it encounters exceptions', (done) =>  {
         let Model = {
             collection: 'test'
         };
@@ -76,7 +76,7 @@ describe('Handlers and Mixins', function () {
         let reply = function reply (args) {
             expect(args).to.be.an.instanceof(Error);
         };
-        let findOneCb = function (obj) {
+        let findOneCb = (obj) => {
             expect(obj).to.equal('test');
             return Promise.reject(new Error('test'));
         };
@@ -84,7 +84,7 @@ describe('Handlers and Mixins', function () {
         handler(request, reply);
         done();
     });
-    it('insertAndAudit should return a not created error when _insert fails', function (done) {
+    it('insertAndAudit should return a not created error when _insert fails', (done) =>  {
         let obj = {
             insert: function (doc) {
                 expect(doc).to.exist();
@@ -94,7 +94,7 @@ describe('Handlers and Mixins', function () {
         };
         _.extend(obj, new InsertAndAudit('_id', 'create'));
         obj.insertAndAudit({test: 'error'})
-            .catch(function (err) {
+            .catch((err) =>  {
                 expect(err).to.exist();
             });
         done();

@@ -10,16 +10,16 @@ let it = lab.it;
 let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
-describe('Roles Model', function () {
+describe('Roles Model', () => {
     let rolesToClear = [];
-    before(function (done) {
+    before((done) =>  {
         tu.setupRolesAndUsers()
             .then(() =>  {
                 done();
             });
     });
-    describe('Roles.create', function () {
-        it('should create a new document', function (done) {
+    describe('Roles.create', () => {
+        it('should create a new document', (done) =>  {
             let error = null;
             Roles.create('newRole', 'silver lining', [{
                 action: 'view',
@@ -32,16 +32,16 @@ describe('Roles Model', function () {
                     expect(r).to.exist();
                     expect(r).to.be.an.instanceof(Roles);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     rolesToClear.push('newRole');
                     tu.testComplete(done, error);
                 });
         });
-        it('should not allow two objects with the same name', function (done) {
+        it('should not allow two objects with the same name', (done) =>  {
             let error = null;
             Roles.create('newRole', 'silver lining', [{
                 action: 'view',
@@ -54,17 +54,17 @@ describe('Roles Model', function () {
                     error = r;
                     expect(r).to.not.exist();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.exist();
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('Roles.this.hasPermissionsTo', function () {
+    describe('Roles.this.hasPermissionsTo', () => {
         let role = null;
-        before(function (done) {
+        before((done) =>  {
             Roles.create('hasPermissions', 'silver lining', [{
                 action: 'view',
                 object: 'test'
@@ -76,13 +76,13 @@ describe('Roles Model', function () {
                     role = r;
                     done();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     if (err) {
                         done(err);
                     }
                 });
         });
-        it('should return true if you match a specific action, object combination', function (done) {
+        it('should return true if you match a specific action, object combination', (done) =>  {
             try {
                 expect(role.hasPermissionsTo('view', 'test')).to.be.true();
                 done();
@@ -92,7 +92,7 @@ describe('Roles Model', function () {
                 }
             }
         });
-        it('should return true if you ask for view when you have update permissions set on the role for the givn object', function (done) {
+        it('should return true if you ask for view when you have update permissions set on the role for the givn object', (done) =>  {
             try {
                 expect(role.hasPermissionsTo('view', 'test2')).to.be.true();
                 done();
@@ -102,7 +102,7 @@ describe('Roles Model', function () {
                 }
             }
         });
-        it('should return false if you dont match any permissions for the role', function (done) {
+        it('should return false if you dont match any permissions for the role', (done) =>  {
             try {
                 expect(role.hasPermissionsTo('view', 'test3')).to.be.false();
                 expect(role.hasPermissionsTo('update', 'test3')).to.be.false();
@@ -113,7 +113,7 @@ describe('Roles Model', function () {
                 }
             }
         });
-        it('should return true if you have permissions permissions on *', function (done) {
+        it('should return true if you have permissions permissions on *', (done) =>  {
             Roles.find({name: 'root', organisation: 'silver lining'})
                 .then((root) =>  {
                     expect(root[0].hasPermissionsTo('view', 'test3')).to.be.true();
@@ -121,18 +121,18 @@ describe('Roles Model', function () {
                     expect(root[0].hasPermissionsTo('update', '*')).to.be.true();
                     done();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     if (err) {
                         done(err);
                     }
                 });
         });
-        after(function (done) {
+        after((done) =>  {
             rolesToClear.push('hasPermissions');
             done();
         });
     });
-    after(function (done) {
+    after((done) =>  {
         tu.cleanupRoles(rolesToClear)
             .then(() =>  {
                 tu.cleanup({}, done);

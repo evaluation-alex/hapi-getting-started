@@ -11,34 +11,34 @@ let it = lab.it;
 let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
-describe('Preferences', function () {
+describe('Preferences', () => {
     let rootAuthHeader = null;
     let server = null;
-    before(function (done) {
+    before((done) =>  {
         tu.setupServer()
             .then((res) =>  {
                 server = res.server;
                 rootAuthHeader = res.authheader;
                 done();
             })
-            .catch(function (err) {
+            .catch((err) =>  {
                 if (err) {
                     done(err);
                 }
             })
             .done();
     });
-    describe('PUT /preferences/{id}', function () {
+    describe('PUT /preferences/{id}', () => {
         let authheader = '';
         let id = '';
-        before(function (done) {
+        before((done) =>  {
             tu.findAndLogin('root')
                 .then((u) =>  {
                     authheader = u.authheader;
                     done();
                 });
         });
-        it('should return unauthorised if someone other than root or the user tries to modify user attributes', function (done) {
+        it('should return unauthorised if someone other than root or the user tries to modify user attributes', (done) =>  {
             let oneauthheader = '';
             tu.findAndLogin('one@first.com')
                 .then((u) =>  {
@@ -61,7 +61,7 @@ describe('Preferences', function () {
                             }
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(401);
                             done();
@@ -71,7 +71,7 @@ describe('Preferences', function () {
                     });
                 });
         });
-        it('should return not found if the preferences are not found', function (done) {
+        it('should return not found if the preferences are not found', (done) =>  {
             let request = {
                 method: 'PUT',
                 url: '/preferences/54d4430eed61ad701cc7a721',
@@ -84,7 +84,7 @@ describe('Preferences', function () {
                     }
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(404);
                     done();
@@ -93,7 +93,7 @@ describe('Preferences', function () {
                 }
             });
         });
-        it('should modify preferences and audit changes', function (done) {
+        it('should modify preferences and audit changes', (done) =>  {
             Users.findOne({email: 'root'})
                 .then((p) =>  {
                     p.preferences.notifications.blogs.blocked.push('something');
@@ -134,7 +134,7 @@ describe('Preferences', function () {
                             }
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Users.findOne({email: 'root'})
@@ -160,7 +160,7 @@ describe('Preferences', function () {
                 });
         });
     });
-    after(function (done) {
+    after((done) =>  {
         done();
     });
 });

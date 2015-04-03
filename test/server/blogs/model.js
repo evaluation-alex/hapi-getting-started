@@ -14,17 +14,17 @@ let it = lab.it;
 let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
-describe('Blogs Model', function () {
+describe('Blogs Model', () => {
     let blogsToClear = [];
     let groupsToClear = [];
-    before(function (done) {
+    before((done) =>  {
         tu.setupRolesAndUsers()
             .then(() =>  {
                 done();
             });
     });
-    describe('Blogs.create', function () {
-        it('should create a new document and audit entry when it succeeds', function (done) {
+    describe('Blogs.create', () => {
+        it('should create a new document and audit entry when it succeeds', (done) =>  {
             let error = null;
             Blogs.create('newBlog', 'silver lining', 'Blog.create testing', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
@@ -37,16 +37,16 @@ describe('Blogs Model', function () {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0]).to.be.instanceof(Audit);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     blogsToClear.push('newBlog');
                     tu.testComplete(done, error);
                 });
         });
-        it('should not allow two objects with the same title', function (done) {
+        it('should not allow two objects with the same title', (done) =>  {
             let error = null;
             Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
@@ -58,22 +58,22 @@ describe('Blogs Model', function () {
                         .then((p) =>  {
                             expect(p).to.not.exist();
                         })
-                        .catch(function (err) {
+                        .catch((err) =>  {
                             expect(err).to.exist();
                         });
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     blogsToClear.push('dupeBlog');
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('Blogs.this.addUsers', function () {
-        before(function (done) {
+    describe('Blogs.this.addUsers', () => {
+        before((done) =>  {
             UserGroups.create('testBlogAddUsers', 'silver lining', 'testing blog.addUsers', 'test')
                 .then(() =>  {
                     return Blogs.create('addUsers1', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
@@ -87,13 +87,13 @@ describe('Blogs Model', function () {
                 .then(() =>  {
                     done();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     if (err) {
                         done(err);
                     }
                 });
         });
-        it('should add a new entry to users when user/group is newly added', function (done) {
+        it('should add a new entry to users when user/group is newly added', (done) =>  {
             let error = null;
             Blogs.findOne({title: 'addUsers1', organisation: 'silver lining'})
                 .then((found) =>  {
@@ -119,15 +119,15 @@ describe('Blogs Model', function () {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.match(/^add subscribers/);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should do nothing if the user/group is already active in the group', function (done) {
+        it('should do nothing if the user/group is already active in the group', (done) =>  {
             let error = null;
             Blogs.findOne({title: 'addUsers2', organisation: 'silver lining'})
                 .then((found) =>  {
@@ -151,15 +151,15 @@ describe('Blogs Model', function () {
                 .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        after(function (done) {
+        after((done) =>  {
             groupsToClear.push('testBlogAddUsers');
             blogsToClear.push('addUsers1');
             blogsToClear.push('addUsers2');
@@ -167,19 +167,19 @@ describe('Blogs Model', function () {
             done();
         });
     });
-    describe('Blogs.this.removeUsers', function () {
-        before(function (done) {
+    describe('Blogs.this.removeUsers', () => {
+        before((done) =>  {
             Blogs.create('removeUsers1', 'silver lining', 'blog.removeUsers', ['directlyadded'], [], [], ['testBlogsRemoveUsers'], false, 'public', true, 'test')
                 .then(() =>  {
                     done();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     if (err) {
                         done(err);
                     }
                 });
         });
-        it('should do nothing if the user/group is not present in the group', function (done) {
+        it('should do nothing if the user/group is not present in the group', (done) =>  {
             let error = null;
             Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
                 .then((found) =>  {
@@ -203,15 +203,15 @@ describe('Blogs Model', function () {
                 .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should remove user/group if present', function (done) {
+        it('should remove user/group if present', (done) =>  {
             let error = null;
             Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
                 .then((found) =>  {
@@ -237,25 +237,25 @@ describe('Blogs Model', function () {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.match(/^remove owner/);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        after(function (done) {
+        after((done) =>  {
             blogsToClear.push('removeUsers1');
             done();
         });
     });
-    describe('Blogs.this.activate/deactivate', function () {
+    describe('Blogs.this.activate/deactivate', () => {
         let activated = null, deactivated = null;
-        before(function (done) {
+        before((done) =>  {
             let p1 = Blogs.create('activated', 'silver lining', 'blog.activate, deactivate', [], [], [], [], false, 'public', true, 'test');
             let p2 = Blogs.create('deactivated', 'silver lining', 'blog.deactive, activate', [], [], [], [], false, 'public', true, 'test');
-            Promise.join(p1, p2, function (p11, p12) {
+            Promise.join(p1, p2, (p11, p12) => {
                 activated = p11;
                 deactivated = p12;
                 deactivated.deactivate('test').save()
@@ -268,7 +268,7 @@ describe('Blogs Model', function () {
                     done();
                 });
         });
-        it('should do nothing if the blog is already inactive/active and you deactivate/activate', function (done) {
+        it('should do nothing if the blog is already inactive/active and you deactivate/activate', (done) =>  {
             let error = null;
             activated.reactivate('test').save()
                 .then((a) =>  {
@@ -288,15 +288,15 @@ describe('Blogs Model', function () {
                 .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should mark the group as inactive / active when you deactivate / activate', function (done) {
+        it('should mark the group as inactive / active when you deactivate / activate', (done) =>  {
             let error = null;
             activated.deactivate('test').save()
                 .then((a) =>  {
@@ -318,30 +318,30 @@ describe('Blogs Model', function () {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.equal('isActive');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        after(function (done) {
+        after((done) =>  {
             blogsToClear.push('activated');
             blogsToClear.push('deactivated');
             done();
         });
     });
-    describe('Blogs.this.setDescription', function () {
+    describe('Blogs.this.setDescription', () => {
         let testblog = null;
-        before(function (done) {
+        before((done) =>  {
             Blogs.create('updateDesc1', 'silver lining', 'blog.updateDesc', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     testblog = p;
                     done();
                 });
         });
-        it('should do nothing if there is no change in the description', function (done) {
+        it('should do nothing if there is no change in the description', (done) =>  {
             let error = null;
             testblog.setDescription(testblog.description, 'test').save()
                 .then((p) =>  {
@@ -351,15 +351,15 @@ describe('Blogs Model', function () {
                 .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should update to the new description', function (done) {
+        it('should update to the new description', (done) =>  {
             let error = null;
             testblog.setDescription('newDescription', 'test').save()
                 .then((p) =>  {
@@ -370,30 +370,30 @@ describe('Blogs Model', function () {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].newValues).to.equal('newDescription');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        after(function (done) {
+        after((done) =>  {
             blogsToClear.push('updateDesc1');
             blogsToClear.push('newDescription');
             done();
         });
     });
-    describe('Blogs.this.setAccess', function () {
+    describe('Blogs.this.setAccess', () => {
         let testblog = null;
-        before(function (done) {
+        before((done) =>  {
             Blogs.create('setAccess', 'silver lining', 'blog.setAccess', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     testblog = p;
                     done();
                 });
         });
-        it('should do nothing if there is no change in the access', function (done) {
+        it('should do nothing if there is no change in the access', (done) =>  {
             let error = null;
             testblog.setAccess(testblog.access, 'test').save()
                 .then((p) =>  {
@@ -403,15 +403,15 @@ describe('Blogs Model', function () {
                 .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should update to the new access', function (done) {
+        it('should update to the new access', (done) =>  {
             let error = null;
             testblog.setAccess('restricted', 'test').save()
                 .then((p) =>  {
@@ -422,29 +422,29 @@ describe('Blogs Model', function () {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].newValues).to.equal('restricted');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        after(function (done) {
+        after((done) =>  {
             blogsToClear.push('setAccess');
             done();
         });
     });
-    describe('Blogs.this.needsReview', function () {
+    describe('Blogs.this.needsReview', () => {
         let testblog = null;
-        before(function (done) {
+        before((done) =>  {
             Blogs.create('needsReview', 'silver lining', 'blog.setNeedsReview', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     testblog = p;
                     done();
                 });
         });
-        it('should do nothing if there is no change in the needsReview', function (done) {
+        it('should do nothing if there is no change in the needsReview', (done) =>  {
             let error = null;
             testblog.setNeedsReview(testblog.needsReview, 'test').save()
                 .then((p) =>  {
@@ -454,15 +454,15 @@ describe('Blogs Model', function () {
                 .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should update to the new needsReview', function (done) {
+        it('should update to the new needsReview', (done) =>  {
             let error = null;
             testblog.setNeedsReview(true, 'test').save()
                 .then((p) =>  {
@@ -473,29 +473,29 @@ describe('Blogs Model', function () {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].newValues).to.equal(true);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        after(function (done) {
+        after((done) =>  {
             blogsToClear.push('needsReview');
             done();
         });
     });
-    describe('Blogs.this.allowComments', function () {
+    describe('Blogs.this.allowComments', () => {
         let testblog = null;
-        before(function (done) {
+        before((done) =>  {
             Blogs.create('allowComments', 'silver lining', 'blog.allowComments', [], [], [], [], false, 'public', true, 'test')
                 .then((p) =>  {
                     testblog = p;
                     done();
                 });
         });
-        it('should do nothing if there is no change in the allowComments', function (done) {
+        it('should do nothing if there is no change in the allowComments', (done) =>  {
             let error = null;
             testblog.setAllowComments(testblog.allowComments, 'test').save()
                 .then((p) =>  {
@@ -505,15 +505,15 @@ describe('Blogs Model', function () {
                 .then((paudit) =>  {
                     expect(paudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should update to the new allowComments', function (done) {
+        it('should update to the new allowComments', (done) =>  {
             let error = null;
             testblog.setAllowComments(false, 'test').save()
                 .then((p) =>  {
@@ -524,20 +524,20 @@ describe('Blogs Model', function () {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].newValues).to.equal(false);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     tu.testComplete(done, error);
                 });
         });
-        after(function (done) {
+        after((done) =>  {
             blogsToClear.push('allowComments');
             done();
         });
     });
-    after(function (done) {
+    after((done) =>  {
         return tu.cleanup({userGroups: groupsToClear, blogs: blogsToClear}, done);
     });
 });

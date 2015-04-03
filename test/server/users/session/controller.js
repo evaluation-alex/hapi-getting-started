@@ -15,10 +15,10 @@ let it = lab.it;
 let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
-describe('Session', function () {
+describe('Session', () => {
     let server = null;
     let emails = [];
-    before(function (done) {
+    before((done) =>  {
         tu.setupServer()
             .then((res) =>  {
                 server = res.server;
@@ -31,13 +31,13 @@ describe('Session', function () {
                 newUser.loginSuccess('test', 'test').save();
                 done();
             })
-            .catch(function (err) {
+            .catch((err) =>  {
                 done(err);
             })
             .done();
     });
-    describe('POST /session', function () {
-        it('returns early when abuse is detected', function (done) {
+    describe('POST /session', () => {
+        it('returns early when abuse is detected', (done) =>  {
             let authAttemptsConfig = Config.authAttempts;
             let authSpam = [];
             for (let i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
@@ -53,7 +53,7 @@ describe('Session', function () {
                             password: 'password123'
                         }
                     };
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(429);
                             tu.cleanupAuthAttempts();
@@ -64,7 +64,7 @@ describe('Session', function () {
                     });
                 });
         });
-        it('returns an error when you pass incorrect credentials', function (done) {
+        it('returns an error when you pass incorrect credentials', (done) =>  {
             let request = {
                 method: 'POST',
                 url: '/session',
@@ -73,7 +73,7 @@ describe('Session', function () {
                     password: 'bogus'
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(401);
                     AuthAttempts.find({email: 'test.users@test.api'})
@@ -91,7 +91,7 @@ describe('Session', function () {
                 }
             });
         });
-        it('returns an error when you pass non existent user', function (done) {
+        it('returns an error when you pass non existent user', (done) =>  {
             let request = {
                 method: 'POST',
                 url: '/session',
@@ -100,7 +100,7 @@ describe('Session', function () {
                     password: 'bogus'
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(404);
                     done();
@@ -109,7 +109,7 @@ describe('Session', function () {
                 }
             });
         });
-        it('returns a session successfully', function (done) {
+        it('returns a session successfully', (done) =>  {
             let request = {
                 method: 'POST',
                 url: '/session',
@@ -118,7 +118,7 @@ describe('Session', function () {
                     password: 'password123'
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.exist();
@@ -134,13 +134,13 @@ describe('Session', function () {
             });
         });
     });
-    describe('DELETE /session', function () {
-        it('returns an error when no authorization is passed', function (done) {
+    describe('DELETE /session', () => {
+        it('returns an error when no authorization is passed', (done) =>  {
             let request = {
                 method: 'DELETE',
                 url: '/session'
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(401);
                     done();
@@ -149,7 +149,7 @@ describe('Session', function () {
                 }
             });
         });
-        it('returns a not found when user does not exist', function (done) {
+        it('returns a not found when user does not exist', (done) =>  {
             let request = {
                 method: 'DELETE',
                 url: '/session',
@@ -157,7 +157,7 @@ describe('Session', function () {
                     Authorization: tu.authorizationHeader2('test.not.created@logout.api', '123')
                 }
             };
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(404);
                     emails.push('test.not.created@logout.api');
@@ -168,7 +168,7 @@ describe('Session', function () {
                 }
             });
         });
-        it('returns a not found when user has already logged out', function (done) {
+        it('returns a not found when user has already logged out', (done) =>  {
             let request = {
                 method: 'DELETE',
                 url: '/session',
@@ -182,7 +182,7 @@ describe('Session', function () {
                     return u.user.logout('test', 'test').save();
                 })
                 .done();
-            server.inject(request, function (response) {
+            server.inject(request, (response) =>  {
                 try {
                     expect(response.statusCode).to.equal(401);
                     Users.findOne({email: 'one@first.com'})
@@ -196,7 +196,7 @@ describe('Session', function () {
                 }
             });
         });
-        it('removes the authenticated user session successfully', function (done) {
+        it('removes the authenticated user session successfully', (done) =>  {
             tu.findAndLogin('one@first.com')
                 .then((u) =>  {
                     let request = {
@@ -207,7 +207,7 @@ describe('Session', function () {
                         }
                     };
                     request.headers.Authorization = u.authheader;
-                    server.inject(request, function (response) {
+                    server.inject(request, (response) =>  {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Users.findOne({email: 'one@first.com'})
@@ -223,7 +223,7 @@ describe('Session', function () {
                 });
         });
     });
-    after(function (done) {
+    after((done) =>  {
         return tu.cleanup({users: emails}, done);
     });
 });

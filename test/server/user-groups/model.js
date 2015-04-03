@@ -11,16 +11,16 @@ let it = lab.it;
 let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
-describe('UserGroups Model', function () {
+describe('UserGroups Model', () => {
     let groupsToCleanup = [];
-    before(function (done) {
+    before((done) =>  {
         tu.setupRolesAndUsers()
             .then(() =>  {
                 done();
             });
     });
-    describe('UserGroups.create', function () {
-        it('should create a new document when it succeeds, the creator should be owner and member and have appropriate audit entries', function (done) {
+    describe('UserGroups.create', () => {
+        it('should create a new document when it succeeds, the creator should be owner and member and have appropriate audit entries', (done) =>  {
             let error = null;
             UserGroups.create('test.group@test.api', 'silver lining', 'creating groups', 'test')
                 .then((userGroup) =>  {
@@ -37,16 +37,16 @@ describe('UserGroups Model', function () {
                     expect(ugAudit.length).to.equal(1);
                     expect(ugAudit[0].objectChangedId).to.equal('test.group@test.api');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     error = err;
                     expect(err).to.not.exist();
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('test.group@test.api');
                     tu.testComplete(done, null);
                 });
         });
-        it('should not allow two groups with the name', function (done) {
+        it('should not allow two groups with the name', (done) =>  {
             let error = null;
             UserGroups.create('test.dupe@test.api', 'silver lining', 'testing dupes', 'test')
                 .then(() =>  {
@@ -54,37 +54,37 @@ describe('UserGroups Model', function () {
                         .then((dupeGroup) =>  {
                             expect(dupeGroup).to.not.exist();
                         })
-                        .catch(function (err) {
+                        .catch((err) =>  {
                             expect(err).to.exist();
                             expect(err).to.be.an.instanceof(Error);
                         });
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('test.dupe@test.api');
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('UserGroups.areValid', function () {
-        it('should return empty array when nothing is sent', function (done) {
+    describe('UserGroups.areValid', () => {
+        it('should return empty array when nothing is sent', (done) =>  {
             let error = null;
             UserGroups.areValid([], 'silver lining')
                 .then((result) =>  {
                     expect(result).to.be.empty();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should return an object with as many entries as names sent, appropriately populated', function (done) {
+        it('should return an object with as many entries as names sent, appropriately populated', (done) =>  {
             let error = null;
             UserGroups.create('test UserGroups.areValid', 'silver lining', 'test', 'test')
                 .then(() =>  {
@@ -95,18 +95,18 @@ describe('UserGroups Model', function () {
                     expect(result['test UserGroups.areValid']).to.be.true();
                     expect(result.bogus).to.be.false();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .finally(function () {
+                .finally(() => {
                     groupsToCleanup.push('test UserGroups.areValid');
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('UserGroups.this.addUsers', function () {
-        it('should do nothing if the user is already present as a member and you add user as a member', function (done) {
+    describe('UserGroups.this.addUsers', () => {
+        it('should do nothing if the user is already present as a member and you add user as a member', (done) =>  {
             let error = null;
             UserGroups.create('addUsersTest1', 'silver lining', 'UserGroups.this.addMemberAlreadyPresent', 'test3')
                 .then((ug) =>  {
@@ -123,16 +123,16 @@ describe('UserGroups Model', function () {
                 .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('addUsersTest1');
                     tu.testComplete(done, error);
                 });
         });
-        it('should do nothing if the user is already present as a owner and you add user as a owner', function (done) {
+        it('should do nothing if the user is already present as a owner and you add user as a owner', (done) =>  {
             let error = null;
             UserGroups.create('addUsersTest2', 'silver lining', 'UserGroups.this.addOwnerAlreadyPresent', 'test3')
                 .then((ug) =>  {
@@ -149,16 +149,16 @@ describe('UserGroups Model', function () {
                 .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('addUsersTest2');
                     tu.testComplete(done, error);
                 });
         });
-        it('should do nothing if the user is already present as owner AND member and you add as owner AND member', function (done) {
+        it('should do nothing if the user is already present as owner AND member and you add as owner AND member', (done) =>  {
             let error = null;
             UserGroups.create('addUsersTest3', 'silver lining', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
                 .then((ug) =>  {
@@ -175,16 +175,16 @@ describe('UserGroups Model', function () {
                 .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('addUsersTest3');
                     tu.testComplete(done, error);
                 });
         });
-        it('should add the user as a owner who was not already present and added with the owner role', function (done) {
+        it('should add the user as a owner who was not already present and added with the owner role', (done) =>  {
             let error = null;
             UserGroups.create('addUsersTest4', 'silver lining', 'UserGroups.this.addOwnerNotPresent', 'test3')
                 .then((ug) =>  {
@@ -199,16 +199,16 @@ describe('UserGroups Model', function () {
                     expect(ugaudit[0].change[0].newValues).to.equal('newOwner');
                     expect(ugaudit[0].change[0].action).to.match(/add owner/);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('addUsersTest4');
                     tu.testComplete(done, error);
                 });
         });
-        it('should add the user as a member who was not already present and added with the member role', function (done) {
+        it('should add the user as a member who was not already present and added with the member role', (done) =>  {
             let error = null;
             UserGroups.create('addUsersTest5', 'silver lining', 'UserGroups.this.addMemberNotPresent', 'test3')
                 .then((ug) =>  {
@@ -223,16 +223,16 @@ describe('UserGroups Model', function () {
                     expect(ugaudit[0].change[0].newValues).to.equal('newMember');
                     expect(ugaudit[0].change[0].action).to.match(/add member/);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('addUsersTest5');
                     tu.testComplete(done, error);
                 });
         });
-        it('should add the user as a member and owner who was not already present and added with the member and owner / both role', function (done) {
+        it('should add the user as a member and owner who was not already present and added with the member and owner / both role', (done) =>  {
             let error = null;
             UserGroups.create('addUsersTest6.0', 'silver lining', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
                 .then((ug) =>  {
@@ -264,19 +264,19 @@ describe('UserGroups Model', function () {
                     expect(ugaudit[0].change[0].newValues).to.equal('newBoth');
                     expect(ugaudit[0].change[0].newValues).to.equal('newBoth');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('addUsersTest6.0');
                     groupsToCleanup.push('addUsersTest6.1');
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('UserGroups.this.removeUsers', function () {
-        it('should do nothing if the user is not already present as a member and you remove user as a member', function (done) {
+    describe('UserGroups.this.removeUsers', () => {
+        it('should do nothing if the user is not already present as a member and you remove user as a member', (done) =>  {
             let error = null;
             UserGroups.create('removeUsersTest1', 'silver lining', 'UserGroups.this.removeMemberNotPresent', 'test4')
                 .then((ug) =>  {
@@ -296,16 +296,16 @@ describe('UserGroups Model', function () {
                 .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('removeUsersTest1');
                     tu.testComplete(done, error);
                 });
         });
-        it('should do nothing if the user is not already present as a owner and you remove user as a owner', function (done) {
+        it('should do nothing if the user is not already present as a owner and you remove user as a owner', (done) =>  {
             let error = null;
             UserGroups.create('removeUsersTest2', 'silver lining', 'UserGroups.this.removeOwnerNotPresent', 'test4')
                 .then((ug) =>  {
@@ -325,16 +325,16 @@ describe('UserGroups Model', function () {
                 .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('removeUsersTest2');
                     tu.testComplete(done, error);
                 });
         });
-        it('should do nothing if the user is not present as owner OR member and you remove as owner AND member', function (done) {
+        it('should do nothing if the user is not present as owner OR member and you remove as owner AND member', (done) =>  {
             let error = null;
             UserGroups.create('removeUsersTest3', 'UserGroups.this.removeBothNotPresent', 'test4')
                 .then((ug) =>  {
@@ -350,16 +350,16 @@ describe('UserGroups Model', function () {
                 .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('removeUsersTest3');
                     tu.testComplete(done, error);
                 });
         });
-        it('should remove the users owner role if already present the owner role', function (done) {
+        it('should remove the users owner role if already present the owner role', (done) =>  {
             let error = null;
             UserGroups.create('removeUsersTest4.0', 'silver lining', 'UserGroups.this.removeOwner', 'test4')
                 .then((ug) =>  {
@@ -380,17 +380,17 @@ describe('UserGroups Model', function () {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.match(/^remove owner/);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('removeUsersTest4.0');
                     groupsToCleanup.push('removeUsersTest4.1');
                     tu.testComplete(done, error);
                 });
         });
-        it('should deactivate the user as a member if already present with the member role', function (done) {
+        it('should deactivate the user as a member if already present with the member role', (done) =>  {
             let error = null;
             UserGroups.create('removeUsersTest5.0', 'silver lining', 'UserGroups.this.removeMember', 'test4')
                 .then((ug) =>  {
@@ -411,19 +411,19 @@ describe('UserGroups Model', function () {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.match(/^remove member/);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('removeUsersTest5.0');
                     groupsToCleanup.push('removeUsersTest5.1');
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('UserGroups.this.activate/deactivate', function () {
-        it('should do nothing if the user group is already inactive/active and you deactivate/activate', function (done) {
+    describe('UserGroups.this.activate/deactivate', () => {
+        it('should do nothing if the user group is already inactive/active and you deactivate/activate', (done) =>  {
             let error = null;
             UserGroups.create('activateGroupDoNothing', 'silver lining', 'UserGroups.this.activate', 'test5')
                 .then((ug) =>  {
@@ -453,17 +453,17 @@ describe('UserGroups Model', function () {
                 .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('activateGroupDoNothing');
                     groupsToCleanup.push('deactivateGroupDoNothing');
                     tu.testComplete(done, error);
                 });
         });
-        it('should mark the group as inactive / active when you deactivate / activate', function (done) {
+        it('should mark the group as inactive / active when you deactivate / activate', (done) =>  {
             let error = null;
             UserGroups.create('deactivateGroup', 'silver lining', 'UserGroups.this.deactivate', 'test5')
                 .then((ug) =>  {
@@ -495,19 +495,19 @@ describe('UserGroups Model', function () {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.equal('isActive');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('activateGroup');
                     groupsToCleanup.push('deactivateGroup');
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('UserGroups.this.setDescription', function () {
-        it('should do nothing if there is no change in the description', function (done) {
+    describe('UserGroups.this.setDescription', () => {
+        it('should do nothing if there is no change in the description', (done) =>  {
             let error = null;
             UserGroups.create('updateDesc1', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
                 .then((ug) =>  {
@@ -520,16 +520,16 @@ describe('UserGroups Model', function () {
                 .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('updateDesc1');
                     tu.testComplete(done, error);
                 });
         });
-        it('should update to the new description', function (done) {
+        it('should update to the new description', (done) =>  {
             let error = null;
             UserGroups.create('updateDesc2', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
                 .then((ug) =>  {
@@ -543,18 +543,18 @@ describe('UserGroups Model', function () {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.equal('description');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('updateDesc2');
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('UserGroups.this.setAccess', function () {
-        it('should do nothing if there is no change in the access', function (done) {
+    describe('UserGroups.this.setAccess', () => {
+        it('should do nothing if there is no change in the access', (done) =>  {
             let error = null;
             UserGroups.create('updateAccess1', 'silver lining', 'UserGroups.this.setAccess', 'test6')
                 .then((ug) =>  {
@@ -567,16 +567,16 @@ describe('UserGroups Model', function () {
                 .then((ugaudit) =>  {
                     expect(ugaudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('updateAccess1');
                     tu.testComplete(done, error);
                 });
         });
-        it('should update to the new access control', function (done) {
+        it('should update to the new access control', (done) =>  {
             let error = null;
             UserGroups.create('updateAccess2', 'silver lining', 'UserGroups.this.setAccess', 'test6')
                 .then((ug) =>  {
@@ -590,17 +590,17 @@ describe('UserGroups Model', function () {
                     expect(ugaudit.length).to.equal(1);
                     expect(ugaudit[0].change[0].action).to.equal('access');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .done(function () {
+                .done(() => {
                     groupsToCleanup.push('updateAccess2');
                     tu.testComplete(done, error);
                 });
         });
     });
-    after(function (done) {
+    after((done) =>  {
         return tu.cleanup({userGroups: groupsToCleanup}, done);
     });
 });

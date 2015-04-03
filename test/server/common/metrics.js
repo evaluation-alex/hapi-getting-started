@@ -7,19 +7,19 @@ let lab = exports.lab = Lab.script();
 let describe = lab.describe;
 let it = lab.it;
 let before = lab.before;
-describe('Metrics', function () {
+describe('Metrics', () => {
     let server = null;
-    before(function (done) {
+    before((done) =>  {
         server = new Hapi.Server();
         server.connection({
             host: 'localhost',
             port: 8085,
             routes: {cors: true}
         });
-        let get = function (request, reply) {
+        let get = (request, reply) => {
             reply('Success!');
         };
-        let err = function (request, reply) {
+        let err = (request, reply) => {
             reply(new Error());
         };
         server.route({method: 'GET', path: '/', handler: get});
@@ -30,34 +30,34 @@ describe('Metrics', function () {
             options: {}
         }, done);
     });
-    it('should report stats with no path in stat name', function (done) {
-        server.inject('/', function () {
+    it('should report stats with no path in stat name', (done) =>  {
+        server.inject('/', () => {
             done();
         });
     });
-    it('should report stats with path in stat name', function (done) {
-        server.inject('/test/123', function () {
+    it('should report stats with path in stat name', (done) =>  {
+        server.inject('/test/123', () => {
             done();
         });
     });
-    it('should report stats with generic not found path', function (done) {
-        server.inject('/fnord', function () {
+    it('should report stats with generic not found path', (done) =>  {
+        server.inject('/fnord', () => {
             done();
         });
     });
-    it('should report stats with generic CORS path', function (done) {
+    it('should report stats with generic CORS path', (done) =>  {
         server.inject({
             method: 'OPTIONS',
             headers: {
                 Origin: 'http://test.domain.com'
             },
             url: '/'
-        }, function () {
+        }, () => {
             done();
         });
     });
-    it('should not change the status code of a response', function (done) {
-        server.inject('/err', function () {
+    it('should not change the status code of a response', (done) =>  {
+        server.inject('/err', () => {
             done();
         });
     });

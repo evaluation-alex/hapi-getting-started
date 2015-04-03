@@ -14,10 +14,10 @@ let it = lab.it;
 let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
-describe('Session Model', function () {
+describe('Session Model', () => {
     let firstEmail = 'test.create@session.module';
     let secondEmail = 'test.search@session.module';
-    before(function (done) {
+    before((done) =>  {
         tu.setupRolesAndUsers()
             .then(() =>  {
                 return Users.create(firstEmail, 'silver lining', 'passwor', 'en');
@@ -29,8 +29,8 @@ describe('Session Model', function () {
                 done();
             });
     });
-    describe('Session.findBySessionCredentials', function () {
-        it('should returns a result when finding by login and by credentials correctly', function (done) {
+    describe('Session.findBySessionCredentials', () => {
+        it('should returns a result when finding by login and by credentials correctly', (done) =>  {
             let error = null;
             Users.findOne({email: secondEmail})
                 .then((user) =>  {
@@ -43,43 +43,43 @@ describe('Session Model', function () {
                 .then((foundUser2) =>  {
                     expect(foundUser2.email).to.equal(secondEmail);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should returns error and user for find by session credentials when password match fails', function (done) {
+        it('should returns error and user for find by session credentials when password match fails', (done) =>  {
             let error = null;
             Users.findBySessionCredentials(secondEmail, 'wrongpassword')
                 .then((foundUser) =>  {
                     error = foundUser;
                     expect(foundUser).to.not.exist();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err.name).to.equal('SessionCredentialsNotMatchingError');
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should returns error for find by session credentials when user does not exist', function (done) {
+        it('should returns error for find by session credentials when user does not exist', (done) =>  {
             let error = null;
             Users.findBySessionCredentials('test.search.fail@users.module', 'unknownuser')
                 .then((foundUser) =>  {
                     error = foundUser;
                     expect(foundUser).to.not.exist();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err.name).to.equal('UserNotFoundError');
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should returns error for find by session credentials when user session has expired', function (done) {
+        it('should returns error for find by session credentials when user session has expired', (done) =>  {
             let error = null;
             Users.findOne({email: secondEmail})
                 .then((user) =>  {
@@ -93,14 +93,14 @@ describe('Session Model', function () {
                     error = foundUser;
                     expect(foundUser).to.not.exist();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err.name).to.equal('SessionExpiredError');
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should returns error for find by session credentials when user is not logged in', function (done) {
+        it('should returns error for find by session credentials when user is not logged in', (done) =>  {
             let error = null;
             Users.findOne({email: secondEmail})
                 .then((user) =>  {
@@ -113,16 +113,16 @@ describe('Session Model', function () {
                     error = foundUser;
                     expect(foundUser).to.not.exist();
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err.name).to.equal('UserNotLoggedInError');
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('Session.this.loginSuccess', function () {
-        it('should do nothing if the user is already logged in from that ip', function (done) {
+    describe('Session.this.loginSuccess', () => {
+        it('should do nothing if the user is already logged in from that ip', (done) =>  {
             let error = null;
             Users.findOne({email: firstEmail})
                 .then((user) =>  {
@@ -142,15 +142,15 @@ describe('Session Model', function () {
                 .then((userAudit) =>  {
                     expect(userAudit.length).to.equal(0);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should remove the expired session and login the user', function (done) {
+        it('should remove the expired session and login the user', (done) =>  {
             let error = null;
             Users.findOne({email: firstEmail})
                 .then((user) =>  {
@@ -172,15 +172,15 @@ describe('Session Model', function () {
                 .then((userAudit) =>  {
                     expect(userAudit.length).to.equal(1);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should create a new session object on the user and should create an audit entry, if user hasnt logged in already', function (done) {
+        it('should create a new session object on the user and should create an audit entry, if user hasnt logged in already', (done) =>  {
             let error = null;
             Audit.remove({objectChangedId: firstEmail})
                 .then(() =>  {
@@ -200,15 +200,15 @@ describe('Session Model', function () {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                     expect(userAudit[0].change[0].newValues.ipaddress).to.equal('test');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should create a new session object on the user and should create an audit entry, if user hasnt logged in from that ip', function (done) {
+        it('should create a new session object on the user and should create an audit entry, if user hasnt logged in from that ip', (done) =>  {
             let error = null;
             Audit.remove({objectChangedId: firstEmail})
                 .then(() =>  {
@@ -232,17 +232,17 @@ describe('Session Model', function () {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                     expect(userAudit[0].change[0].newValues.ipaddress).to.equal('test2');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('Session.this.logout', function () {
-        it('should remove the session object on the user and should create an audit entry', function (done) {
+    describe('Session.this.logout', () => {
+        it('should remove the session object on the user and should create an audit entry', (done) =>  {
             let error = null;
             Audit.remove({objectChangedId: firstEmail})
                 .then(() =>  {
@@ -266,17 +266,17 @@ describe('Session Model', function () {
                 .then((userAudit) =>  {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
     });
-    describe('Session.this.loginFail', function () {
-        it('should remove the session object on the user and should create an audit entry', function (done) {
+    describe('Session.this.loginFail', () => {
+        it('should remove the session object on the user and should create an audit entry', (done) =>  {
             let error = null;
             Users.findOne({email: firstEmail})
                 .then((user) =>  {
@@ -290,16 +290,16 @@ describe('Session Model', function () {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                     expect(userAudit[0].change[0].newValues).to.equal('test');
                 })
-                .catch(function (err) {
+                .catch((err) =>  {
                     expect(err).to.not.exist();
                     error = err;
                 })
-                .finally(function () {
+                .finally(() => {
                     tu.testComplete(done, error);
                 });
         });
     });
-    after(function (done) {
+    after((done) =>  {
         let testUsers = [firstEmail, secondEmail];
         return tu.cleanup({users: testUsers}, done);
     });

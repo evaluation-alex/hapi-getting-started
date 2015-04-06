@@ -72,7 +72,6 @@
         "jshint": "2.6.x",
         "lab": "5.x.x",
         "promptly": "0.2.x",
-        "tick": "0.1.x",
-        "v8-profiler": "5.2.x"
+        "rimraf": "2.3.x"
     }
 }

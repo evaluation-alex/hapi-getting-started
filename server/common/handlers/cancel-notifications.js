@@ -11,7 +11,7 @@ module.exports = function CancelNotification (model, cancelAction, cancelNotific
             state: 'unread',
             action: cancelAction
         })
-            .then( (notifications) => {
+            .then((notifications) => {
                 return Promise.settle(_.map(notifications, (notification) => {
                     if (cancelNotificationsCb) {
                         /*jshint unused:false*/

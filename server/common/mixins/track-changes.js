@@ -1,5 +1,5 @@
 'use strict';
-module.exports = function TrackChanges(type, idToUse) {
+module.exports = function TrackChanges (type, idToUse) {
     return {
         trackChanges: (action, oldValues, newValues, by) => {
             let self = this;

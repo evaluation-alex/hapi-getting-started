@@ -14,14 +14,14 @@ let expect = Code.expect;
 describe('Preferences', () => {
     let rootAuthHeader = null;
     let server = null;
-    before((done) =>  {
+    before((done) => {
         tu.setupServer()
-            .then((res) =>  {
+            .then((res) => {
                 server = res.server;
                 rootAuthHeader = res.authheader;
                 done();
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 if (err) {
                     done(err);
                 }
@@ -31,24 +31,24 @@ describe('Preferences', () => {
     describe('PUT /preferences/{id}', () => {
         let authheader = '';
         let id = '';
-        before((done) =>  {
+        before((done) => {
             tu.findAndLogin('root')
-                .then((u) =>  {
+                .then((u) => {
                     authheader = u.authheader;
                     done();
                 });
         });
-        it('should return unauthorised if someone other than root or the user tries to modify user attributes', (done) =>  {
+        it('should return unauthorised if someone other than root or the user tries to modify user attributes', (done) => {
             let oneauthheader = '';
             tu.findAndLogin('one@first.com')
-                .then((u) =>  {
+                .then((u) => {
                     oneauthheader = u.authheader;
                     return Users.findOne({email: 'root'});
                 })
-                .then((u) =>  {
+                .then((u) => {
                     id = u._id.toString();
                 })
-                .then(() =>  {
+                .then(() => {
                     let request = {
                         method: 'PUT',
                         url: '/preferences/' + id,
@@ -61,7 +61,7 @@ describe('Preferences', () => {
                             }
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(401);
                             done();
@@ -71,7 +71,7 @@ describe('Preferences', () => {
                     });
                 });
         });
-        it('should return not found if the preferences are not found', (done) =>  {
+        it('should return not found if the preferences are not found', (done) => {
             let request = {
                 method: 'PUT',
                 url: '/preferences/54d4430eed61ad701cc7a721',
@@ -84,7 +84,7 @@ describe('Preferences', () => {
                     }
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     done();
@@ -93,15 +93,15 @@ describe('Preferences', () => {
                 }
             });
         });
-        it('should modify preferences and audit changes', (done) =>  {
+        it('should modify preferences and audit changes', (done) => {
             Users.findOne({email: 'root'})
-                .then((p) =>  {
+                .then((p) => {
                     p.preferences.notifications.blogs.blocked.push('something');
                     p.preferences.notifications.posts.blocked.push('none of them');
                     id = p._id.toString();
                     return p.save();
                 })
-                .then(() =>  {
+                .then(() => {
                     let request = {
                         method: 'PUT',
                         url: '/preferences/' + id,
@@ -134,11 +134,11 @@ describe('Preferences', () => {
                             }
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Users.findOne({email: 'root'})
-                                .then((p) =>  {
+                                .then((p) => {
                                     expect(p.preferences.locale).to.equal('hi');
                                     expect(p.preferences.notifications.blogs.email.frequency).to.equal('daily');
                                     expect(p.preferences.notifications.userGroups.email.frequency).to.equal('weekly');
@@ -148,7 +148,7 @@ describe('Preferences', () => {
                                     expect(p.preferences.notifications.posts.blocked.length).to.equal(0);
                                     return Audit.findAudit('users', 'root', {'change.action': 'preferences.locale'});
                                 })
-                                .then((audit) =>  {
+                                .then((audit) => {
                                     expect(audit).to.exist();
                                     expect(audit.length).to.equal(1);
                                     done();
@@ -160,7 +160,7 @@ describe('Preferences', () => {
                 });
         });
     });
-    after((done) =>  {
+    after((done) => {
         done();
     });
 });

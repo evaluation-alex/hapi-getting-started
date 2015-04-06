@@ -18,33 +18,33 @@ let expect = Code.expect;
 describe('Session', () => {
     let server = null;
     let emails = [];
-    before((done) =>  {
+    before((done) => {
         tu.setupServer()
-            .then((res) =>  {
+            .then((res) => {
                 server = res.server;
             })
-            .then(() =>  {
+            .then(() => {
                 emails.push('test.users@test.api');
                 return Users.create('test.users@test.api', 'silver lining', 'password123', 'en');
             })
-            .then((newUser) =>  {
+            .then((newUser) => {
                 newUser.loginSuccess('test', 'test').save();
                 done();
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 done(err);
             })
             .done();
     });
     describe('POST /session', () => {
-        it('returns early when abuse is detected', (done) =>  {
+        it('returns early when abuse is detected', (done) => {
             let authAttemptsConfig = Config.authAttempts;
             let authSpam = [];
             for (let i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
                 authSpam.push(AuthAttempts.create('test', 'test.users@test.api'));
             }
             Promise.all(authSpam)
-                .then(() =>  {
+                .then(() => {
                     let request = {
                         method: 'POST',
                         url: '/session',
@@ -53,7 +53,7 @@ describe('Session', () => {
                             password: 'password123'
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(429);
                             tu.cleanupAuthAttempts();
@@ -64,7 +64,7 @@ describe('Session', () => {
                     });
                 });
         });
-        it('returns an error when you pass incorrect credentials', (done) =>  {
+        it('returns an error when you pass incorrect credentials', (done) => {
             let request = {
                 method: 'POST',
                 url: '/session',
@@ -73,16 +73,16 @@ describe('Session', () => {
                     password: 'bogus'
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(401);
                     AuthAttempts.find({email: 'test.users@test.api'})
-                        .then((aa) =>  {
+                        .then((aa) => {
                             expect(aa).to.exist();
                             expect(aa.length).to.equal(1);
                             return Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login fail'});
                         })
-                        .then((foundAudit) =>  {
+                        .then((foundAudit) => {
                             expect(foundAudit).to.exist();
                             done();
                         });
@@ -91,7 +91,7 @@ describe('Session', () => {
                 }
             });
         });
-        it('returns an error when you pass non existent user', (done) =>  {
+        it('returns an error when you pass non existent user', (done) => {
             let request = {
                 method: 'POST',
                 url: '/session',
@@ -100,7 +100,7 @@ describe('Session', () => {
                     password: 'bogus'
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     done();
@@ -109,7 +109,7 @@ describe('Session', () => {
                 }
             });
         });
-        it('returns a session successfully', (done) =>  {
+        it('returns a session successfully', (done) => {
             let request = {
                 method: 'POST',
                 url: '/session',
@@ -118,13 +118,13 @@ describe('Session', () => {
                     password: 'password123'
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.exist();
                     expect(response.payload).to.contain('test.users@test.api');
                     Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login success'})
-                        .then((foundAudit) =>  {
+                        .then((foundAudit) => {
                             expect(foundAudit).to.exist();
                             done();
                         });
@@ -135,12 +135,12 @@ describe('Session', () => {
         });
     });
     describe('DELETE /session', () => {
-        it('returns an error when no authorization is passed', (done) =>  {
+        it('returns an error when no authorization is passed', (done) => {
             let request = {
                 method: 'DELETE',
                 url: '/session'
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(401);
                     done();
@@ -149,7 +149,7 @@ describe('Session', () => {
                 }
             });
         });
-        it('returns a not found when user does not exist', (done) =>  {
+        it('returns a not found when user does not exist', (done) => {
             let request = {
                 method: 'DELETE',
                 url: '/session',
@@ -157,7 +157,7 @@ describe('Session', () => {
                     Authorization: tu.authorizationHeader2('test.not.created@logout.api', '123')
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     emails.push('test.not.created@logout.api');
@@ -168,7 +168,7 @@ describe('Session', () => {
                 }
             });
         });
-        it('returns a not found when user has already logged out', (done) =>  {
+        it('returns a not found when user has already logged out', (done) => {
             let request = {
                 method: 'DELETE',
                 url: '/session',
@@ -177,16 +177,16 @@ describe('Session', () => {
                 }
             };
             tu.findAndLogin('one@first.com')
-                .then((u) =>  {
+                .then((u) => {
                     request.headers.Authorization = u.authheader;
                     return u.user.logout('test', 'test').save();
                 })
                 .done();
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(401);
                     Users.findOne({email: 'one@first.com'})
-                        .then((foundUser) =>  {
+                        .then((foundUser) => {
                             foundUser.loginSuccess('test', 'test').save();
                             done();
                         })
@@ -196,9 +196,9 @@ describe('Session', () => {
                 }
             });
         });
-        it('removes the authenticated user session successfully', (done) =>  {
+        it('removes the authenticated user session successfully', (done) => {
             tu.findAndLogin('one@first.com')
-                .then((u) =>  {
+                .then((u) => {
                     let request = {
                         method: 'DELETE',
                         url: '/session',
@@ -207,11 +207,11 @@ describe('Session', () => {
                         }
                     };
                     request.headers.Authorization = u.authheader;
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Users.findOne({email: 'one@first.com'})
-                                .then((foundUser) =>  {
+                                .then((foundUser) => {
                                     expect(foundUser.session.length).to.equal(0);
                                     foundUser.loginSuccess('test', 'test').save();
                                     done();
@@ -223,7 +223,7 @@ describe('Session', () => {
                 });
         });
     });
-    after((done) =>  {
+    after((done) => {
         return tu.cleanup({users: emails}, done);
     });
 });

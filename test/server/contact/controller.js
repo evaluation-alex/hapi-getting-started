@@ -10,20 +10,20 @@ let before = lab.before;
 let expect = Code.expect;
 describe('Contact', () => {
     let server;
-    before((done) =>  {
+    before((done) => {
         tu.setupServer()
-            .then((res) =>  {
+            .then((res) => {
                 server = res.server;
                 done();
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 if (err) {
                     done(err);
                 }
             })
             .done();
     });
-    it('returns an error when send email fails', (done) =>  {
+    it('returns an error when send email fails', (done) => {
         Fs.renameSync('./server/contact/contact.hbs.md', './server/contact/contact2.hbs.md');
         let request = {
             method: 'POST',
@@ -34,7 +34,7 @@ describe('Contact', () => {
                 message: 'I love you man.'
             }
         };
-        server.inject(request, (response) =>  {
+        server.inject(request, (response) => {
             try {
                 expect(response.statusCode).to.equal(500);
                 Fs.renameSync('./server/contact/contact2.hbs.md', './server/contact/contact.hbs.md');
@@ -44,7 +44,7 @@ describe('Contact', () => {
             }
         });
     });
-    it('returns success after sending an email', (done) =>  {
+    it('returns success after sending an email', (done) => {
         let request = {
             method: 'POST',
             url: '/contact',
@@ -54,7 +54,7 @@ describe('Contact', () => {
                 message: 'I love you man.'
             }
         };
-        server.inject(request, (response) =>  {
+        server.inject(request, (response) => {
             try {
                 expect(response.statusCode).to.equal(200);
                 done();

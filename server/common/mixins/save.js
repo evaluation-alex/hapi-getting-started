@@ -1,6 +1,6 @@
 'use strict';
 let saveChangeHistory = require('./save-change-history');
-module.exports = function Save(Model) {
+module.exports = function Save (Model) {
     return {
         save: () => {
             let self = this;

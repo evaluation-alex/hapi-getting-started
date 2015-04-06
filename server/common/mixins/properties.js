@@ -1,7 +1,7 @@
 'use strict';
 let _ = require('lodash');
 let traverse = require('traverse');
-module.exports = function Properties(properties) {
+module.exports = function Properties (properties) {
     let ret = {};
     _.forEach(properties, (property) => {
         const path = property.split('.');

@@ -17,14 +17,14 @@ let expect = Code.expect;
 describe('Notifications', () => {
     let rootAuthHeader = null;
     let server = null;
-    before((done) =>  {
+    before((done) => {
         tu.setupServer()
-            .then((res) =>  {
+            .then((res) => {
                 server = res.server;
                 rootAuthHeader = res.authheader;
                 done();
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 if (err) {
                     done(err);
                 }
@@ -32,7 +32,7 @@ describe('Notifications', () => {
             .done();
     });
     describe('GET /notifications', () => {
-        before((done) =>  {
+        before((done) => {
             /*jshint unused:false*/
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
             let n1 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root');
@@ -43,15 +43,15 @@ describe('Notifications', () => {
                 n21[0].createdOn.setFullYear(2015, 1, 14);
                 n21[0].save();
             })
-                .then(() =>  {
+                .then(() => {
                     done();
                 })
-               .catch((err) =>  {
+                .catch((err) => {
                     done(err);
                 });
             /*jshint unused:true*/
         });
-        it('should give active notifications when isactive = true is sent', (done) =>  {
+        it('should give active notifications when isactive = true is sent', (done) => {
             let request = {
                 method: 'GET',
                 url: '/notifications?isActive="true"',
@@ -59,7 +59,7 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -72,7 +72,7 @@ describe('Notifications', () => {
                 }
             });
         });
-        it('should give inactive notifications when isactive = false is sent', (done) =>  {
+        it('should give inactive notifications when isactive = false is sent', (done) => {
             let request = {
                 method: 'GET',
                 url: '/notifications?isActive="false"',
@@ -80,7 +80,7 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -92,7 +92,7 @@ describe('Notifications', () => {
                 }
             });
         });
-        it('should give only the notifications whose state is sent in the parameter', (done) =>  {
+        it('should give only the notifications whose state is sent in the parameter', (done) => {
             let request = {
                 method: 'GET',
                 url: '/notifications?state=unread',
@@ -100,7 +100,7 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -112,7 +112,7 @@ describe('Notifications', () => {
                 }
             });
         });
-        it('should give only the notifications of the user making the query', (done) =>  {
+        it('should give only the notifications of the user making the query', (done) => {
             let request = {
                 method: 'GET',
                 url: '/notifications',
@@ -120,7 +120,7 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -134,7 +134,7 @@ describe('Notifications', () => {
                 }
             });
         });
-        it('should give all notifications in a given time period', (done) =>  {
+        it('should give all notifications in a given time period', (done) => {
             let request = {
                 method: 'GET',
                 url: '/notifications?createdOnBefore=2015-02-15&createdOnAfter=2015-02-13',
@@ -142,7 +142,7 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -155,7 +155,7 @@ describe('Notifications', () => {
                 }
             });
         });
-        it('should give all posts in a given time period2', (done) =>  {
+        it('should give all posts in a given time period2', (done) => {
             let request = {
                 method: 'GET',
                 url: '/notifications?createdOnAfter=2015-02-13',
@@ -163,7 +163,7 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -176,15 +176,15 @@ describe('Notifications', () => {
                 }
             });
         });
-        it('should filter out blocked notifications based on preferences', (done) =>  {
+        it('should filter out blocked notifications based on preferences', (done) => {
             let authHeader = '';
             tu.findAndLogin('one@first.com')
-                .then((u) =>  {
+                .then((u) => {
                     authHeader = u.authheader;
                     u.user.preferences.notifications.userGroups.blocked.push('abc123');
                     return u.user.save();
                 })
-                .then(() =>  {
+                .then(() => {
                     let request = {
                         method: 'GET',
                         url: '/notifications',
@@ -192,7 +192,7 @@ describe('Notifications', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             let p = JSON.parse(response.payload);
@@ -208,7 +208,7 @@ describe('Notifications', () => {
         });
     });
     describe('PUT /notifications/{id}', () => {
-        it('should send back not found error when you try to modify a non existent notification', (done) =>  {
+        it('should send back not found error when you try to modify a non existent notification', (done) => {
             let request = {
                 method: 'PUT',
                 url: '/notifications/54c894fe1d1d4ab4032ed94e',
@@ -216,7 +216,7 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     done();
@@ -225,14 +225,14 @@ describe('Notifications', () => {
                 }
             });
         });
-        it('should return unauthorized if someone other than the owner of the notification tries to change it', (done) =>  {
+        it('should return unauthorized if someone other than the owner of the notification tries to change it', (done) => {
             let id = null;
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
-                .then((n) =>  {
+                .then((n) => {
                     id = n._id.toString();
                     return tu.findAndLogin('one@first.com');
                 })
-                .then((u) =>  {
+                .then((u) => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'PUT',
@@ -244,7 +244,7 @@ describe('Notifications', () => {
                             isActive: false
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(401);
                             done();
@@ -254,9 +254,9 @@ describe('Notifications', () => {
                     });
                 });
         });
-        it('should deactivate notification and have changes audited', (done) =>  {
+        it('should deactivate notification and have changes audited', (done) => {
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
-                .then((n) =>  {
+                .then((n) => {
                     let id = n._id.toString();
                     let request = {
                         method: 'PUT',
@@ -268,15 +268,15 @@ describe('Notifications', () => {
                             isActive: false
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Notifications.findOne({_id: Notifications.ObjectID(id)})
-                                .then((found) =>  {
+                                .then((found) => {
                                     expect(found.isActive).to.be.false();
                                     return Audit.findAudit('notifications', n._id, {'change.action': /isActive/});
                                 })
-                                .then((audit) =>  {
+                                .then((audit) => {
                                     expect(audit.length).to.equal(1);
                                     done();
                                 });
@@ -286,9 +286,9 @@ describe('Notifications', () => {
                     });
                 });
         });
-        it('should update state and have changes audited', (done) =>  {
+        it('should update state and have changes audited', (done) => {
             Notifications.create('root', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
-                .then((n) =>  {
+                .then((n) => {
                     let id = n._id.toString();
                     let request = {
                         method: 'PUT',
@@ -300,15 +300,15 @@ describe('Notifications', () => {
                             state: 'starred'
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Notifications.findOne({_id: Notifications.ObjectID(id)})
-                                .then((found) =>  {
+                                .then((found) => {
                                     expect(found.state).to.equal('starred');
                                     return Audit.findAudit('notifications', n._id, {'change.action': /state/});
                                 })
-                                .then((audit) =>  {
+                                .then((audit) => {
                                     expect(audit.length).to.equal(1);
                                     done();
                                 });
@@ -319,9 +319,9 @@ describe('Notifications', () => {
                 });
         });
     });
-    after((done) =>  {
+    after((done) => {
         Notifications.remove({title: 'titles dont matter'})
-            .then(() =>  {
+            .then(() => {
                 return tu.cleanup({}, done);
             });
     });

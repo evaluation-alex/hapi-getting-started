@@ -14,14 +14,14 @@ let expect = Code.expect;
 describe('AuthAttempts', () => {
     let authheader = '';
     let server = null;
-    before((done) =>  {
+    before((done) => {
         tu.setupServer()
-            .then((res) =>  {
+            .then((res) => {
                 server = res.server;
                 authheader = res.authheader;
                 done();
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 if (err) {
                     done(err);
                 }
@@ -29,9 +29,9 @@ describe('AuthAttempts', () => {
             .done();
     });
     describe('GET /auth-attempts', () => {
-        it('should give auth-attempts of only the ip and email sent in the parameters', (done) =>  {
+        it('should give auth-attempts of only the ip and email sent in the parameters', (done) => {
             AuthAttempts.create('127.0.0.2', 'test.abuse.find@auth.attempts')
-                .then(() =>  {
+                .then(() => {
                     let request = {
                         method: 'GET',
                         url: '/auth-attempts?ip=127.0.0.2&email=test.abuse.find',
@@ -39,7 +39,7 @@ describe('AuthAttempts', () => {
                             Authorization: authheader
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             expect(response.payload).to.exist();
@@ -52,14 +52,14 @@ describe('AuthAttempts', () => {
                     });
                 });
         });
-        it('should give all auth-attempts if nothing is passed', (done) =>  {
+        it('should give all auth-attempts if nothing is passed', (done) => {
             let authSpam = [];
             for (let i = 0; i < 50; i++) {
                 let randomUsername = 'test.abuse' + i + '@auth.attempts';
                 authSpam.push(AuthAttempts.create('127.0.0.2', randomUsername));
             }
             Promise.all(authSpam)
-                .then(() =>  {
+                .then(() => {
                     let request = {
                         method: 'GET',
                         url: '/auth-attempts',
@@ -67,7 +67,7 @@ describe('AuthAttempts', () => {
                             Authorization: authheader
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             expect(response.payload).to.exist();
@@ -81,7 +81,7 @@ describe('AuthAttempts', () => {
                 });
         });
     });
-    after((done) =>  {
+    after((done) => {
         return tu.cleanup({}, done);
     });
 });

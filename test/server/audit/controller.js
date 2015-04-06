@@ -14,14 +14,14 @@ describe('Audit', () => {
     let authheader = '';
     let server = null;
     let emails = [];
-    before((done) =>  {
+    before((done) => {
         tu.setupServer()
-            .then((res) =>  {
+            .then((res) => {
                 server = res.server;
                 authheader = res.authheader;
                 done();
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 if (err) {
                     done(err);
                 }
@@ -30,30 +30,30 @@ describe('Audit', () => {
     });
     describe('GET /audit', () => {
         describe('users', () => {
-            before((done) =>  {
+            before((done) => {
                 Users.create('test.users@test.api', 'silver lining', 'password123', 'en')
-                    .then((newUser) =>  {
+                    .then((newUser) => {
                         return newUser.loginSuccess('test', 'test').save();
                     })
-                    .then(() =>  {
+                    .then(() => {
                         return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
                     })
-                    .then((newUser2) =>  {
+                    .then((newUser2) => {
                         return newUser2.loginSuccess('test', 'test').save();
-                    }).then((newUser2) =>  {
+                    }).then((newUser2) => {
                         newUser2.deactivate('test').save();
                         emails.push('test.users2@test.api');
                         emails.push('test.users@test.api');
                         done();
                     })
-                    .catch((err) =>  {
+                    .catch((err) => {
                         emails.push('test.users2@test.api');
                         emails.push('test.users@test.api');
                         done(err);
                     })
                     .done();
             });
-            it('should give audit of only the user whose email is sent in the parameter', (done) =>  {
+            it('should give audit of only the user whose email is sent in the parameter', (done) => {
                 let request = {
                     method: 'GET',
                     url: '/audit?objectChangedId=test.users2@test.api&objectType=users',
@@ -61,7 +61,7 @@ describe('Audit', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, (response) =>  {
+                server.inject(request, (response) => {
                     try {
                         expect(response.statusCode).to.equal(200);
                         expect(response.payload).to.exist();
@@ -73,7 +73,7 @@ describe('Audit', () => {
                     }
                 });
             });
-            it('should give audit of all changes done by user', (done) =>  {
+            it('should give audit of all changes done by user', (done) => {
                 let request = {
                     method: 'GET',
                     url: '/audit?by=test&objectType=users',
@@ -81,7 +81,7 @@ describe('Audit', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, (response) =>  {
+                server.inject(request, (response) => {
                     try {
                         expect(response.statusCode).to.equal(200);
                         expect(response.payload).to.exist();
@@ -92,7 +92,7 @@ describe('Audit', () => {
                     }
                 });
             });
-            it('should give audit of all changes', (done) =>  {
+            it('should give audit of all changes', (done) => {
                 let request = {
                     method: 'GET',
                     url: '/audit',
@@ -100,7 +100,7 @@ describe('Audit', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, (response) =>  {
+                server.inject(request, (response) => {
                     try {
                         expect(response.statusCode).to.equal(200);
                         expect(response.payload).to.exist();
@@ -112,7 +112,7 @@ describe('Audit', () => {
             });
         });
     });
-    after((done) =>  {
+    after((done) => {
         return tu.cleanup({users: emails}, done);
     });
 });

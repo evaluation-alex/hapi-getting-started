@@ -5,10 +5,10 @@ module.exports = function NewHandler (Model, notify, newCb) {
     /*jshint unused:false*/
     let newObjHook = (request, by) => new Promise((resolve, reject) =>
             resolve(newCb ?
-                newCb(request, by) :
-                Model.newObject(request, by)
+                    newCb(request, by) :
+                    Model.newObject(request, by)
             )
-        );
+    );
     /*jshint unused:true*/
     return (request, reply) => {
         let by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';

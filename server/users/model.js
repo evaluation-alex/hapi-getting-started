@@ -3,7 +3,6 @@ let ModelBuilder = require('./../common/model-builder');
 let Joi = require('joi');
 let Uuid = require('node-uuid');
 var Promise = require('bluebird');
-let AreValid = require('./../common/mixins/exist');
 let Session = require('./session/model');
 let Preferences = require('./preferences/model');
 let Profile = require('./profile/model');
@@ -50,14 +49,14 @@ var Users = (new ModelBuilder())
     .supportInsertAndAudit('email', 'signup')
     .supportSoftDeletes()
     .supportUpdates([
-    'isActive',
-    'roles',
-    'password'
-], [], 'updateUser')
+        'isActive',
+        'roles',
+        'password'
+    ], [], 'updateUser')
     .supportSave()
     .supportTrackChanges('email')
+    .supportAreValidQuery('email')
     .doneConfiguring();
-_.extend(Users, new AreValid('email'));
 Users.prototype.hasPermissionsTo = (performAction, onObject) => {
     let self = this;
     return !!_.find(self._roles, (role) => role.hasPermissionsTo(performAction, onObject));

@@ -65,7 +65,7 @@ let setupRootUser = () => {
                 return found.setRoles(['root'], 'testSetup').resetPrefs().resetProfile().save();
             } else {
                 return Users.create('root', 'silver lining', 'password123', 'en')
-                    .then((rt) =>  {
+                    .then((rt) => {
                         return rt.setRoles(['root'], 'testSetup').save();
                     });
             }
@@ -73,7 +73,7 @@ let setupRootUser = () => {
 };
 let setupFirstUser = () => {
     return Users.findOne({email: 'one@first.com'})
-        .then((found) =>  {
+        .then((found) => {
             if (found) {
                 return found.resetPrefs().resetProfile().save();
             } else {
@@ -87,29 +87,29 @@ module.exports.setupRolesAndUsers = () => {
         .then(setupReadonlyRole)
         .then(setupRootUser)
         .then(setupFirstUser)
-        .then(() =>  {
+        .then(() => {
             return true;
         });
 };
 module.exports.findAndLogin = (user, roles) => {
     return Users.findOne({email: user})
-        .then((foundUser) =>  {
+        .then((foundUser) => {
             if (roles) {
                 foundUser.setRoles(roles, 'test');
             }
             return foundUser.loginSuccess('test', 'test').save();
         })
-        .then((loggedin) =>  {
+        .then((loggedin) => {
             return {user: loggedin, authheader: module.exports.authorizationHeader(loggedin)};
         });
 };
 module.exports.setupServer = () => {
     return new Promise((resolve, reject) => {
         module.exports.setupRolesAndUsers()
-            .then(() =>  {
+            .then(() => {
                 return module.exports.findAndLogin('root');
             })
-            .then((foundUser) =>  {
+            .then((foundUser) => {
                 if (!server) {
                     let Manifest = require('./../../server/manifest').manifest;
                     let components = [
@@ -151,7 +151,7 @@ module.exports.setupServer = () => {
                     resolve({server: server, authheader: foundUser.authheader});
                 }
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 if (err) {
                     reject(err);
                 }
@@ -218,7 +218,7 @@ module.exports.cleanup = (toClear, cb) => {
         () => {
             cb();
         })
-        .catch((err) =>  {
+        .catch((err) => {
             cb(err);
         })
         .done();

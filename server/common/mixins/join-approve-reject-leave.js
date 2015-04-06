@@ -1,6 +1,6 @@
 'use strict';
 let _ = require('lodash');
-module.exports = function JoinApproveRejectLeave(toAdd, affectedRole, needsApproval) {
+module.exports = function JoinApproveRejectLeave (toAdd, affectedRole, needsApproval) {
     let needsApprovalMethod = needsApproval.split('.').map(_.capitalize).join('');
     let affectedRoleMethod = affectedRole.split('.').map(_.capitalize).join('');
     return {

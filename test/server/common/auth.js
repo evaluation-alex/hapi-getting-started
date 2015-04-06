@@ -16,31 +16,31 @@ describe('Auth', () => {
     let server;
     let email = 'test.auth@plugin.auth';
     let authheader;
-    before((done) =>  {
+    before((done) => {
         tu.setupServer()
-            .then((res) =>  {
+            .then((res) => {
                 server = res.server;
             })
-            .then(() =>  {
+            .then(() => {
                 return Users.create(email, 'silver lining', 'auth123', 'en');
             })
-            .then(() =>  {
+            .then(() => {
                 return tu.findAndLogin(email);
             })
-            .then((u) =>  {
+            .then((u) => {
                 authheader = u.authheader;
             })
-            .then(() =>  {
+            .then(() => {
                 done();
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 if (err) {
                     done(err);
                 }
             })
             .done();
     });
-    it('returns authentication credentials when correct authorization header is sent in the request', (done) =>  {
+    it('returns authentication credentials when correct authorization header is sent in the request', (done) => {
         let request = {
             method: 'GET',
             url: '/',
@@ -51,7 +51,7 @@ describe('Auth', () => {
         server.route({
             method: 'GET',
             path: '/',
-            handler: (request, reply) =>  {
+            handler: (request, reply) => {
                 server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.not.exist();
                     expect(credentials).to.exist();
@@ -69,7 +69,7 @@ describe('Auth', () => {
             }
         });
     });
-    it('returns an error when the session is not found', (done) =>  {
+    it('returns an error when the session is not found', (done) => {
         let request = {
             method: 'GET',
             url: '/0',
@@ -80,8 +80,8 @@ describe('Auth', () => {
         server.route({
             method: 'GET',
             path: '/0',
-            handler: (request, reply) =>  {
-                server.auth.test('simple', request, (err, credentials) =>  {
+            handler: (request, reply) => {
+                server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.be.an.instanceof(Error);
                     expect(credentials).to.not.exist();
                     reply('ok').takeover();
@@ -96,7 +96,7 @@ describe('Auth', () => {
             }
         });
     });
-    it('returns an error when the user is not found', (done) =>  {
+    it('returns an error when the user is not found', (done) => {
         let request = {
             method: 'GET',
             url: '/1',
@@ -107,8 +107,8 @@ describe('Auth', () => {
         server.route({
             method: 'GET',
             path: '/1',
-            handler: (request, reply) =>  {
-                server.auth.test('simple', request, (err, credentials) =>  {
+            handler: (request, reply) => {
+                server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.be.an.instanceof(Error);
                     expect(credentials).to.not.exist();
                     reply('ok').takeover();
@@ -123,12 +123,12 @@ describe('Auth', () => {
             }
         });
     });
-    it('returns an error when user has already logged out', (done) =>  {
+    it('returns an error when user has already logged out', (done) => {
         server.route({
             method: 'GET',
             path: '/2',
-            handler: (request, reply) =>  {
-                server.auth.test('simple', request, (err, credentials) =>  {
+            handler: (request, reply) => {
+                server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.be.an.instanceof(Error);
                     expect(credentials).to.not.exist();
                     reply('ok');
@@ -136,10 +136,10 @@ describe('Auth', () => {
             }
         });
         Users.findOne({email: email})
-            .then((user) =>  {
+            .then((user) => {
                 return user.logout('test', 'test').save();
             })
-            .then(() =>  {
+            .then(() => {
                 let request = {
                     method: 'GET',
                     url: '/2',
@@ -157,12 +157,12 @@ describe('Auth', () => {
             })
             .done();
     });
-    it('returns a session expired when the session has expired', (done) =>  {
+    it('returns a session expired when the session has expired', (done) => {
         server.route({
             method: 'GET',
             path: '/5',
-            handler: (request, reply) =>  {
-                server.auth.test('simple', request, (err, credentials) =>  {
+            handler: (request, reply) => {
+                server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.be.an.instanceof(Error);
                     expect(credentials).to.not.exist();
                     reply('ok');
@@ -170,12 +170,12 @@ describe('Auth', () => {
             }
         });
         Users.findOne({email: email})
-            .then((user) =>  {
+            .then((user) => {
                 user.loginSuccess('test', 'test');
                 user.session[0].expires = moment().subtract(15, 'days').toDate();
                 return user.save();
             })
-            .then(() =>  {
+            .then(() => {
                 let request = {
                     method: 'GET',
                     url: '/5',
@@ -193,7 +193,7 @@ describe('Auth', () => {
             })
             .done();
     });
-    it('does adequate error handling and logging when errors occur', (done) =>  {
+    it('does adequate error handling and logging when errors occur', (done) => {
         let request = {
             method: 'GET',
             url: '/6',
@@ -204,8 +204,8 @@ describe('Auth', () => {
         server.route({
             method: 'GET',
             path: '/6',
-            handler: (request, reply) =>  {
-                server.auth.test('simple', request, (err, credentials) =>  {
+            handler: (request, reply) => {
+                server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.be.an.instanceof(Error);
                     expect(credentials).to.not.exist();
                     reply('ok');
@@ -226,7 +226,7 @@ describe('Auth', () => {
             }
         });
     });
-    after((done) =>  {
+    after((done) => {
         return tu.cleanup({users: [email]}, done);
     });
 });

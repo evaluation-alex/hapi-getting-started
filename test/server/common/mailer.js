@@ -10,19 +10,19 @@ let describe = lab.describe;
 let it = lab.it;
 let expect = Code.expect;
 describe('Mailer', () => {
-    it('returns error when read file fails', (done) =>  {
+    it('returns error when read file fails', (done) => {
         Mailer.sendEmail({}, 'path', {})
-            .then((info) =>  {
+            .then((info) => {
                 expect(info).to.not.exist();
                 done(info);
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 expect(err).to.be.an.instanceof(Error);
                 done();
             })
             .done();
     });
-    it('sends an email, if sent repeatedly, hits the cache', (done) =>  {
+    it('sends an email, if sent repeatedly, hits the cache', (done) => {
         let options = {
             subject: 'Your ' + Config.projectName + ' account',
             to: {
@@ -35,17 +35,17 @@ describe('Mailer', () => {
             password: 'password'
         };
         Mailer.sendEmail(options, 'server/users/templates/welcome.hbs.md', payload)
-            .then((info) =>  {
+            .then((info) => {
                 expect(info).to.exist();
             })
-            .then(() =>  {
+            .then(() => {
                 return Mailer.sendEmail(options, 'server/users/templates/welcome.hbs.md', payload);
             })
-            .then((info) =>  {
+            .then((info) => {
                 expect(info).to.exist();
                 done();
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 expect(err).to.not.exist();
                 done(err);
             });

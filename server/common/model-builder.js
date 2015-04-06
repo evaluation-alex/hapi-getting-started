@@ -3,11 +3,12 @@ let _ = require('lodash');
 let Model = require('./model');
 let Insert = require('./mixins/insert');
 let Save = require('./mixins/save');
-let Audit = require('./mixins/audit');
+let TrackChanges = require('./mixins/track-changes');
 let IsActive = require('./mixins/is-active');
 let Update = require('./mixins/update');
 let JoinApproveRejectLeave = require('./mixins/join-approve-reject-leave');
 let I18N = require('./mixins/i18n');
+let AreValid = require('./mixins/exist');
 var ModelFactory = function ModelFactory () {
 };
 ModelFactory.prototype.virtualModel = (model) => {
@@ -48,7 +49,7 @@ ModelFactory.prototype.supportSave = () => {
     return this;
 };
 ModelFactory.prototype.supportTrackChanges = (idToUse) => {
-    _.extend(this.model.prototype, new Audit(this.model.collection, idToUse ? idToUse : '_id'));
+    _.extend(this.model.prototype, new TrackChanges(this.model.collection, idToUse ? idToUse : '_id'));
     return this;
 };
 ModelFactory.prototype.supportSoftDeletes = () => {
@@ -65,6 +66,10 @@ ModelFactory.prototype.supportJoinApproveRejectLeave = (toAdd, affectedRole, nee
 };
 ModelFactory.prototype.supportI18N = (fields) => {
     _.extend(this.model.prototype, new I18N(fields));
+    return this;
+};
+ModelFactory.prototype.supportAreValidQuery = (field) => {
+    _.extend(this.model, new AreValid(field));
     return this;
 };
 ModelFactory.prototype.doneConfiguring = () => {

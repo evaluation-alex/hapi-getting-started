@@ -5,10 +5,10 @@ module.exports = function FindHandler (Model, queryBuilder, findCb) {
     /*jshint unused:false*/
     let findHook = (output) => new Promise((resolve, reject) =>
             resolve(findCb ?
-                findCb(output) :
-                output
+                    findCb(output) :
+                    output
             )
-        );
+    );
     /*jshint unused:true*/
     return (request, reply) => {
         let query = queryBuilder(request);

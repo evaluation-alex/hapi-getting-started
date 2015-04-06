@@ -2,7 +2,7 @@
 let _ = require('lodash');
 var Promise = require('bluebird');
 let utils = require('./../utils');
-module.exports = function AreValid(property) {
+module.exports = function AreValid (property) {
     return {
         areValid: (toCheck, organisation) => {
             let self = this;
@@ -17,8 +17,12 @@ module.exports = function AreValid(property) {
                 return self.find(conditions)
                     .then((docs) => {
                         let results = Object.create(null);
-                        _.forEach(docs, (doc) => { results[doc[property]] = true; });
-                        _.forEach(toCheck, (e) => { results[e] = !!results[e]; });
+                        _.forEach(docs, (doc) => {
+                            results[doc[property]] = true;
+                        });
+                        _.forEach(toCheck, (e) => {
+                            results[e] = !!results[e];
+                        });
                         return results;
                     });
             }

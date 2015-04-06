@@ -12,7 +12,10 @@ var CustomErrorFactory = function CustomErrorFactory (message, name, errorType, 
         Error.captureStackTrace(this, CustomError);
     };
     CustomError.prototype = Object.create(Error.prototype);
-    CustomError.prototype.i18nError = (locale) => Boom[this.errorType](i18n.__({phrase: this.phrase, locale: locale}, this.data));
+    CustomError.prototype.i18nError = (locale) => Boom[this.errorType](i18n.__({
+        phrase: this.phrase,
+        locale: locale
+    }, this.data));
     CustomError.constructor = CustomError;
     return CustomError;
 };

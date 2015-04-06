@@ -4,7 +4,7 @@ let traverse = require('traverse');
 let utils = require('./../utils');
 let SetMethods = require('./properties');
 let ArrMethods = require('./add-remove');
-module.exports = function Update(properties, lists, updateMethodName) {
+module.exports = function Update (properties, lists, updateMethodName) {
     let ret = {};
     _.extend(ret, new SetMethods(properties));
     if (utils.hasItems(lists)) {

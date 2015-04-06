@@ -14,14 +14,14 @@ let expect = Code.expect;
 describe('Profile', () => {
     let rootAuthHeader = null;
     let server = null;
-    before((done) =>  {
+    before((done) => {
         tu.setupServer()
-            .then((res) =>  {
+            .then((res) => {
                 server = res.server;
                 rootAuthHeader = res.authheader;
                 done();
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 if (err) {
                     done(err);
                 }
@@ -31,24 +31,24 @@ describe('Profile', () => {
     describe('PUT /profile/{id}', () => {
         let authheader = '';
         let id = '';
-        before((done) =>  {
+        before((done) => {
             tu.findAndLogin('root')
-                .then((u) =>  {
+                .then((u) => {
                     authheader = u.authheader;
                     done();
                 });
         });
-        it('should return unauthorised if someone other than root or the user tries to modify user attributes', (done) =>  {
+        it('should return unauthorised if someone other than root or the user tries to modify user attributes', (done) => {
             let oneauthheader = '';
             tu.findAndLogin('one@first.com')
-                .then((u) =>  {
+                .then((u) => {
                     oneauthheader = u.authheader;
                     return Users.findOne({email: 'root'});
                 })
-                .then((u) =>  {
+                .then((u) => {
                     id = u._id.toString();
                 })
-                .then(() =>  {
+                .then(() => {
                     let request = {
                         method: 'PUT',
                         url: '/profile/' + id,
@@ -61,7 +61,7 @@ describe('Profile', () => {
                             }
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(401);
                             done();
@@ -71,7 +71,7 @@ describe('Profile', () => {
                     });
                 });
         });
-        it('should return not found if the profile is not found', (done) =>  {
+        it('should return not found if the profile is not found', (done) => {
             let request = {
                 method: 'PUT',
                 url: '/profile/54d4430eed61ad701cc7a721',
@@ -84,7 +84,7 @@ describe('Profile', () => {
                     }
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     done();
@@ -93,9 +93,9 @@ describe('Profile', () => {
                 }
             });
         });
-        it('should modify profile and audit changes', (done) =>  {
+        it('should modify profile and audit changes', (done) => {
             Users.findOne({email: 'root'})
-                .then((p) =>  {
+                .then((p) => {
                     id = p._id.toString();
                     let request = {
                         method: 'PUT',
@@ -109,15 +109,15 @@ describe('Profile', () => {
                             }
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             Users.findOne({email: 'root'})
-                                .then((p) =>  {
+                                .then((p) => {
                                     expect(p.profile.preferredName).to.equal('mr. me');
                                     return Audit.findAudit('users', 'root', {'change.action': 'profile.preferredName'});
                                 })
-                                .then((audit) =>  {
+                                .then((audit) => {
                                     expect(audit).to.exist();
                                     expect(audit.length).to.equal(1);
                                     done();
@@ -129,7 +129,7 @@ describe('Profile', () => {
                 });
         });
     });
-    after((done) =>  {
+    after((done) => {
         done();
     });
 });

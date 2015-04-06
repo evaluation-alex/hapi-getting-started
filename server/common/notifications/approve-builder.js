@@ -1,6 +1,6 @@
 'use strict';
 let utils = require('./../utils');
-module.exports = function ApproveNotificationBuilder(toAdd, approvers, idForNotificationsTitle) {
+module.exports = function ApproveNotificationBuilder (toAdd, approvers, idForNotificationsTitle) {
     return (obj, request) => {
         return {
             to: utils.hasItems(request.payload[toAdd]) ? obj[approvers] : [],

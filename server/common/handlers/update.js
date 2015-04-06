@@ -5,11 +5,11 @@ var Promise = require('bluebird');
 module.exports = function UpdateHandler (Model, notify, updateCb) {
     /*jshint unused:false*/
     let updateHook = (u, request, by) =>
-            new Promise((resolve, reject) =>
-            resolve(_.isFunction(updateCb) ?
-                updateCb(u, request, by) :
-                u[updateCb](request, by)
-            )
+        new Promise((resolve, reject) =>
+                resolve(_.isFunction(updateCb) ?
+                        updateCb(u, request, by) :
+                        u[updateCb](request, by)
+                )
         );
     /*jshint unused:true*/
     return (request, reply) => {

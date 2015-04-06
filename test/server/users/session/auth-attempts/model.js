@@ -14,19 +14,19 @@ let before = lab.before;
 let after = lab.after;
 let expect = Code.expect;
 describe('AuthAttempts Model', () => {
-    before((done) =>  {
+    before((done) => {
         tu.setupRolesAndUsers()
-            .then(() =>  {
+            .then(() => {
                 done();
             });
     });
-    it('returns a new instance when create succeeds', (done) =>  {
+    it('returns a new instance when create succeeds', (done) => {
         let error;
         AuthAttempts.create('127.0.0.1', 'test.create@auth.attempts')
-            .then((authAttempt) =>  {
+            .then((authAttempt) => {
                 expect(authAttempt).to.be.an.instanceof(AuthAttempts);
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 expect(err).to.not.exist();
                 error = err;
             })
@@ -34,18 +34,18 @@ describe('AuthAttempts Model', () => {
                 tu.testComplete(done, error);
             });
     });
-    it('should return true when abuse is detected for user + ip combo', (done) =>  {
+    it('should return true when abuse is detected for user + ip combo', (done) => {
         let error;
         let authAttemptsConfig = Config.authAttempts;
         let authSpam = [];
         let authRequest = () => {
             return new Promise((resolve/*, reject*/) => {
                 AuthAttempts.create('127.0.0.1', 'test.abuse@auth.attempts')
-                    .then((result) =>  {
+                    .then((result) => {
                         expect(result).to.be.an.instanceof(AuthAttempts);
                         resolve(true);
                     })
-                    .catch((err) =>  {
+                    .catch((err) => {
                         expect(err).to.not.exist();
                         resolve(false);
                     });
@@ -55,13 +55,13 @@ describe('AuthAttempts Model', () => {
             authSpam.push(authRequest());
         }
         Promise.all(authSpam)
-            .then(() =>  {
+            .then(() => {
                 return AuthAttempts.abuseDetected('127.0.0.1', 'test.abuse@auth.attempts');
             })
-            .then((result) =>  {
+            .then((result) => {
                 expect(result).to.equal(true);
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 expect(err).to.not.exist();
                 error = err;
             })
@@ -69,7 +69,7 @@ describe('AuthAttempts Model', () => {
                 tu.testComplete(done, error);
             });
     });
-    it('should return true when abuse is detected for an ip and multiple users', (done) =>  {
+    it('should return true when abuse is detected for an ip and multiple users', (done) => {
         let error;
         let authAttemptsConfig = Config.authAttempts;
         let authSpam = [];
@@ -78,13 +78,13 @@ describe('AuthAttempts Model', () => {
             authSpam.push(AuthAttempts.create('127.0.0.2', randomUsername));
         }
         Promise.all(authSpam)
-            .then(() =>  {
+            .then(() => {
                 return AuthAttempts.abuseDetected('127.0.0.2', 'test.abusexxx@auth.attempts');
             })
-            .then((result) =>  {
+            .then((result) => {
                 expect(result).to.equal(true);
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 expect(err).to.not.exist();
                 error = err;
             })
@@ -92,7 +92,7 @@ describe('AuthAttempts Model', () => {
                 tu.testComplete(done, error);
             });
     });
-    after((done) =>  {
+    after((done) => {
         return tu.cleanup({}, done);
     });
 });

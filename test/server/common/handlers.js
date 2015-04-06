@@ -13,7 +13,7 @@ let describe = lab.describe;
 let it = lab.it;
 let expect = Code.expect;
 describe('Handlers and Mixins', () => {
-    it('create handler should log and boom errors when it encounters exceptions', (done) =>  {
+    it('create handler should log and boom errors when it encounters exceptions', (done) => {
         let reply = (args) => {
             expect(args).to.be.an.instanceof(Error);
         };
@@ -37,7 +37,7 @@ describe('Handlers and Mixins', () => {
         handler(request, reply);
         done();
     });
-    it('find handler should log and boom errors when it encounters exceptions', (done) =>  {
+    it('find handler should log and boom errors when it encounters exceptions', (done) => {
         let Model = {
             pagedFind: (query, fields, sort, limit, page) => {
                 expect(query).to.exist();
@@ -64,7 +64,7 @@ describe('Handlers and Mixins', () => {
         handler(request, reply);
         done();
     });
-    it('findOne handler should log and boom exceptions when it encounters exceptions', (done) =>  {
+    it('findOne handler should log and boom exceptions when it encounters exceptions', (done) => {
         let Model = {
             collection: 'test'
         };
@@ -84,7 +84,7 @@ describe('Handlers and Mixins', () => {
         handler(request, reply);
         done();
     });
-    it('insertAndAudit should return a not created error when _insert fails', (done) =>  {
+    it('insertAndAudit should return a not created error when _insert fails', (done) => {
         let obj = {
             insert: (doc) => {
                 expect(doc).to.exist();
@@ -94,7 +94,7 @@ describe('Handlers and Mixins', () => {
         };
         _.extend(obj, new InsertAndAudit('_id', 'create'));
         obj.insertAndAudit({test: 'error'})
-            .catch((err) =>  {
+            .catch((err) => {
                 expect(err).to.exist();
             });
         done();

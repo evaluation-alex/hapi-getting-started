@@ -133,13 +133,13 @@ var Controller = new ControllerFactory(Posts)
     }, (output) => Promise.all(PostContent.readContentMultiple(output.data)
         .map((content, indx) => output.data[indx].content = content))
         .then(() => output)
-    )
+)
     .findOneController([], (post) => PostContent.readContent(post)
-            .then((content) => {
-                post.content = content;
-                return post;
-            })
-    )
+        .then((content) => {
+            post.content = content;
+            return post;
+        })
+)
     .updateController({
         payload: {
             blogId: Joi.string(),

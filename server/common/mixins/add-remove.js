@@ -2,7 +2,7 @@
 let _ = require('lodash');
 let traverse = require('traverse');
 let utils = require('./../utils');
-module.exports = function AddRemove(roles) {
+module.exports = function AddRemove (roles) {
     let ret = {};
     _.forEach(roles, (role) => {
         let path = role.split('.');

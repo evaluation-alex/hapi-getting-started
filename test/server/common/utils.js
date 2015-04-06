@@ -9,7 +9,7 @@ let describe = lab.describe;
 let it = lab.it;
 let expect = Code.expect;
 describe('Utils', () => {
-    it('should log when errback called with', (done) =>  {
+    it('should log when errback called with', (done) => {
         let prev = Config.logger;
         Config.logger = {
             error: (args) => {
@@ -20,7 +20,7 @@ describe('Utils', () => {
         Config.logger = prev;
         done();
     });
-    it('should do nothing when no error passed', (done) =>  {
+    it('should do nothing when no error passed', (done) => {
         let prev = Config.logger;
         Config.logger = {
             error: () => {
@@ -31,11 +31,11 @@ describe('Utils', () => {
         Config.logger = prev;
         done();
     });
-    it('should return the proper ip address from the request', (done) =>  {
+    it('should return the proper ip address from the request', (done) => {
         expect(utils.ip({info: {remoteAddress: '127.0.0.1'}})).to.equal('127.0.0.1');
         done();
     });
-    it('should lookup params first, then payload, then query', (done) =>  {
+    it('should lookup params first, then payload, then query', (done) => {
         expect(utils.lookupParamsOrPayloadOrQuery({}, 'f')).to.be.undefined();
         expect(utils.lookupParamsOrPayloadOrQuery({
             params: {

@@ -14,13 +14,13 @@ let cache = new LRUCache({
 });
 module.exports.resetCache = () => cache.reset();
 module.exports.filenameForPost = (post) => [('/' +
-    post.organisation +
-    '/blogs/' +
-    post.blogId.toString() + '/').replace(' ', '-') +
-    moment(post.createdOn).format('YYYYMMDD') +
-    '__' +
-    post._id.toString()
-    ];
+post.organisation +
+'/blogs/' +
+post.blogId.toString() + '/').replace(' ', '-') +
+moment(post.createdOn).format('YYYYMMDD') +
+'__' +
+post._id.toString()
+];
 module.exports.writeContent = (post, content) => {
     if (!_.isUndefined(content) && content.length > 0) {
         let filename = module.exports.filenameForPost(post);
@@ -35,7 +35,7 @@ module.exports.readContent = (post) => {
         return Promise.resolve(cache.get(filename));
     } else {
         return readFileP(Config.storage.diskPath + filename)
-            .then( (content) => {
+            .then((content) => {
                 content = content.toString();
                 cache.set(filename, content);
                 return content;

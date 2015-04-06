@@ -14,13 +14,13 @@ let after = lab.after;
 let expect = Code.expect;
 describe('Profile Model', () => {
     let usersToClear = [];
-    before((done) =>  {
+    before((done) => {
         tu.setupRolesAndUsers()
-            .then(() =>  {
+            .then(() => {
                 done();
             });
     });
-    after((done) =>  {
+    after((done) => {
         tu.cleanup({users: usersToClear}, done);
     });
 });

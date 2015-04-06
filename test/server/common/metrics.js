@@ -9,7 +9,7 @@ let it = lab.it;
 let before = lab.before;
 describe('Metrics', () => {
     let server = null;
-    before((done) =>  {
+    before((done) => {
         server = new Hapi.Server();
         server.connection({
             host: 'localhost',
@@ -30,22 +30,22 @@ describe('Metrics', () => {
             options: {}
         }, done);
     });
-    it('should report stats with no path in stat name', (done) =>  {
+    it('should report stats with no path in stat name', (done) => {
         server.inject('/', () => {
             done();
         });
     });
-    it('should report stats with path in stat name', (done) =>  {
+    it('should report stats with path in stat name', (done) => {
         server.inject('/test/123', () => {
             done();
         });
     });
-    it('should report stats with generic not found path', (done) =>  {
+    it('should report stats with generic not found path', (done) => {
         server.inject('/fnord', () => {
             done();
         });
     });
-    it('should report stats with generic CORS path', (done) =>  {
+    it('should report stats with generic CORS path', (done) => {
         server.inject({
             method: 'OPTIONS',
             headers: {
@@ -56,7 +56,7 @@ describe('Metrics', () => {
             done();
         });
     });
-    it('should not change the status code of a response', (done) =>  {
+    it('should not change the status code of a response', (done) => {
         server.inject('/err', () => {
             done();
         });

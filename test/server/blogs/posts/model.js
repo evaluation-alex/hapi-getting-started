@@ -405,7 +405,7 @@ describe('Posts Model', () => {
             let error = null;
             Posts.findOne({title: 'addTags1', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.add(['newTag'], 'tags', 'test').save();
+                    return found.addTags(['newTag'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.tags, 'newTag')).to.exist();
@@ -427,7 +427,7 @@ describe('Posts Model', () => {
             let error = null;
             Posts.findOne({title: 'addTags2', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.add(['testing'], 'tags', 'test').save();
+                    return found.addTags(['testing'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.tags, 'testing')).to.exist();
@@ -463,7 +463,7 @@ describe('Posts Model', () => {
             let error = null;
             Posts.findOne({title: 'removeTags1', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.remove(['unknownTag'], 'tags', 'test').save();
+                    return found.removeTags(['unknownTag'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.tags, 'unknownTag')).to.not.exist();
@@ -484,7 +484,7 @@ describe('Posts Model', () => {
             let error = null;
             Posts.findOne({title: 'removeTags2', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.remove(['removeTags'], 'tags', 'test').save();
+                    return found.removeTags(['removeTags'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.tags, 'removeTags')).to.not.exist();

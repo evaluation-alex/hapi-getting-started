@@ -6,13 +6,16 @@ var Promise = require('bluebird');
 let moment = require('moment');
 let errors = require('./../../common/errors');
 let utils = require('./../../common/utils');
-var Session = function Session () {
-};
-Session.schema = Joi.array().items(Joi.object().keys({
-    ipaddress: Joi.string(),
-    key: Joi.object(),
-    expires: Joi.date()
-}));
+let ModelBuilder = require('./../../common/model-builder');
+var Session = (new ModelBuilder())
+    .virtualModel(function Session () {
+    })
+    .usingSchema(Joi.array().items(Joi.object().keys({
+        ipaddress: Joi.string(),
+        key: Joi.object(),
+        expires: Joi.date()
+    })))
+    .doneConfiguring();
 Session.prototype._invalidateSession = (ipaddress, by) => {
     let self = this;
     let removed = _.remove(self.session, (session) => session.ipaddress === ipaddress);

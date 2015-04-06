@@ -1,76 +1,63 @@
 'use strict';
-let Model = require('./../common/model');
+let ModelBuilder = require('./../common/model-builder');
 let Joi = require('joi');
 let Uuid = require('node-uuid');
 var Promise = require('bluebird');
-let Insert = require('./../common/mixins/insert');
 let AreValid = require('./../common/mixins/exist');
-let Properties = require('./../common/mixins/properties');
-let IsActive = require('./../common/mixins/is-active');
-let AddRemove = require('./../common/mixins/add-remove');
-let Update = require('./../common/mixins/update');
-let Save = require('./../common/mixins/save');
-let CAudit = require('./../common/mixins/audit');
 let Session = require('./session/model');
 let Preferences = require('./preferences/model');
 let Profile = require('./profile/model');
 let _ = require('lodash');
 let errors = require('./../common/errors');
 let utils = require('./../common/utils');
-var Users = function Users (attrs) {
-    _.assign(this, attrs);
-    Object.defineProperty(this, '_roles', {
-        writable: true,
-        enumerable: false
-    });
-    Object.defineProperty(this, 'audit', {
-        writable: true,
-        enumerable: false
-    });
-};
-Users.collection = 'users';
-Users.schema = Joi.object().keys({
-    _id: Joi.object(),
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-    organisation: Joi.string().required(),
-    roles: Joi.array().items(Joi.string()).unique(),
-    resetPwd: Joi.object().keys({
-        token: Joi.string().required(),
-        expires: Joi.date().required()
-    }),
-    session: Session.schema,
-    preferences: Preferences.schema,
-    profile: Profile.schema,
-    isActive: Joi.boolean().default(true),
-    createdBy: Joi.string(),
-    createdOn: Joi.date(),
-    updatedBy: Joi.string(),
-    updatedOn: Joi.date()
-});
-Users.indexes = [
-    [{email: 1}, {unique: true}],
-    [{email: 1, organisation: 1}, {unique: true}]
-];
-_.extend(Users, Model);
-_.extend(Users, new Insert('email', 'signup'));
-_.extend(Users, new AreValid('email'));
-_.extend(Users, Session);
-_.extend(Users, Preferences);
-_.extend(Users, Profile);
-_.extend(Users.prototype, new IsActive());
-_.extend(Users.prototype, new Properties(['isActive', 'roles']));
-_.extend(Users.prototype, new AddRemove(_.flatten(Preferences.arrprops, Profile.arrprops)));
-_.extend(Users.prototype, Session.prototype);
-_.extend(Users.prototype, Preferences.prototype);
-_.extend(Users.prototype, Profile.prototype);
-_.extend(Users.prototype, new Update([
+var Users = (new ModelBuilder())
+    .onModel(function Users (attrs) {
+        _.assign(this, attrs);
+        Object.defineProperty(this, '_roles', {
+            writable: true,
+            enumerable: false
+        });
+        Object.defineProperty(this, 'audit', {
+            writable: true,
+            enumerable: false
+        });
+    })
+    .extendVirtualModel(Session)
+    .extendVirtualModel(Preferences)
+    .extendVirtualModel(Profile)
+    .inMongoCollection('users')
+    .usingSchema(Joi.object().keys({
+        _id: Joi.object(),
+        email: Joi.string().email().required(),
+        password: Joi.string().required(),
+        organisation: Joi.string().required(),
+        roles: Joi.array().items(Joi.string()).unique(),
+        resetPwd: Joi.object().keys({
+            token: Joi.string().required(),
+            expires: Joi.date().required()
+        }),
+        session: Session.schema,
+        preferences: Preferences.schema,
+        profile: Profile.schema,
+        isActive: Joi.boolean().default(true),
+        createdBy: Joi.string(),
+        createdOn: Joi.date(),
+        updatedBy: Joi.string(),
+        updatedOn: Joi.date()
+    }))
+    .addIndex([{email: 1}, {unique: true}])
+    .addIndex([{email: 1, organisation: 1}, {unique: true}])
+    .supportInsertAndAudit('email', 'signup')
+    .supportSoftDeletes()
+    .supportUpdates([
     'isActive',
     'roles',
     'password'
-], [], 'updateUser'));
-_.extend(Users.prototype, new Save(Users));
-_.extend(Users.prototype, new CAudit(Users.collection, 'email'));
+], [], 'updateUser')
+    .supportSave()
+    .supportTrackChanges('email')
+    .doneConfiguring();
+_.extend(Users, new AreValid('email'));
 Users.prototype.hasPermissionsTo = (performAction, onObject) => {
     let self = this;
     return !!_.find(self._roles, (role) => role.hasPermissionsTo(performAction, onObject));

@@ -1,10 +1,6 @@
 'use strict';
 let Joi = require('joi');
-let Properties = require('./../../common/mixins/properties');
-let Update = require('./../../common/mixins/update');
-let _ = require('lodash');
-var Preferences = function Preferences () {
-};
+let ModelBuilder = require('./../../common/model-builder');
 let channelSchema = Joi.object().keys({
     frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
     lastSent: Joi.date()
@@ -14,52 +10,37 @@ let notificationPrefSchema = Joi.object().keys({
     email: channelSchema,
     blocked: Joi.array().items(Joi.object())
 });
-Preferences.schema = Joi.object().keys({
-    notifications: Joi.object().keys({
-        blogs: notificationPrefSchema,
-        posts: notificationPrefSchema,
-        userGroups: notificationPrefSchema
-    }),
-    locale: Joi.string().only('en', 'hi')
-});
-Preferences.arrprops = [
-    'preferences.notifications.blogs.blocked',
-    'preferences.notifications.posts.blocked',
-    'preferences.notifications.userGroups.blocked'
-];
-_.extend(Preferences.prototype, new Properties([
-    'preferences.notifications.blogs.inapp.frequency',
-    'preferences.notifications.blogs.inapp.lastSent',
-    'preferences.notifications.blogs.email.frequency',
-    'preferences.notifications.blogs.email.lastSent',
-    'preferences.notifications.posts.inapp.frequency',
-    'preferences.notifications.posts.inapp.lastSent',
-    'preferences.notifications.blogs.email.frequency',
-    'preferences.notifications.blogs.email.lastSent',
-    'preferences.notifications.userGroups.inapp.frequency',
-    'preferences.notifications.userGroups.inapp.lastSent',
-    'preferences.notifications.userGroups.email.frequency',
-    'preferences.notifications.userGroups.email.lastSent',
-    'preferences.locale']));
-_.extend(Preferences.prototype, new Update([
-    'preferences.notifications.blogs.inapp.frequency',
-    'preferences.notifications.blogs.inapp.lastSent',
-    'preferences.notifications.blogs.email.frequency',
-    'preferences.notifications.blogs.email.lastSent',
-    'preferences.notifications.posts.inapp.frequency',
-    'preferences.notifications.posts.inapp.lastSent',
-    'preferences.notifications.blogs.email.frequency',
-    'preferences.notifications.blogs.email.lastSent',
-    'preferences.notifications.userGroups.inapp.frequency',
-    'preferences.notifications.userGroups.inapp.lastSent',
-    'preferences.notifications.userGroups.email.frequency',
-    'preferences.notifications.userGroups.email.lastSent',
-    'preferences.locale'
-], [
-    'preferences.notifications.blogs.blocked',
-    'preferences.notifications.posts.blocked',
-    'preferences.notifications.userGroups.blocked'
-], 'updatePreferences'));
+var Preferences = (new ModelBuilder())
+    .virtualModel(function Preferences () {
+    })
+    .usingSchema(Joi.object().keys({
+        notifications: Joi.object().keys({
+            blogs: notificationPrefSchema,
+            posts: notificationPrefSchema,
+            userGroups: notificationPrefSchema
+        }),
+        locale: Joi.string().only('en', 'hi')
+    }))
+    .supportUpdates([
+        'preferences.notifications.blogs.inapp.frequency',
+        'preferences.notifications.blogs.inapp.lastSent',
+        'preferences.notifications.blogs.email.frequency',
+        'preferences.notifications.blogs.email.lastSent',
+        'preferences.notifications.posts.inapp.frequency',
+        'preferences.notifications.posts.inapp.lastSent',
+        'preferences.notifications.blogs.email.frequency',
+        'preferences.notifications.blogs.email.lastSent',
+        'preferences.notifications.userGroups.inapp.frequency',
+        'preferences.notifications.userGroups.inapp.lastSent',
+        'preferences.notifications.userGroups.email.frequency',
+        'preferences.notifications.userGroups.email.lastSent',
+        'preferences.locale'
+    ], [
+        'preferences.notifications.blogs.blocked',
+        'preferences.notifications.posts.blocked',
+        'preferences.notifications.userGroups.blocked'
+    ], 'updatePreferences')
+    .doneConfiguring();
 Preferences.prototype.resetPrefs = () => {
     let self = this;
     self.preferences = Preferences.create();

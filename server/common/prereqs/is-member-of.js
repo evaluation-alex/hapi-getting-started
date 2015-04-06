@@ -8,7 +8,7 @@ module.exports = (Model, groups) => {
             let obj = request.pre[Model.collection];
             let user = request.auth.credentials.user.email;
             if (user === 'root' ||
-                !!_.find(groups, (role) => obj.isMemberOf(role, user))) {
+                !!_.find(groups, (role) => obj['isPresentIn' + role.split('.').map(_.capitalize).join('')](user))) {
                 reply(true);
             } else {
                 reply(new errors.NotAMemberOfValidGroupError({owners: JSON.stringify(groups)}));

@@ -1,52 +1,48 @@
 'use strict';
-let Model = require('./../common/model');
+let ModelBuilder = require('./../common/model-builder');
 let Joi = require('joi');
-let Insert = require('./../common/mixins/insert');
 let AreValid = require('./../common/mixins/exist');
-let AddRemove = require('./../common/mixins/add-remove');
-let JoinApproveRejectLeave = require('./../common/mixins/join-approve-reject-leave');
-let Update = require('./../common/mixins/update');
-let Properties = require('./../common/mixins/properties');
-let IsActive = require('./../common/mixins/is-active');
-let Save = require('./../common/mixins/save');
-let CAudit = require('./../common/mixins/audit');
 let _ = require('lodash');
-var UserGroups = function UserGroups (attrs) {
-    _.assign(this, attrs);
-    Object.defineProperty(this, 'audit', {
-        writable: true,
-        enumerable: false
-    });
-};
-UserGroups.collection = 'user-groups';
-UserGroups.schema = Joi.object().keys({
-    _id: Joi.object(),
-    name: Joi.string().required(),
-    organisation: Joi.string().required(),
-    description: Joi.string(),
-    members: Joi.array().items(Joi.string()).unique(),
-    owners: Joi.array().items(Joi.string()).unique(),
-    needsApproval: Joi.array().items(Joi.string()).unique(),
-    access: Joi.string().only(['restricted', 'public']).default('restricted'),
-    isActive: Joi.boolean().default(true),
-    createdBy: Joi.string(),
-    createdOn: Joi.date(),
-    updatedBy: Joi.string(),
-    updatedOn: Joi.date()
-});
-UserGroups.indexes = [
-    [{name: 1, organisation: 1}, {unique: true}]
-];
-_.extend(UserGroups, Model);
-_.extend(UserGroups, new Insert('name', 'create'));
+var UserGroups = (new ModelBuilder())
+    .onModel(function UserGroups (attrs) {
+        _.assign(this, attrs);
+        Object.defineProperty(this, 'audit', {
+            writable: true,
+            enumerable: false
+        });
+    })
+    .inMongoCollection('user-groups')
+    .usingSchema(Joi.object().keys({
+        _id: Joi.object(),
+        name: Joi.string().required(),
+        organisation: Joi.string().required(),
+        description: Joi.string(),
+        members: Joi.array().items(Joi.string()).unique(),
+        owners: Joi.array().items(Joi.string()).unique(),
+        needsApproval: Joi.array().items(Joi.string()).unique(),
+        access: Joi.string().only(['restricted', 'public']).default('restricted'),
+        isActive: Joi.boolean().default(true),
+        createdBy: Joi.string(),
+        createdOn: Joi.date(),
+        updatedBy: Joi.string(),
+        updatedOn: Joi.date()
+    }))
+    .addIndex([{name: 1, organisation: 1}, {unique: true}])
+    .supportInsertAndAudit('name', 'create')
+    .supportSoftDeletes()
+    .supportJoinApproveRejectLeave('addedMembers', 'members', 'needsApproval')
+    .supportUpdates([
+        'isActive',
+        'description',
+        'access'
+    ], ['owners',
+        'members',
+        'needsApproval'
+    ])
+    .supportSave()
+    .supportTrackChanges('name')
+    .doneConfiguring();
 _.extend(UserGroups, new AreValid('name'));
-_.extend(UserGroups.prototype, new IsActive());
-_.extend(UserGroups.prototype, new AddRemove(['owners', 'members', 'needsApproval']));
-_.extend(UserGroups.prototype, new Properties(['description', 'access', 'isActive']));
-_.extend(UserGroups.prototype, new JoinApproveRejectLeave('addedMembers', 'members', 'needsApproval'));
-_.extend(UserGroups.prototype, new Update(['isActive', 'description', 'access'], ['owners', 'members', 'needsApproval']));
-_.extend(UserGroups.prototype, new Save(UserGroups));
-_.extend(UserGroups.prototype, new CAudit(UserGroups.collection, 'name'));
 UserGroups.newObject = (doc, by) => {
     let self = this;
     return self.create(doc.payload.name,
@@ -55,8 +51,8 @@ UserGroups.newObject = (doc, by) => {
         by)
         .then((userGroup) => {
             return userGroup
-                .add(doc.payload.members, 'members', by)
-                .add(doc.payload.owners, 'owners', by)
+                .addMembers(doc.payload.members, by)
+                .addOwners(doc.payload.owners, by)
                 .setAccess(doc.payload.access, by)
                 .save();
         });

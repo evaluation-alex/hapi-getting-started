@@ -1,26 +1,25 @@
 'use strict';
-let Model = require('./../../../common/model');
+let ModelBuilder = require('./../../../common/model-builder');
 let Joi = require('joi');
 let Config = require('./../../../../config');
 var Promise = require('bluebird');
 let _ = require('lodash');
 let authAttemptsConfig = Config.authAttempts;
-var AuthAttempts = function AuthAttempts (attrs) {
-    _.assign(this, attrs);
-};
-AuthAttempts.collection = 'auth-attempts';
-AuthAttempts.schema = Joi.object().keys({
-    _id: Joi.object(),
-    email: Joi.string().required(),
-    organisation: Joi.string().default('*'),
-    ip: Joi.string().required(),
-    time: Joi.date().required()
-});
-AuthAttempts.indexes = [
-    [{ip: 1, email: 1}],
-    [{email: 1}]
-];
-_.extend(AuthAttempts, Model);
+var AuthAttempts = (new ModelBuilder())
+    .onModel(function AuthAttempts (attrs) {
+        _.assign(this, attrs);
+    })
+    .inMongoCollection('auth-attempts')
+    .usingSchema(Joi.object().keys({
+        _id: Joi.object(),
+        email: Joi.string().required(),
+        organisation: Joi.string().default('*'),
+        ip: Joi.string().required(),
+        time: Joi.date().required()
+    }))
+    .addIndex([{ip: 1, email: 1}])
+    .addIndex([{email: 1}])
+    .doneConfiguring();
 AuthAttempts.create = (ip, email) => {
     let self = this;
     let document = {

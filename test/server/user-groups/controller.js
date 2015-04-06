@@ -1,6 +1,5 @@
 'use strict';
 let relativeToServer = './../../../server/';
-let Users = require(relativeToServer + 'users/model');
 let UserGroups = require(relativeToServer + 'user-groups/model');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let Audit = require(relativeToServer + 'audit/model');
@@ -17,14 +16,14 @@ describe('UserGroups', () => {
     let rootAuthHeader = null;
     let server = null;
     let groupsToClear = [];
-    before((done) =>  {
+    before((done) => {
         tu.setupServer()
-            .then((res) =>  {
+            .then((res) => {
                 server = res.server;
                 rootAuthHeader = res.authheader;
                 done();
             })
-            .catch((err) =>  {
+            .catch((err) => {
                 if (err) {
                     done(err);
                 }
@@ -32,36 +31,36 @@ describe('UserGroups', () => {
             .done();
     });
     describe('GET /user-groups', () => {
-        before((done) =>  {
+        before((done) => {
             UserGroups.create('GetUserGroupsTestName', 'silver lining', 'GET /user-groups', 'root')
-                .then(() =>  {
+                .then(() => {
                     return UserGroups.create('GetUserGroupsTestMemberActive', 'silver lining', 'GET /user-groups', 'root');
                 })
-                .then((g2) =>  {
-                    return g2.add(['user1', 'user2'], 'members', 'root').save();
+                .then((g2) => {
+                    return g2.addMembers(['user1', 'user2'], 'root').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     return UserGroups.create('GetUserGroupsTestMemberInactive', 'silver lining', 'GET /user-groups', 'root');
                 })
-                .then((g3) =>  {
-                    return g3.add(['user4'], 'members', 'root').save();
+                .then((g3) => {
+                    return g3.addMembers(['user4'], 'root').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     return UserGroups.create('GetUserGroupsTestInactive', 'silver lining', 'GET /user-groups', 'root');
                 })
-                .then((g4) =>  {
+                .then((g4) => {
                     return g4.deactivate('root').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     done();
                 })
-                .catch((err) =>  {
+                .catch((err) => {
                     if (err) {
                         done(err);
                     }
                 });
         });
-        it('should give active groups when isactive = true is sent', (done) =>  {
+        it('should give active groups when isactive = true is sent', (done) => {
             let request = {
                 method: 'GET',
                 url: '/user-groups?isActive="true"',
@@ -69,7 +68,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -83,7 +82,7 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should give inactive groups when isactive = false is sent', (done) =>  {
+        it('should give inactive groups when isactive = false is sent', (done) => {
             let request = {
                 method: 'GET',
                 url: '/user-groups?isActive="false"',
@@ -91,7 +90,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -103,7 +102,7 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should give only the groups whose name is sent in the parameter', (done) =>  {
+        it('should give only the groups whose name is sent in the parameter', (done) => {
             let request = {
                 method: 'GET',
                 url: '/user-groups?groupName=GetUserGroupsTestName',
@@ -111,7 +110,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -123,7 +122,7 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should give the groups where the user is a member when user id is sent in the parameters', (done) =>  {
+        it('should give the groups where the user is a member when user id is sent in the parameters', (done) => {
             let request = {
                 method: 'GET',
                 url: '/user-groups?email=user2',
@@ -131,7 +130,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -143,7 +142,7 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should return both inactive and active groups when nothing is sent', (done) =>  {
+        it('should return both inactive and active groups when nothing is sent', (done) => {
             let request = {
                 method: 'GET',
                 url: '/user-groups',
@@ -151,7 +150,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -162,7 +161,7 @@ describe('UserGroups', () => {
                 }
             });
         });
-        after((done) =>  {
+        after((done) => {
             groupsToClear.push('GetUserGroupsTestName');
             groupsToClear.push('GetUserGroupsTestMemberActive');
             groupsToClear.push('GetUserGroupsTestMemberInactive');
@@ -172,14 +171,14 @@ describe('UserGroups', () => {
     });
     describe('GET /user-groups/{id}', () => {
         let id = '';
-        before((done) =>  {
+        before((done) => {
             UserGroups.create('testGetByID', 'silver lining', 'GET /user-groups/id', 'root')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     done();
                 });
         });
-        it('should only send back user-group with the id in params', (done) =>  {
+        it('should only send back user-group with the id in params', (done) => {
             let request = {
                 method: 'GET',
                 url: '/user-groups/' + id,
@@ -187,7 +186,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
@@ -198,7 +197,7 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should send back not found when the user-group with the id in params is not found', (done) =>  {
+        it('should send back not found when the user-group with the id in params is not found', (done) => {
             let request = {
                 method: 'GET',
                 url: '/user-groups/54d4430eed61ad701cc7a721',
@@ -206,7 +205,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     done();
@@ -215,13 +214,13 @@ describe('UserGroups', () => {
                 }
             });
         });
-        after((done) =>  {
+        after((done) => {
             groupsToClear.push('testGetByID');
             done();
         });
     });
     describe('PUT /user-groups/{id}', () => {
-        it('should send back not found error when you try to modify a non existent group', (done) =>  {
+        it('should send back not found error when you try to modify a non existent group', (done) => {
             let request = {
                 method: 'PUT',
                 url: '/user-groups/54c894fe1d1d4ab4032ed94e',
@@ -229,7 +228,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     groupsToClear.push('testUserGroupPutNotFound');
@@ -240,10 +239,10 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should send back error if any of the users or owners to be added are not valid', (done) =>  {
+        it('should send back error if any of the users or owners to be added are not valid', (done) => {
             let id = '';
             UserGroups.create('testGroupUserExistPUT', 'silver lining', 'test PUT /user-groups', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     let request = {
                         method: 'PUT',
@@ -256,7 +255,7 @@ describe('UserGroups', () => {
                             addedOwners: ['madeup']
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(422);
                             groupsToClear.push('testGroupUserExistPUT');
@@ -268,16 +267,15 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should send back forbidden error when you try to modify a group you are not an owner of', (done) =>  {
+        it('should send back forbidden error when you try to modify a group you are not an owner of', (done) => {
             let request = {};
-            let authHeader = '';
             let id = '';
             UserGroups.create('testPutGroupNotOwner', 'silver lining', 'test PUT /user-groups', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     return tu.findAndLogin('one@first.com', ['root']);
                 })
-                .then((u) =>  {
+                .then((u) => {
                     let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
@@ -289,7 +287,7 @@ describe('UserGroups', () => {
                             description: '    test PUT /user-groups'
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(401);
                             groupsToClear.push('testPutGroupNotOwner');
@@ -301,11 +299,11 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should deactivate group and have changes audited', (done) =>  {
+        it('should deactivate group and have changes audited', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutGroupDeActivate', 'silver lining', 'test PUT /user-groups', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     request = {
                         method: 'PUT',
@@ -317,16 +315,16 @@ describe('UserGroups', () => {
                             isActive: false
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutGroupDeActivate'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
                                     expect(ug[0].isActive).to.be.false();
                                     return Audit.findAudit('user-groups', 'testPutGroupDeActivate', {'change.action': 'isActive'});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/isActive/);
                                     groupsToClear.push('testPutGroupDeActivate');
@@ -339,16 +337,16 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should activate group and have changes audited', (done) =>  {
+        it('should activate group and have changes audited', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutGroupActivate', 'silver lining', 'test PUT /user-groups', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     ug.isActive = false;
                     return ug.save();
                 })
-                .then(() =>  {
+                .then(() => {
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id,
@@ -359,16 +357,16 @@ describe('UserGroups', () => {
                             isActive: true
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutGroupActivate'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
                                     expect(ug[0].isActive).to.be.true();
                                     return Audit.findAudit('user-groups', 'testPutGroupActivate', {'change.action': 'isActive'});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/isActive/);
                                     groupsToClear.push('testPutGroupActivate');
@@ -381,11 +379,11 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should add users / owners and have changes audited', (done) =>  {
+        it('should add users / owners and have changes audited', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutGroupAddUserOwner', 'silver lining', 'test PUT /user-groups', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     request = {
                         method: 'PUT',
@@ -398,17 +396,17 @@ describe('UserGroups', () => {
                             addedOwners: ['root']
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutGroupAddUserOwner'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('members', 'one@first.com')).to.be.true();
-                                    expect(ug[0].isMemberOf('owners', 'root')).to.be.true();
+                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
+                                    expect(ug[0].isPresentInOwners('root')).to.be.true();
                                     return Audit.findAudit('user-groups', 'testPutGroupAddUserOwner', {'change.action': {$regex: /add/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add/);
                                     expect(foundAudit[0].change[1].action).to.match(/add/);
@@ -422,19 +420,19 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should remove members / owners and have changes audited', (done) =>  {
+        it('should remove members / owners and have changes audited', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutGroupRemoveUserOwner', 'silver lining', 'test PUT /user-groups', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     ug.members.push('root');
                     ug.owners.push('one@first.com');
                     return ug.save();
                 })
-                .then((ug) =>  {
-                    expect(ug.isMemberOf('members', 'root')).to.be.true();
-                    expect(ug.isMemberOf('owners', 'one@first.com')).to.be.true();
+                .then((ug) => {
+                    expect(ug.isPresentInMembers('root')).to.be.true();
+                    expect(ug.isPresentInOwners('one@first.com')).to.be.true();
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id,
@@ -446,17 +444,17 @@ describe('UserGroups', () => {
                             removedMembers: ['root']
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutGroupRemoveUserOwner'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('members', 'root')).to.be.false();
-                                    expect(ug[0].isMemberOf('owners', 'one@first.com')).to.be.false();
+                                    expect(ug[0].isPresentInMembers('root')).to.be.false();
+                                    expect(ug[0].isPresentInOwners('one@first.com')).to.be.false();
                                     return Audit.findAudit('user-groups', 'testPutGroupRemoveUserOwner', {'change.action': {$regex: /remove/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/remove/);
                                     expect(foundAudit[0].change[1].action).to.match(/remove/);
@@ -470,19 +468,19 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should add/remove members / owners and have changes audited and notifications sent to owners', (done) =>  {
+        it('should add/remove members / owners and have changes audited and notifications sent to owners', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutGroupAddRemoveUserOwner', 'silver lining', 'test PUT /user-groups', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     ug.members[0] = 'root';
                     ug.owners[0] = 'one@first.com';
                     return ug.save();
                 })
-                .then((ug) =>  {
-                    expect(ug.isMemberOf('members', 'root')).to.be.true();
-                    expect(ug.isMemberOf('owners', 'one@first.com')).to.be.true();
+                .then((ug) => {
+                    expect(ug.isPresentInMembers('root')).to.be.true();
+                    expect(ug.isPresentInOwners('one@first.com')).to.be.true();
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id,
@@ -496,32 +494,32 @@ describe('UserGroups', () => {
                             addedMembers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutGroupAddRemoveUserOwner'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('members', 'root')).to.be.false();
-                                    expect(ug[0].isMemberOf('owners', 'one@first.com')).to.be.false();
-                                    expect(ug[0].isMemberOf('owners', 'root')).to.be.true();
-                                    expect(ug[0].isMemberOf('members', 'one@first.com')).to.be.true();
+                                    expect(ug[0].isPresentInMembers('root')).to.be.false();
+                                    expect(ug[0].isPresentInOwners('one@first.com')).to.be.false();
+                                    expect(ug[0].isPresentInOwners('root')).to.be.true();
+                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
                                     return Audit.findAudit('user-groups', 'testPutGroupAddRemoveUserOwner', {'change.action': {$regex: /add|remove/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add|remove/);
                                     expect(foundAudit[0].change[1].action).to.match(/add|remove/);
                                     expect(foundAudit[0].change[2].action).to.match(/add|remove/);
                                     expect(foundAudit[0].change[3].action).to.match(/add|remove/);
                                 })
-                                .then(() =>  {
+                                .then(() => {
                                     let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'user-groups',
                                             objectId: UserGroups.ObjectID(id)
                                         })
-                                            .then((notifications) =>  {
+                                            .then((notifications) => {
                                                 expect(notifications.length).to.equal(1);
                                                 expect(notifications[0].content.owners.added.length).to.equal(1);
                                                 expect(notifications[0].content.owners.removed.length).to.equal(1);
@@ -532,7 +530,7 @@ describe('UserGroups', () => {
                                                     objectId: UserGroups.ObjectID(id)
                                                 });
                                             })
-                                            .then((count) =>  {
+                                            .then((count) => {
                                                 groupsToClear.push('testPutGroupAddRemoveUserOwner');
                                                 expect(count).to.equal(1);
                                                 done();
@@ -547,11 +545,11 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should update description and have changes audited', (done) =>  {
+        it('should update description and have changes audited', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutGroupChangeDesc', 'silver lining', 'test PUT /user-groups', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     request = {
                         method: 'PUT',
@@ -563,16 +561,16 @@ describe('UserGroups', () => {
                             description: 'new description'
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutGroupChangeDesc'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
                                     expect(ug[0].description).to.equal('new description');
                                     return Audit.findAudit('user-groups', 'testPutGroupChangeDesc', {'change.action': {$regex: /description/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/description/);
                                     groupsToClear.push('testPutGroupChangeDesc');
@@ -587,7 +585,7 @@ describe('UserGroups', () => {
         });
     });
     describe('PUT /user-groups/{id}/join', () => {
-        it('should send back not found error when you try to join a non existent group', (done) =>  {
+        it('should send back not found error when you try to join a non existent group', (done) => {
             let request = {
                 method: 'PUT',
                 url: '/user-groups/54c894fe1d1d4ab4032ed94e/join',
@@ -595,7 +593,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     groupsToClear.push('testUserGroupPutJoinNotFound');
@@ -606,18 +604,18 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should add user who has joined to the needsApproval list and notify the owners', (done) =>  {
+        it('should add user who has joined to the needsApproval list and notify the owners', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutJoinGroupAddUser', 'silver lining', 'test PUT /user-groups/join', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
-                    return ug.add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
+                    return ug.addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     return tu.findAndLogin('one@first.com');
                 })
-                .then((u) =>  {
+                .then((u) => {
                     let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
@@ -626,34 +624,34 @@ describe('UserGroups', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutJoinGroupAddUser'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
                                     return Audit.findAudit('user-groups', 'testPutJoinGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
                                 })
-                                .then(() =>  {
+                                .then(() => {
                                     let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'user-groups',
                                             objectId: UserGroups.ObjectID(id),
                                             action: 'approve'
                                         })
-                                            .then((notifications) =>  {
+                                            .then((notifications) => {
                                                 expect(notifications.length).to.equal(3);
                                                 return Notifications.remove({
                                                     objectType: 'user-groups',
                                                     objectId: UserGroups.ObjectID(id)
                                                 });
                                             })
-                                            .then((count) =>  {
+                                            .then((count) => {
                                                 groupsToClear.push('testPutJoinGroupAddUser');
                                                 expect(count).to.equal(3);
                                                 done();
@@ -668,18 +666,18 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should add to members if the group access is public and have changes audited', (done) =>  {
+        it('should add to members if the group access is public and have changes audited', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutJoinPublicGroupAddUser', 'silver lining', 'test PUT /user-groups/join', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
-                    return ug.setAccess('public').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
+                    return ug.setAccess('public').addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     return tu.findAndLogin('one@first.com');
                 })
-                .then((u) =>  {
+                .then((u) => {
                     let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
@@ -688,34 +686,34 @@ describe('UserGroups', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutJoinPublicGroupAddUser'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('members', 'one@first.com')).to.be.true();
+                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
                                     return Audit.findAudit('user-groups', 'testPutJoinPublicGroupAddUser', {'change.action': {$regex: /add member/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add member/);
                                 })
-                                .then(() =>  {
+                                .then(() => {
                                     let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'user-groups',
                                             objectId: UserGroups.ObjectID(id),
                                             action: 'fyi'
                                         })
-                                            .then((notifications) =>  {
+                                            .then((notifications) => {
                                                 expect(notifications.length).to.equal(3);
                                                 return Notifications.remove({
                                                     objectType: 'user-groups',
                                                     objectId: UserGroups.ObjectID(id)
                                                 });
                                             })
-                                            .then((count) =>  {
+                                            .then((count) => {
                                                 groupsToClear.push('testPutJoinPublicGroupAddUser');
                                                 expect(count).to.equal(3);
                                                 done();
@@ -732,7 +730,7 @@ describe('UserGroups', () => {
         });
     });
     describe('PUT /user-groups/{id}/leave', () => {
-        it('should send back not found error when you try to join a non existent group', (done) =>  {
+        it('should send back not found error when you try to join a non existent group', (done) => {
             let request = {
                 method: 'PUT',
                 url: '/user-groups/54c894fe1d1d4ab4032ed94e/leave',
@@ -740,7 +738,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     groupsToClear.push('testUserGroupPutLeaveNotFound');
@@ -751,18 +749,18 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should send error when you leave a group you are not part of', (done) =>  {
+        it('should send error when you leave a group you are not part of', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutLeaveGroupNotPart', 'silver lining', 'test PUT /user-groups/leave', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
-                    return ug.add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
+                    return ug.addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     return tu.findAndLogin('one@first.com');
                 })
-                .then((u) =>  {
+                .then((u) => {
                     let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
@@ -771,7 +769,7 @@ describe('UserGroups', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(401);
                             groupsToClear.push('testPutLeaveGroupNotPart');
@@ -783,18 +781,18 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should leave members list and notify the owners', (done) =>  {
+        it('should leave members list and notify the owners', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutLeaveGroupAddUser', 'silver lining', 'test PUT /user-groups/leave', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
-                    return ug.add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').add(['one@first.com'], 'members', 'test').save();
+                    return ug.addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').addMembers(['one@first.com'], 'test').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     return tu.findAndLogin('one@first.com');
                 })
-                .then((u) =>  {
+                .then((u) => {
                     let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
@@ -803,34 +801,34 @@ describe('UserGroups', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutLeaveGroupAddUser'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('members', 'one@first.com')).to.be.false();
+                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.false();
                                     return Audit.findAudit('user-groups', 'testPutLeaveGroupAddUser', {'change.action': {$regex: /remove member/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/remove member/);
                                 })
-                                .then(() =>  {
+                                .then(() => {
                                     let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'user-groups',
                                             objectId: UserGroups.ObjectID(id),
                                             action: 'fyi'
                                         })
-                                            .then((notifications) =>  {
+                                            .then((notifications) => {
                                                 expect(notifications.length).to.equal(3);
                                                 return Notifications.remove({
                                                     objectType: 'user-groups',
                                                     objectId: UserGroups.ObjectID(id)
                                                 });
                                             })
-                                            .then((count) =>  {
+                                            .then((count) => {
                                                 groupsToClear.push('testPutLeaveGroupAddUser');
                                                 expect(count).to.equal(3);
                                                 done();
@@ -847,7 +845,7 @@ describe('UserGroups', () => {
         });
     });
     describe('PUT /user-groups/{id}/approve', () => {
-        it('should send back not found error when you try to approve a non existent group', (done) =>  {
+        it('should send back not found error when you try to approve a non existent group', (done) => {
             let request = {
                 method: 'PUT',
                 url: '/user-groups/54c894fe1d1d4ab4032ed94e/approve',
@@ -855,7 +853,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     groupsToClear.push('testUserGroupPutApproveNotFound');
@@ -866,10 +864,10 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should send back error if any of the users being approved to join are not valid', (done) =>  {
+        it('should send back error if any of the users being approved to join are not valid', (done) => {
             let id = '';
             UserGroups.create('testGroupUserExistPUTApprove', 'silver lining', 'test PUT /user-groups/approve', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     let request = {
                         method: 'PUT',
@@ -881,7 +879,7 @@ describe('UserGroups', () => {
                             addedMembers: ['unknown']
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(422);
                             groupsToClear.push('testGroupUserExistPUTApprove');
@@ -893,23 +891,23 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should add users who have been approved to the members list and cancel the remaining approval notifications for that user only', (done) =>  {
+        it('should add users who have been approved to the members list and cancel the remaining approval notifications for that user only', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutApproveGroupAddUser', 'silver lining', 'test PUT /user-groups/approve', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com', 'someotherguy'], 'needsApproval', 'test').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
+                    return ug.addNeedsApproval(['one@first.com', 'someotherguy'], 'test').addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
                     return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
-                .then(() =>  {
+                .then(() => {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
                     return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguy'}, 'test');
                 })
-                .then(() =>  {
+                .then(() => {
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/approve',
@@ -920,35 +918,35 @@ describe('UserGroups', () => {
                             addedMembers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutApproveGroupAddUser'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('members', 'one@first.com')).to.be.true();
-                                    expect(ug[0].isMemberOf('needsApproval', 'someotherguy')).to.be.true();
+                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
+                                    expect(ug[0].isPresentInNeedsApproval('someotherguy')).to.be.true();
                                     return Audit.findAudit('user-groups', 'testPutApproveGroupAddUser', {'change.action': {$regex: /add member/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/add member/);
                                 })
-                                .then(() =>  {
+                                .then(() => {
                                     let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'user-groups',
                                             objectId: UserGroups.ObjectID(id),
                                             state: 'cancelled',
                                             action: 'approve'
-                                        }).then((notifications) =>  {
+                                        }).then((notifications) => {
                                             expect(notifications.length).to.equal(3);
                                             return Notifications.remove({
                                                 objectType: 'user-groups',
                                                 objectId: UserGroups.ObjectID(id)
                                             });
                                         })
-                                            .then((count) =>  {
+                                            .then((count) => {
                                                 groupsToClear.push('testPutApproveGroupAddUser');
                                                 //3 cancellations and 3 just approved and 3 pending approval
                                                 expect(count).to.equal(9);
@@ -964,15 +962,15 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should do nothing if the approved list is empty', (done) =>  {
+        it('should do nothing if the approved list is empty', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutApproveGroupAddUserEmpty', 'silver lining', 'test PUT /user-groups/approve', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com', 'someotherguy'], 'needsApproval', 'test').remove(['test'], 'owners', 'test').save();
+                    return ug.addNeedsApproval(['one@first.com', 'someotherguy'], 'test').removeOwners(['test'], 'test').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/approve',
@@ -983,17 +981,17 @@ describe('UserGroups', () => {
                             addedMembers: []
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutApproveGroupAddUserEmpty'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('needsApproval', 'one@first.com')).to.be.true();
-                                    expect(ug[0].isMemberOf('needsApproval', 'someotherguy')).to.be.true();
+                                    expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                    expect(ug[0].isPresentInNeedsApproval('someotherguy')).to.be.true();
                                     return Audit.findAudit('user-groups', 'testPutApproveGroupAddUserEmpty', {'change.action': {$regex: /add member/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(0);
                                     groupsToClear.push('testPutApproveGroupAddUserEmpty');
                                     done();
@@ -1005,18 +1003,18 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should send error if the user approving is not an owner of the list', (done) =>  {
+        it('should send error if the user approving is not an owner of the list', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutApproveGroupNotOwner', 'silver lining', 'test PUT /user-groups/approve', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com'], 'needsApproval', 'test').save();
+                    return ug.addNeedsApproval(['one@first.com'], 'test').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     return tu.findAndLogin('one@first.com', ['root']);
                 })
-                .then((u) =>  {
+                .then((u) => {
                     let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
@@ -1028,17 +1026,17 @@ describe('UserGroups', () => {
                             addedMembers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             u.user.setRoles(['readonly'], 'test').save();
                             expect(response.statusCode).to.equal(401);
                             UserGroups.find({name: 'testPutApproveGroupNotOwner'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('members', 'one@first.com')).to.be.false();
+                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.false();
                                     return Audit.findAudit('user-groups', 'testPutApproveGroupNotOwner', {'change.auction': {$regex: /add member/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(0);
                                     groupsToClear.push('testPutApproveGroupNotOwner');
                                     done();
@@ -1052,7 +1050,7 @@ describe('UserGroups', () => {
         });
     });
     describe('PUT /user-groups/{id}/reject', () => {
-        it('should send back not found error when you try to reject a non existent group', (done) =>  {
+        it('should send back not found error when you try to reject a non existent group', (done) => {
             let request = {
                 method: 'PUT',
                 url: '/user-groups/54c894fe1d1d4ab4032ed94e/reject',
@@ -1060,7 +1058,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     groupsToClear.push('testUserGroupPutRejectNotFound');
@@ -1071,10 +1069,10 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should send back error if any of the users being rejected to join are not valid', (done) =>  {
+        it('should send back error if any of the users being rejected to join are not valid', (done) => {
             let id = '';
             UserGroups.create('testGroupUserExistPUTReject', 'silver lining', 'test PUT /user-groups/reject', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     let request = {
                         method: 'PUT',
@@ -1086,7 +1084,7 @@ describe('UserGroups', () => {
                             addedMembers: ['unknown']
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(422);
                             groupsToClear.push('testGroupUserExistPUTReject');
@@ -1098,19 +1096,19 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should remove users who have been rejected from the needsApproval list and cancel the approval notifications', (done) =>  {
+        it('should remove users who have been rejected from the needsApproval list and cancel the approval notifications', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutRejectGroupAddUser', 'silver lining', 'test PUT /user-groups/reject', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com'], 'needsApproval', 'test').add(['owner1', 'owner2', 'owner3'], 'owners', 'test').remove(['test'], 'owners', 'test').save();
+                    return ug.addNeedsApproval(['one@first.com'], 'test').addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
                     return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
-                .then(() =>  {
+                .then(() => {
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/reject',
@@ -1121,20 +1119,20 @@ describe('UserGroups', () => {
                             addedMembers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutRejectGroupAddUser'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('needsApproval', 'one@first.com')).to.be.false();
+                                    expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.false();
                                     return Audit.findAudit('user-groups', 'testPutRejectGroupAddUser', {'change.action': {$regex: /remove needsApproval/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(1);
                                     expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
                                 })
-                                .then(() =>  {
+                                .then(() => {
                                     let ct = setTimeout(() => {
                                         Notifications.find({
                                             objectType: 'user-groups',
@@ -1142,14 +1140,14 @@ describe('UserGroups', () => {
                                             state: 'cancelled',
                                             action: 'approve'
                                         })
-                                            .then((notifications) =>  {
+                                            .then((notifications) => {
                                                 expect(notifications.length).to.equal(3);
                                                 return Notifications.remove({
                                                     objectType: 'user-groups',
                                                     objectId: UserGroups.ObjectID(id)
                                                 });
                                             })
-                                            .then((count) =>  {
+                                            .then((count) => {
                                                 groupsToClear.push('testPutRejectGroupAddUser');
                                                 //3 for cancel and 1 for rejection to the user who applied
                                                 expect(count).to.equal(4);
@@ -1165,15 +1163,15 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should do nothing when the reject list is empty', (done) =>  {
+        it('should do nothing when the reject list is empty', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutRejectGroupAddUserEmpty', 'silver lining', 'test PUT /user-groups/reject', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com'], 'needsApproval', 'test').remove(['test'], 'owners', 'test').save();
+                    return ug.addNeedsApproval(['one@first.com'], 'test').removeOwners(['test'], 'test').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id + '/reject',
@@ -1184,16 +1182,16 @@ describe('UserGroups', () => {
                             addedMembers: []
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.find({name: 'testPutRejectGroupAddUserEmpty'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
                                     return Audit.findAudit('user-groups', 'testPutRejectGroupAddUserEmpty', {'change.action': {$regex: /remove needsApproval/}});
                                 })
-                                .then((foundAudit) =>  {
+                                .then((foundAudit) => {
                                     expect(foundAudit.length).to.equal(0);
                                     groupsToClear.push('testPutRejectGroupAddUserEmpty');
                                     done();
@@ -1205,18 +1203,18 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should send error if the user rejecting is not an owner of the list', (done) =>  {
+        it('should send error if the user rejecting is not an owner of the list', (done) => {
             let request = {};
             let id = '';
             UserGroups.create('testPutRejectGroupNotOwner', 'silver lining', 'test PUT /user-groups/reject', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
-                    return ug.add(['one@first.com'], 'needsApproval', 'test').save();
+                    return ug.addNeedsApproval(['one@first.com'], 'test').save();
                 })
-                .then(() =>  {
+                .then(() => {
                     return tu.findAndLogin('one@first.com', ['root']);
                 })
-                .then((u) =>  {
+                .then((u) => {
                     let authHeader = u.authheader;
                     request = {
                         method: 'PUT',
@@ -1228,14 +1226,14 @@ describe('UserGroups', () => {
                             addedMembers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             u.user.setRoles(['readonly'], 'test').save();
                             expect(response.statusCode).to.equal(401);
                             UserGroups.find({name: 'testPutRejectGroupNotOwner'})
-                                .then((ug) =>  {
+                                .then((ug) => {
                                     expect(ug).to.exist();
-                                    expect(ug[0].isMemberOf('needsApproval', 'one@first.com')).to.be.true();
+                                    expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
                                     groupsToClear.push('testPutRejectGroupNotOwner');
                                     done();
                                 });
@@ -1248,9 +1246,9 @@ describe('UserGroups', () => {
         });
     });
     describe('POST /user-groups', () => {
-        it('should send back conflict when you try to create a group with name that already exists', (done) =>  {
+        it('should send back conflict when you try to create a group with name that already exists', (done) => {
             UserGroups.create('testDupeGroup', 'silver lining', 'test POST /user-groups', 'root')
-                .then(() =>  {
+                .then(() => {
                     let request = {
                         method: 'POST',
                         url: '/user-groups',
@@ -1264,7 +1262,7 @@ describe('UserGroups', () => {
                             description: 'test POST /user-groups'
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(409);
                             groupsToClear.push('testDupeGroup');
@@ -1276,7 +1274,7 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should send back error if any user sent in the request does not exist', (done) =>  {
+        it('should send back error if any user sent in the request does not exist', (done) => {
             let request = {
                 method: 'POST',
                 url: '/user-groups',
@@ -1290,11 +1288,11 @@ describe('UserGroups', () => {
                     description: 'test POST /user-groups'
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(422);
                     UserGroups.findOne({name: 'testGroupUserExist', organisation: 'silver lining'})
-                        .then((ug) =>  {
+                        .then((ug) => {
                             expect(ug).to.be.undefined();
                             groupsToClear.push('testGroupUserExist');
                             done();
@@ -1305,7 +1303,7 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should create a group with the sender as owner, member and the list of users also sent as members of the group', (done) =>  {
+        it('should create a group with the sender as owner, member and the list of users also sent as members of the group', (done) => {
             let request = {
                 method: 'POST',
                 url: '/user-groups',
@@ -1319,14 +1317,14 @@ describe('UserGroups', () => {
                     description: 'test POST /user-groups'
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(201);
                     UserGroups.findOne({name: 'testUserGroupCreate', organisation: 'silver lining'})
-                        .then((ug) =>  {
+                        .then((ug) => {
                             expect(ug).to.exist();
-                            expect(ug.isMemberOf('owners', 'one@first.com')).to.be.true();
-                            expect(ug.isMemberOf('members', 'one@first.com')).to.be.true();
+                            expect(ug.isPresentInOwners('one@first.com')).to.be.true();
+                            expect(ug.isPresentInMembers('one@first.com')).to.be.true();
                             expect(ug.description).to.match(/test POST/);
                             groupsToClear.push('testUserGroupCreate');
                             done();
@@ -1339,7 +1337,7 @@ describe('UserGroups', () => {
         });
     });
     describe('DELETE /user-groups/{id}', () => {
-        it('should send back not found error when you try to modify a non existent group', (done) =>  {
+        it('should send back not found error when you try to modify a non existent group', (done) => {
             let request = {
                 method: 'DELETE',
                 url: '/user-groups/54c894fe1d1d4ab4032ed94e',
@@ -1347,7 +1345,7 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) =>  {
+            server.inject(request, (response) => {
                 try {
                     expect(response.statusCode).to.equal(404);
                     groupsToClear.push('testUserGroupDeleteNotFound');
@@ -1358,16 +1356,16 @@ describe('UserGroups', () => {
                 }
             });
         });
-        it('should send back forbidden error when you try to modify a group you are not an owner of', (done) =>  {
+        it('should send back forbidden error when you try to modify a group you are not an owner of', (done) => {
             let request = {};
             let authHeader = '';
             let id = '';
             UserGroups.create('testDelGroupNotOwner', 'silver lining', 'test POST /user-groups', 'test')
-                .then((ug) =>  {
+                .then((ug) => {
                     id = ug._id.toString();
                     return tu.findAndLogin('one@first.com', ['root']);
                 })
-                .then((u) =>  {
+                .then((u) => {
                     let authHeader = u.authheader;
                     request = {
                         method: 'DELETE',
@@ -1376,7 +1374,7 @@ describe('UserGroups', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(401);
                             groupsToClear.push('testDelGroupNotOwner');
@@ -1388,9 +1386,9 @@ describe('UserGroups', () => {
                     });
                 });
         });
-        it('should deactivate group and have changes audited', (done) =>  {
+        it('should deactivate group and have changes audited', (done) => {
             UserGroups.create('testDelGroup', 'silver lining', 'test POST /user-groups', 'root')
-                .then((ug) =>  {
+                .then((ug) => {
                     let id = ug._id.toString();
                     let request = {
                         method: 'DELETE',
@@ -1399,11 +1397,11 @@ describe('UserGroups', () => {
                             Authorization: rootAuthHeader
                         }
                     };
-                    server.inject(request, (response) =>  {
+                    server.inject(request, (response) => {
                         try {
                             expect(response.statusCode).to.equal(200);
                             UserGroups.findOne({name: 'testDelGroup', organisation: 'silver lining'})
-                                .then((found) =>  {
+                                .then((found) => {
                                     expect(found.isActive).to.be.false();
                                     groupsToClear.push('testDelGroup');
                                     done();
@@ -1416,7 +1414,7 @@ describe('UserGroups', () => {
                 });
         });
     });
-    after((done) =>  {
+    after((done) => {
         return tu.cleanup({userGroups: groupsToClear}, done);
     });
 });

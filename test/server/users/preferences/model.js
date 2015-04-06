@@ -212,7 +212,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'addNotificationsBlogsBlocked1', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.add(['newBlocked'], 'preferences.notifications.blogs.blocked', 'test').save();
+                    return found.addPreferencesNotificationsBlogsBlocked(['newBlocked'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'newBlocked')).to.exist();
@@ -234,7 +234,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'addNotificationsBlogsBlocked2', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.add(['blocked1'], 'preferences.notifications.blogs.blocked', 'test').save();
+                    return found.addPreferencesNotificationsBlogsBlocked(['blocked1'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'blocked1')).to.exist();
@@ -277,7 +277,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'removeNotificationsBlogsBlocked', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.remove(['unknownBlog'], 'preferences.notifications.blogs.blocked', 'test').save();
+                    return found.removePreferencesNotificationsBlogsBlocked(['unknownBlog'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'unknownBlog1')).to.not.exist();
@@ -298,7 +298,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'removeNotificationsBlogsBlocked', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.remove(['toBeRemoved'], 'preferences.notifications.blogs.blocked', 'test').save();
+                    return found.removePreferencesNotificationsBlogsBlocked(['toBeRemoved'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'toBeRemoved')).to.not.exist();
@@ -460,7 +460,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'addNotificationsPostsBlocked1', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.add(['newBlocked'], 'preferences.notifications.posts.blocked', 'test').save();
+                    return found.addPreferencesNotificationsPostsBlocked(['newBlocked'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.posts.blocked, 'newBlocked')).to.exist();
@@ -482,7 +482,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'addNotificationsPostsBlocked2', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.add(['blocked1'], 'preferences.notifications.posts.blocked', 'test').save();
+                    return found.addPreferencesNotificationsPostsBlocked(['blocked1'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.posts.blocked, 'blocked1')).to.exist();
@@ -525,7 +525,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'removeNotificationsPostsBlocked', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.remove(['unknownBlog'], 'preferences.notifications.posts.blocked', 'test').save();
+                    return found.removePreferencesNotificationsPostsBlocked(['unknownBlog'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.posts.blocked, 'unknownBlog1')).to.not.exist();
@@ -546,7 +546,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'removeNotificationsPostsBlocked', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.remove(['toBeRemoved'], 'preferences.notifications.posts.blocked', 'test').save();
+                    return found.removePreferencesNotificationsPostsBlocked(['toBeRemoved'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.posts.blocked, 'toBeRemoved')).to.not.exist();
@@ -708,7 +708,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'addNotificationsUserGroupsBlocked1', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.add(['newBlocked'], 'preferences.notifications.userGroups.blocked', 'test').save();
+                    return found.addPreferencesNotificationsUserGroupsBlocked(['newBlocked'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'newBlocked')).to.exist();
@@ -730,7 +730,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'addNotificationsUserGroupsBlocked2', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.add(['blocked1'], 'preferences.notifications.userGroups.blocked', 'test').save();
+                    return found.addPreferencesNotificationsUserGroupsBlocked(['blocked1'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'blocked1')).to.exist();
@@ -773,7 +773,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'removeNotificationsUserGroupsBlocked', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.remove(['unknownBlog'], 'preferences.notifications.userGroups.blocked', 'test').save();
+                    return found.removePreferencesNotificationsUserGroupsBlocked(['unknownBlog'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'unknownBlog')).to.not.exist();
@@ -794,7 +794,7 @@ describe('Preferences Model', () => {
             let error = null;
             Users.findOne({email: 'removeNotificationsUserGroupsBlocked', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.remove(['toBeRemoved'], 'preferences.notifications.userGroups.blocked', 'test').save();
+                    return found.removePreferencesNotificationsUserGroupsBlocked(['toBeRemoved'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'toBeRemoved')).to.not.exist();

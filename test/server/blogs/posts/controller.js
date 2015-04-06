@@ -1,6 +1,5 @@
 'use strict';
 let relativeToServer = './../../../../server/';
-let Users = require(relativeToServer + 'users/model');
 let UserGroups = require(relativeToServer + 'user-groups/model');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let Blogs = require(relativeToServer + 'blogs/model');
@@ -528,8 +527,8 @@ describe('Posts', () => {
                         .then((foundAudit) =>  {
                             expect(foundAudit).to.exist();
                             expect(foundAudit.length).to.equal(1);
-                            expect(foundAudit[0].change[0].action).to.match(/add/);
-                            expect(foundAudit[0].change[1].action).to.match(/remove/);
+                            expect(foundAudit[0].change[0].action).to.match(/remove/);
+                            expect(foundAudit[0].change[1].action).to.match(/add/);
                         })
                         .then(() =>  {
                             tu.cleanupAudit();
@@ -650,7 +649,7 @@ describe('Posts', () => {
                     return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/publish', 'silver lining', 'test notifications', 'test');
                 })
                 .then((ug) =>  {
-                    return ug.remove(['test'], 'members', 'test').add(['subscriber1', 'subscriber2'], 'members', 'test').save();
+                    return ug.removeMembers(['test'], 'test').addMembers(['subscriber1', 'subscriber2'], 'test').save();
                 })
                 .then(() =>  {
                     done();
@@ -792,7 +791,7 @@ describe('Posts', () => {
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then((blog) =>  {
-                    blog.remove(['one@first.com'], 'owners', 'test').save();
+                    blog.removeOwners(['one@first.com'], 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {
@@ -832,7 +831,7 @@ describe('Posts', () => {
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then((blog) =>  {
-                    blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').add(['owner1'], 'owners', 'test').save();
+                    blog.removeOwners(['one@first.com'], 'test').addContributors(['one@first.com'], 'test').addOwners(['owner1'], 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {
@@ -893,7 +892,7 @@ describe('Posts', () => {
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then((blog) =>  {
-                    blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').save();
+                    blog.removeOwners(['one@first.com'], 'test').addContributors(['one@first.com'], 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {
@@ -954,7 +953,7 @@ describe('Posts', () => {
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then((blog) =>  {
-                    blog.add(['one@first.com'], 'owners', 'test').save();
+                    blog.addOwners(['one@first.com'], 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {
@@ -1002,7 +1001,7 @@ describe('Posts', () => {
                     return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test notifications', 'test');
                 })
                 .then((ug) =>  {
-                    return ug.remove(['test'], 'members', 'test').add(['subscriber1', 'subscriber2'], 'members', 'test').save();
+                    return ug.removeMembers(['test'], 'test').addMembers(['subscriber1', 'subscriber2'], 'test').save();
                 })
                 .then(() =>  {
                     done();
@@ -1080,7 +1079,7 @@ describe('Posts', () => {
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then((blog) =>  {
-                    blog.remove(['one@first.com'], 'owners', 'test').save();
+                    blog.removeOwners(['one@first.com'], 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {
@@ -1120,7 +1119,7 @@ describe('Posts', () => {
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
                 })
                 .then((blog) =>  {
-                    blog.add(['one@first.com'], 'owners', 'test').save();
+                    blog.addOwners(['one@first.com'], 'test').save();
                     return Posts.findOne({_id: Posts.ObjectID(postId)});
                 })
                 .then((post) =>  {
@@ -1209,7 +1208,7 @@ describe('Posts', () => {
         it('should not allow you to create a post if you are not an owner / contributor to the blog', (done) =>  {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then((blog) =>  {
-                    blog.remove(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').save();
+                    blog.removeOwners(['one@first.com'], 'test').removeContributors(['one@first.com'], 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {
@@ -1248,7 +1247,7 @@ describe('Posts', () => {
         it('should create post successfully, and publish if blog doesnt have needsReview set', (done) =>  {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then((blog) =>  {
-                    blog.add(['one@first.com'], 'contributors', 'test').setNeedsReview(false, 'test').save();
+                    blog.addContributors(['one@first.com'], 'test').setNeedsReview(false, 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {
@@ -1298,7 +1297,7 @@ describe('Posts', () => {
         it('should create post successfully, and mark it as pending review if blog has needsReview set', (done) =>  {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then((blog) =>  {
-                    blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
+                    blog.removeOwners(['one@first.com'], 'test').addContributors(['one@first.com'], 'test').setNeedsReview(true, 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {
@@ -1342,7 +1341,7 @@ describe('Posts', () => {
         it('should create post successfully, and mark it as draft if user has marked it as draft irrespective of whether user is owner / needsReview setting', (done) =>  {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then((blog) =>  {
-                    blog.remove(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
+                    blog.removeOwners(['one@first.com'], 'test').addContributors(['one@first.com'], 'test').setNeedsReview(true, 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {
@@ -1386,7 +1385,7 @@ describe('Posts', () => {
         it('should create post successfully, and mark it as published if creator is an owner of the blog', (done) =>  {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then((blog) =>  {
-                    blog.add(['one@first.com'], 'owners', 'test').remove(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').save();
+                    blog.addOwners(['one@first.com'], 'test').removeContributors(['one@first.com'], 'test').setNeedsReview(true, 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {
@@ -1432,7 +1431,7 @@ describe('Posts', () => {
         it('should create post successfully, inherit needsReview, allowComments, access from blog if not passed', (done) =>  {
             Blogs.findOne({_id: Posts.ObjectID(blogId)})
                 .then((blog) =>  {
-                    blog.add(['one@first.com'], 'owners', 'test').add(['one@first.com'], 'contributors', 'test').setNeedsReview(true, 'test').setAccess('restricted', 'test').setAllowComments(false, 'test').save();
+                    blog.addOwners(['one@first.com'], 'test').addContributors(['one@first.com'], 'test').setNeedsReview(true, 'test').setAccess('restricted', 'test').setAllowComments(false, 'test').save();
                     return tu.findAndLogin('one@first.com');
                 })
                 .then((u) =>  {

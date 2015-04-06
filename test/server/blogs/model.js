@@ -97,7 +97,7 @@ describe('Blogs Model', () => {
             let error = null;
             Blogs.findOne({title: 'addUsers1', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.add(['newUserGroup'], 'subscriberGroups', 'test').save();
+                    return found.addSubscriberGroups(['newUserGroup'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.subscriberGroups, 'newUserGroup')).to.exist();
@@ -109,7 +109,7 @@ describe('Blogs Model', () => {
                     return Blogs.findOne({title: 'addUsers1', organisation: 'silver lining'});
                 })
                 .then((found) =>  {
-                    return found.add(['newSubscriber'], 'subscribers', 'test').save();
+                    return found.addSubscribers(['newSubscriber'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.subscribers, 'newSubscriber')).to.exist();
@@ -131,7 +131,7 @@ describe('Blogs Model', () => {
             let error = null;
             Blogs.findOne({title: 'addUsers2', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.add(['testBlogAddUsers'], 'subscriberGroups', 'test').save();
+                    return found.addSubscriberGroups(['testBlogAddUsers'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.subscriberGroups, 'testBlogAddUsers')).to.exist();
@@ -142,7 +142,7 @@ describe('Blogs Model', () => {
                     return Blogs.findOne({title: 'addUsers2', organisation: 'silver lining'});
                 })
                 .then((found) =>  {
-                    return found.add(['directlyadded'], 'owners', 'test').save();
+                    return found.addOwners(['directlyadded'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.owners, 'directlyadded')).to.exist();
@@ -183,7 +183,7 @@ describe('Blogs Model', () => {
             let error = null;
             Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.remove(['unknownGroup'], 'subscriberGroups', 'test').save();
+                    return found.removeSubscriberGroups(['unknownGroup'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.subscriberGroups, 'unknownGroup')).to.not.exist();
@@ -194,7 +194,7 @@ describe('Blogs Model', () => {
                     return Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'});
                 })
                 .then((found) =>  {
-                    return found.remove(['unknownUser'], 'subscribers', 'test').save();
+                    return found.removeSubscribers(['unknownUser'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.subscribers, 'unknownUser')).to.not.exist();
@@ -215,7 +215,7 @@ describe('Blogs Model', () => {
             let error = null;
             Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
                 .then((found) =>  {
-                    return found.remove(['testBlogsRemoveUsers'], 'subscriberGroups', 'test').save();
+                    return found.removeSubscriberGroups(['testBlogsRemoveUsers'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.subscriberGroups, 'testBlogsRemoveUsers')).to.not.exist();
@@ -227,7 +227,7 @@ describe('Blogs Model', () => {
                     return Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'});
                 })
                 .then((found) =>  {
-                    return found.remove(['directlyadded'], 'owners', 'test').save();
+                    return found.removeOwners(['directlyadded'], 'test').save();
                 })
                 .then((p) =>  {
                     expect(_.findWhere(p.owners, 'directlyadded')).to.not.exist();

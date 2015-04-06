@@ -1,24 +1,23 @@
 'use strict';
-let Model = require('./../../common/model');
+let ModelBuilder = require('./../../common/model-builder');
 let Joi = require('joi');
 let _ = require('lodash');
-var Roles = function Roles (attrs) {
-    _.assign(this, attrs);
-};
-Roles.collection = 'roles';
-Roles.schema = Joi.object().keys({
-    _id: Joi.object(),
-    name: Joi.string().required(),
-    organisation: Joi.string().required(),
-    permissions: Joi.array().items(Joi.object().keys({
-        action: Joi.string().only('view', 'update').required(),
-        object: Joi.string().required()
-    })).unique()
-});
-Roles.indexes = [
-    [{name: 1, organisation: 1}, {unique: true}],
-];
-_.extend(Roles, Model);
+var Roles = (new ModelBuilder())
+    .onModel(function Roles (attrs) {
+        _.assign(this, attrs);
+    })
+    .inMongoCollection('roles')
+    .usingSchema(Joi.object().keys({
+        _id: Joi.object(),
+        name: Joi.string().required(),
+        organisation: Joi.string().required(),
+        permissions: Joi.array().items(Joi.object().keys({
+            action: Joi.string().only('view', 'update').required(),
+            object: Joi.string().required()
+        })).unique()
+    }))
+    .addIndex([{name: 1, organisation: 1}, {unique: true}])
+    .doneConfiguring();
 Roles.prototype.hasPermissionsTo = (performAction, onObject) => {
     let self = this;
     return !!_.find(self.permissions,

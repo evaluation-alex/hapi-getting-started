@@ -1,61 +1,59 @@
 'use strict';
-let Model = require('./../../common/model');
+let ModelBuilder = require('./../../common/model-builder');
 let Joi = require('joi');
-let Insert = require('./../../common/mixins/insert');
-let AddRemove = require('./../../common/mixins/add-remove');
-let IsActive = require('./../../common/mixins/is-active');
-let Update = require('./../../common/mixins/update');
-let Properties = require('./../../common/mixins/properties');
-let Save = require('./../../common/mixins/save');
-let CAudit = require('./../../common/mixins/audit');
 let _ = require('lodash');
 let utils = require('./../../common/utils');
-var Posts = function Posts (attrs) {
-    _.assign(this, attrs);
-    Object.defineProperty(this, 'audit', {
-        writable: true,
-        enumerable: false
-    });
-};
-Posts.collection = 'posts';
-Posts.schema = Joi.object().keys({
-    _id: Joi.object(),
-    blogId: Joi.object().required(),
-    organisation: Joi.string().required(),
-    title: Joi.string(),
-    state: Joi.string().only(['draft', 'pending review', 'published', 'archived', 'do not publish']).default('draft'),
-    access: Joi.string().only(['public', 'restricted']).default('public'),
-    allowComments: Joi.boolean().default(true),
-    needsReview: Joi.boolean().default(false),
-    category: Joi.string(),
-    tags: Joi.array().items(Joi.string()).unique(),
-    attachments: Joi.array().items(Joi.object()).unique(),
-    publishedBy: Joi.string(),
-    publishedOn: Joi.date(),
-    reviewedBy: Joi.string(),
-    reviewedOn: Joi.date(),
-    isActive: Joi.boolean().default(true),
-    createdBy: Joi.string(),
-    createdOn: Joi.date(),
-    updatedBy: Joi.string(),
-    updatedOn: Joi.date()
-});
-Posts.indexes = [
-    [{organisation: 1, title: 1, blogId: 1, publishedOn: 1}],
-    [{tags: 1}],
-    [{state: 1, publishedOn: 1}]
-];
-_.extend(Posts, Model);
-_.extend(Posts, new Insert('_id', 'create'));
-_.extend(Posts.prototype, new IsActive());
-_.extend(Posts.prototype, new AddRemove({
-    tags: 'tags',
-    attachments: 'attachments'
-}));
-_.extend(Posts.prototype, new Properties(['title', 'state', 'category', 'access', 'allowComments', 'needsReview', 'isActive']));
-_.extend(Posts.prototype, new Update(['isActive', 'state', 'category', 'title', 'access', 'allowComments', 'needsReview'], ['tags', 'attachments']));
-_.extend(Posts.prototype, new Save(Posts));
-_.extend(Posts.prototype, new CAudit(Posts.collection, '_id'));
+var Posts = (new ModelBuilder())
+    .onModel(function Posts (attrs) {
+        _.assign(this, attrs);
+        Object.defineProperty(this, 'audit', {
+            writable: true,
+            enumerable: false
+        });
+    })
+    .inMongoCollection('posts')
+    .usingSchema(Joi.object().keys({
+        _id: Joi.object(),
+        blogId: Joi.object().required(),
+        organisation: Joi.string().required(),
+        title: Joi.string(),
+        state: Joi.string().only(['draft', 'pending review', 'published', 'archived', 'do not publish']).default('draft'),
+        access: Joi.string().only(['public', 'restricted']).default('public'),
+        allowComments: Joi.boolean().default(true),
+        needsReview: Joi.boolean().default(false),
+        category: Joi.string(),
+        tags: Joi.array().items(Joi.string()).unique(),
+        attachments: Joi.array().items(Joi.object()).unique(),
+        publishedBy: Joi.string(),
+        publishedOn: Joi.date(),
+        reviewedBy: Joi.string(),
+        reviewedOn: Joi.date(),
+        isActive: Joi.boolean().default(true),
+        createdBy: Joi.string(),
+        createdOn: Joi.date(),
+        updatedBy: Joi.string(),
+        updatedOn: Joi.date()
+    }))
+    .addIndex([{organisation: 1, title: 1, blogId: 1, publishedOn: 1}])
+    .addIndex([{tags: 1}])
+    .addIndex([{state: 1, publishedOn: 1}])
+    .supportInsertAndAudit('_id', 'create')
+    .supportSoftDeletes()
+    .supportUpdates([
+        'isActive',
+        'state',
+        'category',
+        'title',
+        'access',
+        'allowComments',
+        'needsReview'
+    ], [
+        'tags',
+        'attachments'
+    ])
+    .supportSave()
+    .supportTrackChanges()
+    .doneConfiguring();
 Posts.newObject = (doc, by) => {
     var self = this;
     return self.create(utils.lookupParamsOrPayloadOrQuery(doc, 'blogId'),
@@ -97,4 +95,3 @@ Posts.create = (blogId, organisation, title, state, access, allowComments, needs
     return self.insertAndAudit(document);
 };
 module.exports = Posts;
-

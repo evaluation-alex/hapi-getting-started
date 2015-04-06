@@ -129,19 +129,20 @@ module.exports.setupServer = () => {
                         options: Manifest.plugins['./server/common/plugins/model']
                     };
                     let plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, MetricsPlugin, I18NPlugin];
-                    server = new Hapi.Server();
-                    server.connection({host: 'localhost', port: Config.port});
-                    server.register(plugins, (err) => {
+                    var server1 = new Hapi.Server();
+                    server1.connection({host: 'localhost', port: Config.port});
+                    server1.register(plugins, (err) => {
                         if (err) {
                             reject(err);
                         } else {
                             _.forEach(components, (component) => {
                                 try {
-                                    server.route(require(component));
+                                    server1.route(require(component));
                                 } catch (err) {
                                     console.log(err, err.stack);
                                 }
                             });
+                            server = server1;
                             resolve({server: server, authheader: foundUser.authheader});
                         }
                     });

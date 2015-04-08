@@ -136,10 +136,10 @@ ControllerFactory.prototype.joinLeaveController = (group, approvers, idForNotifi
         'join',
         'join');
     self.sendNotifications(new JoinLeaveNotificationsBuilder(approvers, idForNotificationTitle, 'join', {
-        public: '{{email}} has joined {{title}}',
+        'public': '{{email}} has joined {{title}}',
         restricted: '{{email}} has joined {{title}} and needs your approval'
     }, {
-        public: 'fyi',
+        'public': 'fyi',
         restricted: 'approve'
     }));
     self.updateController(undefined, [
@@ -149,10 +149,10 @@ ControllerFactory.prototype.joinLeaveController = (group, approvers, idForNotifi
         'leave',
         'leave');
     self.sendNotifications(new JoinLeaveNotificationsBuilder(approvers, idForNotificationTitle, 'leave', {
-        public: '{{email}} has left {{title}}',
+        'public': '{{email}} has left {{title}}',
         restricted: '{{email}} has left {{title}}'
     }, {
-        public: 'fyi',
+        'public': 'fyi',
         restricted: 'fyi'
     }));
     return self;

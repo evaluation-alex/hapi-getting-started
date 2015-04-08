@@ -20,9 +20,14 @@ ModelFactory.prototype.onModel = (model) => {
     _.extend(this.model, Model);
     return this;
 };
-ModelFactory.prototype.extendVirtualModel = (virtualModel) => {
-    _.extend(this.model, virtualModel);
-    _.extend(this.model.prototype, virtualModel.prototype);
+ModelFactory.prototype.extendVirtualModel = (fromVirtualModel) => {
+    _.extend(this.model, _.omit(fromVirtualModel, ['schema']));
+    _.extend(this.model.prototype, fromVirtualModel.prototype);
+    return this;
+};
+ModelFactory.prototype.extendModel = (fromModel) => {
+    _.extend(this.model, _.omit(fromModel, ['create', 'newObject', 'collection', 'schema']));
+    _.extend(this.model.prototype, _.omit(fromModel, ['insertAndAudit', 'save', 'trackChanges']));
     return this;
 };
 ModelFactory.prototype.inMongoCollection = (collection) => {

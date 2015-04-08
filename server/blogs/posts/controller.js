@@ -8,7 +8,6 @@ let UserGroups = require('./../../user-groups/model');
 let ControllerFactory = require('./../../common/controller-factory');
 let isMemberOf = require('./../../common/prereqs/is-member-of');
 let prePopulate = require('./../../common/prereqs/pre-populate');
-let PostContent = require('./post-content');
 let errors = require('./../../common/errors');
 let utils = require('./../../common/utils');
 let Promise = require('bluebird');
@@ -100,12 +99,7 @@ var Controller = new ControllerFactory(Posts)
                 request.payload.state = 'pending review';
             }
         }
-        return Posts.newObject(request, by)
-            .then((post) => {
-                PostContent.writeContent(post, request.payload.content);
-                post.content = request.payload.content;
-                return post;
-            });
+        return Posts.newObject(request, by);
     })
     .sendNotifications((post, request) => stateBasedNotificationSend[post.state](post, request))
     .findController({
@@ -130,16 +124,14 @@ var Controller = new ControllerFactory(Posts)
             query.blogId = Blogs.ObjectID(blogId);
         }
         return query;
-    }, (output) => Promise.all(PostContent.readContentMultiple(output.data)
-        .map((content, indx) => output.data[indx].content = content))
-        .then(() => output)
-)
-    .findOneController([], (post) => PostContent.readContent(post)
-        .then((content) => {
-            post.content = content;
-            return post;
-        })
-)
+    }, (output) => {
+        return Promise.all(_.map(output.data, (post) => post.populate()))
+            .then((op) => {
+                output.data = op;
+                return output;
+            });
+    })
+    .findOneController([], (post) => post.populate())
     .updateController({
         payload: {
             blogId: Joi.string(),
@@ -160,7 +152,6 @@ var Controller = new ControllerFactory(Posts)
     'update',
     (post, request, by) => {
         if (post.state !== 'archived') {
-            PostContent.writeContent(post, request.payload.content);
             return post.update(request, by);
         } else {
             return Promise.reject(new errors.ArchivedPostUpdateError());

@@ -3,6 +3,8 @@ let ModelBuilder = require('./../../common/model-builder');
 let Joi = require('joi');
 let _ = require('lodash');
 let utils = require('./../../common/utils');
+let Promise = require('bluebird');
+let PostContent = require('./post-content');
 var Posts = (new ModelBuilder())
     .onModel(function Posts (attrs) {
         _.assign(this, attrs);
@@ -50,7 +52,7 @@ var Posts = (new ModelBuilder())
     ], [
         'tags',
         'attachments'
-    ])
+    ], 'updatePost')
     .supportSave()
     .supportTrackChanges()
     .doneConfiguring();
@@ -66,7 +68,8 @@ Posts.newObject = (doc, by) => {
         doc.payload.category,
         doc.payload.tags,
         doc.payload.attachments,
-        by);
+        by)
+        .then((post) => post.writeContent(doc.payload.content));
 };
 Posts.create = (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) => {
     let self = this;
@@ -93,5 +96,21 @@ Posts.create = (blogId, organisation, title, state, access, allowComments, needs
         updatedOn: now
     };
     return self.insertAndAudit(document);
+};
+Posts.prototype.update = (doc, by) => {
+    var self = this;
+    return self.writeContent(doc.payload.content).updatePost(doc, by);
+};
+Posts.prototype.writeContent = (content) => {
+    var self = this;
+    return PostContent.writeContent(self, content);
+};
+Posts.prototype.populate = () => {
+    var self = this;
+    return PostContent.readContent(self)
+        .then((content) => {
+            self.content = content;
+            return self;
+        });
 };
 module.exports = Posts;

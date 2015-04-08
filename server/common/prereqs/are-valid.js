@@ -5,12 +5,14 @@ let utils = require('./../utils');
 let Users = require('./../../users/model');
 let UserGroups = require('./../../user-groups/model');
 let errors = require('./../errors');
+let traverse = require('traverse');
 var areValid = (Model, pldPropToLookup) => {
     return (request, reply) => {
         let toLookup = [];
         _.forEach(pldPropToLookup, (pldProp) => {
-            if (utils.hasItems(request.payload[pldProp])) {
-                toLookup.push(request.payload[pldProp]);
+            let arrInReq = traverse.get(request.payload, pldProp.split('.'));
+            if (utils.hasItems(arrInReq)) {
+                toLookup.push(arrInReq);
             }
         });
         toLookup = _.flatten(toLookup);
@@ -20,7 +22,7 @@ var areValid = (Model, pldPropToLookup) => {
                     let msg = '';
                     _.forEach(toLookup, (a) => {
                         if (!validated[a]) {
-                            msg += a + ',';
+                            msg += a.toString() + ',';
                         }
                     });
                     if (msg.indexOf(',') > -1) {

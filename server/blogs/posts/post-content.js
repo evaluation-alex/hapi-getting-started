@@ -13,14 +13,13 @@ let cache = new LRUCache({
     maxAge: 1000 * 60 * 60
 });
 module.exports.resetCache = () => cache.reset();
-module.exports.filenameForPost = (post) => [('/' +
-post.organisation +
-'/blogs/' +
-post.blogId.toString() + '/').replace(' ', '-') +
-moment(post.createdOn).format('YYYYMMDD') +
-'__' +
-post._id.toString()
-];
+module.exports.filenameForPost = (post) => [
+    '',
+    post.organisation.replace(' ', '-'),
+    'blogs',
+    post.blogId.toString(),
+    moment(post.createdOn).format('YYYYMMDD') + '__' + post._id.toString()
+].join('/');
 module.exports.writeContent = (post, content) => {
     if (!_.isUndefined(content) && content.length > 0) {
         let filename = module.exports.filenameForPost(post);
@@ -29,10 +28,10 @@ module.exports.writeContent = (post, content) => {
     }
     return post;
 };
-module.exports.readContent = (post) => {
+module.exports.readContent = Promise.method((post) => {
     let filename = module.exports.filenameForPost(post);
     if (cache.has(filename)) {
-        return Promise.resolve(cache.get(filename));
+        return cache.get(filename);
     } else {
         return readFileP(Config.storage.diskPath + filename)
             .then((content) => {
@@ -41,5 +40,4 @@ module.exports.readContent = (post) => {
                 return content;
             }, utils.errback);
     }
-};
-module.exports.readContentMultiple = (posts) => Promise.resolve(_.map(posts, module.exports.readContent));
+});

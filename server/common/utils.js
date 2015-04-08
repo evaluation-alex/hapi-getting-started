@@ -58,7 +58,11 @@ module.exports.hasItems = (arr) => arr && arr.length > 0;
 module.exports.buildQueryFromRequestForFields = (query, request, fields) => {
     _.forEach(fields, (pair) => {
         if (request.query[pair[0]]) {
-            query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
+            if(_.isArray(request.query[pair[0]])) {
+                query[pair[1]] = {$in: _.map(request.payload.query[pair[0]], (op) => new RegExp('^.*?' + op + '.*$', 'i'))};
+            } else {
+                query[pair[1]] = {$regex: new RegExp('^.*?' + request.query[pair[0]] + '.*$', 'i')};
+            }
         }
     });
     return query;

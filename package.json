@@ -54,7 +54,7 @@
         "lout": "6.x.x",
         "lru-cache": "2.5.x",
         "mkdirp": "0.5.x",
-        "moment": "2.9.x",
+        "moment": "2.10.x",
         "mongodb": "2.0.x",
         "node-statsd": "0.1.x",
         "node-uuid": "1.4.x",

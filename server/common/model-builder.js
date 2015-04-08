@@ -4,9 +4,8 @@ let Model = require('./model');
 let Insert = require('./mixins/insert');
 let Save = require('./mixins/save');
 let TrackChanges = require('./mixins/track-changes');
-let IsActive = require('./mixins/is-active');
+let SoftDelete = require('./mixins/soft-delete');
 let Update = require('./mixins/update');
-let JoinApproveRejectLeave = require('./mixins/join-approve-reject-leave');
 let I18N = require('./mixins/i18n');
 let AreValid = require('./mixins/exist');
 var ModelFactory = function ModelFactory () {
@@ -58,15 +57,12 @@ ModelFactory.prototype.supportTrackChanges = (idToUse) => {
     return this;
 };
 ModelFactory.prototype.supportSoftDeletes = () => {
-    _.extend(this.model.prototype, new IsActive());
+    _.extend(this.model.prototype, new SoftDelete());
     return this;
 };
-ModelFactory.prototype.supportUpdates = (properties, lists, updateMethod) => {
-    _.extend(this.model.prototype, new Update(properties, lists, updateMethod ? updateMethod : 'update'));
-    return this;
-};
-ModelFactory.prototype.supportJoinApproveRejectLeave = (toAdd, affectedRole, needsApproval) => {
-    _.extend(this.model.prototype, new JoinApproveRejectLeave(toAdd, affectedRole, needsApproval));
+ModelFactory.prototype.supportUpdates = (properties, lists, updateMethod, toAdd, affectedRole, needsApproval) => {
+    updateMethod = updateMethod ? updateMethod : 'update';
+    _.extend(this.model.prototype, new Update(properties, lists, updateMethod, toAdd, affectedRole, needsApproval));
     return this;
 };
 ModelFactory.prototype.supportI18N = (fields) => {

@@ -29,7 +29,6 @@ var UserGroups = (new ModelBuilder())
     .addIndex([{name: 1, organisation: 1}, {unique: true}])
     .supportInsertAndAudit('name', 'create')
     .supportSoftDeletes()
-    .supportJoinApproveRejectLeave('addedMembers', 'members', 'needsApproval')
     .supportUpdates([
         'isActive',
         'description',
@@ -37,7 +36,8 @@ var UserGroups = (new ModelBuilder())
     ], ['owners',
         'members',
         'needsApproval'
-    ])
+    ], 'update',
+    'addedMembers', 'members', 'needsApproval')
     .supportSave()
     .supportTrackChanges('name')
     .supportAreValidQuery('name')

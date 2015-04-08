@@ -52,8 +52,8 @@ var Blogs = (new ModelBuilder())
         'subscribers',
         'subscriberGroups',
         'needsApproval'
-    ])
-    .supportJoinApproveRejectLeave('addedSubscribers', 'subscribers', 'needsApproval')
+    ], 'update',
+    'addedSubscribers', 'subscribers', 'needsApproval')
     .doneConfiguring();
 Blogs.newObject = (doc, by) => {
     let self = this;

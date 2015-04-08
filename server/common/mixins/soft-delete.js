@@ -1,5 +1,5 @@
 'use strict';
-module.exports = function IsActive () {
+module.exports = function SoftDelete () {
     return {
         del: (doc, by) => {
             let self = this;

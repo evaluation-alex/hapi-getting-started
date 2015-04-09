@@ -147,7 +147,7 @@ describe('Notifications', () => {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
                     _.forEach(p.data, (d) => {
-                        expect(moment(d.publishedOn).format('YYYYMMDD')).to.equal('20150214');
+                        expect(moment(d.createdOn).format('YYYYMMDD')).to.equal('20150214');
                     });
                     done();
                 } catch (err) {

@@ -3,6 +3,7 @@ let ModelBuilder = require('./../../common/model-builder');
 let Joi = require('joi');
 let _ = require('lodash');
 let utils = require('./../../common/utils');
+let errors = require('./../../common/errors');
 let Promise = require('bluebird');
 let PostContent = require('./post-content');
 var Posts = (new ModelBuilder())
@@ -99,7 +100,11 @@ Posts.create = (blogId, organisation, title, state, access, allowComments, needs
 };
 Posts.prototype.update = (doc, by) => {
     var self = this;
-    return self.writeContent(doc.payload.content).updatePost(doc, by);
+    if (self.state !== 'archived') {
+        return self.writeContent(doc.payload.content).updatePost(doc, by);
+    } else {
+        return Promise.reject(new errors.ArchivedPostUpdateError());
+    }
 };
 Posts.prototype.writeContent = (content) => {
     var self = this;

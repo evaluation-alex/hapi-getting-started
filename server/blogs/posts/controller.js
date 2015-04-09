@@ -8,9 +8,7 @@ let UserGroups = require('./../../user-groups/model');
 let ControllerFactory = require('./../../common/controller-factory');
 let isMemberOf = require('./../../common/prereqs/is-member-of');
 let prePopulate = require('./../../common/prereqs/pre-populate');
-let errors = require('./../../common/errors');
 let utils = require('./../../common/utils');
-let Promise = require('bluebird');
 let Hoek = require('hoek');
 /*jshint unused:false*/
 let stateBasedNotificationSend = {
@@ -108,8 +106,8 @@ var Controller = new ControllerFactory(Posts)
             blogId: Joi.string(),
             tag: Joi.string(),
             publishedBy: Joi.string(),
-            publishedOnBefore: Joi.date(),
-            publishedOnAfter: Joi.date(),
+            publishedOnBefore: Joi.date().format('YYYY-MM-DD'),
+            publishedOnAfter: Joi.date().format('YYYY-MM-DD'),
             isActive: Joi.string(),
             state: Joi.string()
         }
@@ -150,13 +148,7 @@ var Controller = new ControllerFactory(Posts)
         isMemberOf(Blogs, ['contributors', 'owners'])
     ],
     'update',
-    (post, request, by) => {
-        if (post.state !== 'archived') {
-            return post.update(request, by);
-        } else {
-            return Promise.reject(new errors.ArchivedPostUpdateError());
-        }
-    })
+    'update')
     .updateController({
         payload: {
             blogId: Joi.string(),

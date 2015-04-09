@@ -9,8 +9,8 @@ var Controller = new ControllerFactory(Audit)
             by: Joi.string(),
             objectType: Joi.string(),
             objectChangedId: Joi.string(),
-            onBefore: Joi.date(),
-            onAfter: Joi.date()
+            onBefore: Joi.date().format('YYYY-MM-DD'),
+            onAfter: Joi.date().format('YYYY-MM-DD')
         }
     }, (request) => {
         let query = utils.buildQueryFromRequestForDateFields(

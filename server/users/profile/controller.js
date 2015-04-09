@@ -22,34 +22,34 @@ var Controller = new ControllerFactory(Users)
                 lastName: Joi.string(),
                 preferredName: Joi.string(),
                 title: Joi.string().valid(['Dr', 'Mr', 'Mrs', 'Ms']),
-                dateOfBirth: Joi.date(),
+                dateOfBirth: Joi.date().format('YYYY-MM-DD'),
                 addedPhone: Joi.array().items(Joi.string()),
                 removedPhone: Joi.array().items(Joi.string()),
                 residentialAddress: addressSchema,
                 currentAddress: addressSchema,
                 addedEducationalQualification: Joi.array().items(Joi.object().keys({
                     school: Joi.string(),
-                    started: Joi.date(),
-                    completed: Joi.date(),
+                    started: Joi.date().format('YYYY-MM-DD'),
+                    completed: Joi.date().format('YYYY-MM-DD'),
                     qualification: Joi.string()
                 })),
                 removedEducationalQualification: Joi.array().items(Joi.object().keys({
                     school: Joi.string(),
-                    started: Joi.date(),
-                    completed: Joi.date(),
+                    started: Joi.date().format('YYYY-MM-DD'),
+                    completed: Joi.date().format('YYYY-MM-DD'),
                     qualification: Joi.string()
                 })),
                 addedEmploymentHistory: Joi.array().items(Joi.object().keys({
                     company: Joi.string(),
                     designation: Joi.string(),
-                    from: Joi.date(),
-                    to: Joi.date()
+                    from: Joi.date().format('YYYY-MM-DD'),
+                    to: Joi.date().format('YYYY-MM-DD')
                 })),
                 removedEmploymentHistory: Joi.array().items(Joi.object().keys({
                     company: Joi.string(),
                     designation: Joi.string(),
-                    from: Joi.date(),
-                    to: Joi.date()
+                    from: Joi.date().format('YYYY-MM-DD'),
+                    to: Joi.date().format('YYYY-MM-DD')
                 }))
             }
         }

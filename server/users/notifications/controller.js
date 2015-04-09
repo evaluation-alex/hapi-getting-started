@@ -11,8 +11,8 @@ var Controller = new ControllerFactory(Notifications)
             title: Joi.string(),
             state: Joi.string(),
             objectType: Joi.string(),
-            createdOnBefore: Joi.date(),
-            createdOnAfter: Joi.date(),
+            createdOnBefore: Joi.date().format('YYYY-MM-DD'),
+            createdOnAfter: Joi.date().format('YYYY-MM-DD'),
             isActive: Joi.string()
         }
     }, (request) => {

@@ -72,12 +72,12 @@ module.exports.buildQueryFromRequestForDateFields = (query, request, field) => {
     const after = field + 'After';
     if (request.query[before]) {
         query[field] = {
-            $lte: moment(request.query[before], ['YYYY-MM-DD']).toDate()
+            $lte: moment(request.query[before]).toDate()
         };
     }
     if (request.query[after]) {
         query[field] = query[field] || {};
-        query[field].$gte = moment(request.query[after], ['YYYY-MM-DD']).toDate();
+        query[field].$gte = moment(request.query[after]).toDate();
     }
     return query;
 };

@@ -25,7 +25,7 @@ ModelFactory.prototype.extendVirtualModel = (fromVirtualModel) => {
     return this;
 };
 ModelFactory.prototype.extendModel = (fromModel) => {
-    _.extend(this.model, _.omit(fromModel, ['create', 'newObject', 'collection', 'schema']));
+    _.extend(this.model, _.omit(fromModel, ['create', 'newObject', 'collection', 'schema', 'indexes']));
     _.extend(this.model.prototype, _.omit(fromModel, ['insertAndAudit', 'save', 'trackChanges']));
     return this;
 };
@@ -60,9 +60,9 @@ ModelFactory.prototype.supportSoftDeletes = () => {
     _.extend(this.model.prototype, new SoftDelete());
     return this;
 };
-ModelFactory.prototype.supportUpdates = (properties, lists, updateMethod, toAdd, affectedRole, needsApproval) => {
+ModelFactory.prototype.supportUpdates = (properties, lists, updateMethod, affectedRole, needsApproval) => {
     updateMethod = updateMethod ? updateMethod : 'update';
-    _.extend(this.model.prototype, new Update(properties, lists, updateMethod, toAdd, affectedRole, needsApproval));
+    _.extend(this.model.prototype, new Update(properties, lists, updateMethod, affectedRole, needsApproval));
     return this;
 };
 ModelFactory.prototype.supportI18N = (fields) => {

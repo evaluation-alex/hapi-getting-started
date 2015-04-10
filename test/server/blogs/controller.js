@@ -969,7 +969,6 @@ describe('Blogs', () => {
                 });
         });
         it('should add users who have been approved to the subscribers list and cancel the approval notifications for that user only', (done) => {
-            let request = {};
             let id = '';
             Blogs.create('testBlogPutApproveAddUser', 'silver lining', 'test PUT /blogs/approve', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
@@ -985,7 +984,7 @@ describe('Blogs', () => {
                     return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguytoo'}, 'test');
                 })
                 .then(() => {
-                    request = {
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + id + '/approve',
                         headers: {

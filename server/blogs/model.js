@@ -53,7 +53,7 @@ var Blogs = (new ModelBuilder())
         'subscriberGroups',
         'needsApproval'
     ], 'update',
-    'addedSubscribers', 'subscribers', 'needsApproval')
+    'subscribers', 'needsApproval')
     .doneConfiguring();
 Blogs.newObject = (doc, by) => {
     let self = this;

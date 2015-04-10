@@ -37,7 +37,7 @@ var UserGroups = (new ModelBuilder())
         'members',
         'needsApproval'
     ], 'update',
-    'addedMembers', 'members', 'needsApproval')
+    'members', 'needsApproval')
     .supportSave()
     .supportTrackChanges('name')
     .supportAreValidQuery('name')

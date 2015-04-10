@@ -1,6 +1,7 @@
 'use strict';
 let Joi = require('joi');
 let _ = require('lodash');
+let Promise = require('bluebird');
 let moment = require('moment');
 let Posts = require('./model');
 let Blogs = require('./../model');

@@ -69,7 +69,7 @@
         "code": "1.x.x",
         "codeclimate-test-reporter": "0.0.x",
         "coveralls": "2.11.x",
-        "jshint": "2.6.x",
+        "jshint": "2.7.x",
         "lab": "5.x.x",
         "promptly": "0.2.x",
         "rimraf": "2.3.x"

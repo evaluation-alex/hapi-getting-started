@@ -123,12 +123,10 @@ var Controller = new ControllerFactory(Posts)
             query.blogId = Blogs.ObjectID(blogId);
         }
         return query;
-    }, (output) => {
-        return Promise.all(_.map(output.data, (post) => post.populate()))
-            .then((op) => {
-                output.data = op;
-                return output;
-            });
+    }, (output, user) => {
+        return Promise.all(_.map(output.data, (post) => post.populate(user)))
+            .then((op) => output.data = op)
+            .then(() => output);
     })
     .findOneController([], (post) => post.populate())
     .updateController({

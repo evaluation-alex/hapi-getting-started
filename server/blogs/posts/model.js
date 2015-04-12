@@ -1,5 +1,7 @@
 'use strict';
 let ModelBuilder = require('./../../common/model-builder');
+let Blogs = require('./../model');
+let UserGroups = require('./../../user-groups/model');
 let Joi = require('joi');
 let _ = require('lodash');
 let utils = require('./../../common/utils');
@@ -110,11 +112,49 @@ Posts.prototype.writeContent = (content) => {
     var self = this;
     return PostContent.writeContent(self, content);
 };
-Posts.prototype.populate = () => {
+Posts.prototype.populate = (user) => {
     var self = this;
-    return PostContent.readContent(self)
-        .then((content) => {
-            self.content = content;
+    return Promise.resolve({canSee: self.access === 'public'})
+        .then((res) => {
+            if (!res.canSee) {
+                return Blogs.findOne({_id: Blogs.ObjectID(self.blogId)});
+            } else {
+                return res;
+            }
+        })
+        .then((blog) => {
+            if (!blog.canSee) {
+                let isBlogPublic = blog.access === 'public';
+                let isOwner = blog.isPresentInOwners(user.email);
+                let isContributor = blog.isPresentInContributors(user.email);
+                let isSubscriber = blog.isPresentInSubscribers(user.email);
+                return {canSee: isBlogPublic || isOwner || isContributor || isSubscriber, blog: blog};
+            }
+            return blog;
+        })
+        .then((res) => {
+            if (!res.canSee) {
+                return UserGroups.count({
+                    members: user.email,
+                    organisation: user.organisation,
+                    name: {$in: res.blog.subscriberGroups}
+                })
+                    .then((count) => {
+                        return count > 0;
+                    });
+            }
+            return res.canSee;
+        })
+        .then((canSee) => {
+            if (canSee) {
+                return PostContent.readContent(self)
+                    .then((content) => {
+                        self.content = content;
+                        return self;
+                    });
+            } else {
+                self.content = 'restricted because you are not an owner, contributor or subscriber to this blog and it is not a public post';
+            }
             return self;
         });
 };

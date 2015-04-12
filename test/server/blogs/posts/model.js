@@ -1,6 +1,8 @@
 'use strict';
 let relativeToServer = './../../../../server/';
 let Posts = require(relativeToServer + 'blogs/posts/model');
+let Blogs = require(relativeToServer + 'blogs/model');
+let UserGroups = require(relativeToServer + 'user-groups/model');
 let Audit = require(relativeToServer + 'audit/model');
 let _ = require('lodash');
 let tu = require('./../../testutils');
@@ -16,6 +18,7 @@ let expect = Code.expect;
 describe('Posts Model', () => {
     let postsToClear = [];
     let blogsToClear = [];
+    let userGroupsToClear = [];
     let blogId = Posts.ObjectId('54ec3cdbb25155f40ce6107e');
     before((done) => {
         tu.setupRolesAndUsers()
@@ -508,7 +511,219 @@ describe('Posts Model', () => {
             done();
         });
     });
+    describe('Posts.this.populate', () => {
+        before((done) => {
+            Blogs.create('test post.populate', 'silver lining', 'test.post.populate', [], [], [], [], 'true', 'public', false, 'test')
+                .then((b) => {
+                    return b.removeOwners(['test'], 'test').removeContributors(['test'], 'test').removeSubscribers(['test'], 'test').removeSubscriberGroups(['test'], 'test').save();
+                })
+                .then((b) => {
+                    return Posts.create(b._id, 'silver lining', 'test post.populate', 'published', 'public', false, false, 'testing', ['testing', 'populate'], [], 'test');
+                })
+                .then((p) => {
+                    return p.writeContent('i have something to offer');
+                })
+                .then(() => {
+                    return UserGroups.create('test post.populate', 'silver lining', 'test posts.populate', 'by');
+                })
+                .then((g) => {
+                    return g.removeOwners(['test'], 'test').removeMembers(['test'], 'test').addMembers(['one@first.com'], 'test').save();
+                })
+                .then(() => {
+                    done();
+                });
+        });
+        it('should load content if post.access if public', (done) => {
+            let error = null;
+            Posts.findOne({title: 'test post.populate'})
+                .then((post) => {
+                    post.content = undefined;
+                    return post.setAccess('public').save();
+                })
+                .then((p) => {
+                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                })
+                .then((p) => {
+                    expect(p.content).to.equal('i have something to offer');
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should load content if post.access is not public, but blog.access is public', (done) => {
+            let error = null;
+            Blogs.findOne({title: 'test post.populate'})
+            .then((blog) => {
+                    return blog.setAccess('public').save();
+                })
+                .then(() => {
+                    return Posts.findOne({title: 'test post.populate'});
+                })
+                .then((post) => {
+                    post.content = undefined;
+                    return post.setAccess('restricted').save();
+                })
+                .then((p) => {
+                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                })
+                .then((p) => {
+                    expect(p.content).to.equal('i have something to offer');
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should load content if post, blog.access is restricted and user is member of owners group', (done) => {
+            let error = null;
+            Blogs.findOne({title: 'test post.populate'})
+                .then((blog) => {
+                    return blog.setAccess('restricted').addOwners(['one@first.com'], 'test').save();
+                })
+                .then(() => {
+                    return Posts.findOne({title: 'test post.populate'});
+                })
+                .then((post) => {
+                    post.content = undefined;
+                    return post.setAccess('restricted').save();
+                })
+                .then((p) => {
+                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                })
+                .then((p) => {
+                    expect(p.content).to.equal('i have something to offer');
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should load content if post, blog.access is restricted and user is member of subscribers group', (done) => {
+            let error = null;
+            Blogs.findOne({title: 'test post.populate'})
+                .then((blog) => {
+                    return blog.setAccess('restricted').removeOwners(['one@first.com'], 'test').addSubscribers(['one@first.com'], 'test').save();
+                })
+                .then(() => {
+                    return Posts.findOne({title: 'test post.populate'});
+                })
+                .then((post) => {
+                    post.content = undefined;
+                    return post.setAccess('restricted').save();
+                })
+                .then((p) => {
+                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                })
+                .then((p) => {
+                    expect(p.content).to.equal('i have something to offer');
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should load content if post, blog.access is restricted and user is member of contributors group', (done) => {
+            let error = null;
+            Blogs.findOne({title: 'test post.populate'})
+                .then((blog) => {
+                    return blog.setAccess('restricted').removeOwners(['one@first.com'], 'test').removeSubscribers(['one@first.com'], 'test').addContributors(['one@first.com'], 'test').save();
+                })
+                .then(() => {
+                    return Posts.findOne({title: 'test post.populate'});
+                })
+                .then((post) => {
+                    post.content = undefined;
+                    return post.setAccess('restricted').save();
+                })
+                .then((p) => {
+                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                })
+                .then((p) => {
+                    expect(p.content).to.equal('i have something to offer');
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should load content if post, blog.access is restricted and user is member of usergroup that is in subscribers group', (done) => {
+            let error = null;
+            Blogs.findOne({title: 'test post.populate'})
+                .then((blog) => {
+                    return blog.setAccess('restricted').removeOwners(['one@first.com'], 'test').removeSubscribers(['one@first.com'], 'test').removeContributors(['one@first.com'], 'test').addSubscriberGroups(['test post.populate'], 'test').save();
+                })
+                .then(() => {
+                    return Posts.findOne({title: 'test post.populate'});
+                })
+                .then((post) => {
+                    post.content = undefined;
+                    return post.setAccess('restricted').save();
+                })
+                .then((p) => {
+                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                })
+                .then((p) => {
+                    expect(p.content).to.equal('i have something to offer');
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should not load content if post, blog.access is restricted and user is not member of usergroup that is in subscribers group, or member of subscribers, owners or contributors', (done) => {
+            let error = null;
+            Blogs.findOne({title: 'test post.populate'})
+                .then((blog) => {
+                    return blog.setAccess('restricted').removeOwners(['one@first.com'], 'test').removeSubscribers(['one@first.com'], 'test').removeContributors(['one@first.com'], 'test').removeSubscriberGroups(['test post.populate'], 'test').save();
+                })
+                .then(() => {
+                    return Posts.findOne({title: 'test post.populate'});
+                })
+                .then((post) => {
+                    post.content = undefined;
+                    return post.setAccess('restricted').save();
+                })
+                .then((p) => {
+                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                })
+                .then((p) => {
+                    expect(p.content).to.equal('restricted because you are not an owner, contributor or subscriber to this blog and it is not a public post');
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist();
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        after((done) => {
+            blogsToClear.push('test post.populate');
+            postsToClear.push('test post.populate');
+            userGroupsToClear.push('test post.populate');
+            done();
+        });
+    });
     after((done) => {
-        return tu.cleanup({blogs: blogsToClear, posts: postsToClear}, done);
+        return tu.cleanup({blogs: blogsToClear, posts: postsToClear, userGroups: userGroupsToClear}, done);
     });
 });

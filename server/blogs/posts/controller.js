@@ -128,7 +128,7 @@ var Controller = new ControllerFactory(Posts)
             .then((op) => output.data = op)
             .then(() => output);
     })
-    .findOneController([], (post) => post.populate())
+    .findOneController([], (post, user) => post.populate(user))
     .updateController({
         payload: {
             blogId: Joi.string(),

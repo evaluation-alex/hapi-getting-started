@@ -25,6 +25,7 @@ var Users = (new ModelBuilder())
     .extendVirtualModel(Preferences)
     .extendVirtualModel(Profile)
     .inMongoCollection('users')
+    .usingConnection('app')
     .usingSchema(Joi.object().keys({
         _id: Joi.object(),
         email: Joi.string().email().required(),

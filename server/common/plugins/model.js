@@ -7,12 +7,16 @@ module.exports.register = (server, options, next) => {
     _.forIn(options.models, (file, model) => {
         loadedModels[model] = require(Path.join(process.cwd(), file));
     });
-    Model.connect(options.mongodb)
-        .then((db) => {
-            server.expose('MongoDB', db);
-            server.on('stop', () => Model.disconnect());
-            return db;
-        })
+    let dbconnections = [];
+    _.forIn(options.connections, (connectionargs, name) => {
+        dbconnections.push(Model.connect(name, connectionargs)
+            .then((db) => {
+                server.expose('MongoDB' + name, db);
+                server.on('stop', () => Model.disconnect(name));
+                return db;
+            }));
+    });
+    Promise.all(dbconnections)
         .then(() => {
             if (options.autoIndex) {
                 return Promise.all(_.map(_.values(loadedModels), (model) => model.ensureIndexes()));
@@ -23,8 +27,7 @@ module.exports.register = (server, options, next) => {
         })
         .catch((err) => {
             next(err);
-        })
-        .done();
+        });
 };
 module.exports.register.attributes = {
     name: 'MongoModels'

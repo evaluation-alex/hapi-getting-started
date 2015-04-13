@@ -7,6 +7,7 @@ var Roles = (new ModelBuilder())
         _.assign(this, attrs);
     })
     .inMongoCollection('roles')
+    .usingConnection('app')
     .usingSchema(Joi.object().keys({
         _id: Joi.object(),
         name: Joi.string().required(),

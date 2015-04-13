@@ -11,6 +11,7 @@ var UserGroups = (new ModelBuilder())
         });
     })
     .inMongoCollection('user-groups')
+    .usingConnection('app')
     .usingSchema(Joi.object().keys({
         _id: Joi.object(),
         name: Joi.string().required(),

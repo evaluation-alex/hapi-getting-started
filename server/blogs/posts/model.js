@@ -17,6 +17,7 @@ var Posts = (new ModelBuilder())
         });
     })
     .inMongoCollection('posts')
+    .usingConnection('app')
     .usingSchema(Joi.object().keys({
         _id: Joi.object(),
         blogId: Joi.object().required(),

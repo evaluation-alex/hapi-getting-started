@@ -6,35 +6,46 @@ let _ = require('lodash');
 var Model = function Model () {
 };
 Model.ObjectId = Model.ObjectID = Mongodb.ObjectID;
-Model.connect = (config) => {
+Model.connect = (name, config) => {
     return new Promise((resolve, reject) => {
-        Mongodb.MongoClient.connect(config.url,
-            config.options,
-            utils.defaultcb('connect',
-                (db) => {
-                    Model.db = db;
-                    resolve(db);
-                },
-                reject));
+        Model.connections = Model.connections || {};
+        if (Model.connections[name]) {
+            resolve(Model.connections[name]);
+        } else {
+            Mongodb.MongoClient.connect(config.url,
+                config.options,
+                utils.defaultcb('connect',
+                    (db) => {
+                        Model.connections[name] = db;
+                        resolve(db);
+                    },
+                    reject));
+        }
     });
 };
-Model.disconnect = () => {
-    Model.db.close();
+Model.db = (name) => {
+    return Model.connections[name];
+};
+Model.disconnect = (name) => {
+    Model.db(name).close();
 };
 Model.ensureIndexes = () => {
     var self = this;
     return Promise.all(_.map(self.indexes, (index) => {
         return new Promise((resolve, reject) => {
-            Model.db.ensureIndex(self.collection,
+            Model.db(self.connection).ensureIndex(self.collection,
                 index[0],
                 index[1] || {},
-                utils.defaultcb('ensureIndex', resolve, reject));
+                utils.defaultcb('ensureIndex', resolve, (err) => {
+                    console.log(err);
+                    reject(err);
+                }));
         });
     }));
 };
 Model.cllctn = () => {
     var self = this;
-    return Model.db.collection(self.collection);
+    return Model.db(self.connection).collection(self.collection);
 };
 Model.count = (query) => {
     let self = this;

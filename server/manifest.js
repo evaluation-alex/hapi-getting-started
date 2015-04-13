@@ -20,7 +20,11 @@ const plugins = {
     'poop': {logPath: Config.logs.logDir},
     'tv': {},
     './server/common/plugins/model': {
-        mongodb: Config.hapiMongoModels.mongodb,
+        connections: {
+            app: {
+                url: Config.hapiMongoModels.mongodb.url
+            }
+        },
         models: {
             Audit: './server/audit/model',
             Users: './server/users/model',

@@ -15,6 +15,7 @@ var Blogs = (new ModelBuilder())
         });
     })
     .inMongoCollection('blogs')
+    .usingConnection('app')
     .usingSchema(Joi.object().keys({
         _id: Joi.object(),
         title: Joi.string().required(),

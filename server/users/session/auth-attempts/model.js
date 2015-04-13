@@ -10,6 +10,7 @@ var AuthAttempts = (new ModelBuilder())
         _.assign(this, attrs);
     })
     .inMongoCollection('auth-attempts')
+    .usingConnection('app')
     .usingSchema(Joi.object().keys({
         _id: Joi.object(),
         email: Joi.string().required(),

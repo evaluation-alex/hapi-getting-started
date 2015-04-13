@@ -12,6 +12,7 @@ var Notifications = (new ModelBuilder())
         });
     })
     .inMongoCollection('notifications')
+    .usingConnection('app')
     .usingSchema(Joi.object().keys({
         _id: Joi.object(),
         email: Joi.string().email().required(),

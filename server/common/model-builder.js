@@ -29,6 +29,10 @@ ModelBuilder.prototype.extendModel = (fromModel) => {
     _.extend(this.model.prototype, _.omit(fromModel.prototype, ['insertAndAudit', 'save', 'trackChanges']));
     return this;
 };
+ModelBuilder.prototype.usingConnection = (name) => {
+    this.model.connection = name;
+    return this;
+};
 ModelBuilder.prototype.inMongoCollection = (collection) => {
     this.model.collection = collection;
     return this;

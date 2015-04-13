@@ -7,6 +7,7 @@ var Audit = (new ModelBuilder())
         _.assign(this, attrs);
     })
     .inMongoCollection('audit')
+    .usingConnection('app')
     .usingSchema(Joi.object().keys({
         _id: Joi.object(),
         objectChangedType: Joi.string().required(),

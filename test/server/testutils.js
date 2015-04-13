@@ -5,6 +5,7 @@ let Hapi = require('hapi');
 let HapiAuthBasic = require('hapi-auth-basic');
 let Promise = require('bluebird');
 Promise.longStackTraces();
+let Manifest = require(relativeToServer + 'manifest').manifest;
 let utils = require(relativeToServer + 'common/utils');
 let AuthPlugin = require(relativeToServer + 'common/plugins/auth');
 let MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
@@ -28,7 +29,7 @@ module.exports.setupConnect = () => {
     if (mongodb) {
         return Promise.resolve(mongodb);
     } else {
-        return Model.connect(Config.hapiMongoModels.mongodb)
+        return Model.connect('app', Manifest.plugins['./server/common/plugins/model'].connections.app)
             .then((db) => {
                 mongodb = db;
                 return db;
@@ -111,7 +112,6 @@ module.exports.setupServer = () => {
             })
             .then((foundUser) => {
                 if (!server) {
-                    let Manifest = require('./../../server/manifest').manifest;
                     let components = [
                         '../../server/audit',
                         '../../server/contact',
@@ -129,7 +129,7 @@ module.exports.setupServer = () => {
                         register: require(relativeToServer + 'common/plugins/model'),
                         options: Manifest.plugins['./server/common/plugins/model']
                     };
-                    let plugins = [HapiAuthBasic, ModelsPlugin, AuthPlugin, MetricsPlugin, I18NPlugin];
+                    let plugins = [ModelsPlugin, HapiAuthBasic, AuthPlugin, MetricsPlugin, I18NPlugin];
                     var server1 = new Hapi.Server();
                     server1.connection({host: 'localhost', port: Config.port});
                     server1.register(plugins, (err) => {

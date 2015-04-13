@@ -2,7 +2,6 @@
 let Path = require('path');
 let Model = require('./../model');
 let _ = require('lodash');
-let utils = require('./../utils');
 module.exports.register = (server, options, next) => {
     let loadedModels = {};
     _.forIn(options.models, (file, model) => {
@@ -14,19 +13,18 @@ module.exports.register = (server, options, next) => {
             server.on('stop', () => Model.disconnect());
             return db;
         })
-        .then((db) => {
+        .then(() => {
             if (options.autoIndex) {
-                _.forEach(_.values(loadedModels), (model) => {
-                    _.forEach(model.indexes, (index) => {
-                        db.ensureIndex(model.collection,
-                            index[0],
-                            index[1] || {},
-                            utils.defaultcb('ensureIndex', _.noop, _.noop));
-                    });
-                });
+                return Promise.all(_.map(_.values(loadedModels), (model) => model.ensureIndexes()));
             }
         })
-        .done(next, next);
+        .then(() => {
+            next();
+        })
+        .catch((err) => {
+            next(err);
+        })
+        .done();
 };
 module.exports.register.attributes = {
     name: 'MongoModels'

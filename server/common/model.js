@@ -21,11 +21,25 @@ Model.connect = (config) => {
 Model.disconnect = () => {
     Model.db.close();
 };
+Model.ensureIndexes = () => {
+    var self = this;
+    return Promise.all(_.map(self.indexes, (index) => {
+        return new Promise((resolve, reject) => {
+            Model.db.ensureIndex(self.collection,
+                index[0],
+                index[1] || {},
+                utils.defaultcb('ensureIndex', resolve, reject));
+        });
+    }));
+};
+Model.cllctn = () => {
+    var self = this;
+    return Model.db.collection(self.collection);
+};
 Model.count = (query) => {
     let self = this;
-    let collection = Model.db.collection(self.collection);
     return new Promise((resolve, reject) => {
-        collection.count(query,
+        self.cllctn().count(query,
             utils.defaultcb(self.collection + '.count',
                 resolve,
                 reject,
@@ -34,9 +48,8 @@ Model.count = (query) => {
 };
 Model.find = (query, fields, sort, limit, skip) => {
     let self = this;
-    let collection = Model.db.collection(self.collection);
     return new Promise((resolve, reject) => {
-        collection.find(query,
+        self.cllctn().find(query,
             {fields: fields, sort: sort, limit: limit, skip: skip}
         ).toArray(utils.defaultcb(self.collection + '.find',
                 (docs) => {
@@ -55,10 +68,9 @@ Model.find = (query, fields, sort, limit, skip) => {
 };
 Model.findOne = (query) => {
     let self = this;
-    let collection = Model.db.collection(self.collection);
     return new Promise((resolve, reject) => {
         /*jshint -W055*/
-        collection.findOne(query,
+        self.cllctn().findOne(query,
             {},
             utils.defaultcb(self.collection + '.findOne',
                 (doc) => resolve(doc ? new self(doc) : undefined),
@@ -95,11 +107,10 @@ Model.pagedFind = (query, fields, sort, limit, page) => {
 };
 Model.insert = Model.update = Model.save = Model.upsert = (obj) => {
     let self = this;
-    let collection = Model.db.collection(self.collection);
     return new Promise((resolve, reject) => {
         obj._id = obj._id || self.ObjectID();
         /*jshint -W055*/
-        collection.findOneAndReplace({_id: obj._id},
+        self.cllctn().findOneAndReplace({_id: obj._id},
             obj,
             {upsert: true, returnOriginal: false},
             utils.defaultcb(self.collection + '.upsert',
@@ -109,11 +120,10 @@ Model.insert = Model.update = Model.save = Model.upsert = (obj) => {
         /*jshint +W055*/
     });
 };
-Model.remove = Model.delete = (query) => {
+Model.remove = Model['delete'] = (query) => {
     let self = this;
-    let collection = Model.db.collection(self.collection);
     return new Promise((resolve, reject) => {
-        collection.deleteMany(query,
+        self.cllctn().deleteMany(query,
             utils.defaultcb(self.collection + '.remove',
                 (doc) => resolve(doc.deletedCount),
                 reject,

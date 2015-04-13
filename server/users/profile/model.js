@@ -37,7 +37,7 @@ var Profile = (new ModelBuilder())
             to: Joi.date()
         }))
     }))
-    .supportUpdates([
+    .decorateWithUpdates([
         'profile.firstName',
         'profile.lastName',
         'profile.preferredName',

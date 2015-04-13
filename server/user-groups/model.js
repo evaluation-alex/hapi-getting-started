@@ -27,9 +27,9 @@ var UserGroups = (new ModelBuilder())
         updatedOn: Joi.date()
     }))
     .addIndex([{name: 1, organisation: 1}, {unique: true}])
-    .supportInsertAndAudit('name', 'create')
-    .supportSoftDeletes()
-    .supportUpdates([
+    .decorateWithInsertAndAudit('name', 'create')
+    .decorateWithSoftDeletes()
+    .decorateWithUpdates([
         'isActive',
         'description',
         'access'
@@ -38,9 +38,9 @@ var UserGroups = (new ModelBuilder())
         'needsApproval'
     ], 'update',
     'members', 'needsApproval')
-    .supportSave()
-    .supportTrackChanges('name')
-    .supportAreValidQuery('name')
+    .decorateWithSave()
+    .decorateWithTrackChanges('name')
+    .decorateWithAreValidQuery('name')
     .doneConfiguring();
 UserGroups.newObject = (doc, by) => {
     let self = this;

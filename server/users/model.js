@@ -46,16 +46,16 @@ var Users = (new ModelBuilder())
     }))
     .addIndex([{email: 1}, {unique: true}])
     .addIndex([{email: 1, organisation: 1}, {unique: true}])
-    .supportInsertAndAudit('email', 'signup')
-    .supportSoftDeletes()
-    .supportUpdates([
+    .decorateWithInsertAndAudit('email', 'signup')
+    .decorateWithSoftDeletes()
+    .decorateWithUpdates([
         'isActive',
         'roles',
         'password'
     ], [], 'updateUser')
-    .supportSave()
-    .supportTrackChanges('email')
-    .supportAreValidQuery('email')
+    .decorateWithSave()
+    .decorateWithTrackChanges('email')
+    .decorateWithAreValidQuery('email')
     .doneConfiguring();
 Users.prototype.hasPermissionsTo = (performAction, onObject) => {
     let self = this;

@@ -21,7 +21,7 @@ var Preferences = (new ModelBuilder())
         }),
         locale: Joi.string().only('en', 'hi')
     }))
-    .supportUpdates([
+    .decorateWithUpdates([
         'preferences.notifications.blogs.inapp.frequency',
         'preferences.notifications.blogs.inapp.lastSent',
         'preferences.notifications.blogs.email.frequency',

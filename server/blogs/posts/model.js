@@ -42,9 +42,9 @@ var Posts = (new ModelBuilder())
     .addIndex([{organisation: 1, title: 1, blogId: 1, publishedOn: 1}])
     .addIndex([{tags: 1}])
     .addIndex([{state: 1, publishedOn: 1}])
-    .supportInsertAndAudit('_id', 'create')
-    .supportSoftDeletes()
-    .supportUpdates([
+    .decorateWithInsertAndAudit('_id', 'create')
+    .decorateWithSoftDeletes()
+    .decorateWithUpdates([
         'isActive',
         'state',
         'category',
@@ -56,8 +56,8 @@ var Posts = (new ModelBuilder())
         'tags',
         'attachments'
     ], 'updatePost')
-    .supportSave()
-    .supportTrackChanges()
+    .decorateWithSave()
+    .decorateWithTrackChanges()
     .doneConfiguring();
 Posts.newObject = (doc, by) => {
     var self = this;

@@ -36,11 +36,11 @@ var Blogs = (new ModelBuilder())
     }))
     .addIndex([{title: 1, organisation: 1}, {unique: true}])
     .addIndex([{description: 1}])
-    .supportInsertAndAudit('title', 'create')
-    .supportSave()
-    .supportSoftDeletes()
-    .supportTrackChanges('title')
-    .supportUpdates([
+    .decorateWithInsertAndAudit('title', 'create')
+    .decorateWithSave()
+    .decorateWithSoftDeletes()
+    .decorateWithTrackChanges('title')
+    .decorateWithUpdates([
         'isActive',
         'description',
         'needsReview',

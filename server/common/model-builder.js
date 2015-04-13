@@ -8,72 +8,72 @@ let SoftDelete = require('./mixins/soft-delete');
 let Update = require('./mixins/update');
 let I18N = require('./mixins/i18n');
 let AreValid = require('./mixins/exist');
-var ModelFactory = function ModelFactory () {
+var ModelBuilder = function ModelBuilder () {
 };
-ModelFactory.prototype.virtualModel = (model) => {
+ModelBuilder.prototype.virtualModel = (model) => {
     this.model = model;
     return this;
 };
-ModelFactory.prototype.onModel = (model) => {
+ModelBuilder.prototype.onModel = (model) => {
     this.model = model;
     _.extend(this.model, Model);
     return this;
 };
-ModelFactory.prototype.extendVirtualModel = (fromVirtualModel) => {
-    _.extend(this.model, _.omit(fromVirtualModel, ['schema']));
+ModelBuilder.prototype.extendVirtualModel = (fromVirtualModel) => {
+    _.extend(this.model, _.omit(fromVirtualModel, ['schema', 'create']));
     _.extend(this.model.prototype, fromVirtualModel.prototype);
     return this;
 };
-ModelFactory.prototype.extendModel = (fromModel) => {
+ModelBuilder.prototype.extendModel = (fromModel) => {
     _.extend(this.model, _.omit(fromModel, ['create', 'newObject', 'collection', 'schema', 'indexes']));
-    _.extend(this.model.prototype, _.omit(fromModel, ['insertAndAudit', 'save', 'trackChanges']));
+    _.extend(this.model.prototype, _.omit(fromModel.prototype, ['insertAndAudit', 'save', 'trackChanges']));
     return this;
 };
-ModelFactory.prototype.inMongoCollection = (collection) => {
+ModelBuilder.prototype.inMongoCollection = (collection) => {
     this.model.collection = collection;
     return this;
 };
-ModelFactory.prototype.usingSchema = (schema) => {
+ModelBuilder.prototype.usingSchema = (schema) => {
     this.model.schema = schema;
     return this;
 };
-ModelFactory.prototype.addIndex = (index) => {
+ModelBuilder.prototype.addIndex = (index) => {
     if (!this.model.indexes) {
         this.model.indexes = [];
     }
     this.model.indexes.push(index);
     return this;
 };
-ModelFactory.prototype.supportInsertAndAudit = (idToUse, action) => {
+ModelBuilder.prototype.decorateWithInsertAndAudit = (idToUse, action) => {
     _.extend(this.model, new Insert(idToUse, action));
     return this;
 };
-ModelFactory.prototype.supportSave = () => {
+ModelBuilder.prototype.decorateWithSave = () => {
     _.extend(this.model.prototype, new Save(this.model));
     return this;
 };
-ModelFactory.prototype.supportTrackChanges = (idToUse) => {
+ModelBuilder.prototype.decorateWithTrackChanges = (idToUse) => {
     _.extend(this.model.prototype, new TrackChanges(this.model.collection, idToUse ? idToUse : '_id'));
     return this;
 };
-ModelFactory.prototype.supportSoftDeletes = () => {
+ModelBuilder.prototype.decorateWithSoftDeletes = () => {
     _.extend(this.model.prototype, new SoftDelete());
     return this;
 };
-ModelFactory.prototype.supportUpdates = (properties, lists, updateMethod, affectedRole, needsApproval) => {
+ModelBuilder.prototype.decorateWithUpdates = (properties, lists, updateMethod, affectedRole, needsApproval) => {
     updateMethod = updateMethod ? updateMethod : 'update';
     _.extend(this.model.prototype, new Update(properties, lists, updateMethod, affectedRole, needsApproval));
     return this;
 };
-ModelFactory.prototype.supportI18N = (fields) => {
+ModelBuilder.prototype.decorateWithI18N = (fields) => {
     _.extend(this.model.prototype, new I18N(fields));
     return this;
 };
-ModelFactory.prototype.supportAreValidQuery = (field) => {
+ModelBuilder.prototype.decorateWithAreValidQuery = (field) => {
     _.extend(this.model, new AreValid(field));
     return this;
 };
-ModelFactory.prototype.doneConfiguring = () => {
+ModelBuilder.prototype.doneConfiguring = () => {
     return this.model;
 };
-module.exports = ModelFactory;
+module.exports = ModelBuilder;

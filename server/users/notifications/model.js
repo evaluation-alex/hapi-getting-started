@@ -31,14 +31,14 @@ var Notifications = (new ModelBuilder())
     }))
     .addIndex([{objectType: 1, objectId: 1, state: 1, action: 1}])
     .addIndex([{email: 1, objectType: 1, objectId: 1, createdOn: 1}])
-    .supportSoftDeletes()
-    .supportUpdates([
+    .decorateWithSoftDeletes()
+    .decorateWithUpdates([
         'state',
         'isActive'
     ], [])
-    .supportSave()
-    .supportTrackChanges()
-    .supportI18N(['title', 'content'])
+    .decorateWithSave()
+    .decorateWithTrackChanges()
+    .decorateWithI18N(['title', 'content'])
     .doneConfiguring();
 Notifications.create = (email, organisation, objectType, objectId, title, state, action, priority, content, by) => {
     let self = this;

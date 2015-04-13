@@ -2,6 +2,7 @@
 let Path = require('path');
 let Model = require('./../model');
 let _ = require('lodash');
+let Promise = require('bluebird');
 module.exports.register = (server, options, next) => {
     let loadedModels = {};
     _.forIn(options.models, (file, model) => {

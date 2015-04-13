@@ -71,6 +71,13 @@ describe('Handlers and Mixins', () => {
         let request = {
             pre: {
                 test: 'something'
+            },
+            auth: {
+                credentials: {
+                    user: {
+                        email: 'test'
+                    }
+                }
             }
         };
         let reply = (args) => {

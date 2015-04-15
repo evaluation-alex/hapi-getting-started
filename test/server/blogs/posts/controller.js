@@ -26,7 +26,7 @@ describe('Posts', () => {
     let blogsToClear = [];
     let postsToClear = [];
     let groupsToClear = [];
-    before((done) => {
+    before({timeout: 60000000}, (done) => {
         tu.setupServer()
             .then((res) => {
                 server = res.server;

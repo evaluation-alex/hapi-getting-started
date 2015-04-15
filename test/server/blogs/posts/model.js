@@ -20,7 +20,7 @@ describe('Posts Model', () => {
     let blogsToClear = [];
     let userGroupsToClear = [];
     let blogId = Posts.ObjectId('54ec3cdbb25155f40ce6107e');
-    before((done) => {
+    before({timeout: 60000000}, (done) => {
         tu.setupRolesAndUsers()
             .then(() => {
                 done();

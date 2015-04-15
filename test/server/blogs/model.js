@@ -17,7 +17,7 @@ let expect = Code.expect;
 describe('Blogs Model', () => {
     let blogsToClear = [];
     let groupsToClear = [];
-    before((done) => {
+    before({timeout: 60000000}, (done) => {
         tu.setupRolesAndUsers()
             .then(() => {
                 done();

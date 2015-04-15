@@ -14,7 +14,7 @@ describe('Audit', () => {
     let authheader = '';
     let server = null;
     let emails = [];
-    before((done) => {
+    before({timeout: 60000000}, (done) => {
         tu.setupServer()
             .then((res) => {
                 server = res.server;

@@ -2,7 +2,6 @@
 let Boom = require('boom');
 let logger = require('./../../config').logger;
 let statsd = require('./../../config').statsd;
-let traverse = require('traverse');
 let _ = require('lodash');
 let moment = require('moment');
 let Bcrypt = require('bcrypt');
@@ -40,7 +39,7 @@ module.exports.ip = (request) => {
     return ret === '' ? 'test' : ret;
 };
 module.exports.locale = (request) => {
-    var ret = traverse(request).get(['auth', 'credentials', 'user', 'preferences', 'locale']);
+    var ret = _.get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
     //TODO: if not found in user prefs, figure out from request headers - tbd
     return ret ? ret : 'en';
 };

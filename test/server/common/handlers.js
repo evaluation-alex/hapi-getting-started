@@ -3,9 +3,8 @@ let relativeToServer = './../../../server/';
 let CreateHandler = require(relativeToServer + 'common/handlers/create');
 let FindHandler = require(relativeToServer + 'common/handlers/find');
 let FindOneHandler = require(relativeToServer + 'common/handlers/find-one');
-let InsertAndAudit = require(relativeToServer + 'common/mixins/insert');
+let insertAndAudit = require(relativeToServer + 'common/mixins/insert');
 let Promise = require('bluebird');
-let _ = require('lodash');
 let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
@@ -99,7 +98,7 @@ describe('Handlers and Mixins', () => {
             },
             collection: 'test'
         };
-        _.extend(obj, new InsertAndAudit('_id', 'create'));
+        insertAndAudit(obj, '_id', 'create');
         obj.insertAndAudit({test: 'error'})
             .catch((err) => {
                 expect(err).to.exist();

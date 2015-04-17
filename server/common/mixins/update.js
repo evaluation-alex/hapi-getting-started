@@ -1,15 +1,14 @@
 'use strict';
 let _ = require('lodash');
-let traverse = require('traverse');
 let utils = require('./../utils');
 let decorateWithSetMethods = (onObject, properties) => {
     _.forEach(properties, (p) => {
         onObject[p.method] = (newValue, by) => {
             let self = this;
-            let origval = traverse(self).get(p.path);
+            let origval = _.get(self, p.path);
             if (!_.isUndefined(newValue) && !_.isEqual(origval, newValue)) {
                 self.trackChanges(p.name, origval, newValue, by);
-                traverse(self).set(p.path, newValue);
+                _.set(self, p.path, newValue);
             }
             return self;
         };
@@ -18,15 +17,15 @@ let decorateWithSetMethods = (onObject, properties) => {
 let decorateWithIsPresentIn = (onObject, path, methodSuffix) => {
     onObject['isPresentIn' + methodSuffix] = (toCheck) => {
         var self = this;
-        return !!_.find(traverse(self).get(path), (o) => _.isEqual(o, toCheck));
+        return !!_.find(_.get(self, path), _.matches(toCheck));
     };
 };
 let decorateWithAdd = (onObject, role, path, methodName) => {
     onObject[methodName] = (toAdd, by) => {
         let self = this;
-        let list = traverse(self).get(path);
+        let list = _.get(self, path);
         _.forEach(toAdd, (memberToAdd) => {
-            let found = _.find(list, (o) => _.isEqual(o, memberToAdd));
+            let found = _.find(list, _.matches(memberToAdd));
             if (!found) {
                 list.push(memberToAdd);
                 self.trackChanges('add ' + role, null, memberToAdd, by);
@@ -38,9 +37,9 @@ let decorateWithAdd = (onObject, role, path, methodName) => {
 let decorateWithRemove = (onObject, role, path, methodName) => {
     onObject[methodName] = (toRemove, by) => {
         let self = this;
-        let list = traverse(self).get(path);
+        let list = _.get(self, path);
         _.forEach(toRemove, (memberToRemove) => {
-            let removed = _.remove(list, (o) => _.isEqual(o, memberToRemove));
+            let removed = _.remove(list, _.matches(memberToRemove));
             if (utils.hasItems(removed)) {
                 self.trackChanges('remove ' + role, memberToRemove, null, by);
             }
@@ -88,17 +87,17 @@ let decorateWithUpdate = (onObject, props, arrs, update) => {
     onObject[update] = (doc, by) => {
         let self = this;
         _.forEach(props, (p) => {
-            let u = traverse(doc.payload).get(p.path);
+            let u = _.get(doc.payload, p.path);
             if (!_.isUndefined(u)) {
                 self[p.method](u, by);
             }
         });
         _.forEach(arrs, (arr) => {
-            let r = traverse(doc.payload).get(arr.removed);
+            let r = _.get(doc.payload, arr.removed);
             if (!_.isUndefined(r) && utils.hasItems(r)) {
                 self[arr.removeMethod](r, by);
             }
-            let a = traverse(doc.payload).get(arr.added);
+            let a = _.get(doc.payload, arr.added);
             if (!_.isUndefined(a) && utils.hasItems(a)) {
                 self[arr.addMethod](a, by);
             }
@@ -118,28 +117,27 @@ let decorateWithJoinApproveRejectLeave = (onObject, affectedRole, needsApproval)
     };
     onObject.approve = (doc, by) => {
         let self = this;
-        self['add' + affectedRoleMethodSuffix](traverse(doc.payload).get(toAdd), by);
-        self['remove' + needsApprovalMethodSuffix](traverse(doc.payload).get(toAdd), by);
+        self['add' + affectedRoleMethodSuffix](_.get(doc.payload, toAdd), by);
+        self['remove' + needsApprovalMethodSuffix](_.get(doc.payload, toAdd), by);
         return self;
     };
     onObject.reject = (doc, by) => {
         let self = this;
-        return self['remove' + needsApprovalMethodSuffix](traverse(doc.payload).get(toAdd), by);
+        return self['remove' + needsApprovalMethodSuffix](_.get(doc.payload, toAdd), by);
     };
     onObject.leave = (doc, by) => {
         let self = this;
         return self['remove' + affectedRoleMethodSuffix]([by], by);
     };
 };
-module.exports = function Update (properties, lists, updateMethodName, affectedRole, needsApproval) {
-    let ret = {};
+module.exports = function decorateWithUpdateMethods (Model, properties, lists, updateMethodName, affectedRole, needsApproval) {
     let props = propDescriptors(properties);
     let arrs = arrDescriptors(lists);
-    decorateWithSetMethods(ret, props);
-    decorateWithArrMethods(ret, arrs);
-    decorateWithUpdate(ret, props, arrs, updateMethodName);
+    decorateWithSetMethods(Model, props);
+    decorateWithArrMethods(Model, arrs);
+    decorateWithUpdate(Model, props, arrs, updateMethodName);
     if (affectedRole) {
-        decorateWithJoinApproveRejectLeave(ret, affectedRole, needsApproval);
+        decorateWithJoinApproveRejectLeave(Model, affectedRole, needsApproval);
     }
-    return ret;
+    return Model;
 };

@@ -67,6 +67,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
     .then((results) => fromStdIn(results, 'port', 'port: ', {'default': 3000}))
     .then((results) => fromStdIn(results, 'logdir', 'log directory: ', {'default': './logs'}))
     .then((results) => fromStdIn(results, 'logMetrics', 'capture metrics: ', {'default': true}))
+    .then((results) => fromStdIn(results, 'diskStoragePath', 'disk storage path: ', {'default': './'}))
     .then((results) => fromStdIn(results, 'statsdhost', 'statsd host: ', {'default': '127.0.0.1'}))
     .then((results) => fromStdIn(results, 'statsdport', 'statsd port: ', {'default': 8125}))
     .then((results) => fromStdIn(results, 'statsdport', 'statsd port: ', {'default': 8125}))

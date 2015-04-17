@@ -3,7 +3,6 @@ let Glue = require('glue');
 let _ = require('lodash');
 let Path = require('path');
 let Promise = require('bluebird');
-
 module.exports = (Manifest) => {
     return new Promise((resolve, reject) => {
         Glue.compose(Manifest.manifest, {relativeTo: __dirname + '/../../'}, (err, server1) => {

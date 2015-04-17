@@ -50,7 +50,7 @@ module.exports.setupRolesAndUsers = () => {
 };
 module.exports.findAndLogin = (user, roles) => {
     return Users.findOne({email: user})
-        .then((foundUser) => roles ?  foundUser.setRoles(roles, 'test') : foundUser)
+        .then((foundUser) => roles ? foundUser.setRoles(roles, 'test') : foundUser)
         .then((foundUser) => foundUser.loginSuccess('test', 'test').save())
         .then((loggedin) => {
             return {user: loggedin, authheader: module.exports.authorizationHeader(loggedin)};
@@ -81,22 +81,22 @@ let cleanupBlogs = Promise.method((blogsToCleanup) =>
         utils.hasItems(blogsToCleanup) ? Blogs.remove({title: {$in: blogsToCleanup}}) : true
 );
 let cleanupPosts = Promise.method((postsToCleanup) =>
-    utils.hasItems(postsToCleanup) ? Posts.remove({title: {$in: postsToCleanup}}) : true
+        utils.hasItems(postsToCleanup) ? Posts.remove({title: {$in: postsToCleanup}}) : true
 );
 let cleanupNotifications = Promise.method((toClear) => {
     let notificationsToCleanup = _.flatten(_.map(['userGroups', 'blogs', 'posts'], (a) => _.map(toClear[a], (i) => new RegExp(i, 'g'))));
     utils.hasItems(notificationsToCleanup) ? Notifications.remove({
-            $or: [
-                {'title.1.title': {$in: notificationsToCleanup}},
-                {'title.1.postTitle': {$in: notificationsToCleanup}},
-                {'title.1.name': {$in: notificationsToCleanup}}
-            ]
-        }) : true;
+        $or: [
+            {'title.1.title': {$in: notificationsToCleanup}},
+            {'title.1.postTitle': {$in: notificationsToCleanup}},
+            {'title.1.name': {$in: notificationsToCleanup}}
+        ]
+    }) : true;
 });
 module.exports.cleanupAudit = () => Audit.remove({});
 module.exports.cleanupAuthAttempts = () => AuthAttempts.remove({});
 module.exports.cleanupRoles = Promise.method((roles) =>
-    utils.hasItems(roles) ? Roles.remove({name: {$in: roles}}) : true
+        utils.hasItems(roles) ? Roles.remove({name: {$in: roles}}) : true
 );
 module.exports.cleanup = (toClear, cb) => {
     Promise.join(cleanupUsers(toClear.users),

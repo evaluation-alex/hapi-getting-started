@@ -7,7 +7,6 @@ let _ = require('lodash');
 let utils = require('./../../common/utils');
 let errors = require('./../../common/errors');
 let Promise = require('bluebird');
-let PostContent = require('./post-content');
 var Posts = (new ModelBuilder())
     .onModel(function Posts (attrs) {
         _.assign(this, attrs);
@@ -30,6 +29,8 @@ var Posts = (new ModelBuilder())
         category: Joi.string(),
         tags: Joi.array().items(Joi.string()).unique(),
         attachments: Joi.array().items(Joi.object()).unique(),
+        contentType: Joi.string(),
+        content: Joi.object(),
         publishedBy: Joi.string(),
         publishedOn: Joi.date(),
         reviewedBy: Joi.string(),
@@ -52,7 +53,8 @@ var Posts = (new ModelBuilder())
         'title',
         'access',
         'allowComments',
-        'needsReview'
+        'needsReview',
+        'content'
     ], [
         'tags',
         'attachments'
@@ -72,10 +74,11 @@ Posts.newObject = (doc, by) => {
         doc.payload.category,
         doc.payload.tags,
         doc.payload.attachments,
-        by)
-        .then((post) => post.writeContent(doc.payload.content));
+        doc.payload.contentType || 'post',
+        doc.payload.content,
+        by);
 };
-Posts.create = (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by) => {
+Posts.create = (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, contentType, content, by) => {
     let self = this;
     let now = new Date();
     let document = {
@@ -89,6 +92,8 @@ Posts.create = (blogId, organisation, title, state, access, allowComments, needs
         category: category,
         tags: tags,
         attachments: attachments,
+        contentType: contentType,
+        content: content,
         publishedBy: by,
         publishedOn: state === 'published' ? now : null,
         reviewedBy: state === 'published' ? by : null,
@@ -104,14 +109,10 @@ Posts.create = (blogId, organisation, title, state, access, allowComments, needs
 Posts.prototype.update = (doc, by) => {
     var self = this;
     if (self.state !== 'archived') {
-        return self.writeContent(doc.payload.content).updatePost(doc, by);
+        return self.updatePost(doc, by);
     } else {
         return Promise.reject(new errors.ArchivedPostUpdateError());
     }
-};
-Posts.prototype.writeContent = (content) => {
-    var self = this;
-    return PostContent.writeContent(self, content);
 };
 Posts.prototype.populate = (user) => {
     var self = this;
@@ -147,13 +148,7 @@ Posts.prototype.populate = (user) => {
             return res.canSee;
         })
         .then((canSee) => {
-            if (canSee) {
-                return PostContent.readContent(self)
-                    .then((content) => {
-                        self.content = content;
-                        return self;
-                    });
-            } else {
+            if (!canSee) {
                 self.content = 'restricted because you are not an owner, contributor or subscriber to this blog and it is not a public post';
             }
             return self;

@@ -30,7 +30,7 @@ describe('Posts Model', () => {
         it('should create a new document and audit entry when it succeeds', (done) => {
             let error = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'newPost', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'newPost', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing'], [], 'post', 'content', 'test')
                 .then((post) => {
                     expect(post).to.exist();
                     expect(post).to.be.instanceof(Posts);
@@ -55,8 +55,8 @@ describe('Posts Model', () => {
         let activated = null, deactivated = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            let p1 = Posts.create(blogId, 'silver lining', 'activate', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'activate'], [], 'test');
-            let p2 = Posts.create(blogId, 'silver lining', 'deactivate', 'published', 'public', true, true, 'testing', ['testing', 'unit testing', 'deactivate'], [], 'test');
+            let p1 = Posts.create(blogId, 'silver lining', 'activate', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'activate'], [], 'post', 'content', 'test');
+            let p2 = Posts.create(blogId, 'silver lining', 'deactivate', 'published', 'public', true, true, 'testing', ['testing', 'unit testing', 'deactivate'], [], 'post', 'content', 'test');
             Promise.join(p1, p2, (p11, p12) => {
                 activated = p11;
                 deactivated = p12;
@@ -138,7 +138,7 @@ describe('Posts Model', () => {
         let testpost = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.updateTitle', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setTitle'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'post.updateTitle', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setTitle'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
                     done();
@@ -191,7 +191,7 @@ describe('Posts Model', () => {
         let testpost = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.setCategory', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'post.setCategory', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
                     done();
@@ -243,7 +243,7 @@ describe('Posts Model', () => {
         let testpost = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.setAccess', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'post.setAccess', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setAccess'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
                     done();
@@ -295,7 +295,7 @@ describe('Posts Model', () => {
         let testpost = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.setAllowComments', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'post.setAllowComments', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setAllowComments'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
                     done();
@@ -347,7 +347,7 @@ describe('Posts Model', () => {
         let testpost = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            testpost = Posts.create(blogId, 'silver lining', 'post.needsReview', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setCategory'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'post.needsReview', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'setNeedsReview'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
                     done();
@@ -398,8 +398,8 @@ describe('Posts Model', () => {
     describe('Posts.this.addTags', () => {
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            let p1 = Posts.create(blogId, 'silver lining', 'addTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], [], 'test');
-            let p2 = Posts.create(blogId, 'silver lining', 'addTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], [], 'test');
+            let p1 = Posts.create(blogId, 'silver lining', 'addTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], [], 'post', 'content', 'test');
+            let p2 = Posts.create(blogId, 'silver lining', 'addTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], [], 'post', 'content', 'test');
             Promise.join(p1, p2).then(() => {
                 done();
             });
@@ -456,8 +456,8 @@ describe('Posts Model', () => {
     describe('Posts.this.removeTags', () => {
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            let p1 = Posts.create(blogId, 'silver lining', 'removeTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], [], 'test');
-            let p2 = Posts.create(blogId, 'silver lining', 'removeTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], [], 'test');
+            let p1 = Posts.create(blogId, 'silver lining', 'removeTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], [], 'post', 'content', 'test');
+            let p2 = Posts.create(blogId, 'silver lining', 'removeTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], [], 'post', 'content', 'test');
             Promise.join(p1, p2).then(() => {
                 done();
             });
@@ -518,10 +518,7 @@ describe('Posts Model', () => {
                     return b.removeOwners(['test'], 'test').removeContributors(['test'], 'test').removeSubscribers(['test'], 'test').removeSubscriberGroups(['test'], 'test').save();
                 })
                 .then((b) => {
-                    return Posts.create(b._id, 'silver lining', 'test post.populate', 'published', 'public', false, false, 'testing', ['testing', 'populate'], [], 'test');
-                })
-                .then((p) => {
-                    return p.writeContent('i have something to offer');
+                    return Posts.create(b._id, 'silver lining', 'test post.populate', 'published', 'public', false, false, 'testing', ['testing', 'populate'], [], 'post', 'i have something to offer', 'test');
                 })
                 .then(() => {
                     return UserGroups.create('test post.populate', 'silver lining', 'test posts.populate', 'by');
@@ -537,7 +534,6 @@ describe('Posts Model', () => {
             let error = null;
             Posts.findOne({title: 'test post.populate'})
                 .then((post) => {
-                    post.content = undefined;
                     return post.setAccess('public').save();
                 })
                 .then((p) => {
@@ -564,7 +560,6 @@ describe('Posts Model', () => {
                     return Posts.findOne({title: 'test post.populate'});
                 })
                 .then((post) => {
-                    post.content = undefined;
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
@@ -591,7 +586,6 @@ describe('Posts Model', () => {
                     return Posts.findOne({title: 'test post.populate'});
                 })
                 .then((post) => {
-                    post.content = undefined;
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
@@ -618,7 +612,6 @@ describe('Posts Model', () => {
                     return Posts.findOne({title: 'test post.populate'});
                 })
                 .then((post) => {
-                    post.content = undefined;
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
@@ -645,7 +638,6 @@ describe('Posts Model', () => {
                     return Posts.findOne({title: 'test post.populate'});
                 })
                 .then((post) => {
-                    post.content = undefined;
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
@@ -672,7 +664,6 @@ describe('Posts Model', () => {
                     return Posts.findOne({title: 'test post.populate'});
                 })
                 .then((post) => {
-                    post.content = undefined;
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
@@ -699,7 +690,6 @@ describe('Posts Model', () => {
                     return Posts.findOne({title: 'test post.populate'});
                 })
                 .then((post) => {
-                    post.content = undefined;
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {

@@ -4,10 +4,7 @@ let UserGroups = require(relativeToServer + 'user-groups/model');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let Blogs = require(relativeToServer + 'blogs/model');
 let Posts = require(relativeToServer + 'blogs/posts/model');
-let PostContent = require(relativeToServer + 'blogs/posts/post-content');
 let Audit = require(relativeToServer + 'audit/model');
-let Config = require(relativeToServer + '../config');
-let fs = require('fs');
 let _ = require('lodash');
 let moment = require('moment');
 let Promise = require('bluebird');
@@ -51,9 +48,9 @@ describe('Posts', () => {
                     let b2 = b[1];
                     blogId = b1._id;
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-                    let p1 = Posts.create(b1._id, 'silver lining', 'searchByTitle', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
-                    let p2 = Posts.create(b1._id, 'silver lining', 'searchByTitle2', 'published', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
-                    let p3 = Posts.create(b2._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, 'testing', ['testing', 'search testing'], [], 'test');
+                    let p1 = Posts.create(b1._id, 'silver lining', 'searchByTitle', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'post', 'p[0]', 'test');
+                    let p2 = Posts.create(b1._id, 'silver lining', 'searchByTitle2', 'published', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'post', 'p[1]', 'test');
+                    let p3 = Posts.create(b2._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, 'testing', ['testing', 'search testing'], [], 'post', 'p[2]', 'test');
                     return Promise.join(p1, p2, p3);
                 })
                 .then((p) => {
@@ -64,14 +61,9 @@ describe('Posts', () => {
                     pubDt.setFullYear(2015, 1, 14);
                     p3.publishedOn = pubDt;
                     p2.isActive = false;
-                    return Promise.join(p1.save(), p2.save(), p3.save(), (p1, p2, p3) => {
-                        PostContent.writeContent(p1, 'p[0]');
-                        PostContent.writeContent(p2, 'p[1]');
-                        PostContent.writeContent(p3, 'p[2]');
+                    return Promise.join(p1.save(), p2.save(), p3.save(), () => {
+                        done();
                     });
-                })
-                .then(() => {
-                    done();
                 })
                 .catch((err) => {
                     done(err);
@@ -270,11 +262,10 @@ describe('Posts', () => {
                 .then((b) => {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-                    return Posts.create(b._id, 'silver lining', 'GET /posts/{id}', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'test');
+                    return Posts.create(b._id, 'silver lining', 'GET /posts/{id}', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'post', 'something to say, something to listen', 'test');
                 })
                 .then((p) => {
                     id = p._id.toString();
-                    PostContent.writeContent(p, 'something to say, something to listen');
                     done();
                 })
                 .catch((err) => {
@@ -301,7 +292,6 @@ describe('Posts', () => {
             });
         });
         it('should only send back post with the id, blogId in params', (done) => {
-            PostContent.resetCache();
             let request = {
                 method: 'GET',
                 url: '/blogs/' + blogId + '/posts/' + id,
@@ -368,7 +358,7 @@ describe('Posts', () => {
                 .then((b) => {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-                    return Posts.create(blogId, 'silver lining', 'test PUT', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test');
+                    return Posts.create(blogId, 'silver lining', 'test PUT', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'post', 'content', 'test');
                 })
                 .then((p) => {
                     postId = p._id.toString();
@@ -555,13 +545,17 @@ describe('Posts', () => {
                     expect(response.statusCode).to.equal(200);
                     Posts.find({_id: Posts.ObjectID(postId)})
                         .then((found) => {
-                            let filename = PostContent.filenameForPost(found[0]);
-                            let timeout = setTimeout(() => {
-                                expect(fs.existsSync(Config.storage.diskPath + '/' + filename)).to.be.true();
-                                expect(fs.readFileSync(Config.storage.diskPath + '/' + filename, {}).toString()).to.equal('updated');
-                                done();
-                                clearTimeout(timeout);
-                            }, 1000);
+                            expect(found[0].content).to.equal('updated');
+                            return Audit.findAudit('posts', found[0]._id, {by: 'root'});
+                        })
+                        .then((foundAudit) => {
+                            expect(foundAudit).to.exist();
+                            expect(foundAudit.length).to.equal(1);
+                            expect(foundAudit[0].change[0].action).to.match(/content/);
+                        })
+                        .then(() => {
+                            tu.cleanupAudit();
+                            done();
                         });
                 } catch (err) {
                     done(err);
@@ -660,7 +654,7 @@ describe('Posts', () => {
         });
         it('should publish draft / pending review posts', (done) => {
             let postId = null;
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return tu.findAndLogin('one@first.com');
@@ -722,7 +716,7 @@ describe('Posts', () => {
         });
         it('should allow root to publish draft / pending review posts', (done) => {
             let postId = null;
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return tu.findAndLogin('root');
@@ -785,7 +779,7 @@ describe('Posts', () => {
         it('should fail to publish draft / pending review posts if user is not an owner/contributor of the blog', (done) => {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -825,7 +819,7 @@ describe('Posts', () => {
         it('should move draft to pending review posts if user is contributor, but not owner of the blog', (done) => {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -886,7 +880,7 @@ describe('Posts', () => {
         it('should move draft to published posts if user is contributor, and needsReview is false', (done) => {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, false, 'testing put', ['testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, false, 'testing put', ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -947,7 +941,7 @@ describe('Posts', () => {
         it('should do nothing if the post is already published / archived', (done) => {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'archived', 'restricted', true, true, 'testing put', ['testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'test PUT publish', 'archived', 'restricted', true, true, 'testing put', ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -1012,7 +1006,7 @@ describe('Posts', () => {
         });
         it('should update reject draft / pending review posts and cancel review notifications', (done) => {
             let postId = null;
-            Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
@@ -1073,7 +1067,7 @@ describe('Posts', () => {
         });
         it('should fail reject draft / pending review posts if user is not an owner of the blog', (done) => {
             let postId = null;
-            Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -1113,7 +1107,7 @@ describe('Posts', () => {
         });
         it('should do nothing if the post is already published / archived', (done) => {
             let postId = null;
-            Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -1176,7 +1170,7 @@ describe('Posts', () => {
         });
         it('should send back conflict when you try to create a post with a title that you just created', (done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'test POST unique', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'test')
+            Posts.create(blogId, 'silver lining', 'test POST unique', 'draft', 'public', true, true, 'testing put', ['testing'], [], 'post', 'content', 'test')
                 .then(() => {
                     let request = {
                         method: 'POST',
@@ -1275,12 +1269,7 @@ describe('Posts', () => {
                                 .then((found) => {
                                     expect(found.length).to.equal(1);
                                     expect(found[0].state).to.equal('published');
-                                    let filename = PostContent.filenameForPost(found[0]);
-                                    let timeout = setTimeout(() => {
-                                        expect(fs.existsSync(Config.storage.diskPath + '/' + filename)).to.be.true();
-                                        expect(fs.readFileSync(Config.storage.diskPath + '/' + filename, {}).toString()).to.equal('something. anything will do.');
-                                        clearTimeout(timeout);
-                                    }, 1000);
+                                    expect(found[0].content).to.equal('something. anything will do.');
                                 })
                                 .then(() => {
                                     tu.cleanupAudit();
@@ -1324,6 +1313,7 @@ describe('Posts', () => {
                             Posts.find({title: 'test POST needsReview and pending review'})
                                 .then((found) => {
                                     expect(found.length).to.equal(1);
+                                    expect(found[0].content).to.equal('something. anything will do.');
                                     expect(found[0].state).to.equal('pending review');
                                 })
                                 .then(() => {
@@ -1368,6 +1358,7 @@ describe('Posts', () => {
                             Posts.find({title: 'test POST draft'})
                                 .then((found) => {
                                     expect(found.length).to.equal(1);
+                                    expect(found[0].content).to.equal('something. anything will do.');
                                     expect(found[0].state).to.equal('draft');
                                 })
                                 .then(() => {
@@ -1414,6 +1405,7 @@ describe('Posts', () => {
                             Posts.find({title: 'test POST needsReview, owner and published'})
                                 .then((found) => {
                                     expect(found.length).to.equal(1);
+                                    expect(found[0].content).to.equal('something. anything will do.');
                                     expect(found[0].state).to.equal('published');
                                 })
                                 .then(() => {
@@ -1498,14 +1490,13 @@ describe('Posts', () => {
         });
         it('should send back forbidden error when you try to delete a post from a blog you are not an owner of', (done) => {
             let request = {};
-            let authHeader = '';
             let blogId = '';
             let postId = '';
             Blogs.create('testDelPostNotOwner', 'silver lining', 'test DELETE /posts', [], [], [], [], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-                    return Posts.create(b._id, 'silver lining', 'DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, 'testing', ['testing', 'controller testing'], [], 'test');
+                    return Posts.create(b._id, 'silver lining', 'DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, 'testing', ['testing', 'controller testing'], [], 'post', 'content', 'test');
                 })
                 .then((p) => {
                     postId = p._id.toString();
@@ -1541,7 +1532,7 @@ describe('Posts', () => {
                 .then((b) => {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-                    return Posts.create(b._id, 'silver lining', 'success DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, 'testing', ['testing', 'controller testing'], [], 'test');
+                    return Posts.create(b._id, 'silver lining', 'success DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, 'testing', ['testing', 'controller testing'], [], 'post', 'content', 'test');
                 })
                 .then((p) => {
                     postId = p._id.toString();
@@ -1561,7 +1552,7 @@ describe('Posts', () => {
                             expect(response.statusCode).to.equal(200);
                             Posts.find({_id: Posts.ObjectID(postId)})
                                 .then((p) => {
-                                    expect(p[0].isActive).to.be.false;
+                                    expect(p[0].isActive).to.be.false();
                                     return Audit.findAudit('posts', p[0]._id, {by: 'one@first.com'});
                                 })
                                 .then((a) => {

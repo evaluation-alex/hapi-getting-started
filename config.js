@@ -4,13 +4,16 @@ let devnull = require('dev-null');
 let Bunyan = require('bunyan');
 var StatsD = require('node-statsd');
 var i18n = require('i18n');
-
 if (!Fs.existsSync('.opts')) {
     console.log('.opts file missing. will exit');
     process.exit(1);
 }
-
+if (!Fs.existsSync('manifest.json')) {
+    console.log('manifest.json file missing. will exit');
+    process.exit(1);
+}
 let args = JSON.parse(Fs.readFileSync('.opts'));
+let manifest = JSON.parse(Fs.readFileSync('manifest.json'));
 let nodemailer = {};
 if (!args.sendemails) {
     nodemailer = {
@@ -25,82 +28,41 @@ if (!args.sendemails) {
         }
     };
 } else {
-    nodemailer = {
-        host: args.mail.host,
-        port: args.mail.port,
-        secure: true,
-        auth: {
-            user: args.mail.user,
-            pass: args.mail.password
-        }
-    };
+    nodemailer = args.nodemailer;
 }
-
-let logOptions = {
-    name: 'main',
-    streams: [{
-        type: 'rotating-file',
-        path: args.logdir + '/' + args.project + '.log',
-        period: '1d',
-        count: 7,
-        name: 'file',
-        level: 'debug'
-    }]
-};
-
-let statsdOptions = {
-    host: args.statsd.host,
-    port: args.statsd.port,
-    mock: !args.statsd.logmetrics
-};
-
-let i18nOptions = {
-    locales: ['en'],
-    defaultLocale: 'en',
-    directory: './i18n'
-};
-
-i18n.configure(i18nOptions);
-
+i18n.configure(args.i18n);
 var config = {
     projectName: args.project,
-    port: args.port,
     authAttempts: {
         forIp: 50,
         forIpAndUser: 7
     },
-    hapiMongoModels: {
-        mongodb: {
-            url: args.mongodburl
-        },
-        autoIndex: true
-    },
     nodemailer: nodemailer,
-    logs: {
-        logDir: args.logdir
-    },
-    logger: Bunyan.createLogger(logOptions),
+    logger: Bunyan.createLogger(args.bunyan),
     system: {
         fromAddress: {
             name: args.project,
-            address: args.mail.user
+            address: args.nodemailer.auth.user
         },
         toAddress: {
             name: args.project,
-            address: args.mail.user
+            address: args.nodemailer.auth.user
         }
     },
     storage: {
         diskPath: args.storage.diskPath
     },
-    statsd: new StatsD(statsdOptions),
-    i18n: i18n
+    statsd: new StatsD(args.statsd),
+    i18n: i18n,
+    manifest: {
+        plugins: manifest.plugins,
+        server: manifest.server
+    }
 };
-if (args.https.tls.key.length > 0 && args.https.tls.cert.length > 0 && Fs.existsSync(args.https.tls.key) && Fs.existsSync(args.https.tls.cert)) {
-    config.tls = {
-        key: Fs.readFileSync(args.https.tls.key),
-        cert: Fs.readFileSync(args.https.tls.cert)
-    };
+if (manifest.connections[0].tls.key.length > 0 && manifest.connections[0].tls.cert.length > 0 && Fs.existsSync(manifest.connections[0].tls.key) && Fs.existsSync(manifest.connections[0].tls.cert)) {
+    manifest.connections[0].tls.key = Fs.readFileSync(manifest.connections[0].tls.key);
+    manifest.connections[0].tls.cert = Fs.readFileSync(manifest.connections[0].tls.cert);
 }
-
+config.manifest.connections = args.connections;
+config.manifest.plugins['hapi-bunyan'].logger = config.logger;
 module.exports = config;

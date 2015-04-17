@@ -6,3 +6,4 @@ logs/*
 npm-debug.log
 .secure/*
 statsd
+manifest.json

@@ -1,7 +1,8 @@
 'use strict';
-var RouteFactory = require('./../common/route-factory');
-var Controller = require('./controller');
-module.exports = (new RouteFactory())
-    .discoverDefaultRoutes('user-groups', Controller)
-    .joinApproveRejectLeaveRoutes('user-groups', Controller)
-    .doneConfiguring();
+module.exports.register = (server, options, next) => {
+    server.route(require('./routes'));
+    next();
+};
+module.exports.register.attributes = {
+    name: 'user-groups'
+};

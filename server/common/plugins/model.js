@@ -4,10 +4,6 @@ let Model = require('./../model');
 let _ = require('lodash');
 let Promise = require('bluebird');
 module.exports.register = (server, options, next) => {
-    let loadedModels = {};
-    _.forIn(options.models, (file, model) => {
-        loadedModels[model] = require(Path.join(process.cwd(), file));
-    });
     let dbconnections = [];
     _.forIn(options.connections, (connectionargs, name) => {
         dbconnections.push(Model.connect(name, connectionargs)
@@ -19,9 +15,12 @@ module.exports.register = (server, options, next) => {
     });
     Promise.all(dbconnections)
         .then(() => {
-            if (options.autoIndex) {
-                return Promise.all(_.map(_.values(loadedModels), (model) => model.ensureIndexes()));
-            }
+            return Promise.all(_.map(options.models, (model) => {
+                let loadedmodel = require(Path.join(process.cwd(), model));
+                if (options.autoIndex) {
+                    return loadedmodel.ensureIndexes();
+                }
+            }));
         })
         .then(() => {
             next();

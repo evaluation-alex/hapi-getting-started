@@ -1,6 +1,6 @@
 'use strict';
 let _ = require('lodash');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let utils = require('./../utils');
 module.exports = function decorateWithAreValid (Model, property) {
     Model.areValid = Promise.method((toCheck, organisation) => {

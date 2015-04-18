@@ -1,7 +1,7 @@
 'use strict';
 let saveChangeHistory = require('./save-change-history');
 let errors = require('./../errors');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 module.exports = function decorateWithInsertAndAudit (Model, idToUse, action) {
     Model.insertAndAudit = (doc) => {
         let self = this;

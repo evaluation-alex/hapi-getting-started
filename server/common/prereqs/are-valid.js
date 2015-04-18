@@ -1,11 +1,11 @@
 'use strict';
 let _ = require('lodash');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let utils = require('./../utils');
 let Users = require('./../../users/model');
 let UserGroups = require('./../../user-groups/model');
 let errors = require('./../errors');
-var areValid = (Model, pldPropToLookup) => {
+let areValid = (Model, pldPropToLookup) => {
     return (request, reply) => {
         let toLookup = [];
         _.forEach(pldPropToLookup, (pldProp) => {

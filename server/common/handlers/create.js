@@ -1,6 +1,6 @@
 'use strict';
 let utils = require('./../utils');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 module.exports = function NewHandler (Model, notify, newCb) {
     /*jshint unused:false*/
     let newObjHook = (request, by) => new Promise((resolve, reject) =>

@@ -10,7 +10,7 @@ let transport = Promise.promisifyAll(Nodemailer.createTransport(Hoek.clone(Confi
 transport.use('compile', markdown({useEmbeddedImages: true}));
 let readFile = Promise.promisify(Fs.readFile);
 let templateCache = {};
-var renderTemplate = Promise.method((template, context) => {
+let renderTemplate = Promise.method((template, context) => {
     context.projectName = Config.projectName;
     if (templateCache[template]) {
         return templateCache[template](context);

@@ -6,7 +6,7 @@ let onlyOwnerAllowed = require('./../../common/prereqs/only-owner');
 let channelSchema = Joi.object().keys({
     frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly')
 });
-var notificationUpdatePrefSchema = Joi.object().keys({
+let notificationUpdatePrefSchema = Joi.object().keys({
     inapp: channelSchema,
     email: channelSchema,
     addedBlocked: Joi.array().items(Joi.object()),

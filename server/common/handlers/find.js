@@ -1,5 +1,5 @@
 'use strict';
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let utils = require('./../utils');
 module.exports = function FindHandler (Model, queryBuilder, findCb) {
     /*jshint unused:false*/

@@ -79,7 +79,7 @@ ControllerFactory.prototype.doneConfiguring = () => {
 };
 ControllerFactory.prototype.newController = (validator, prereqs, uniqueCheck, newCb) => {
     let self = this;
-    var pre = _.flatten([ensurePermissions('update', self.component),
+    let pre = _.flatten([ensurePermissions('update', self.component),
         isUnique(self.model, uniqueCheck),
         prereqs]);
     self.forMethod('new')
@@ -95,7 +95,7 @@ ControllerFactory.prototype.customNewController = (method, validator, uniqueChec
     return self;
 };
 ControllerFactory.prototype.findController = (validator, queryBuilder, findCb) => {
-    var self = this;
+    let self = this;
     validator.query.fields = Joi.string();
     validator.query.sort = Joi.string();
     validator.query.limit = Joi.number().default(20);

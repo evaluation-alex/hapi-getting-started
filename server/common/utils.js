@@ -39,7 +39,7 @@ module.exports.ip = (request) => {
     return ret === '' ? 'test' : ret;
 };
 module.exports.locale = (request) => {
-    var ret = _.get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
+    let ret = _.get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
     //TODO: if not found in user prefs, figure out from request headers - tbd
     return ret ? ret : 'en';
 };

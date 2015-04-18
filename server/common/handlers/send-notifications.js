@@ -1,11 +1,11 @@
 'use strict';
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let Notifications = require('./../../users/notifications/model');
 let utils = require('./../utils');
 module.exports = function SendNotifications (model, notifyCb) {
     return (target, request) => {
         /*jshint unused:false*/
-        var notifyHook = (target, request) => new Promise((resolve, reject) => resolve(notifyCb(target, request)));
+        let notifyHook = (target, request) => new Promise((resolve, reject) => resolve(notifyCb(target, request)));
         /*jshint unused:true*/
         return notifyHook(target, request)
             .then((args) => {

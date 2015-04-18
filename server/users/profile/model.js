@@ -1,7 +1,7 @@
 'use strict';
-var Joi = require('joi');
-var ModelBuilder = require('./../../common/model-builder');
-var addressSchema = Joi.object().keys({
+let Joi = require('joi');
+let ModelBuilder = require('./../../common/model-builder');
+let addressSchema = Joi.object().keys({
     apartment: Joi.string(),
     floorHouseNo: Joi.string(),
     street: Joi.string(),
@@ -73,12 +73,12 @@ var Profile = (new ModelBuilder())
     ], 'updateProfile')
     .doneConfiguring();
 Profile.prototype.resetProfile = () => {
-    var self = this;
+    let self = this;
     self.profile = Profile.create();
     return self;
 };
 Profile.create = () => {
-    var emptyAddress = {
+    let emptyAddress = {
         apartment: '',
         floorHouseNo: '',
         street: '',

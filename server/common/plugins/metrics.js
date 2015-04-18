@@ -11,7 +11,7 @@ let normalizePath = (request) => {
         return request._route.path.slice(1).replace(/\//g, '.').replace(/{/g, '').replace(/}/g, '');
     }
 };
-var gatherPerfStats = (request) => {
+let gatherPerfStats = (request) => {
     let ua = UserAgent.lookup(request.headers['user-agent']);
     const path = normalizePath(request) + '.' + request.method.toUpperCase();
     const statusCode = '.' + request.response.statusCode;

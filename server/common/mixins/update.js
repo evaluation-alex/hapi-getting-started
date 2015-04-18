@@ -16,7 +16,7 @@ let decorateWithSetMethods = (onObject, properties) => {
 };
 let decorateWithIsPresentIn = (onObject, path, methodSuffix) => {
     onObject['isPresentIn' + methodSuffix] = (toCheck) => {
-        var self = this;
+        let self = this;
         return !!_.find(_.get(self, path), _.matches(toCheck));
     };
 };

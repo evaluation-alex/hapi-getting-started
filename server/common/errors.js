@@ -1,7 +1,7 @@
 'use strict';
 let Boom = require('boom');
 let i18n = require('./../../config').i18n;
-var CustomErrorFactory = function CustomErrorFactory (message, name, errorType, phrase) {
+let CustomErrorFactory = function CustomErrorFactory (message, name, errorType, phrase) {
     let CustomError = function CustomError (data) {
         this.message = message;
         this.name = name;

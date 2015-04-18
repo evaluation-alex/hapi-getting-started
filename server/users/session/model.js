@@ -2,7 +2,7 @@
 let Joi = require('joi');
 let _ = require('lodash');
 let Uuid = require('node-uuid');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let moment = require('moment');
 let errors = require('./../../common/errors');
 let utils = require('./../../common/utils');
@@ -65,7 +65,7 @@ Session.findBySessionCredentials = (email, key) => {
             if (!utils.hasItems(user.session)) {
                 return Promise.reject(new errors.UserNotLoggedInError({email: email}));
             }
-            var matchingSession = _.find(user.session, (session) => utils.secureCompare(key, session.key));
+            let matchingSession = _.find(user.session, (session) => utils.secureCompare(key, session.key));
             if (!matchingSession) {
                 return Promise.reject(new errors.SessionCredentialsNotMatchingError({email: email}));
             }

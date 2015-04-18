@@ -7,7 +7,7 @@ let Mailer = require('./../common/plugins/mailer');
 let ControllerFactory = require('./../common/controller-factory');
 let utils = require('./../common/utils');
 let errors = require('./../common/errors');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let onlyOwnerAllowed = require('./../common/prereqs/only-owner');
 var Controller = new ControllerFactory(Users)
     .customNewController('signup', {

@@ -1,8 +1,8 @@
 'use strict';
-var RouteFactory = require('./../../common/route-factory');
-var Controller = require('./controller');
+let RouteFactory = require('./../../common/route-factory');
+let Controller = require('./controller');
 let _ = require('lodash');
-var routeFactory = new RouteFactory();
+let routeFactory = new RouteFactory();
 routeFactory.discoverDefaultRoutes('posts', Controller, '/blogs/{blogId}');
 routeFactory.discoverDefaultRoutes('posts', Controller);
 _.forEach(['publish', 'reject'], (action) => {

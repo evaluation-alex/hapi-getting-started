@@ -1,7 +1,7 @@
 'use strict';
 let Mongodb = require('mongodb');
 let utils = require('./utils');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let _ = require('lodash');
 var Model = function Model () {
 };
@@ -30,7 +30,7 @@ Model.disconnect = (name) => {
     Model.db(name).close();
 };
 Model.ensureIndexes = () => {
-    var self = this;
+    let self = this;
     return Promise.all(_.map(self.indexes, (index) => {
         return new Promise((resolve, reject) => {
             Model.db(self.connection).ensureIndex(self.collection,
@@ -44,7 +44,7 @@ Model.ensureIndexes = () => {
     }));
 };
 Model.cllctn = () => {
-    var self = this;
+    let self = this;
     return Model.db(self.connection).collection(self.collection);
 };
 Model.count = (query) => {

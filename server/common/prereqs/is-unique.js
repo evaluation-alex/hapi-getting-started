@@ -1,5 +1,5 @@
 'use strict';
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let utils = require('./../utils');
 let errors = require('./../errors');
 module.exports = (Model, queryBuilder) => {

@@ -2,7 +2,7 @@
 let ModelBuilder = require('./../../common/model-builder');
 let Joi = require('joi');
 let _ = require('lodash');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 var Notifications = (new ModelBuilder())
     .onModel(function Notifications (attrs) {
         _.assign(this, attrs);

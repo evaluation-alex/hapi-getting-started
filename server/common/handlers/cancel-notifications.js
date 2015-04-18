@@ -1,5 +1,5 @@
 'use strict';
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let Notifications = require('./../../users/notifications/model');
 let _ = require('lodash');
 let utils = require('./../utils');

@@ -1,7 +1,7 @@
 'use strict';
 let _ = require('lodash');
 let utils = require('./../utils');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 module.exports = function UpdateHandler (Model, notify, updateCb) {
     /*jshint unused:false*/
     let updateHook = (u, request, by) =>

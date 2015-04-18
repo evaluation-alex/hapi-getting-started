@@ -76,12 +76,7 @@
     "nomen": false,// true: Prohibit dangling `_` in variables
     "onevar": false,// true: Allow only one `var` statement per function
     "passfail": false,// true: Stop on first error
-    "white": false,// true: Check against strict whitespace and indentation rules
+    "white": false// true: Check against strict whitespace and indentation rules
 
     // Custom Globals
-    "predef": ["-Promise"],       // additional predefined global variables
-
-    "globals": {
-        "Promise": true
-    }
 }

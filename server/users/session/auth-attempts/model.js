@@ -2,7 +2,7 @@
 let ModelBuilder = require('./../../../common/model-builder');
 let Joi = require('joi');
 let Config = require('./../../../../config');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let _ = require('lodash');
 let authAttemptsConfig = Config.authAttempts;
 var AuthAttempts = (new ModelBuilder())

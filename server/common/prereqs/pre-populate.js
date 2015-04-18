@@ -2,7 +2,7 @@
 let _ = require('lodash');
 let utils = require('./../utils');
 let errors = require('./../errors');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 module.exports = (Model, idToUse) => {
     return {
         assign: Model.collection,

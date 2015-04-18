@@ -1,7 +1,7 @@
 'use strict';
-var RouteFactory = require('./../common/route-factory');
-var Controller = require('./controller');
-var routeFactory = new RouteFactory();
+let RouteFactory = require('./../common/route-factory');
+let Controller = require('./controller');
+let routeFactory = new RouteFactory();
 routeFactory.discoverDefaultRoutes('users', Controller);
 routeFactory.newRoute()
     .forMethod('POST')

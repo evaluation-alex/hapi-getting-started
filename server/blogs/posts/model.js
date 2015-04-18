@@ -63,7 +63,7 @@ var Posts = (new ModelBuilder())
     .decorateWithTrackChanges()
     .doneConfiguring();
 Posts.newObject = (doc, by) => {
-    var self = this;
+    let self = this;
     return self.create(utils.lookupParamsOrPayloadOrQuery(doc, 'blogId'),
         doc.auth.credentials.user.organisation,
         doc.payload.title,
@@ -107,7 +107,7 @@ Posts.create = (blogId, organisation, title, state, access, allowComments, needs
     return self.insertAndAudit(document);
 };
 Posts.prototype.update = (doc, by) => {
-    var self = this;
+    let self = this;
     if (self.state !== 'archived') {
         return self.updatePost(doc, by);
     } else {
@@ -115,7 +115,7 @@ Posts.prototype.update = (doc, by) => {
     }
 };
 Posts.prototype.populate = (user) => {
-    var self = this;
+    let self = this;
     return Promise.resolve({canSee: self.access === 'public'})
         .then((res) => {
             if (!res.canSee) {

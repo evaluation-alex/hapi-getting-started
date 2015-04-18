@@ -3,7 +3,7 @@ let Users = require('./../../users/model');
 let Roles = require('./../../users/roles/model');
 let logger = require('./../../../config').logger;
 let errors = require('./../errors');
-var loginValidation = (email, sessionkey, callback) => {
+let loginValidation = (email, sessionkey, callback) => {
     Users.findBySessionCredentials(email, sessionkey)
         .then((user) => {
             logger.info(['auth'], {user: email, success: true});

@@ -1,8 +1,8 @@
 'use strict';
-var Fs = require('fs');
-var Promptly = require('promptly');
-var Promise = require('bluebird');
-var test = {
+let Fs = require('fs');
+let Promptly = require('promptly');
+let Promise = require('bluebird');
+let test = {
     projectName: 'hapistart',
     mongodbUrl: 'mongodb://127.0.0.1:27017/hapistart',
     rootEmail: 'root',
@@ -21,8 +21,8 @@ var test = {
     certfile: './secure/cert.pem',
     keyfile: './secure/key.pem'
 };
-var fromStdIn = function (results, property, message, opts) {
-    return new Promise(function (resolve, reject) {
+let fromStdIn = (results, property, message, opts) => {
+    return new Promise((resolve, reject) => {
         if (process.env.NODE_ENV === 'test') {
             results[property] = test[property];
             resolve(results);

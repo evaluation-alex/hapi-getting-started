@@ -2,8 +2,8 @@
 let Fs = require('fs');
 let devnull = require('dev-null');
 let Bunyan = require('bunyan');
-var StatsD = require('node-statsd');
-var i18n = require('i18n');
+let StatsD = require('node-statsd');
+let i18n = require('i18n');
 if (!Fs.existsSync('.opts')) {
     console.log('.opts file missing. will exit');
     process.exit(1);

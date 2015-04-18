@@ -61,16 +61,14 @@ describe('Audit', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, (response) => {
-                    try {
-                        expect(response.statusCode).to.equal(200);
-                        expect(response.payload).to.exist();
-                        expect(response.payload).to.contain('test.users2@test.api');
-                        expect(response.payload).to.not.contain('test.users@test.api');
-                        done();
-                    } catch (err) {
-                        done(err);
-                    }
+                server.injectThen(request).then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist();
+                    expect(response.payload).to.contain('test.users2@test.api');
+                    expect(response.payload).to.not.contain('test.users@test.api');
+                    done();
+                }).catch((err) => {
+                    done(err);
                 });
             });
             it('should give audit of all changes done by user', (done) => {
@@ -81,15 +79,13 @@ describe('Audit', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, (response) => {
-                    try {
-                        expect(response.statusCode).to.equal(200);
-                        expect(response.payload).to.exist();
-                        expect(response.payload).to.contain('test');
-                        done();
-                    } catch (err) {
-                        done(err);
-                    }
+                server.injectThen(request).then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist();
+                    expect(response.payload).to.contain('test');
+                    done();
+                }).catch((err) => {
+                    done(err);
                 });
             });
             it('should give audit of all changes', (done) => {
@@ -100,14 +96,12 @@ describe('Audit', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, (response) => {
-                    try {
-                        expect(response.statusCode).to.equal(200);
-                        expect(response.payload).to.exist();
-                        done();
-                    } catch (err) {
-                        done(err);
-                    }
+                server.injectThen(request).then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist();
+                    done();
+                }).catch((err) => {
+                    done(err);
                 });
             });
         });

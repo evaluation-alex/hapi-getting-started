@@ -34,14 +34,12 @@ describe('Contact', () => {
                 message: 'I love you man.'
             }
         };
-        server.inject(request, (response) => {
-            try {
-                expect(response.statusCode).to.equal(500);
-                Fs.renameSync('./server/contact/contact2.hbs.md', './server/contact/contact.hbs.md');
-                done();
-            } catch (err) {
-                done(err);
-            }
+        server.injectThen(request).then((response) => {
+            expect(response.statusCode).to.equal(500);
+            Fs.renameSync('./server/contact/contact2.hbs.md', './server/contact/contact.hbs.md');
+            done();
+        }).catch((err) => {
+            done(err);
         });
     });
     it('returns success after sending an email', (done) => {
@@ -54,13 +52,11 @@ describe('Contact', () => {
                 message: 'I love you man.'
             }
         };
-        server.inject(request, (response) => {
-            try {
-                expect(response.statusCode).to.equal(200);
-                done();
-            } catch (err) {
-                done(err);
-            }
+        server.injectThen(request).then((response) => {
+            expect(response.statusCode).to.equal(200);
+            done();
+        }).catch((err) => {
+            done(err);
         });
     });
 });

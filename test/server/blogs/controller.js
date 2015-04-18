@@ -53,17 +53,15 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    _.forEach(p.data, (d) => {
-                        expect(d.isActive).to.be.true();
-                    });
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                _.forEach(p.data, (d) => {
+                    expect(d.isActive).to.be.true();
+                });
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give inactive blogs when isactive = false is sent', (done) => {
@@ -74,17 +72,15 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    _.forEach(p.data, (d) => {
-                        expect(d.isActive).to.be.false();
-                    });
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                _.forEach(p.data, (d) => {
+                    expect(d.isActive).to.be.false();
+                });
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give the blogs where the user sent is a member of the owners list', (done) => {
@@ -95,22 +91,20 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    let patt = /owner1/i;
-                    _.forEach(p.data, (d) => {
-                        let match = false;
-                        _.find(d.owners, (u) => {
-                            match = match || patt.test(u);
-                        });
-                        expect(match).to.be.true();
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                let patt = /owner1/i;
+                _.forEach(p.data, (d) => {
+                    let match = false;
+                    _.find(d.owners, (u) => {
+                        match = match || patt.test(u);
                     });
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+                    expect(match).to.be.true();
+                });
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should return both inactive and active blogs when nothing is sent', (done) => {
@@ -121,13 +115,11 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         after((done) => {
@@ -153,14 +145,12 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.match(/blog/);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                expect(response.payload).to.match(/blog/);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should send back not found when the blog with the id in params is not found', (done) => {
@@ -171,13 +161,11 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         after((done) => {
@@ -194,13 +182,11 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should send back error if any of the users to be added are not valid', (done) => {
@@ -217,16 +203,14 @@ describe('Blogs', () => {
                             addedOwners: ['one@first.com', 'bogus']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(422);
-                            expect(response.payload).to.match(/bogus/);
-                            blogsToClear.push('test PUT /blogs invalidusers');
-                            done();
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs invalidusers');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(422);
+                        expect(response.payload).to.match(/bogus/);
+                        blogsToClear.push('test PUT /blogs invalidusers');
+                        done();
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs invalidusers');
+                        done(err);
                     });
                 })
                 .done();
@@ -245,16 +229,14 @@ describe('Blogs', () => {
                             addedSubscriberGroups: ['bogus']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(422);
-                            expect(response.payload).to.match(/bogus/);
-                            blogsToClear.push('test PUT /blogs invalidgroups');
-                            done();
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs invalidgroups');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(422);
+                        expect(response.payload).to.match(/bogus/);
+                        blogsToClear.push('test PUT /blogs invalidgroups');
+                        done();
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs invalidgroups');
+                        done(err);
                     });
                 })
                 .done();
@@ -280,15 +262,13 @@ describe('Blogs', () => {
                             description: '    test PUT /blogs'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            blogsToClear.push('testPutBlogNotOwner');
-                            done();
-                        } catch (err) {
-                            blogsToClear.push('testPutBlogNotOwner');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        blogsToClear.push('testPutBlogNotOwner');
+                        done();
+                    }).catch((err) => {
+                        blogsToClear.push('testPutBlogNotOwner');
+                        done(err);
                     });
                 });
         });
@@ -308,25 +288,23 @@ describe('Blogs', () => {
                             isActive: true
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({_id: Blogs.ObjectID(id)})
-                                .then((found) => {
-                                    expect(found[0].isActive).to.be.true();
-                                    return Audit.findAudit('blogs', found[0].title, {'change.action': 'isActive'});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/isActive/);
-                                    blogsToClear.push('test PUT /blogs isActive=true');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs isActive=true');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({_id: Blogs.ObjectID(id)})
+                            .then((found) => {
+                                expect(found[0].isActive).to.be.true();
+                                return Audit.findAudit('blogs', found[0].title, {'change.action': 'isActive'});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit).to.exist();
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/isActive/);
+                                blogsToClear.push('test PUT /blogs isActive=true');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs isActive=true');
+                        done(err);
                     });
                 })
                 .done();
@@ -345,25 +323,23 @@ describe('Blogs', () => {
                             isActive: false
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({_id: Blogs.ObjectID(id)})
-                                .then((found) => {
-                                    expect(found[0].isActive).to.be.false();
-                                    return Audit.findAudit('blogs', found[0].title, {'change.action': 'isActive'});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/isActive/);
-                                    blogsToClear.push('test PUT /blogs isActive=false');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs isActive=false');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({_id: Blogs.ObjectID(id)})
+                            .then((found) => {
+                                expect(found[0].isActive).to.be.false();
+                                return Audit.findAudit('blogs', found[0].title, {'change.action': 'isActive'});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit).to.exist();
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/isActive/);
+                                blogsToClear.push('test PUT /blogs isActive=false');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs isActive=false');
+                        done(err);
                     });
                 })
                 .done();
@@ -386,29 +362,27 @@ describe('Blogs', () => {
                             addedSubscriberGroups: ['testBlogsAddGroup']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({_id: Blogs.ObjectID(id)})
-                                .then((found) => {
-                                    expect(found[0].subscribers[1]).to.equal('one@first.com');
-                                    expect(found[0].subscriberGroups[0]).to.equal('testBlogsAddGroup');
-                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /add/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/add/);
-                                    expect(foundAudit[0].change[1].action).to.match(/add/);
-                                    blogsToClear.push('test PUT /blogs add subscribers and subscriber groups');
-                                    groupsToClear.push('testBlogsAddGroup');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs add subscribers and subscriber groups');
-                            groupsToClear.push('testBlogsAddGroup');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({_id: Blogs.ObjectID(id)})
+                            .then((found) => {
+                                expect(found[0].subscribers[1]).to.equal('one@first.com');
+                                expect(found[0].subscriberGroups[0]).to.equal('testBlogsAddGroup');
+                                return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /add/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit).to.exist();
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/add/);
+                                expect(foundAudit[0].change[1].action).to.match(/add/);
+                                blogsToClear.push('test PUT /blogs add subscribers and subscriber groups');
+                                groupsToClear.push('testBlogsAddGroup');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs add subscribers and subscriber groups');
+                        groupsToClear.push('testBlogsAddGroup');
+                        done(err);
                     });
                 })
                 .done();
@@ -428,27 +402,25 @@ describe('Blogs', () => {
                             removedSubscriberGroups: ['toRemove']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({_id: Blogs.ObjectID(id)})
-                                .then((found) => {
-                                    expect(found[0].subscribers.length).to.equal(0);
-                                    expect(found[0].subscriberGroups.length).to.equal(0);
-                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /remove/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/remove/);
-                                    expect(foundAudit[0].change[0].action).to.match(/remove/);
-                                    blogsToClear.push('test PUT /blogs remove subscribers and sub groups');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs remove subscribers and sub groups');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({_id: Blogs.ObjectID(id)})
+                            .then((found) => {
+                                expect(found[0].subscribers.length).to.equal(0);
+                                expect(found[0].subscriberGroups.length).to.equal(0);
+                                return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /remove/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit).to.exist();
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/remove/);
+                                expect(foundAudit[0].change[0].action).to.match(/remove/);
+                                blogsToClear.push('test PUT /blogs remove subscribers and sub groups');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs remove subscribers and sub groups');
+                        done(err);
                     });
                 })
                 .done();
@@ -474,53 +446,51 @@ describe('Blogs', () => {
                             addedSubscribers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({title: 'test PUT /blogs add remove subscribers and owners'})
-                                .then((b) => {
-                                    expect(b).to.exist();
-                                    expect(b[0].isPresentInSubscribers('root')).to.be.false();
-                                    expect(b[0].isPresentInOwners('one@first.com')).to.be.false();
-                                    expect(b[0].isPresentInOwners('root')).to.be.true();
-                                    expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true();
-                                    return Audit.findAudit('blogs', 'test PUT /blogs add remove subscribers and owners', {'change.action': {$regex: /add|remove/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/add|remove/);
-                                    expect(foundAudit[0].change[1].action).to.match(/add|remove/);
-                                    expect(foundAudit[0].change[2].action).to.match(/add|remove/);
-                                    expect(foundAudit[0].change[3].action).to.match(/add|remove/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
-                                            objectType: 'blogs',
-                                            objectId: Blogs.ObjectID(id)
-                                        })
-                                            .then((notifications) => {
-                                                expect(notifications.length).to.equal(1);
-                                                expect(notifications[0].content.owners.added.length).to.equal(1);
-                                                expect(notifications[0].content.owners.removed.length).to.equal(1);
-                                                expect(notifications[0].content.subscribers.added.length).to.equal(1);
-                                                expect(notifications[0].content.subscribers.removed.length).to.equal(1);
-                                                return Notifications.remove({
-                                                    objectType: 'blogs',
-                                                    objectId: Blogs.ObjectID(id)
-                                                });
-                                            }).then((count) => {
-                                                blogsToClear.push('test PUT /blogs add remove subscribers and owners');
-                                                expect(count).to.equal(1);
-                                                done();
-                                                clearTimeout(ct);
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({title: 'test PUT /blogs add remove subscribers and owners'})
+                            .then((b) => {
+                                expect(b).to.exist();
+                                expect(b[0].isPresentInSubscribers('root')).to.be.false();
+                                expect(b[0].isPresentInOwners('one@first.com')).to.be.false();
+                                expect(b[0].isPresentInOwners('root')).to.be.true();
+                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true();
+                                return Audit.findAudit('blogs', 'test PUT /blogs add remove subscribers and owners', {'change.action': {$regex: /add|remove/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/add|remove/);
+                                expect(foundAudit[0].change[1].action).to.match(/add|remove/);
+                                expect(foundAudit[0].change[2].action).to.match(/add|remove/);
+                                expect(foundAudit[0].change[3].action).to.match(/add|remove/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'blogs',
+                                        objectId: Blogs.ObjectID(id)
+                                    })
+                                        .then((notifications) => {
+                                            expect(notifications.length).to.equal(1);
+                                            expect(notifications[0].content.owners.added.length).to.equal(1);
+                                            expect(notifications[0].content.owners.removed.length).to.equal(1);
+                                            expect(notifications[0].content.subscribers.added.length).to.equal(1);
+                                            expect(notifications[0].content.subscribers.removed.length).to.equal(1);
+                                            return Notifications.remove({
+                                                objectType: 'blogs',
+                                                objectId: Blogs.ObjectID(id)
                                             });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs add remove subscribers and owners');
-                            done(err);
-                        }
+                                        }).then((count) => {
+                                            blogsToClear.push('test PUT /blogs add remove subscribers and owners');
+                                            expect(count).to.equal(1);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs add remove subscribers and owners');
+                        done(err);
                     });
                 });
         });
@@ -538,27 +508,25 @@ describe('Blogs', () => {
                             description: 'updated'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({_id: Blogs.ObjectID(id)})
-                                .then((found) => {
-                                    expect(found[0].description).to.equal('updated');
-                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /description/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/description/);
-                                    blogsToClear.push('test PUT /blogs update desc');
-                                    blogsToClear.push('updated');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs update desc');
-                            blogsToClear.push('updated');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({_id: Blogs.ObjectID(id)})
+                            .then((found) => {
+                                expect(found[0].description).to.equal('updated');
+                                return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /description/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit).to.exist();
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/description/);
+                                blogsToClear.push('test PUT /blogs update desc');
+                                blogsToClear.push('updated');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs update desc');
+                        blogsToClear.push('updated');
+                        done(err);
                     });
                 })
                 .done();
@@ -577,25 +545,23 @@ describe('Blogs', () => {
                             access: 'restricted'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({_id: Blogs.ObjectID(id)})
-                                .then((found) => {
-                                    expect(found[0].access).to.equal('restricted');
-                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /access/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/access/);
-                                    blogsToClear.push('test PUT /blogs access');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs update access');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({_id: Blogs.ObjectID(id)})
+                            .then((found) => {
+                                expect(found[0].access).to.equal('restricted');
+                                return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /access/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit).to.exist();
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/access/);
+                                blogsToClear.push('test PUT /blogs access');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs update access');
+                        done(err);
                     });
                 })
                 .done();
@@ -614,25 +580,23 @@ describe('Blogs', () => {
                             needsReview: true
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({_id: Blogs.ObjectID(id)})
-                                .then((found) => {
-                                    expect(found[0].needsReview).to.equal(true);
-                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /needsReview/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/needsReview/);
-                                    blogsToClear.push('test PUT /blogs needsReview');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs needsReview');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({_id: Blogs.ObjectID(id)})
+                            .then((found) => {
+                                expect(found[0].needsReview).to.equal(true);
+                                return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /needsReview/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit).to.exist();
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/needsReview/);
+                                blogsToClear.push('test PUT /blogs needsReview');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs needsReview');
+                        done(err);
                     });
                 })
                 .done();
@@ -651,25 +615,23 @@ describe('Blogs', () => {
                             allowComments: false
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({_id: Blogs.ObjectID(id)})
-                                .then((found) => {
-                                    expect(found[0].allowComments).to.equal(false);
-                                    return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /allowComments/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit).to.exist();
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/allowComments/);
-                                    blogsToClear.push('test PUT /blogs allowComments');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('test PUT /blogs allowComments');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({_id: Blogs.ObjectID(id)})
+                            .then((found) => {
+                                expect(found[0].allowComments).to.equal(false);
+                                return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /allowComments/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit).to.exist();
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/allowComments/);
+                                blogsToClear.push('test PUT /blogs allowComments');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('test PUT /blogs allowComments');
+                        done(err);
                     });
                 })
                 .done();
@@ -684,15 +646,13 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    blogsToClear.push('testBlogsPutSubscribeNotFound');
-                    done();
-                } catch (err) {
-                    blogsToClear.push('testBlogsPutSubscribeNotFound');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                blogsToClear.push('testBlogsPutSubscribeNotFound');
+                done();
+            }).catch((err) => {
+                blogsToClear.push('testBlogsPutSubscribeNotFound');
+                done(err);
             });
         });
         it('should add user who has joined to the needsApproval list and create notifications for all the owners to approve', (done) => {
@@ -712,44 +672,42 @@ describe('Blogs', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({title: 'testPutSubscribeGroupAddUser'})
-                                .then((b) => {
-                                    expect(b).to.exist();
-                                    expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
-                                    return Audit.findAudit('blogs', 'testPutSubscribeGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
-                                            objectType: 'blogs',
-                                            objectId: Blogs.ObjectID(id),
-                                            action: 'approve'
-                                        })
-                                            .then((notifications) => {
-                                                expect(notifications.length).to.equal(3);
-                                                return Notifications.remove({
-                                                    objectType: 'blogs',
-                                                    objectId: Blogs.ObjectID(id)
-                                                });
-                                            }).then((count) => {
-                                                blogsToClear.push('testPutSubscribeGroupAddUser');
-                                                expect(count).to.equal(3);
-                                                done();
-                                                clearTimeout(ct);
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({title: 'testPutSubscribeGroupAddUser'})
+                            .then((b) => {
+                                expect(b).to.exist();
+                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                return Audit.findAudit('blogs', 'testPutSubscribeGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'blogs',
+                                        objectId: Blogs.ObjectID(id),
+                                        action: 'approve'
+                                    })
+                                        .then((notifications) => {
+                                            expect(notifications.length).to.equal(3);
+                                            return Notifications.remove({
+                                                objectType: 'blogs',
+                                                objectId: Blogs.ObjectID(id)
                                             });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            blogsToClear.push('testPutSubscribeGroupAddUser');
-                            done(err);
-                        }
+                                        }).then((count) => {
+                                            blogsToClear.push('testPutSubscribeGroupAddUser');
+                                            expect(count).to.equal(3);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('testPutSubscribeGroupAddUser');
+                        done(err);
                     });
                 });
         });
@@ -770,45 +728,43 @@ describe('Blogs', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({title: 'testPutSubscribePublicGroupAddUser'})
-                                .then((b) => {
-                                    expect(b).to.exist();
-                                    expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true();
-                                    return Audit.findAudit('blogs', 'testPutSubscribePublicGroupAddUser', {'change.action': {$regex: /add subscriber/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
-                                            objectType: 'blogs',
-                                            objectId: Blogs.ObjectID(id),
-                                            action: 'fyi'
-                                        })
-                                            .then((notifications) => {
-                                                expect(notifications.length).to.equal(3);
-                                                return Notifications.remove({
-                                                    objectType: 'blogs',
-                                                    objectId: Blogs.ObjectID(id)
-                                                });
-                                            })
-                                            .then((count) => {
-                                                blogsToClear.push('testPutSubscribePublicGroupAddUser');
-                                                expect(count).to.equal(3);
-                                                done();
-                                                clearTimeout(ct);
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({title: 'testPutSubscribePublicGroupAddUser'})
+                            .then((b) => {
+                                expect(b).to.exist();
+                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true();
+                                return Audit.findAudit('blogs', 'testPutSubscribePublicGroupAddUser', {'change.action': {$regex: /add subscriber/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'blogs',
+                                        objectId: Blogs.ObjectID(id),
+                                        action: 'fyi'
+                                    })
+                                        .then((notifications) => {
+                                            expect(notifications.length).to.equal(3);
+                                            return Notifications.remove({
+                                                objectType: 'blogs',
+                                                objectId: Blogs.ObjectID(id)
                                             });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            blogsToClear.push('testPutSubscribePublicGroupAddUser');
-                            done(err);
-                        }
+                                        })
+                                        .then((count) => {
+                                            blogsToClear.push('testPutSubscribePublicGroupAddUser');
+                                            expect(count).to.equal(3);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('testPutSubscribePublicGroupAddUser');
+                        done(err);
                     });
                 });
         });
@@ -822,15 +778,13 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    blogsToClear.push('testBlogsPutUnSubscribeNotFound');
-                    done();
-                } catch (err) {
-                    blogsToClear.push('testBlogsPutUnSubscribeNotFound');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                blogsToClear.push('testBlogsPutUnSubscribeNotFound');
+                done();
+            }).catch((err) => {
+                blogsToClear.push('testBlogsPutUnSubscribeNotFound');
+                done(err);
             });
         });
         it('should send an error when user leaving is not a subscriber', (done) => {
@@ -850,15 +804,13 @@ describe('Blogs', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            blogsToClear.push('testPutUnSubscribeGroupNotPart');
-                            done();
-                        } catch (err) {
-                            blogsToClear.push('testPutUnSubscribeGroupNotPart');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        blogsToClear.push('testPutUnSubscribeGroupNotPart');
+                        done();
+                    }).catch((err) => {
+                        blogsToClear.push('testPutUnSubscribeGroupNotPart');
+                        done(err);
                     });
                 });
         });
@@ -879,44 +831,42 @@ describe('Blogs', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({title: 'testPutUnSubscribeGroupAddUser'})
-                                .then((b) => {
-                                    expect(b).to.exist();
-                                    expect(b[0].isPresentInSubscribers('one@first.com')).to.be.false();
-                                    return Audit.findAudit('blogs', 'testPutUnSubscribeGroupAddUser', {'change.action': {$regex: /remove subscriber/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/remove subscriber/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
-                                            objectType: 'blogs',
-                                            objectId: Blogs.ObjectID(id),
-                                            action: 'fyi'
-                                        })
-                                            .then((notifications) => {
-                                                expect(notifications.length).to.equal(3);
-                                                return Notifications.remove({
-                                                    objectType: 'blogs',
-                                                    objectId: Blogs.ObjectID(id)
-                                                });
-                                            }).then((count) => {
-                                                blogsToClear.push('testPutUnSubscribeGroupAddUser');
-                                                expect(count).to.equal(3);
-                                                done();
-                                                clearTimeout(ct);
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({title: 'testPutUnSubscribeGroupAddUser'})
+                            .then((b) => {
+                                expect(b).to.exist();
+                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.false();
+                                return Audit.findAudit('blogs', 'testPutUnSubscribeGroupAddUser', {'change.action': {$regex: /remove subscriber/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/remove subscriber/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'blogs',
+                                        objectId: Blogs.ObjectID(id),
+                                        action: 'fyi'
+                                    })
+                                        .then((notifications) => {
+                                            expect(notifications.length).to.equal(3);
+                                            return Notifications.remove({
+                                                objectType: 'blogs',
+                                                objectId: Blogs.ObjectID(id)
                                             });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            blogsToClear.push('testPutUnSubscribeGroupAddUser');
-                            done(err);
-                        }
+                                        }).then((count) => {
+                                            blogsToClear.push('testPutUnSubscribeGroupAddUser');
+                                            expect(count).to.equal(3);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('testPutUnSubscribeGroupAddUser');
+                        done(err);
                     });
                 });
         });
@@ -930,15 +880,13 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    blogsToClear.push('testBlogsPutApproveNotFound');
-                    done();
-                } catch (err) {
-                    blogsToClear.push('testBlogsPutApproveNotFound');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                blogsToClear.push('testBlogsPutApproveNotFound');
+                done();
+            }).catch((err) => {
+                blogsToClear.push('testBlogsPutApproveNotFound');
+                done(err);
             });
         });
         it('should send back error if any of the users being approved to subscribe are not valid', (done) => {
@@ -956,15 +904,13 @@ describe('Blogs', () => {
                             addedSubscribers: ['unknown']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(422);
-                            blogsToClear.push('testBlogUserExistPUTApprove');
-                            done();
-                        } catch (err) {
-                            blogsToClear.push('testBlogUserExistPUTApprove');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(422);
+                        blogsToClear.push('testBlogUserExistPUTApprove');
+                        done();
+                    }).catch((err) => {
+                        blogsToClear.push('testBlogUserExistPUTApprove');
+                        done(err);
                     });
                 });
         });
@@ -994,47 +940,45 @@ describe('Blogs', () => {
                             addedSubscribers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({title: 'testBlogPutApproveAddUser'})
-                                .then((b) => {
-                                    expect(b).to.exist();
-                                    expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true();
-                                    expect(b[0].isPresentInNeedsApproval('someotherguytoo')).to.be.true();
-                                    return Audit.findAudit('blogs', 'testBlogPutApproveAddUser', {'change.action': {$regex: /add subscriber/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({title: 'testBlogPutApproveAddUser'})
+                            .then((b) => {
+                                expect(b).to.exist();
+                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true();
+                                expect(b[0].isPresentInNeedsApproval('someotherguytoo')).to.be.true();
+                                return Audit.findAudit('blogs', 'testBlogPutApproveAddUser', {'change.action': {$regex: /add subscriber/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'blogs',
+                                        objectId: Blogs.ObjectID(id),
+                                        state: 'cancelled',
+                                        action: 'approve'
+                                    }).then((notifications) => {
+                                        expect(notifications.length).to.equal(3);
+                                        return Notifications.remove({
                                             objectType: 'blogs',
-                                            objectId: Blogs.ObjectID(id),
-                                            state: 'cancelled',
-                                            action: 'approve'
-                                        }).then((notifications) => {
-                                            expect(notifications.length).to.equal(3);
-                                            return Notifications.remove({
-                                                objectType: 'blogs',
-                                                objectId: Blogs.ObjectID(id)
-                                            });
-                                        })
-                                            .then((count) => {
-                                                blogsToClear.push('testBlogPutApproveAddUser');
-                                                //3 cancellations and 3 just approved and 3 pending approval
-                                                expect(count).to.equal(9);
-                                                done();
-                                                clearTimeout(ct);
-                                            });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            blogsToClear.push('testBlogPutApproveAddUser');
-                            done(err);
-                        }
+                                            objectId: Blogs.ObjectID(id)
+                                        });
+                                    })
+                                        .then((count) => {
+                                            blogsToClear.push('testBlogPutApproveAddUser');
+                                            //3 cancellations and 3 just approved and 3 pending approval
+                                            expect(count).to.equal(9);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('testBlogPutApproveAddUser');
+                        done(err);
                     });
                 });
         });
@@ -1057,25 +1001,23 @@ describe('Blogs', () => {
                             addedSubscribers: []
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({title: 'testBlogPutApproveAddUserEmpty'})
-                                .then((b) => {
-                                    expect(b).to.exist();
-                                    expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
-                                    expect(b[0].isPresentInNeedsApproval('someotherguytoo')).to.be.true();
-                                    return Audit.findAudit('blogs', 'testBlogPutApproveAddUserEmpty', {'change.action': {$regex: /add subscriber/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(0);
-                                    blogsToClear.push('testBlogPutApproveAddUserEmpty');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('testBlogPutApproveAddUserEmpty');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({title: 'testBlogPutApproveAddUserEmpty'})
+                            .then((b) => {
+                                expect(b).to.exist();
+                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                expect(b[0].isPresentInNeedsApproval('someotherguytoo')).to.be.true();
+                                return Audit.findAudit('blogs', 'testBlogPutApproveAddUserEmpty', {'change.action': {$regex: /add subscriber/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(0);
+                                blogsToClear.push('testBlogPutApproveAddUserEmpty');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('testBlogPutApproveAddUserEmpty');
+                        done(err);
                     });
                 });
         });
@@ -1102,25 +1044,23 @@ describe('Blogs', () => {
                             addedSubscribers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            u.user.setRoles(['readonly'], 'test').save();
-                            expect(response.statusCode).to.equal(401);
-                            Blogs.find({title: 'testPutApproveBlogNotOwner'})
-                                .then((b) => {
-                                    expect(b).to.exist();
-                                    expect(b[0].isPresentInSubscribers('one@first.com')).to.be.false();
-                                    return Audit.findAudit('blogs', 'testPutApproveBlogNotOwner', {'change.action': {$regex: /add subscriber/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(0);
-                                    blogsToClear.push('testPutApproveBlogNotOwner');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('testPutApproveBlogNotOwner');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        u.user.setRoles(['readonly'], 'test').save();
+                        expect(response.statusCode).to.equal(401);
+                        Blogs.find({title: 'testPutApproveBlogNotOwner'})
+                            .then((b) => {
+                                expect(b).to.exist();
+                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.false();
+                                return Audit.findAudit('blogs', 'testPutApproveBlogNotOwner', {'change.action': {$regex: /add subscriber/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(0);
+                                blogsToClear.push('testPutApproveBlogNotOwner');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('testPutApproveBlogNotOwner');
+                        done(err);
                     });
                 });
         });
@@ -1134,15 +1074,13 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    blogsToClear.push('testBlogPutRejectNotFound');
-                    done();
-                } catch (err) {
-                    blogsToClear.push('testBlogPutRejectNotFound');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                blogsToClear.push('testBlogPutRejectNotFound');
+                done();
+            }).catch((err) => {
+                blogsToClear.push('testBlogPutRejectNotFound');
+                done(err);
             });
         });
         it('should send back error if any of the users being rejected to join are not valid', (done) => {
@@ -1160,15 +1098,13 @@ describe('Blogs', () => {
                             addedSubscribers: ['unknown']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(422);
-                            blogsToClear.push('testBlogUserExistPUTReject');
-                            done();
-                        } catch (err) {
-                            blogsToClear.push('testBlogUserExistPUTReject');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(422);
+                        blogsToClear.push('testBlogUserExistPUTReject');
+                        done();
+                    }).catch((err) => {
+                        blogsToClear.push('testBlogUserExistPUTReject');
+                        done(err);
                     });
                 });
         });
@@ -1195,47 +1131,45 @@ describe('Blogs', () => {
                             addedSubscribers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({title: 'testPutRejectBlogAddUser'})
-                                .then((b) => {
-                                    expect(b).to.exist();
-                                    expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.false();
-                                    return Audit.findAudit('blogs', 'testPutRejectBlogAddUser', {'change.action': {$regex: /remove needsApproval/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
-                                            objectType: 'blogs',
-                                            objectId: Blogs.ObjectID(id),
-                                            state: 'cancelled',
-                                            action: 'approve'
-                                        })
-                                            .then((notifications) => {
-                                                expect(notifications.length).to.equal(3);
-                                                return Notifications.remove({
-                                                    objectType: 'blogs',
-                                                    objectId: Blogs.ObjectID(id)
-                                                });
-                                            })
-                                            .then((count) => {
-                                                blogsToClear.push('testPutRejectBlogAddUser');
-                                                //3 cancellations and 1 to the user rejected
-                                                expect(count).to.equal(4);
-                                                done();
-                                                clearTimeout(ct);
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({title: 'testPutRejectBlogAddUser'})
+                            .then((b) => {
+                                expect(b).to.exist();
+                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.false();
+                                return Audit.findAudit('blogs', 'testPutRejectBlogAddUser', {'change.action': {$regex: /remove needsApproval/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'blogs',
+                                        objectId: Blogs.ObjectID(id),
+                                        state: 'cancelled',
+                                        action: 'approve'
+                                    })
+                                        .then((notifications) => {
+                                            expect(notifications.length).to.equal(3);
+                                            return Notifications.remove({
+                                                objectType: 'blogs',
+                                                objectId: Blogs.ObjectID(id)
                                             });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            blogsToClear.push('testPutRejectBlogAddUser');
-                            done(err);
-                        }
+                                        })
+                                        .then((count) => {
+                                            blogsToClear.push('testPutRejectBlogAddUser');
+                                            //3 cancellations and 1 to the user rejected
+                                            expect(count).to.equal(4);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('testPutRejectBlogAddUser');
+                        done(err);
                     });
                 });
         });
@@ -1258,24 +1192,22 @@ describe('Blogs', () => {
                             addedSubscribers: []
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({title: 'testPutRejectBlogAddUserEmpty'})
-                                .then((b) => {
-                                    expect(b).to.exist();
-                                    expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
-                                    return Audit.findAudit('blogs', 'testPutRejectBlogAddUserEmpty', {'change.action': {$regex: /remove needsApproval/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(0);
-                                    blogsToClear.push('testPutRejectBlogAddUserEmpty');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('testPutRejectBlogAddUserEmpty');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({title: 'testPutRejectBlogAddUserEmpty'})
+                            .then((b) => {
+                                expect(b).to.exist();
+                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                return Audit.findAudit('blogs', 'testPutRejectBlogAddUserEmpty', {'change.action': {$regex: /remove needsApproval/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(0);
+                                blogsToClear.push('testPutRejectBlogAddUserEmpty');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('testPutRejectBlogAddUserEmpty');
+                        done(err);
                     });
                 });
         });
@@ -1302,21 +1234,19 @@ describe('Blogs', () => {
                             addedSubscribers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            u.user.setRoles(['readonly'], 'test').save();
-                            expect(response.statusCode).to.equal(401);
-                            Blogs.find({title: 'testPutRejectBlogNotOwner'})
-                                .then((b) => {
-                                    expect(b).to.exist();
-                                    expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
-                                    blogsToClear.push('testPutRejectBlogNotOwner');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('testPutRejectBlogNotOwner');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        u.user.setRoles(['readonly'], 'test').save();
+                        expect(response.statusCode).to.equal(401);
+                        Blogs.find({title: 'testPutRejectBlogNotOwner'})
+                            .then((b) => {
+                                expect(b).to.exist();
+                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                blogsToClear.push('testPutRejectBlogNotOwner');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('testPutRejectBlogNotOwner');
+                        done(err);
                     });
                 });
         });
@@ -1340,15 +1270,13 @@ describe('Blogs', () => {
                             subscriberGroups: []
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(409);
-                            blogsToClear.push('test POST /blogs dupe');
-                            done();
-                        } catch (err) {
-                            blogsToClear.push('test POST /blogs dupe');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(409);
+                        blogsToClear.push('test POST /blogs dupe');
+                        done();
+                    }).catch((err) => {
+                        blogsToClear.push('test POST /blogs dupe');
+                        done(err);
                     });
                 })
                 .done();
@@ -1369,16 +1297,14 @@ describe('Blogs', () => {
                     subscriberGroups: []
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(422);
-                    expect(response.payload).to.match(/unknown/);
-                    blogsToClear.push('test POST /blogs invalid owner');
-                    done();
-                } catch (err) {
-                    blogsToClear.push('test POST /blogs invalid owner');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(422);
+                expect(response.payload).to.match(/unknown/);
+                blogsToClear.push('test POST /blogs invalid owner');
+                done();
+            }).catch((err) => {
+                blogsToClear.push('test POST /blogs invalid owner');
+                done(err);
             });
         });
         it('should send back error if any group sent in the request does not exist', (done) => {
@@ -1397,16 +1323,14 @@ describe('Blogs', () => {
                     subscriberGroups: ['madeup']
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(422);
-                    expect(response.payload).to.match(/madeup/);
-                    blogsToClear.push('test POST /blogs invalidgroup');
-                    done();
-                } catch (err) {
-                    blogsToClear.push('test POST /blogs invalidgroup');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(422);
+                expect(response.payload).to.match(/madeup/);
+                blogsToClear.push('test POST /blogs invalidgroup');
+                done();
+            }).catch((err) => {
+                blogsToClear.push('test POST /blogs invalidgroup');
+                done(err);
             });
         });
         it('should create blog successfully', (done) => {
@@ -1427,28 +1351,26 @@ describe('Blogs', () => {
                             subscriberGroups: ['test post /blogs']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(201);
-                            Blogs.find({title: 'test post /blogs success'})
-                                .then((found) => {
-                                    expect(found).to.exist();
-                                    expect(found.length).to.equal(1);
-                                    expect(found[0].description).to.equal('test post /blogs sucess');
-                                    expect(found[0].title).to.equal('test post /blogs success');
-                                    return Audit.findAudit('blogs', 'test post /blogs success', {'change.action': 'create'});
-                                })
-                                .then((fa) => {
-                                    expect(fa.length).to.equal(1);
-                                    groupsToClear.push('test post /blogs');
-                                    blogsToClear.push('test post /blogs success');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('test post /blogs');
-                            blogsToClear.push('test post /blogs success');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(201);
+                        Blogs.find({title: 'test post /blogs success'})
+                            .then((found) => {
+                                expect(found).to.exist();
+                                expect(found.length).to.equal(1);
+                                expect(found[0].description).to.equal('test post /blogs sucess');
+                                expect(found[0].title).to.equal('test post /blogs success');
+                                return Audit.findAudit('blogs', 'test post /blogs success', {'change.action': 'create'});
+                            })
+                            .then((fa) => {
+                                expect(fa.length).to.equal(1);
+                                groupsToClear.push('test post /blogs');
+                                blogsToClear.push('test post /blogs success');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('test post /blogs');
+                        blogsToClear.push('test post /blogs success');
+                        done(err);
                     });
                 })
                 .done();
@@ -1463,13 +1385,11 @@ describe('Blogs', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should send back forbidden error when you try to delete a blog you are not an owner of', (done) => {
@@ -1490,15 +1410,13 @@ describe('Blogs', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            blogsToClear.push('testDelBlogNotOwner');
-                            done();
-                        } catch (err) {
-                            blogsToClear.push('testDelBlogNotOwner');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        blogsToClear.push('testDelBlogNotOwner');
+                        done();
+                    }).catch((err) => {
+                        blogsToClear.push('testDelBlogNotOwner');
+                        done(err);
                     });
                 });
         });
@@ -1513,24 +1431,22 @@ describe('Blogs', () => {
                             Authorization: rootAuthHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Blogs.find({_id: Blogs.ObjectID(id)})
-                                .then((p) => {
-                                    expect(p[0].isActive).to.be.false;
-                                    return Audit.findAudit('blogs', p[0].title, {'change.action': 'isActive'});
-                                })
-                                .then((a) => {
-                                    expect(a).to.exist();
-                                    expect(a[0].change[0].action).to.match(/isActive/);
-                                    blogsToClear.push('test DELETE /blogs/id');
-                                    done();
-                                });
-                        } catch (err) {
-                            blogsToClear.push('test DELETE /blogs/id');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Blogs.find({_id: Blogs.ObjectID(id)})
+                            .then((p) => {
+                                expect(p[0].isActive).to.be.false;
+                                return Audit.findAudit('blogs', p[0].title, {'change.action': 'isActive'});
+                            })
+                            .then((a) => {
+                                expect(a).to.exist();
+                                expect(a[0].change[0].action).to.match(/isActive/);
+                                blogsToClear.push('test DELETE /blogs/id');
+                                done();
+                            });
+                    }).catch((err) => {
+                        blogsToClear.push('test DELETE /blogs/id');
+                        done(err);
                     });
                 }).done();
         });

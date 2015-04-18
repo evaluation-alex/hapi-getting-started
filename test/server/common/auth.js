@@ -1,7 +1,7 @@
 'use strict';
 let relativeToServer = './../../../server/';
 let Users = require(relativeToServer + 'users/model');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let moment = require('moment');
 let tu = require('./../testutils');
 let Code = require('code');
@@ -61,12 +61,10 @@ describe('Auth', () => {
                 });
             }
         });
-        server.inject(request, () => {
-            try {
-                done();
-            } catch (err) {
-                done(err);
-            }
+        server.injectThen(request).then(() => {
+            done();
+        }).catch((err) => {
+            done(err);
         });
     });
     it('returns an error when the session is not found', (done) => {
@@ -88,12 +86,10 @@ describe('Auth', () => {
                 });
             }
         });
-        server.inject(request, () => {
-            try {
-                done();
-            } catch (err) {
-                done(err);
-            }
+        server.injectThen(request).then(() => {
+            done();
+        }).catch((err) => {
+            done(err);
         });
     });
     it('returns an error when the user is not found', (done) => {
@@ -115,12 +111,10 @@ describe('Auth', () => {
                 });
             }
         });
-        server.inject(request, () => {
-            try {
-                done();
-            } catch (err) {
-                done(err);
-            }
+        server.injectThen(request).then(() => {
+            done();
+        }).catch((err) => {
+            done(err);
         });
     });
     it('returns an error when user has already logged out', (done) => {
@@ -147,12 +141,10 @@ describe('Auth', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, () => {
-                    try {
-                        done();
-                    } catch (err) {
-                        done(err);
-                    }
+                server.injectThen(request).then(() => {
+                    done();
+                }).catch((err) => {
+                    done(err);
                 });
             })
             .done();
@@ -183,12 +175,10 @@ describe('Auth', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, () => {
-                    try {
-                        done();
-                    } catch (err) {
-                        done(err);
-                    }
+                server.injectThen(request).then(() => {
+                    done();
+                }).catch((err) => {
+                    done(err);
                 });
             })
             .done();
@@ -216,14 +206,12 @@ describe('Auth', () => {
         Users.findBySessionCredentials = () => {
             return Promise.reject(new Error('test'));
         };
-        server.inject(request, () => {
-            try {
-                Users.findBySessionCredentials = prev;
-                done();
-            } catch (err) {
-                Users.findBySessionCredentials = prev;
-                done(err);
-            }
+        server.injectThen(request).then(() => {
+            Users.findBySessionCredentials = prev;
+            done();
+        }).catch((err) => {
+            Users.findBySessionCredentials = prev;
+            done(err);
         });
     });
     after((done) => {

@@ -61,13 +61,11 @@ describe('Preferences', () => {
                             }
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        done();
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });
@@ -84,13 +82,11 @@ describe('Preferences', () => {
                     }
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should modify preferences and audit changes', (done) => {
@@ -134,28 +130,26 @@ describe('Preferences', () => {
                             }
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Users.findOne({email: 'root'})
-                                .then((p) => {
-                                    expect(p.preferences.locale).to.equal('hi');
-                                    expect(p.preferences.notifications.blogs.email.frequency).to.equal('daily');
-                                    expect(p.preferences.notifications.userGroups.email.frequency).to.equal('weekly');
-                                    expect(p.preferences.notifications.posts.inapp.frequency).to.equal('daily');
-                                    expect(p.preferences.notifications.blogs.blocked[0]).to.equal('something');
-                                    expect(p.preferences.notifications.userGroups.blocked[0]).to.equal('all of them');
-                                    expect(p.preferences.notifications.posts.blocked.length).to.equal(0);
-                                    return Audit.findAudit('users', 'root', {'change.action': 'preferences.locale'});
-                                })
-                                .then((audit) => {
-                                    expect(audit).to.exist();
-                                    expect(audit.length).to.equal(1);
-                                    done();
-                                });
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Users.findOne({email: 'root'})
+                            .then((p) => {
+                                expect(p.preferences.locale).to.equal('hi');
+                                expect(p.preferences.notifications.blogs.email.frequency).to.equal('daily');
+                                expect(p.preferences.notifications.userGroups.email.frequency).to.equal('weekly');
+                                expect(p.preferences.notifications.posts.inapp.frequency).to.equal('daily');
+                                expect(p.preferences.notifications.blogs.blocked[0]).to.equal('something');
+                                expect(p.preferences.notifications.userGroups.blocked[0]).to.equal('all of them');
+                                expect(p.preferences.notifications.posts.blocked.length).to.equal(0);
+                                return Audit.findAudit('users', 'root', {'change.action': 'preferences.locale'});
+                            })
+                            .then((audit) => {
+                                expect(audit).to.exist();
+                                expect(audit.length).to.equal(1);
+                                done();
+                            });
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });

@@ -61,13 +61,11 @@ describe('Profile', () => {
                             }
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        done();
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });
@@ -84,13 +82,11 @@ describe('Profile', () => {
                     }
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should modify profile and audit changes', (done) => {
@@ -109,22 +105,20 @@ describe('Profile', () => {
                             }
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Users.findOne({email: 'root'})
-                                .then((p) => {
-                                    expect(p.profile.preferredName).to.equal('mr. me');
-                                    return Audit.findAudit('users', 'root', {'change.action': 'profile.preferredName'});
-                                })
-                                .then((audit) => {
-                                    expect(audit).to.exist();
-                                    expect(audit.length).to.equal(1);
-                                    done();
-                                });
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Users.findOne({email: 'root'})
+                            .then((p) => {
+                                expect(p.profile.preferredName).to.equal('mr. me');
+                                return Audit.findAudit('users', 'root', {'change.action': 'profile.preferredName'});
+                            })
+                            .then((audit) => {
+                                expect(audit).to.exist();
+                                expect(audit.length).to.equal(1);
+                                done();
+                            });
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });

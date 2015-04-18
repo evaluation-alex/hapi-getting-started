@@ -4,7 +4,7 @@ let relativeTo = './../../../../';
 let Config = require(relativeTo + 'config');
 let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
 let tu = require('./../../testutils');
 let Code = require('code');
@@ -53,14 +53,12 @@ describe('Session', () => {
                             password: 'password123'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(429);
-                            tu.cleanupAuthAttempts();
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(429);
+                        tu.cleanupAuthAttempts();
+                        done();
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });
@@ -73,22 +71,20 @@ describe('Session', () => {
                     password: 'bogus'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(401);
-                    AuthAttempts.find({email: 'test.users@test.api'})
-                        .then((aa) => {
-                            expect(aa).to.exist();
-                            expect(aa.length).to.equal(1);
-                            return Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login fail'});
-                        })
-                        .then((foundAudit) => {
-                            expect(foundAudit).to.exist();
-                            done();
-                        });
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(401);
+                AuthAttempts.find({email: 'test.users@test.api'})
+                    .then((aa) => {
+                        expect(aa).to.exist();
+                        expect(aa.length).to.equal(1);
+                        return Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login fail'});
+                    })
+                    .then((foundAudit) => {
+                        expect(foundAudit).to.exist();
+                        done();
+                    });
+            }).catch((err) => {
+                done(err);
             });
         });
         it('returns an error when you pass non existent user', (done) => {
@@ -100,13 +96,11 @@ describe('Session', () => {
                     password: 'bogus'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('returns a session successfully', (done) => {
@@ -118,19 +112,17 @@ describe('Session', () => {
                     password: 'password123'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
-                    expect(response.payload).to.contain('test.users@test.api');
-                    Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login success'})
-                        .then((foundAudit) => {
-                            expect(foundAudit).to.exist();
-                            done();
-                        });
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                expect(response.payload).to.exist();
+                expect(response.payload).to.contain('test.users@test.api');
+                Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login success'})
+                    .then((foundAudit) => {
+                        expect(foundAudit).to.exist();
+                        done();
+                    });
+            }).catch((err) => {
+                done(err);
             });
         });
     });
@@ -140,13 +132,11 @@ describe('Session', () => {
                 method: 'DELETE',
                 url: '/session'
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(401);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(401);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('returns a not found when user does not exist', (done) => {
@@ -157,15 +147,13 @@ describe('Session', () => {
                     Authorization: tu.authorizationHeader2('test.not.created@logout.api', '123')
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    emails.push('test.not.created@logout.api');
-                    done();
-                } catch (err) {
-                    emails.push('test.not.created@logout.api');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                emails.push('test.not.created@logout.api');
+                done();
+            }).catch((err) => {
+                emails.push('test.not.created@logout.api');
+                done(err);
             });
         });
         it('returns a not found when user has already logged out', (done) => {
@@ -182,18 +170,16 @@ describe('Session', () => {
                     return u.user.logout('test', 'test').save();
                 })
                 .done();
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(401);
-                    Users.findOne({email: 'one@first.com'})
-                        .then((foundUser) => {
-                            foundUser.loginSuccess('test', 'test').save();
-                            done();
-                        })
-                        .done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(401);
+                Users.findOne({email: 'one@first.com'})
+                    .then((foundUser) => {
+                        foundUser.loginSuccess('test', 'test').save();
+                        done();
+                    })
+                    .done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('removes the authenticated user session successfully', (done) => {
@@ -207,18 +193,16 @@ describe('Session', () => {
                         }
                     };
                     request.headers.Authorization = u.authheader;
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Users.findOne({email: 'one@first.com'})
-                                .then((foundUser) => {
-                                    expect(foundUser.session.length).to.equal(0);
-                                    foundUser.loginSuccess('test', 'test').save();
-                                    done();
-                                });
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Users.findOne({email: 'one@first.com'})
+                            .then((foundUser) => {
+                                expect(foundUser.session.length).to.equal(0);
+                                foundUser.loginSuccess('test', 'test').save();
+                                done();
+                            });
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });

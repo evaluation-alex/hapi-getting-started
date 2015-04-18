@@ -1,7 +1,7 @@
 'use strict';
 let relativeToServer = './../../../../../server/';
 let AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let Code = require('code');
 let Lab = require('lab');
 let tu = require('./../../../testutils');
@@ -39,16 +39,14 @@ describe('AuthAttempts', () => {
                             Authorization: authheader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            expect(response.payload).to.exist();
-                            expect(response.payload).to.contain('test.abuse.find');
-                            expect(response.payload).to.contain('127.0.0.2');
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.payload).to.exist();
+                        expect(response.payload).to.contain('test.abuse.find');
+                        expect(response.payload).to.contain('127.0.0.2');
+                        done();
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });
@@ -67,16 +65,14 @@ describe('AuthAttempts', () => {
                             Authorization: authheader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            expect(response.payload).to.exist();
-                            expect(response.payload).to.match(/test.abuse/);
-                            expect(response.payload).to.contain('127.0.0.2');
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.payload).to.exist();
+                        expect(response.payload).to.match(/test.abuse/);
+                        expect(response.payload).to.contain('127.0.0.2');
+                        done();
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });

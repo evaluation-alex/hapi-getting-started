@@ -4,7 +4,7 @@ let _ = require('lodash');
 let moment = require('moment');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let Audit = require(relativeToServer + 'audit/model');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let tu = require('./../../testutils');
 let Code = require('code');
 let Lab = require('lab');
@@ -59,17 +59,15 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(2);
-                    expect(p.data[0].isActive).to.be.true();
-                    expect(p.data[1].isActive).to.be.true();
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                expect(p.data.length).to.equal(2);
+                expect(p.data[0].isActive).to.be.true();
+                expect(p.data[1].isActive).to.be.true();
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give inactive notifications when isactive = false is sent', (done) => {
@@ -80,16 +78,14 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(1);
-                    expect(p.data[0].isActive).to.be.false();
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                expect(p.data.length).to.equal(1);
+                expect(p.data[0].isActive).to.be.false();
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give only the notifications whose state is sent in the parameter', (done) => {
@@ -100,16 +96,14 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(1);
-                    expect(p.data[0].objectId).to.match(/abc123/);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                expect(p.data.length).to.equal(1);
+                expect(p.data[0].objectId).to.match(/abc123/);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give only the notifications of the user making the query', (done) => {
@@ -120,18 +114,16 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(3);
-                    expect(p.data[0].email).to.match(/root/);
-                    expect(p.data[1].email).to.match(/root/);
-                    expect(p.data[2].email).to.match(/root/);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                expect(p.data.length).to.equal(3);
+                expect(p.data[0].email).to.match(/root/);
+                expect(p.data[1].email).to.match(/root/);
+                expect(p.data[2].email).to.match(/root/);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give all notifications in a given time period', (done) => {
@@ -142,17 +134,15 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    _.forEach(p.data, (d) => {
-                        expect(moment(d.createdOn).format('YYYYMMDD')).to.equal('20150214');
-                    });
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                _.forEach(p.data, (d) => {
+                    expect(moment(d.createdOn).format('YYYYMMDD')).to.equal('20150214');
+                });
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give all posts in a given time period2', (done) => {
@@ -163,17 +153,15 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    _.forEach(p.data, (d) => {
-                        expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true();
-                    });
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                _.forEach(p.data, (d) => {
+                    expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true();
+                });
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should filter out blocked notifications based on preferences', (done) => {
@@ -192,17 +180,15 @@ describe('Notifications', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            let p = JSON.parse(response.payload);
-                            _.forEach(p.data, (d) => {
-                                expect(d.objectId).to.not.equal(/abc123/);
-                            });
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        let p = JSON.parse(response.payload);
+                        _.forEach(p.data, (d) => {
+                            expect(d.objectId).to.not.equal(/abc123/);
+                        });
+                        done();
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });
@@ -216,13 +202,11 @@ describe('Notifications', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should return unauthorized if someone other than the owner of the notification tries to change it', (done) => {
@@ -244,13 +228,11 @@ describe('Notifications', () => {
                             isActive: false
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        done();
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });
@@ -268,21 +250,19 @@ describe('Notifications', () => {
                             isActive: false
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Notifications.findOne({_id: Notifications.ObjectID(id)})
-                                .then((found) => {
-                                    expect(found.isActive).to.be.false();
-                                    return Audit.findAudit('notifications', n._id, {'change.action': /isActive/});
-                                })
-                                .then((audit) => {
-                                    expect(audit.length).to.equal(1);
-                                    done();
-                                });
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Notifications.findOne({_id: Notifications.ObjectID(id)})
+                            .then((found) => {
+                                expect(found.isActive).to.be.false();
+                                return Audit.findAudit('notifications', n._id, {'change.action': /isActive/});
+                            })
+                            .then((audit) => {
+                                expect(audit.length).to.equal(1);
+                                done();
+                            });
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });
@@ -300,21 +280,19 @@ describe('Notifications', () => {
                             state: 'starred'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            Notifications.findOne({_id: Notifications.ObjectID(id)})
-                                .then((found) => {
-                                    expect(found.state).to.equal('starred');
-                                    return Audit.findAudit('notifications', n._id, {'change.action': /state/});
-                                })
-                                .then((audit) => {
-                                    expect(audit.length).to.equal(1);
-                                    done();
-                                });
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        Notifications.findOne({_id: Notifications.ObjectID(id)})
+                            .then((found) => {
+                                expect(found.state).to.equal('starred');
+                                return Audit.findAudit('notifications', n._id, {'change.action': /state/});
+                            })
+                            .then((audit) => {
+                                expect(audit.length).to.equal(1);
+                                done();
+                            });
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });

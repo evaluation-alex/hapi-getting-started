@@ -68,18 +68,16 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(3);
-                    expect(p.data[0].isActive).to.be.true();
-                    expect(p.data[1].isActive).to.be.true();
-                    expect(p.data[2].isActive).to.be.true();
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                expect(p.data.length).to.equal(3);
+                expect(p.data[0].isActive).to.be.true();
+                expect(p.data[1].isActive).to.be.true();
+                expect(p.data[2].isActive).to.be.true();
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give inactive groups when isactive = false is sent', (done) => {
@@ -90,16 +88,14 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(1);
-                    expect(p.data[0].isActive).to.be.false();
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                expect(p.data.length).to.equal(1);
+                expect(p.data[0].isActive).to.be.false();
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give only the groups whose name is sent in the parameter', (done) => {
@@ -110,16 +106,14 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(1);
-                    expect(p.data[0].name).to.match(/GetUserGroupsTestName/);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                expect(p.data.length).to.equal(1);
+                expect(p.data[0].name).to.match(/GetUserGroupsTestName/);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give the groups where the user is a member when user id is sent in the parameters', (done) => {
@@ -130,16 +124,14 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(1);
-                    expect(p.data[0].name).to.match(/GetUserGroupsTestMemberActive/);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                expect(p.data.length).to.equal(1);
+                expect(p.data[0].name).to.match(/GetUserGroupsTestMemberActive/);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should return both inactive and active groups when nothing is sent', (done) => {
@@ -150,15 +142,13 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(4);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                expect(p.data.length).to.equal(4);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         after((done) => {
@@ -186,15 +176,13 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.name).to.equal('testGetByID');
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                expect(p.name).to.equal('testGetByID');
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should send back not found when the user-group with the id in params is not found', (done) => {
@@ -205,13 +193,11 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         after((done) => {
@@ -228,15 +214,13 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    groupsToClear.push('testUserGroupPutNotFound');
-                    done();
-                } catch (err) {
-                    groupsToClear.push('testUserGroupPutNotFound');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                groupsToClear.push('testUserGroupPutNotFound');
+                done();
+            }).catch((err) => {
+                groupsToClear.push('testUserGroupPutNotFound');
+                done(err);
             });
         });
         it('should send back error if any of the users or owners to be added are not valid', (done) => {
@@ -255,15 +239,13 @@ describe('UserGroups', () => {
                             addedOwners: ['madeup']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(422);
-                            groupsToClear.push('testGroupUserExistPUT');
-                            done();
-                        } catch (err) {
-                            groupsToClear.push('testGroupUserExistPUT');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(422);
+                        groupsToClear.push('testGroupUserExistPUT');
+                        done();
+                    }).catch((err) => {
+                        groupsToClear.push('testGroupUserExistPUT');
+                        done(err);
                     });
                 });
         });
@@ -287,15 +269,13 @@ describe('UserGroups', () => {
                             description: '    test PUT /user-groups'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            groupsToClear.push('testPutGroupNotOwner');
-                            done();
-                        } catch (err) {
-                            groupsToClear.push('testPutGroupNotOwner');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        groupsToClear.push('testPutGroupNotOwner');
+                        done();
+                    }).catch((err) => {
+                        groupsToClear.push('testPutGroupNotOwner');
+                        done(err);
                     });
                 });
         });
@@ -315,25 +295,23 @@ describe('UserGroups', () => {
                             isActive: false
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutGroupDeActivate'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isActive).to.be.false();
-                                    return Audit.findAudit('user-groups', 'testPutGroupDeActivate', {'change.action': 'isActive'});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/isActive/);
-                                    groupsToClear.push('testPutGroupDeActivate');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutGroupDeActivateActivate');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutGroupDeActivate'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isActive).to.be.false();
+                                return Audit.findAudit('user-groups', 'testPutGroupDeActivate', {'change.action': 'isActive'});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/isActive/);
+                                groupsToClear.push('testPutGroupDeActivate');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutGroupDeActivateActivate');
+                        done(err);
                     });
                 });
         });
@@ -357,25 +335,23 @@ describe('UserGroups', () => {
                             isActive: true
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutGroupActivate'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isActive).to.be.true();
-                                    return Audit.findAudit('user-groups', 'testPutGroupActivate', {'change.action': 'isActive'});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/isActive/);
-                                    groupsToClear.push('testPutGroupActivate');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutGroupActivate');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutGroupActivate'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isActive).to.be.true();
+                                return Audit.findAudit('user-groups', 'testPutGroupActivate', {'change.action': 'isActive'});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/isActive/);
+                                groupsToClear.push('testPutGroupActivate');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutGroupActivate');
+                        done(err);
                     });
                 });
         });
@@ -396,27 +372,25 @@ describe('UserGroups', () => {
                             addedOwners: ['root']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutGroupAddUserOwner'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
-                                    expect(ug[0].isPresentInOwners('root')).to.be.true();
-                                    return Audit.findAudit('user-groups', 'testPutGroupAddUserOwner', {'change.action': {$regex: /add/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/add/);
-                                    expect(foundAudit[0].change[1].action).to.match(/add/);
-                                    groupsToClear.push('testPutGroupAddUserOwner');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutGroupAddUserOwner');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutGroupAddUserOwner'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
+                                expect(ug[0].isPresentInOwners('root')).to.be.true();
+                                return Audit.findAudit('user-groups', 'testPutGroupAddUserOwner', {'change.action': {$regex: /add/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/add/);
+                                expect(foundAudit[0].change[1].action).to.match(/add/);
+                                groupsToClear.push('testPutGroupAddUserOwner');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutGroupAddUserOwner');
+                        done(err);
                     });
                 });
         });
@@ -444,27 +418,25 @@ describe('UserGroups', () => {
                             removedMembers: ['root']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutGroupRemoveUserOwner'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInMembers('root')).to.be.false();
-                                    expect(ug[0].isPresentInOwners('one@first.com')).to.be.false();
-                                    return Audit.findAudit('user-groups', 'testPutGroupRemoveUserOwner', {'change.action': {$regex: /remove/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/remove/);
-                                    expect(foundAudit[0].change[1].action).to.match(/remove/);
-                                    groupsToClear.push('testPutGroupRemoveUserOwner');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutGroupRemoveUserOwner');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutGroupRemoveUserOwner'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInMembers('root')).to.be.false();
+                                expect(ug[0].isPresentInOwners('one@first.com')).to.be.false();
+                                return Audit.findAudit('user-groups', 'testPutGroupRemoveUserOwner', {'change.action': {$regex: /remove/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/remove/);
+                                expect(foundAudit[0].change[1].action).to.match(/remove/);
+                                groupsToClear.push('testPutGroupRemoveUserOwner');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutGroupRemoveUserOwner');
+                        done(err);
                     });
                 });
         });
@@ -494,54 +466,52 @@ describe('UserGroups', () => {
                             addedMembers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutGroupAddRemoveUserOwner'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInMembers('root')).to.be.false();
-                                    expect(ug[0].isPresentInOwners('one@first.com')).to.be.false();
-                                    expect(ug[0].isPresentInOwners('root')).to.be.true();
-                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
-                                    return Audit.findAudit('user-groups', 'testPutGroupAddRemoveUserOwner', {'change.action': {$regex: /add|remove/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/add|remove/);
-                                    expect(foundAudit[0].change[1].action).to.match(/add|remove/);
-                                    expect(foundAudit[0].change[2].action).to.match(/add|remove/);
-                                    expect(foundAudit[0].change[3].action).to.match(/add|remove/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
-                                            objectType: 'user-groups',
-                                            objectId: UserGroups.ObjectID(id)
-                                        })
-                                            .then((notifications) => {
-                                                expect(notifications.length).to.equal(1);
-                                                expect(notifications[0].content.owners.added.length).to.equal(1);
-                                                expect(notifications[0].content.owners.removed.length).to.equal(1);
-                                                expect(notifications[0].content.members.added.length).to.equal(1);
-                                                expect(notifications[0].content.members.removed.length).to.equal(1);
-                                                return Notifications.remove({
-                                                    objectType: 'user-groups',
-                                                    objectId: UserGroups.ObjectID(id)
-                                                });
-                                            })
-                                            .then((count) => {
-                                                groupsToClear.push('testPutGroupAddRemoveUserOwner');
-                                                expect(count).to.equal(1);
-                                                done();
-                                                clearTimeout(ct);
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutGroupAddRemoveUserOwner'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInMembers('root')).to.be.false();
+                                expect(ug[0].isPresentInOwners('one@first.com')).to.be.false();
+                                expect(ug[0].isPresentInOwners('root')).to.be.true();
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
+                                return Audit.findAudit('user-groups', 'testPutGroupAddRemoveUserOwner', {'change.action': {$regex: /add|remove/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/add|remove/);
+                                expect(foundAudit[0].change[1].action).to.match(/add|remove/);
+                                expect(foundAudit[0].change[2].action).to.match(/add|remove/);
+                                expect(foundAudit[0].change[3].action).to.match(/add|remove/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'user-groups',
+                                        objectId: UserGroups.ObjectID(id)
+                                    })
+                                        .then((notifications) => {
+                                            expect(notifications.length).to.equal(1);
+                                            expect(notifications[0].content.owners.added.length).to.equal(1);
+                                            expect(notifications[0].content.owners.removed.length).to.equal(1);
+                                            expect(notifications[0].content.members.added.length).to.equal(1);
+                                            expect(notifications[0].content.members.removed.length).to.equal(1);
+                                            return Notifications.remove({
+                                                objectType: 'user-groups',
+                                                objectId: UserGroups.ObjectID(id)
                                             });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutGroupAddRemoveUserOwner');
-                            done(err);
-                        }
+                                        })
+                                        .then((count) => {
+                                            groupsToClear.push('testPutGroupAddRemoveUserOwner');
+                                            expect(count).to.equal(1);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutGroupAddRemoveUserOwner');
+                        done(err);
                     });
                 });
         });
@@ -561,25 +531,23 @@ describe('UserGroups', () => {
                             description: 'new description'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutGroupChangeDesc'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].description).to.equal('new description');
-                                    return Audit.findAudit('user-groups', 'testPutGroupChangeDesc', {'change.action': {$regex: /description/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/description/);
-                                    groupsToClear.push('testPutGroupChangeDesc');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutGroupChangeDesc');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutGroupChangeDesc'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].description).to.equal('new description');
+                                return Audit.findAudit('user-groups', 'testPutGroupChangeDesc', {'change.action': {$regex: /description/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/description/);
+                                groupsToClear.push('testPutGroupChangeDesc');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutGroupChangeDesc');
+                        done(err);
                     });
                 });
         });
@@ -593,15 +561,13 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    groupsToClear.push('testUserGroupPutJoinNotFound');
-                    done();
-                } catch (err) {
-                    groupsToClear.push('testUserGroupPutJoinNotFound');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                groupsToClear.push('testUserGroupPutJoinNotFound');
+                done();
+            }).catch((err) => {
+                groupsToClear.push('testUserGroupPutJoinNotFound');
+                done(err);
             });
         });
         it('should add user who has joined to the needsApproval list and notify the owners', (done) => {
@@ -624,45 +590,43 @@ describe('UserGroups', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutJoinGroupAddUser'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
-                                    return Audit.findAudit('user-groups', 'testPutJoinGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
-                                            objectType: 'user-groups',
-                                            objectId: UserGroups.ObjectID(id),
-                                            action: 'approve'
-                                        })
-                                            .then((notifications) => {
-                                                expect(notifications.length).to.equal(3);
-                                                return Notifications.remove({
-                                                    objectType: 'user-groups',
-                                                    objectId: UserGroups.ObjectID(id)
-                                                });
-                                            })
-                                            .then((count) => {
-                                                groupsToClear.push('testPutJoinGroupAddUser');
-                                                expect(count).to.equal(3);
-                                                done();
-                                                clearTimeout(ct);
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutJoinGroupAddUser'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                return Audit.findAudit('user-groups', 'testPutJoinGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'user-groups',
+                                        objectId: UserGroups.ObjectID(id),
+                                        action: 'approve'
+                                    })
+                                        .then((notifications) => {
+                                            expect(notifications.length).to.equal(3);
+                                            return Notifications.remove({
+                                                objectType: 'user-groups',
+                                                objectId: UserGroups.ObjectID(id)
                                             });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutJoinGroupAddUser');
-                            done(err);
-                        }
+                                        })
+                                        .then((count) => {
+                                            groupsToClear.push('testPutJoinGroupAddUser');
+                                            expect(count).to.equal(3);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutJoinGroupAddUser');
+                        done(err);
                     });
                 });
         });
@@ -686,45 +650,43 @@ describe('UserGroups', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutJoinPublicGroupAddUser'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
-                                    return Audit.findAudit('user-groups', 'testPutJoinPublicGroupAddUser', {'change.action': {$regex: /add member/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/add member/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
-                                            objectType: 'user-groups',
-                                            objectId: UserGroups.ObjectID(id),
-                                            action: 'fyi'
-                                        })
-                                            .then((notifications) => {
-                                                expect(notifications.length).to.equal(3);
-                                                return Notifications.remove({
-                                                    objectType: 'user-groups',
-                                                    objectId: UserGroups.ObjectID(id)
-                                                });
-                                            })
-                                            .then((count) => {
-                                                groupsToClear.push('testPutJoinPublicGroupAddUser');
-                                                expect(count).to.equal(3);
-                                                done();
-                                                clearTimeout(ct);
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutJoinPublicGroupAddUser'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
+                                return Audit.findAudit('user-groups', 'testPutJoinPublicGroupAddUser', {'change.action': {$regex: /add member/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/add member/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'user-groups',
+                                        objectId: UserGroups.ObjectID(id),
+                                        action: 'fyi'
+                                    })
+                                        .then((notifications) => {
+                                            expect(notifications.length).to.equal(3);
+                                            return Notifications.remove({
+                                                objectType: 'user-groups',
+                                                objectId: UserGroups.ObjectID(id)
                                             });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutJoinPublicGroupAddUser');
-                            done(err);
-                        }
+                                        })
+                                        .then((count) => {
+                                            groupsToClear.push('testPutJoinPublicGroupAddUser');
+                                            expect(count).to.equal(3);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutJoinPublicGroupAddUser');
+                        done(err);
                     });
                 });
         });
@@ -738,15 +700,13 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    groupsToClear.push('testUserGroupPutLeaveNotFound');
-                    done();
-                } catch (err) {
-                    groupsToClear.push('testUserGroupPutLeaveNotFound');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                groupsToClear.push('testUserGroupPutLeaveNotFound');
+                done();
+            }).catch((err) => {
+                groupsToClear.push('testUserGroupPutLeaveNotFound');
+                done(err);
             });
         });
         it('should send error when you leave a group you are not part of', (done) => {
@@ -769,15 +729,13 @@ describe('UserGroups', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            groupsToClear.push('testPutLeaveGroupNotPart');
-                            done();
-                        } catch (err) {
-                            groupsToClear.push('testPutLeaveGroupNotPart');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        groupsToClear.push('testPutLeaveGroupNotPart');
+                        done();
+                    }).catch((err) => {
+                        groupsToClear.push('testPutLeaveGroupNotPart');
+                        done(err);
                     });
                 });
         });
@@ -801,45 +759,43 @@ describe('UserGroups', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutLeaveGroupAddUser'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.false();
-                                    return Audit.findAudit('user-groups', 'testPutLeaveGroupAddUser', {'change.action': {$regex: /remove member/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/remove member/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
-                                            objectType: 'user-groups',
-                                            objectId: UserGroups.ObjectID(id),
-                                            action: 'fyi'
-                                        })
-                                            .then((notifications) => {
-                                                expect(notifications.length).to.equal(3);
-                                                return Notifications.remove({
-                                                    objectType: 'user-groups',
-                                                    objectId: UserGroups.ObjectID(id)
-                                                });
-                                            })
-                                            .then((count) => {
-                                                groupsToClear.push('testPutLeaveGroupAddUser');
-                                                expect(count).to.equal(3);
-                                                done();
-                                                clearTimeout(ct);
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutLeaveGroupAddUser'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.false();
+                                return Audit.findAudit('user-groups', 'testPutLeaveGroupAddUser', {'change.action': {$regex: /remove member/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/remove member/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'user-groups',
+                                        objectId: UserGroups.ObjectID(id),
+                                        action: 'fyi'
+                                    })
+                                        .then((notifications) => {
+                                            expect(notifications.length).to.equal(3);
+                                            return Notifications.remove({
+                                                objectType: 'user-groups',
+                                                objectId: UserGroups.ObjectID(id)
                                             });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutLeaveGroupAddUser');
-                            done(err);
-                        }
+                                        })
+                                        .then((count) => {
+                                            groupsToClear.push('testPutLeaveGroupAddUser');
+                                            expect(count).to.equal(3);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutLeaveGroupAddUser');
+                        done(err);
                     });
                 });
         });
@@ -853,15 +809,13 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    groupsToClear.push('testUserGroupPutApproveNotFound');
-                    done();
-                } catch (err) {
-                    groupsToClear.push('testUserGroupPutApproveNotFound');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                groupsToClear.push('testUserGroupPutApproveNotFound');
+                done();
+            }).catch((err) => {
+                groupsToClear.push('testUserGroupPutApproveNotFound');
+                done(err);
             });
         });
         it('should send back error if any of the users being approved to join are not valid', (done) => {
@@ -879,15 +833,13 @@ describe('UserGroups', () => {
                             addedMembers: ['unknown']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(422);
-                            groupsToClear.push('testGroupUserExistPUTApprove');
-                            done();
-                        } catch (err) {
-                            groupsToClear.push('testGroupUserExistPUTApprove');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(422);
+                        groupsToClear.push('testGroupUserExistPUTApprove');
+                        done();
+                    }).catch((err) => {
+                        groupsToClear.push('testGroupUserExistPUTApprove');
+                        done(err);
                     });
                 });
         });
@@ -918,47 +870,45 @@ describe('UserGroups', () => {
                             addedMembers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutApproveGroupAddUser'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
-                                    expect(ug[0].isPresentInNeedsApproval('someotherguy')).to.be.true();
-                                    return Audit.findAudit('user-groups', 'testPutApproveGroupAddUser', {'change.action': {$regex: /add member/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/add member/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutApproveGroupAddUser'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
+                                expect(ug[0].isPresentInNeedsApproval('someotherguy')).to.be.true();
+                                return Audit.findAudit('user-groups', 'testPutApproveGroupAddUser', {'change.action': {$regex: /add member/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/add member/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'user-groups',
+                                        objectId: UserGroups.ObjectID(id),
+                                        state: 'cancelled',
+                                        action: 'approve'
+                                    }).then((notifications) => {
+                                        expect(notifications.length).to.equal(3);
+                                        return Notifications.remove({
                                             objectType: 'user-groups',
-                                            objectId: UserGroups.ObjectID(id),
-                                            state: 'cancelled',
-                                            action: 'approve'
-                                        }).then((notifications) => {
-                                            expect(notifications.length).to.equal(3);
-                                            return Notifications.remove({
-                                                objectType: 'user-groups',
-                                                objectId: UserGroups.ObjectID(id)
-                                            });
-                                        })
-                                            .then((count) => {
-                                                groupsToClear.push('testPutApproveGroupAddUser');
-                                                //3 cancellations and 3 just approved and 3 pending approval
-                                                expect(count).to.equal(9);
-                                                done();
-                                                clearTimeout(ct);
-                                            });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutApproveGroupAddUser');
-                            done(err);
-                        }
+                                            objectId: UserGroups.ObjectID(id)
+                                        });
+                                    })
+                                        .then((count) => {
+                                            groupsToClear.push('testPutApproveGroupAddUser');
+                                            //3 cancellations and 3 just approved and 3 pending approval
+                                            expect(count).to.equal(9);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutApproveGroupAddUser');
+                        done(err);
                     });
                 });
         });
@@ -981,25 +931,23 @@ describe('UserGroups', () => {
                             addedMembers: []
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutApproveGroupAddUserEmpty'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
-                                    expect(ug[0].isPresentInNeedsApproval('someotherguy')).to.be.true();
-                                    return Audit.findAudit('user-groups', 'testPutApproveGroupAddUserEmpty', {'change.action': {$regex: /add member/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(0);
-                                    groupsToClear.push('testPutApproveGroupAddUserEmpty');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutApproveGroupAddUserEmpty');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutApproveGroupAddUserEmpty'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                expect(ug[0].isPresentInNeedsApproval('someotherguy')).to.be.true();
+                                return Audit.findAudit('user-groups', 'testPutApproveGroupAddUserEmpty', {'change.action': {$regex: /add member/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(0);
+                                groupsToClear.push('testPutApproveGroupAddUserEmpty');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutApproveGroupAddUserEmpty');
+                        done(err);
                     });
                 });
         });
@@ -1026,25 +974,23 @@ describe('UserGroups', () => {
                             addedMembers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            u.user.setRoles(['readonly'], 'test').save();
-                            expect(response.statusCode).to.equal(401);
-                            UserGroups.find({name: 'testPutApproveGroupNotOwner'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInMembers('one@first.com')).to.be.false();
-                                    return Audit.findAudit('user-groups', 'testPutApproveGroupNotOwner', {'change.auction': {$regex: /add member/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(0);
-                                    groupsToClear.push('testPutApproveGroupNotOwner');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutApproveGroupNotOwner');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        u.user.setRoles(['readonly'], 'test').save();
+                        expect(response.statusCode).to.equal(401);
+                        UserGroups.find({name: 'testPutApproveGroupNotOwner'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.false();
+                                return Audit.findAudit('user-groups', 'testPutApproveGroupNotOwner', {'change.auction': {$regex: /add member/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(0);
+                                groupsToClear.push('testPutApproveGroupNotOwner');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutApproveGroupNotOwner');
+                        done(err);
                     });
                 });
         });
@@ -1058,15 +1004,13 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    groupsToClear.push('testUserGroupPutRejectNotFound');
-                    done();
-                } catch (err) {
-                    groupsToClear.push('testUserGroupPutRejectNotFound');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                groupsToClear.push('testUserGroupPutRejectNotFound');
+                done();
+            }).catch((err) => {
+                groupsToClear.push('testUserGroupPutRejectNotFound');
+                done(err);
             });
         });
         it('should send back error if any of the users being rejected to join are not valid', (done) => {
@@ -1084,15 +1028,13 @@ describe('UserGroups', () => {
                             addedMembers: ['unknown']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(422);
-                            groupsToClear.push('testGroupUserExistPUTReject');
-                            done();
-                        } catch (err) {
-                            groupsToClear.push('testGroupUserExistPUTReject');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(422);
+                        groupsToClear.push('testGroupUserExistPUTReject');
+                        done();
+                    }).catch((err) => {
+                        groupsToClear.push('testGroupUserExistPUTReject');
+                        done(err);
                     });
                 });
         });
@@ -1119,47 +1061,45 @@ describe('UserGroups', () => {
                             addedMembers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutRejectGroupAddUser'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.false();
-                                    return Audit.findAudit('user-groups', 'testPutRejectGroupAddUser', {'change.action': {$regex: /remove needsApproval/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(1);
-                                    expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
-                                })
-                                .then(() => {
-                                    let ct = setTimeout(() => {
-                                        Notifications.find({
-                                            objectType: 'user-groups',
-                                            objectId: UserGroups.ObjectID(id),
-                                            state: 'cancelled',
-                                            action: 'approve'
-                                        })
-                                            .then((notifications) => {
-                                                expect(notifications.length).to.equal(3);
-                                                return Notifications.remove({
-                                                    objectType: 'user-groups',
-                                                    objectId: UserGroups.ObjectID(id)
-                                                });
-                                            })
-                                            .then((count) => {
-                                                groupsToClear.push('testPutRejectGroupAddUser');
-                                                //3 for cancel and 1 for rejection to the user who applied
-                                                expect(count).to.equal(4);
-                                                done();
-                                                clearTimeout(ct);
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutRejectGroupAddUser'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.false();
+                                return Audit.findAudit('user-groups', 'testPutRejectGroupAddUser', {'change.action': {$regex: /remove needsApproval/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(1);
+                                expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
+                            })
+                            .then(() => {
+                                let ct = setTimeout(() => {
+                                    Notifications.find({
+                                        objectType: 'user-groups',
+                                        objectId: UserGroups.ObjectID(id),
+                                        state: 'cancelled',
+                                        action: 'approve'
+                                    })
+                                        .then((notifications) => {
+                                            expect(notifications.length).to.equal(3);
+                                            return Notifications.remove({
+                                                objectType: 'user-groups',
+                                                objectId: UserGroups.ObjectID(id)
                                             });
-                                    }, 1000);
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutRejectGroupAddUser');
-                            done(err);
-                        }
+                                        })
+                                        .then((count) => {
+                                            groupsToClear.push('testPutRejectGroupAddUser');
+                                            //3 for cancel and 1 for rejection to the user who applied
+                                            expect(count).to.equal(4);
+                                            done();
+                                            clearTimeout(ct);
+                                        });
+                                }, 1000);
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutRejectGroupAddUser');
+                        done(err);
                     });
                 });
         });
@@ -1182,24 +1122,22 @@ describe('UserGroups', () => {
                             addedMembers: []
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.find({name: 'testPutRejectGroupAddUserEmpty'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
-                                    return Audit.findAudit('user-groups', 'testPutRejectGroupAddUserEmpty', {'change.action': {$regex: /remove needsApproval/}});
-                                })
-                                .then((foundAudit) => {
-                                    expect(foundAudit.length).to.equal(0);
-                                    groupsToClear.push('testPutRejectGroupAddUserEmpty');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutRejectGroupAddUserEmpty');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.find({name: 'testPutRejectGroupAddUserEmpty'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                return Audit.findAudit('user-groups', 'testPutRejectGroupAddUserEmpty', {'change.action': {$regex: /remove needsApproval/}});
+                            })
+                            .then((foundAudit) => {
+                                expect(foundAudit.length).to.equal(0);
+                                groupsToClear.push('testPutRejectGroupAddUserEmpty');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutRejectGroupAddUserEmpty');
+                        done(err);
                     });
                 });
         });
@@ -1226,21 +1164,19 @@ describe('UserGroups', () => {
                             addedMembers: ['one@first.com']
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            u.user.setRoles(['readonly'], 'test').save();
-                            expect(response.statusCode).to.equal(401);
-                            UserGroups.find({name: 'testPutRejectGroupNotOwner'})
-                                .then((ug) => {
-                                    expect(ug).to.exist();
-                                    expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
-                                    groupsToClear.push('testPutRejectGroupNotOwner');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testPutRejectGroupNotOwner');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        u.user.setRoles(['readonly'], 'test').save();
+                        expect(response.statusCode).to.equal(401);
+                        UserGroups.find({name: 'testPutRejectGroupNotOwner'})
+                            .then((ug) => {
+                                expect(ug).to.exist();
+                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                groupsToClear.push('testPutRejectGroupNotOwner');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testPutRejectGroupNotOwner');
+                        done(err);
                     });
                 });
         });
@@ -1262,15 +1198,13 @@ describe('UserGroups', () => {
                             description: 'test POST /user-groups'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(409);
-                            groupsToClear.push('testDupeGroup');
-                            done();
-                        } catch (err) {
-                            groupsToClear.push('testDupeGroup');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(409);
+                        groupsToClear.push('testDupeGroup');
+                        done();
+                    }).catch((err) => {
+                        groupsToClear.push('testDupeGroup');
+                        done(err);
                     });
                 });
         });
@@ -1288,19 +1222,17 @@ describe('UserGroups', () => {
                     description: 'test POST /user-groups'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(422);
-                    UserGroups.findOne({name: 'testGroupUserExist', organisation: 'silver lining'})
-                        .then((ug) => {
-                            expect(ug).to.be.undefined();
-                            groupsToClear.push('testGroupUserExist');
-                            done();
-                        });
-                } catch (err) {
-                    groupsToClear.push('testGroupUserExist');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(422);
+                UserGroups.findOne({name: 'testGroupUserExist', organisation: 'silver lining'})
+                    .then((ug) => {
+                        expect(ug).to.be.undefined();
+                        groupsToClear.push('testGroupUserExist');
+                        done();
+                    });
+            }).catch((err) => {
+                groupsToClear.push('testGroupUserExist');
+                done(err);
             });
         });
         it('should create a group with the sender as owner, member and the list of users also sent as members of the group', (done) => {
@@ -1317,22 +1249,20 @@ describe('UserGroups', () => {
                     description: 'test POST /user-groups'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(201);
-                    UserGroups.findOne({name: 'testUserGroupCreate', organisation: 'silver lining'})
-                        .then((ug) => {
-                            expect(ug).to.exist();
-                            expect(ug.isPresentInOwners('one@first.com')).to.be.true();
-                            expect(ug.isPresentInMembers('one@first.com')).to.be.true();
-                            expect(ug.description).to.match(/test POST/);
-                            groupsToClear.push('testUserGroupCreate');
-                            done();
-                        });
-                } catch (err) {
-                    groupsToClear.push('testUserGroupCreate');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(201);
+                UserGroups.findOne({name: 'testUserGroupCreate', organisation: 'silver lining'})
+                    .then((ug) => {
+                        expect(ug).to.exist();
+                        expect(ug.isPresentInOwners('one@first.com')).to.be.true();
+                        expect(ug.isPresentInMembers('one@first.com')).to.be.true();
+                        expect(ug.description).to.match(/test POST/);
+                        groupsToClear.push('testUserGroupCreate');
+                        done();
+                    });
+            }).catch((err) => {
+                groupsToClear.push('testUserGroupCreate');
+                done(err);
             });
         });
     });
@@ -1345,20 +1275,17 @@ describe('UserGroups', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    groupsToClear.push('testUserGroupDeleteNotFound');
-                    done();
-                } catch (err) {
-                    groupsToClear.push('testUserGroupDeleteNotFound');
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                groupsToClear.push('testUserGroupDeleteNotFound');
+                done();
+            }).catch((err) => {
+                groupsToClear.push('testUserGroupDeleteNotFound');
+                done(err);
             });
         });
         it('should send back forbidden error when you try to modify a group you are not an owner of', (done) => {
             let request = {};
-            let authHeader = '';
             let id = '';
             UserGroups.create('testDelGroupNotOwner', 'silver lining', 'test POST /user-groups', 'test')
                 .then((ug) => {
@@ -1374,15 +1301,13 @@ describe('UserGroups', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            groupsToClear.push('testDelGroupNotOwner');
-                            done();
-                        } catch (err) {
-                            groupsToClear.push('testDelGroupNotOwner');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        groupsToClear.push('testDelGroupNotOwner');
+                        done();
+                    }).catch((err) => {
+                        groupsToClear.push('testDelGroupNotOwner');
+                        done(err);
                     });
                 });
         });
@@ -1397,19 +1322,17 @@ describe('UserGroups', () => {
                             Authorization: rootAuthHeader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            UserGroups.findOne({name: 'testDelGroup', organisation: 'silver lining'})
-                                .then((found) => {
-                                    expect(found.isActive).to.be.false();
-                                    groupsToClear.push('testDelGroup');
-                                    done();
-                                });
-                        } catch (err) {
-                            groupsToClear.push('testDelGroup');
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        UserGroups.findOne({name: 'testDelGroup', organisation: 'silver lining'})
+                            .then((found) => {
+                                expect(found.isActive).to.be.false();
+                                groupsToClear.push('testDelGroup');
+                                done();
+                            });
+                    }).catch((err) => {
+                        groupsToClear.push('testDelGroup');
+                        done(err);
                     });
                 });
         });
@@ -1417,5 +1340,6 @@ describe('UserGroups', () => {
     after((done) => {
         return tu.cleanup({userGroups: groupsToClear}, done);
     });
-});
+})
+;
 

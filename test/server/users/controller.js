@@ -3,7 +3,7 @@ let relativeToServer = './../../../server/';
 let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
 let Mailer = require(relativeToServer + 'common/plugins/mailer');
-var Promise = require('bluebird');
+let Promise = require('bluebird');
 let tu = require('./../testutils');
 let Code = require('code');
 let Lab = require('lab');
@@ -51,13 +51,11 @@ describe('Users', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, (response) => {
-                    try {
-                        expect(response.statusCode).to.equal(401);
-                        done();
-                    } catch (err) {
-                        done(err);
-                    }
+                server.injectThen(request).then((response) => {
+                    expect(response.statusCode).to.equal(401);
+                    done();
+                }).catch((err) => {
+                    done(err);
                 });
             });
     });
@@ -73,13 +71,11 @@ describe('Users', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, (response) => {
-                    try {
-                        expect(response.statusCode).to.equal(403);
-                        done();
-                    } catch (err) {
-                        done(err);
-                    }
+                server.injectThen(request).then((response) => {
+                    expect(response.statusCode).to.equal(403);
+                    done();
+                }).catch((err) => {
+                    done(err);
                 });
             });
     });
@@ -95,14 +91,12 @@ describe('Users', () => {
                         Authorization: authheader
                     }
                 };
-                server.inject(request, (response) => {
-                    try {
-                        expect(response.statusCode).to.equal(200);
-                        expect(response.payload).to.exist();
-                        done();
-                    } catch (err) {
-                        done(err);
-                    }
+                server.injectThen(request).then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist();
+                    done();
+                }).catch((err) => {
+                    done(err);
                 });
             });
     });
@@ -133,15 +127,13 @@ describe('Users', () => {
                     Authorization: authheader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
-                    expect(response.payload).to.not.contain('test.users2@test.api');
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                expect(response.payload).to.exist();
+                expect(response.payload).to.not.contain('test.users2@test.api');
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give inactive users when isactive = false is sent', (done) => {
@@ -152,15 +144,13 @@ describe('Users', () => {
                     Authorization: authheader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
-                    expect(response.payload).to.contain('test.users2@test.api');
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                expect(response.payload).to.exist();
+                expect(response.payload).to.contain('test.users2@test.api');
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should give only the user whose email is sent in the parameter', (done) => {
@@ -171,16 +161,14 @@ describe('Users', () => {
                     Authorization: authheader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
-                    expect(response.payload).to.not.contain('test.users2@test.api');
-                    expect(response.payload).to.contain('one@first.com');
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                expect(response.payload).to.exist();
+                expect(response.payload).to.not.contain('test.users2@test.api');
+                expect(response.payload).to.contain('one@first.com');
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should return both inactive and active users when nothing is sent', (done) => {
@@ -191,16 +179,14 @@ describe('Users', () => {
                     Authorization: authheader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
-                    expect(response.payload).to.contain('test.users2@test.api');
-                    expect(response.payload).to.contain('one@first.com');
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                expect(response.payload).to.exist();
+                expect(response.payload).to.contain('test.users2@test.api');
+                expect(response.payload).to.contain('one@first.com');
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         after((done) => {
@@ -232,15 +218,13 @@ describe('Users', () => {
                     Authorization: authheader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
-                    expect(response.payload).to.contain('one@first.com');
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                expect(response.payload).to.exist();
+                expect(response.payload).to.contain('one@first.com');
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should send back not found when the user with the id in params is not found', (done) => {
@@ -251,13 +235,11 @@ describe('Users', () => {
                     Authorization: authheader
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should send back unauthorized if the id in the url and authenticated user are different', (done) => {
@@ -270,13 +252,11 @@ describe('Users', () => {
                             Authorization: authheader
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        done();
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });
@@ -308,23 +288,21 @@ describe('Users', () => {
                     isActive: false
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    Users.findOne({_id: Users.ObjectID(id)})
-                        .then((foundUser) => {
-                            expect(foundUser.isActive).to.be.false();
-                            expect(foundUser.session.length).to.equal(0);
-                            return Audit.findAudit('users', foundUser.email, {'change.audit': 'isActive'});
-                        })
-                        .then((foundAudit) => {
-                            expect(foundAudit).to.exist();
-                            done();
-                        })
-                        .done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                Users.findOne({_id: Users.ObjectID(id)})
+                    .then((foundUser) => {
+                        expect(foundUser.isActive).to.be.false();
+                        expect(foundUser.session.length).to.equal(0);
+                        return Audit.findAudit('users', foundUser.email, {'change.audit': 'isActive'});
+                    })
+                    .then((foundAudit) => {
+                        expect(foundAudit).to.exist();
+                        done();
+                    })
+                    .done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should update roles, session should be deactivated and changes audited', (done) => {
@@ -338,23 +316,21 @@ describe('Users', () => {
                     roles: ['readonly', 'limitedupd']
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    Users.findOne({_id: Users.ObjectID(id)})
-                        .then((foundUser) => {
-                            expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
-                            expect(foundUser.session.length).to.equal(0);
-                            return Audit.findAudit('users', foundUser.email, {'change.audit': 'update roles'});
-                        })
-                        .then((foundAudit) => {
-                            expect(foundAudit).to.exist();
-                            done();
-                        })
-                        .done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                Users.findOne({_id: Users.ObjectID(id)})
+                    .then((foundUser) => {
+                        expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
+                        expect(foundUser.session.length).to.equal(0);
+                        return Audit.findAudit('users', foundUser.email, {'change.audit': 'update roles'});
+                    })
+                    .then((foundAudit) => {
+                        expect(foundAudit).to.exist();
+                        done();
+                    })
+                    .done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should update password, session should be deactivated and changes audited', (done) => {
@@ -368,22 +344,20 @@ describe('Users', () => {
                     password: 'newpassword'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    Users.findOne({_id: Users.ObjectID(id)})
-                        .then((foundUser) => {
-                            expect(foundUser.session.length).to.equal(0);
-                            return Audit.findAudit('users', foundUser.email, {'change.audit': 'reset password'});
-                        })
-                        .then((foundAudit) => {
-                            expect(foundAudit).to.exist();
-                            done();
-                        })
-                        .done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                Users.findOne({_id: Users.ObjectID(id)})
+                    .then((foundUser) => {
+                        expect(foundUser.session.length).to.equal(0);
+                        return Audit.findAudit('users', foundUser.email, {'change.audit': 'reset password'});
+                    })
+                    .then((foundAudit) => {
+                        expect(foundAudit).to.exist();
+                        done();
+                    })
+                    .done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should update roles, password and is active, session should be deactivated and all changes audited', (done) => {
@@ -399,20 +373,18 @@ describe('Users', () => {
                     password: 'newpassword'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    Users.findOne({_id: Users.ObjectID(id)})
-                        .then((foundUser) => {
-                            expect(foundUser.session.length).to.equal(0);
-                            expect(foundUser.roles).to.include(['readonly']);
-                            expect(foundUser.isActive).to.be.true();
-                            done();
-                        })
-                        .done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                Users.findOne({_id: Users.ObjectID(id)})
+                    .then((foundUser) => {
+                        expect(foundUser.session.length).to.equal(0);
+                        expect(foundUser.roles).to.include(['readonly']);
+                        expect(foundUser.isActive).to.be.true();
+                        done();
+                    })
+                    .done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', (done) => {
@@ -431,13 +403,11 @@ describe('Users', () => {
                             password: 'newpassword'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(401);
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        done();
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });
@@ -454,13 +424,11 @@ describe('Users', () => {
                     password: 'newpassword'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(404);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(404);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
     });
@@ -475,13 +443,11 @@ describe('Users', () => {
                     password: 'try becoming the first'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(409);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(409);
+                done();
+            }).catch((err)=> {
+                done(err);
             });
         });
         it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records and default preferences are setup', (done) => {
@@ -494,29 +460,27 @@ describe('Users', () => {
                     password: 'an0th3r1'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(201);
-                    Users.findOne({email: 'test.signup2@signup.api'})
-                        .then((foundUser) => {
-                            expect(foundUser).to.exist();
-                            expect(foundUser.session).to.exist();
-                            expect(foundUser.session.length).to.equal(1);
-                            return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'signup'});
-                        })
-                        .then((foundSignup) => {
-                            expect(foundSignup).to.exist();
-                            return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'login success'});
-                        })
-                        .then((foundLogin) => {
-                            expect(foundLogin).to.exist();
-                            emails.push(request.payload.email);
-                            done();
-                        });
-                } catch (err) {
-                    emails.push(request.payload.email);
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(201);
+                Users.findOne({email: 'test.signup2@signup.api'})
+                    .then((foundUser) => {
+                        expect(foundUser).to.exist();
+                        expect(foundUser.session).to.exist();
+                        expect(foundUser.session.length).to.equal(1);
+                        return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'signup'});
+                    })
+                    .then((foundSignup) => {
+                        expect(foundSignup).to.exist();
+                        return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'login success'});
+                    })
+                    .then((foundLogin) => {
+                        expect(foundLogin).to.exist();
+                        emails.push(request.payload.email);
+                        done();
+                    });
+            }).catch((err) => {
+                emails.push(request.payload.email);
+                done(err);
             });
         });
     });
@@ -529,14 +493,12 @@ describe('Users', () => {
                     email: 'test.unknown@test.api'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.contain('Success');
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                expect(response.payload).to.contain('Success');
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('successfully sends a reset password request', (done) => {
@@ -547,22 +509,20 @@ describe('Users', () => {
                     email: 'test.users@test.api'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.contain('Success');
-                    Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password sent'})
-                        .then((foundAudit) => {
-                            expect(foundAudit).to.exist();
-                            return Users.findOne({email: 'test.users@test.api'});
-                        })
-                        .then((foundUser) => {
-                            expect(foundUser.resetPwd).to.exist();
-                            done();
-                        });
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                expect(response.payload).to.contain('Success');
+                Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password sent'})
+                    .then((foundAudit) => {
+                        expect(foundAudit).to.exist();
+                        return Users.findOne({email: 'test.users@test.api'});
+                    })
+                    .then((foundUser) => {
+                        expect(foundUser.resetPwd).to.exist();
+                        done();
+                    });
+            }).catch((err) => {
+                done(err);
             });
         });
         it('gracefully handles errors and sends back boom message', (done) => {
@@ -577,15 +537,13 @@ describe('Users', () => {
                     email: 'test.users@test.api'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(500);
-                    Mailer.sendEmail = prev;
-                    done();
-                } catch (err) {
-                    Mailer.sendEmail = prev;
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(500);
+                Mailer.sendEmail = prev;
+                done();
+            }).catch((err) => {
+                Mailer.sendEmail = prev;
+                done(err);
             });
         });
     });
@@ -600,13 +558,11 @@ describe('Users', () => {
                     password: 'random'
                 }
             };
-            server.inject(request, (response) => {
-                try {
-                    expect(response.statusCode).to.equal(400);
-                    done();
-                } catch (err) {
-                    done(err);
-                }
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(400);
+                done();
+            }).catch((err) => {
+                done(err);
             });
         });
         it('returns a bad request if the key does not match', (done) => {
@@ -624,13 +580,11 @@ describe('Users', () => {
                             password: 'password1234'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(400);
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(400);
+                        done();
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });
@@ -653,22 +607,20 @@ describe('Users', () => {
                             password: 'password1234'
                         }
                     };
-                    server.inject(request, (response) => {
-                        try {
-                            expect(response.statusCode).to.equal(200);
-                            expect(response.payload).to.contain('Success');
-                            Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password'})
-                                .then((foundAudit) => {
-                                    expect(foundAudit).to.exist();
-                                    return Users.findOne({email: 'test.users@test.api'});
-                                })
-                                .then((foundUser) => {
-                                    expect(foundUser.resetPwd).to.not.exist();
-                                    done();
-                                });
-                        } catch (err) {
-                            done(err);
-                        }
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.payload).to.contain('Success');
+                        Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password'})
+                            .then((foundAudit) => {
+                                expect(foundAudit).to.exist();
+                                return Users.findOne({email: 'test.users@test.api'});
+                            })
+                            .then((foundUser) => {
+                                expect(foundUser.resetPwd).to.not.exist();
+                                done();
+                            });
+                    }).catch((err) => {
+                        done(err);
                     });
                 });
         });

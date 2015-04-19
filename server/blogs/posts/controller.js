@@ -10,7 +10,6 @@ let ControllerFactory = require('./../../common/controller-factory');
 let isMemberOf = require('./../../common/prereqs/is-member-of');
 let prePopulate = require('./../../common/prereqs/pre-populate');
 let utils = require('./../../common/utils');
-let Hoek = require('hoek');
 /*jshint unused:false*/
 let stateBasedNotificationSend = {
     'published': (post, request) => {
@@ -86,19 +85,6 @@ var Controller = new ControllerFactory(Posts)
             title: request.payload.title,
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
         };
-    }, (request, by) => {
-        let blog = request.pre.blogs;
-        request.payload = Hoek.applyToDefaults(request.payload, {
-            access: blog.access,
-            allowComments: blog.allowComments,
-            needsReview: blog.needsReview
-        });
-        if (request.payload.state === 'published') {
-            if (request.payload.needsReview && !(blog.isPresentInOwners(by) || by === 'root')) {
-                request.payload.state = 'pending review';
-            }
-        }
-        return Posts.newObject(request, by);
     })
     .sendNotifications((post, request) => stateBasedNotificationSend[post.state](post, request))
     .findController({
@@ -150,51 +136,26 @@ var Controller = new ControllerFactory(Posts)
     'update')
     .updateController({
         payload: {
-            blogId: Joi.string(),
-            access: Joi.string().only(['public', 'restricted'])
+            blogId: Joi.string()
         }
     }, [
         prePopulate(Blogs, 'blogId'),
         isMemberOf(Blogs, ['owners', 'contributors'])
     ],
     'publish',
-    (post, request, by) => {
-        if (['draft', 'pending review'].indexOf(post.state) !== -1) {
-            let blog = request.pre.blogs;
-            if ((blog.isPresentInOwners(by) || by === 'root') || (!post.needsReview)) {
-                request.payload.state = 'published';
-                post.reviewedBy = by;
-                post.reviewedOn = new Date();
-                post.publishedOn = new Date();
-            } else {
-                request.payload.state = 'pending review';
-            }
-            post.update(request, by);
-        }
-        return post;
-    })
+    'publish')
     .sendNotifications((post, request) => stateBasedNotificationSend[post.state](post, request))
     .cancelNotifications('review')
     .updateController({
         payload: {
-            blogId: Joi.string(),
-            isActive: Joi.boolean(),
-            access: Joi.string().only(['public', 'restricted'])
+            blogId: Joi.string()
         }
     }, [
         prePopulate(Blogs, 'blogId'),
         isMemberOf(Blogs, ['owners', 'contributors'])
     ],
     'reject',
-    (post, request, by) => {
-        if (['draft', 'pending review'].indexOf(post.state) !== -1) {
-            request.payload.state = 'do not publish';
-            post.reviewedBy = by;
-            post.reviewedOn = new Date();
-            post.update(request, by);
-        }
-        return post;
-    })
+    'reject')
     .sendNotifications((post, request) => stateBasedNotificationSend[post.state](post, request))
     .cancelNotifications('review')
     .deleteController([

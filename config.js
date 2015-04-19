@@ -19,8 +19,8 @@ if (!args.sendemails) {
     nodemailer = {
         name: 'minimal',
         version: '0.1.0',
-        send: function (mail, callback) {
-            var input = mail.message.createReadStream();
+        send: (mail, callback) => {
+            let input = mail.message.createReadStream();
             input.pipe(devnull());
             input.on('end', function () {
                 callback(null, true);
@@ -59,7 +59,10 @@ var config = {
         server: manifest.server
     }
 };
-if (manifest.connections[0].tls.key.length > 0 && manifest.connections[0].tls.cert.length > 0 && Fs.existsSync(manifest.connections[0].tls.key) && Fs.existsSync(manifest.connections[0].tls.cert)) {
+if (manifest.connections[0].tls.key.length > 0 &&
+    manifest.connections[0].tls.cert.length > 0 &&
+    Fs.existsSync(manifest.connections[0].tls.key) &&
+    Fs.existsSync(manifest.connections[0].tls.cert)) {
     manifest.connections[0].tls.key = Fs.readFileSync(manifest.connections[0].tls.key);
     manifest.connections[0].tls.cert = Fs.readFileSync(manifest.connections[0].tls.cert);
 }

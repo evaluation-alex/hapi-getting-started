@@ -625,14 +625,12 @@ describe('Posts', () => {
                             Authorization: u.authheader
                         },
                         payload: {
-                            access: 'restricted'
                         }
                     };
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         Posts.find({_id: Posts.ObjectID(postId)})
                             .then((found) => {
-                                expect(found[0].access).to.equal('restricted');
                                 expect(found[0].state).to.equal('published');
                                 return Audit.findAudit('posts', found[0]._id, {by: 'one@first.com'});
                             })
@@ -685,14 +683,12 @@ describe('Posts', () => {
                             Authorization: u.authheader
                         },
                         payload: {
-                            access: 'restricted'
                         }
                     };
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         Posts.find({_id: Posts.ObjectID(postId)})
                             .then((found) => {
-                                expect(found[0].access).to.equal('restricted');
                                 expect(found[0].state).to.equal('published');
                                 return Audit.findAudit('posts', found[0]._id, {by: 'root'});
                             })
@@ -750,7 +746,6 @@ describe('Posts', () => {
                             Authorization: u.authheader
                         },
                         payload: {
-                            access: 'restricted'
                         }
                     };
                     server.injectThen(request).then((response) => {
@@ -788,7 +783,6 @@ describe('Posts', () => {
                             Authorization: u.authheader
                         },
                         payload: {
-                            access: 'restricted'
                         }
                     };
                     server.injectThen(request).then((response) => {
@@ -796,7 +790,6 @@ describe('Posts', () => {
                         Posts.find({_id: Posts.ObjectID(postId)})
                             .then((found) => {
                                 expect(found[0].state).to.equal('pending review');
-                                expect(found[0].access).to.equal('restricted');
                             })
                             .then(() => {
                                 tu.cleanupAudit();
@@ -847,7 +840,6 @@ describe('Posts', () => {
                             Authorization: u.authheader
                         },
                         payload: {
-                            access: 'restricted'
                         }
                     };
                     server.injectThen(request).then((response) => {
@@ -855,7 +847,6 @@ describe('Posts', () => {
                         Posts.find({_id: Posts.ObjectID(postId)})
                             .then((found) => {
                                 expect(found[0].state).to.equal('published');
-                                expect(found[0].access).to.equal('restricted');
                             })
                             .then(() => {
                                 tu.cleanupAudit();
@@ -906,7 +897,6 @@ describe('Posts', () => {
                             Authorization: u.authheader
                         },
                         payload: {
-                            access: 'restricted'
                         }
                     };
                     server.injectThen(request).then((response) => {
@@ -914,7 +904,6 @@ describe('Posts', () => {
                         Posts.find({_id: Posts.ObjectID(postId)})
                             .then((found) => {
                                 expect(found[0].state).to.equal('archived');
-                                expect(found[0].access).to.equal('restricted');
                             })
                             .then(() => {
                                 tu.cleanupAudit();
@@ -970,14 +959,12 @@ describe('Posts', () => {
                             Authorization: authHeader
                         },
                         payload: {
-                            access: 'restricted'
                         }
                     };
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         Posts.find({_id: Posts.ObjectID(postId)})
                             .then((found) => {
-                                expect(found[0].access).to.equal('restricted');
                                 expect(found[0].state).to.equal('do not publish');
                             })
                             .then(() => {
@@ -1029,7 +1016,6 @@ describe('Posts', () => {
                             Authorization: authHeader
                         },
                         payload: {
-                            access: 'restricted'
                         }
                     };
                     server.injectThen(request).then((response) => {
@@ -1071,7 +1057,6 @@ describe('Posts', () => {
                             Authorization: authHeader
                         },
                         payload: {
-                            access: 'restricted'
                         }
                     };
                     server.injectThen(request).then((response) => {

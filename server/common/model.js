@@ -27,7 +27,7 @@ Model.db = (name) => {
     return Model.connections[name];
 };
 Model.disconnect = (name) => {
-    Model.db(name).close();
+    Model.db(name).close(false, utils.errback);
 };
 Model.ensureIndexes = () => {
     let self = this;
@@ -45,7 +45,7 @@ Model.ensureIndexes = () => {
 };
 Model.cllctn = () => {
     let self = this;
-    return Model.db(self.connection).collection(self.collection);
+    return Model.db(self.connection).collection(self.collection, utils.errback);
 };
 Model.count = (query) => {
     let self = this;

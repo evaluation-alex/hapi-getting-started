@@ -4,7 +4,7 @@ let Blogs = require('./../model');
 let UserGroups = require('./../../user-groups/model');
 let Joi = require('joi');
 let _ = require('lodash');
-let utils = require('./../../common/utils');
+let Hoek = require('hoek');
 let errors = require('./../../common/errors');
 let Bluebird = require('bluebird');
 var Posts = (new ModelBuilder())
@@ -64,7 +64,18 @@ var Posts = (new ModelBuilder())
     .doneConfiguring();
 Posts.newObject = (doc, by) => {
     let self = this;
-    return self.create(utils.lookupParamsOrPayloadOrQuery(doc, 'blogId'),
+    let blog = doc.pre.blogs;
+    doc.payload = Hoek.applyToDefaults(doc.payload, {
+        access: blog.access,
+        allowComments: blog.allowComments,
+        needsReview: blog.needsReview
+    });
+    if (doc.payload.state === 'published') {
+        if (doc.payload.needsReview && !(blog.isPresentInOwners(by) || by === 'root')) {
+            doc.payload.state = 'pending review';
+        }
+    }
+    return self.create(blog._id,
         doc.auth.credentials.user.organisation,
         doc.payload.title,
         doc.payload.state,
@@ -113,6 +124,30 @@ Posts.prototype.update = (doc, by) => {
     } else {
         return Bluebird.reject(new errors.ArchivedPostUpdateError());
     }
+};
+Posts.prototype.publish = (doc, by) => {
+    let self = this;
+    if (['draft', 'pending review'].indexOf(self.state) !== -1) {
+        let blog = doc.pre.blogs;
+        if (self.needsReview && !(by === 'root' || blog.isPresentInOwners(by))) {
+            self.setState('pending review', by);
+        } else {
+            self.setState('published', by);
+            self.reviewedBy = by;
+            self.reviewedOn = new Date();
+            self.publishedOn = new Date();
+        }
+    }
+    return self;
+};
+Posts.prototype.reject = (doc, by) => {
+    let self = this;
+    if (['draft', 'pending review'].indexOf(self.state) !== -1) {
+        self.setState('do not publish', by);
+        self.reviewedBy = by;
+        self.reviewedOn = new Date();
+    }
+    return self;
 };
 Posts.prototype.populate = (user) => {
     let self = this;

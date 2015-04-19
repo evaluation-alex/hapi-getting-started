@@ -4,7 +4,7 @@ let relativeTo = './../../../../';
 let Config = require(relativeTo + 'config');
 let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
 let tu = require('./../../testutils');
 let Code = require('code');
@@ -43,7 +43,7 @@ describe('Session', () => {
             for (let i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
                 authSpam.push(AuthAttempts.create('test', 'test.users@test.api'));
             }
-            Promise.all(authSpam)
+            Bluebird.all(authSpam)
                 .then(() => {
                     let request = {
                         method: 'POST',

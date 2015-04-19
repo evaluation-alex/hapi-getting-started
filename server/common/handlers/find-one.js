@@ -1,8 +1,8 @@
 'use strict';
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let utils = require('./../utils');
 module.exports = function FindOneHandler (Model, findOneCb) {
-    let findOneHook = Promise.method((output, user) => findOneCb ? findOneCb(output, user) : output);
+    let findOneHook = Bluebird.method((output, user) => findOneCb ? findOneCb(output, user) : output);
     return (request, reply) => {
         findOneHook(request.pre[Model.collection], request.auth.credentials.user)
             .then(reply)

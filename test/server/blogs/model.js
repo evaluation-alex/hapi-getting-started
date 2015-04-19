@@ -5,7 +5,7 @@ let Audit = require(relativeToServer + 'audit/model');
 let UserGroups = require(relativeToServer + 'user-groups/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
@@ -255,7 +255,7 @@ describe('Blogs Model', () => {
         before((done) => {
             let p1 = Blogs.create('activated', 'silver lining', 'blog.activate, deactivate', [], [], [], [], false, 'public', true, 'test');
             let p2 = Blogs.create('deactivated', 'silver lining', 'blog.deactive, activate', [], [], [], [], false, 'public', true, 'test');
-            Promise.join(p1, p2, (p11, p12) => {
+            Bluebird.join(p1, p2, (p11, p12) => {
                 activated = p11;
                 deactivated = p12;
                 deactivated.deactivate('test').save()

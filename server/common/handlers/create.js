@@ -1,8 +1,8 @@
 'use strict';
 let utils = require('./../utils');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 module.exports = function NewHandler (Model, notify, newCb) {
-    let newObjHook = Promise.method((request, by) => newCb ? newCb(request, by) : Model.newObject(request, by));
+    let newObjHook = Bluebird.method((request, by) => newCb ? newCb(request, by) : Model.newObject(request, by));
     return (request, reply) => {
         let by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
         newObjHook(request, by)

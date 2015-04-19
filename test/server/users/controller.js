@@ -3,7 +3,7 @@ let relativeToServer = './../../../server/';
 let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
 let Mailer = require(relativeToServer + 'common/plugins/mailer');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let tu = require('./../testutils');
 let Code = require('code');
 let Lab = require('lab');
@@ -528,7 +528,7 @@ describe('Users', () => {
         it('gracefully handles errors and sends back boom message', (done) => {
             let prev = Mailer.sendEmail;
             Mailer.sendEmail = () => {
-                return Promise.reject(new Error('test'));
+                return Bluebird.reject(new Error('test'));
             };
             let request = {
                 method: 'POST',

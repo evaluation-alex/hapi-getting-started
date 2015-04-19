@@ -6,7 +6,7 @@ let Joi = require('joi');
 let _ = require('lodash');
 let utils = require('./../../common/utils');
 let errors = require('./../../common/errors');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 var Posts = (new ModelBuilder())
     .onModel(function Posts (attrs) {
         _.assign(this, attrs);
@@ -111,12 +111,12 @@ Posts.prototype.update = (doc, by) => {
     if (self.state !== 'archived') {
         return self.updatePost(doc, by);
     } else {
-        return Promise.reject(new errors.ArchivedPostUpdateError());
+        return Bluebird.reject(new errors.ArchivedPostUpdateError());
     }
 };
 Posts.prototype.populate = (user) => {
     let self = this;
-    return Promise.resolve({canSee: self.access === 'public'})
+    return Bluebird.resolve({canSee: self.access === 'public'})
         .then((res) => res.canSee ? res : Blogs.findOne({_id: Blogs.ObjectID(self.blogId)}))
         .then((blog) =>
             blog.canSee ?

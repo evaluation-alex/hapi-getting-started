@@ -4,7 +4,7 @@ let CreateHandler = require(relativeToServer + 'common/handlers/create');
 let FindHandler = require(relativeToServer + 'common/handlers/find');
 let FindOneHandler = require(relativeToServer + 'common/handlers/find-one');
 let insertAndAudit = require(relativeToServer + 'common/mixins/insert');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
@@ -29,7 +29,7 @@ describe('Handlers and Mixins', () => {
             newObject: (request, by) => {
                 expect(request).to.exist();
                 expect(by).to.equal('test');
-                return Promise.reject(new Error('test'));
+                return Bluebird.reject(new Error('test'));
             }
         };
         let handler = new CreateHandler(Model, undefined, undefined);
@@ -44,7 +44,7 @@ describe('Handlers and Mixins', () => {
                 expect(sort).to.not.exist();
                 expect(limit).to.not.exist();
                 expect(page).to.not.exist();
-                return Promise.reject(new Error('test'));
+                return Bluebird.reject(new Error('test'));
             }
         };
         let request = {
@@ -84,7 +84,7 @@ describe('Handlers and Mixins', () => {
         };
         let findOneCb = (obj) => {
             expect(obj).to.equal('test');
-            return Promise.reject(new Error('test'));
+            return Bluebird.reject(new Error('test'));
         };
         let handler = new FindOneHandler(Model, findOneCb);
         handler(request, reply);
@@ -94,7 +94,7 @@ describe('Handlers and Mixins', () => {
         let obj = {
             insert: (doc) => {
                 expect(doc).to.exist();
-                return Promise.resolve(undefined);
+                return Bluebird.resolve(undefined);
             },
             collection: 'test'
         };

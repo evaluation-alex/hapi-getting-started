@@ -1,9 +1,9 @@
 'use strict';
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let Notifications = require('./../../users/notifications/model');
 let utils = require('./../utils');
 module.exports = function SendNotifications (model, notifyCb) {
-    let notifyHook = Promise.method((target, request) => notifyCb(target, request));
+    let notifyHook = Bluebird.method((target, request) => notifyCb(target, request));
     return (target, request) => {
         return notifyHook(target, request)
             .then((args) => {

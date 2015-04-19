@@ -1,10 +1,10 @@
 'use strict';
 let relativeTo = './../../';
 let relativeToServer = relativeTo + 'server/';
-let Promise = require('bluebird');
-Promise.longStackTraces();
+let Bluebird = require('bluebird');
+Bluebird.longStackTraces();
 let server;
-let serverpromise = require('./server')(require(relativeTo + 'config').manifest);
+let serverBluebird = require('./server')(require(relativeTo + 'config').manifest);
 let utils = require(relativeToServer + 'common/utils');
 let Users = require(relativeToServer + 'users/model');
 let UserGroups = require(relativeToServer + 'user-groups/model');
@@ -45,7 +45,7 @@ let setupFirstUser = () => {
     );
 };
 module.exports.setupRolesAndUsers = () => {
-    return Promise.join(setupRootRole(), setupReadonlyRole(), setupRootUser(), setupFirstUser(), () => true);
+    return Bluebird.join(setupRootRole(), setupReadonlyRole(), setupRootUser(), setupFirstUser(), () => true);
 };
 module.exports.findAndLogin = (user, roles) => {
     return Users.findOne({email: user})
@@ -56,7 +56,7 @@ module.exports.findAndLogin = (user, roles) => {
         });
 };
 module.exports.setupServer = () => {
-    return serverpromise
+    return serverBluebird
         .then((server1) => {
             server = server1;
         })
@@ -70,19 +70,19 @@ module.exports.setupServer = () => {
             }
         });
 };
-let cleanupUsers = Promise.method((usersToCleanup) =>
+let cleanupUsers = Bluebird.method((usersToCleanup) =>
         utils.hasItems(usersToCleanup) ? Users.remove({email: {$in: usersToCleanup}}) : true
 );
-let cleanupUserGroups = Promise.method((groupsToCleanup) =>
+let cleanupUserGroups = Bluebird.method((groupsToCleanup) =>
         utils.hasItems(groupsToCleanup) ? UserGroups.remove({name: {$in: groupsToCleanup}}) : true
 );
-let cleanupBlogs = Promise.method((blogsToCleanup) =>
+let cleanupBlogs = Bluebird.method((blogsToCleanup) =>
         utils.hasItems(blogsToCleanup) ? Blogs.remove({title: {$in: blogsToCleanup}}) : true
 );
-let cleanupPosts = Promise.method((postsToCleanup) =>
+let cleanupPosts = Bluebird.method((postsToCleanup) =>
         utils.hasItems(postsToCleanup) ? Posts.remove({title: {$in: postsToCleanup}}) : true
 );
-let cleanupNotifications = Promise.method((toClear) => {
+let cleanupNotifications = Bluebird.method((toClear) => {
     let notificationsToCleanup = _.flatten(_.map(['userGroups', 'blogs', 'posts'], (a) => _.map(toClear[a], (i) => new RegExp(i, 'g'))));
     utils.hasItems(notificationsToCleanup) ? Notifications.remove({
         $or: [
@@ -94,11 +94,11 @@ let cleanupNotifications = Promise.method((toClear) => {
 });
 module.exports.cleanupAudit = () => Audit.remove({});
 module.exports.cleanupAuthAttempts = () => AuthAttempts.remove({});
-module.exports.cleanupRoles = Promise.method((roles) =>
+module.exports.cleanupRoles = Bluebird.method((roles) =>
         utils.hasItems(roles) ? Roles.remove({name: {$in: roles}}) : true
 );
 module.exports.cleanup = (toClear, cb) => {
-    Promise.join(cleanupUsers(toClear.users),
+    Bluebird.join(cleanupUsers(toClear.users),
         cleanupUserGroups(toClear.userGroups),
         cleanupBlogs(toClear.blogs),
         cleanupPosts(toClear.posts),

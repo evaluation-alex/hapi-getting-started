@@ -1,9 +1,9 @@
 'use strict';
 let ModelBuilder = require('./../common/model-builder');
 let Joi = require('joi');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let _ = require('lodash');
-let mkdirp = Promise.promisify(require('mkdirp'));
+let mkdirp = Bluebird.promisify(require('mkdirp'));
 let Config = require('./../../config');
 let utils = require('./../common/utils');
 var Blogs = (new ModelBuilder())

@@ -1,9 +1,9 @@
 'use strict';
 let _ = require('lodash');
 let utils = require('./../utils');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 module.exports = function UpdateHandler (Model, notify, updateCb) {
-    let updateHook = Promise.method((u, request, by) =>
+    let updateHook = Bluebird.method((u, request, by) =>
         _.isFunction(updateCb) ? updateCb(u, request, by) : u[updateCb](request, by)
     );
     return (request, reply) => {

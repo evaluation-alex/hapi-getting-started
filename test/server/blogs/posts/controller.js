@@ -7,7 +7,7 @@ let Posts = require(relativeToServer + 'blogs/posts/model');
 let Audit = require(relativeToServer + 'audit/model');
 let _ = require('lodash');
 let moment = require('moment');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let tu = require('./../../testutils');
 let Code = require('code');
 let Lab = require('lab');
@@ -42,7 +42,7 @@ describe('Posts', () => {
         before((done) => {
             let b1 = Blogs.create('test GET /posts1', 'silver lining', 'test GET /blogs', null, null, null, null, false, 'public', true, 'test');
             let b2 = Blogs.create('test GET /posts2 is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
-            Promise.join(b1, b2)
+            Bluebird.join(b1, b2)
                 .then((b) => {
                     let b1 = b[0];
                     let b2 = b[1];
@@ -51,7 +51,7 @@ describe('Posts', () => {
                     let p1 = Posts.create(b1._id, 'silver lining', 'searchByTitle', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'post', 'p[0]', 'test');
                     let p2 = Posts.create(b1._id, 'silver lining', 'searchByTitle2', 'published', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'post', 'p[1]', 'test');
                     let p3 = Posts.create(b2._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, 'testing', ['testing', 'search testing'], [], 'post', 'p[2]', 'test');
-                    return Promise.join(p1, p2, p3);
+                    return Bluebird.join(p1, p2, p3);
                 })
                 .then((p) => {
                     let p1 = p[0];
@@ -61,7 +61,7 @@ describe('Posts', () => {
                     pubDt.setFullYear(2015, 1, 14);
                     p3.publishedOn = pubDt;
                     p2.isActive = false;
-                    return Promise.join(p1.save(), p2.save(), p3.save(), () => {
+                    return Bluebird.join(p1.save(), p2.save(), p3.save(), () => {
                         done();
                     });
                 })

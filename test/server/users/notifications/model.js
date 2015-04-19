@@ -1,6 +1,6 @@
 'use strict';
 let relativeToServer = './../../../../server/';
-var Promise = require('bluebird');
+var Bluebird = require('bluebird');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let Audit = require(relativeToServer + 'audit/model');
 let tu = require('./../../testutils');
@@ -46,7 +46,7 @@ describe('Notifications Model', () => {
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
             let p1 = Notifications.create('activated', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');
             let p2 = Notifications.create('deactivated', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');
-            Promise.join(p1, p2, (p11, p12) => {
+            Bluebird.join(p1, p2, (p11, p12) => {
                 activated = p11;
                 deactivated = p12;
                 deactivated.deactivate('test').save()

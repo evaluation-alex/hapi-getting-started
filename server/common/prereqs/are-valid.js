@@ -1,6 +1,6 @@
 'use strict';
 let _ = require('lodash');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let utils = require('./../utils');
 let Users = require('./../../users/model');
 let UserGroups = require('./../../user-groups/model');
@@ -25,7 +25,7 @@ let areValid = (Model, pldPropToLookup) => {
                         }
                     });
                     if (msg.indexOf(',') > -1) {
-                        return Promise.reject(new errors.NotValidUsersOrGroupsError({msg: msg}));
+                        return Bluebird.reject(new errors.NotValidUsersOrGroupsError({msg: msg}));
                     }
                     reply(true);
                 })

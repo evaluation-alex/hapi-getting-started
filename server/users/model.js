@@ -2,7 +2,7 @@
 let ModelBuilder = require('./../common/model-builder');
 let Joi = require('joi');
 let Uuid = require('node-uuid');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let Session = require('./session/model');
 let Preferences = require('./preferences/model');
 let Profile = require('./profile/model');
@@ -121,10 +121,10 @@ Users.findByCredentials = (email, password) => {
     return self.findOne({email: email, isActive: true})
         .then((user) => {
             if (!user) {
-                return Promise.reject(new errors.UserNotFoundError({email: email}));
+                return Bluebird.reject(new errors.UserNotFoundError({email: email}));
             }
             if (!utils.secureCompare(password, user.password)) {
-                return Promise.reject(new errors.IncorrectPasswordError({email: email}));
+                return Bluebird.reject(new errors.IncorrectPasswordError({email: email}));
             }
             return user;
         });

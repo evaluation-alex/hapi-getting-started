@@ -2,7 +2,7 @@
 let ModelBuilder = require('./../../../common/model-builder');
 let Joi = require('joi');
 let Config = require('./../../../../config');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let _ = require('lodash');
 let limits = Config.authAttempts;
 var AuthAttempts = (new ModelBuilder())
@@ -33,7 +33,7 @@ AuthAttempts.create = (ip, email) => {
 };
 AuthAttempts.abuseDetected = (ip, email) => {
     let self = this;
-    return Promise.join(self.count({ip: ip}), self.count({ip: ip, email: email}),
+    return Bluebird.join(self.count({ip: ip}), self.count({ip: ip, email: email}),
         (attemptsFromIp, attemptsFromIpUser) => attemptsFromIp >= limits.forIp || attemptsFromIpUser >= limits.forIpAndUser);
 };
 module.exports = AuthAttempts;

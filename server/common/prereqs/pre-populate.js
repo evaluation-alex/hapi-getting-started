@@ -2,7 +2,7 @@
 let _ = require('lodash');
 let utils = require('./../utils');
 let errors = require('./../errors');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 module.exports = (Model, idToUse) => {
     return {
         assign: Model.collection,
@@ -11,7 +11,7 @@ module.exports = (Model, idToUse) => {
             Model.findOne({_id: Model.ObjectID(id)})
                 .then((obj) => {
                     if (!obj) {
-                        return Promise.reject(new errors.ObjectNotFoundError({
+                        return Bluebird.reject(new errors.ObjectNotFoundError({
                             type: _.capitalize(Model.collection),
                             idstr: id.toString()
                         }));

@@ -1,7 +1,7 @@
 'use strict';
 let Joi = require('joi');
 let _ = require('lodash');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let moment = require('moment');
 let Posts = require('./model');
 let Blogs = require('./../model');
@@ -124,7 +124,7 @@ var Controller = new ControllerFactory(Posts)
         }
         return query;
     }, (output, user) => {
-        return Promise.all(_.map(output.data, (post) => post.populate(user)))
+        return Bluebird.all(_.map(output.data, (post) => post.populate(user)))
             .then((op) => output.data = op)
             .then(() => output);
     })

@@ -7,7 +7,7 @@ let Mailer = require('./../common/plugins/mailer');
 let ControllerFactory = require('./../common/controller-factory');
 let utils = require('./../common/utils');
 let errors = require('./../common/errors');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let onlyOwnerAllowed = require('./../common/prereqs/only-owner');
 var Controller = new ControllerFactory(Users)
     .customNewController('signup', {
@@ -39,7 +39,7 @@ var Controller = new ControllerFactory(Users)
                     }
                 };
                 /*jshint unused:false*/
-                return Promise.join(user.afterLogin(ip),
+                return Bluebird.join(user.afterLogin(ip),
                     Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload),
                     (user, m) => user
                 );
@@ -104,7 +104,7 @@ var Controller = new ControllerFactory(Users)
         Users.findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
             .then((user) => {
                 if (!user || (request.payload.key !== user.resetPwd.token)) {
-                    return Promise.reject(new errors.PasswordResetError());
+                    return Bluebird.reject(new errors.PasswordResetError());
                 }
                 return user._invalidateSession(utils.ip(request), user.email).setPassword(request.payload.password, user.email).save();
             })

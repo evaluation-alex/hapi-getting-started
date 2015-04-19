@@ -2,7 +2,7 @@
 let Joi = require('joi');
 let _ = require('lodash');
 let Uuid = require('node-uuid');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let moment = require('moment');
 let errors = require('./../../common/errors');
 let utils = require('./../../common/utils');
@@ -60,17 +60,17 @@ Session.findBySessionCredentials = (email, key) => {
     return self.findOne({email: email, isActive: true})
         .then((user) => {
             if (!user) {
-                return Promise.reject(new errors.UserNotFoundError({email: email}));
+                return Bluebird.reject(new errors.UserNotFoundError({email: email}));
             }
             if (!utils.hasItems(user.session)) {
-                return Promise.reject(new errors.UserNotLoggedInError({email: email}));
+                return Bluebird.reject(new errors.UserNotLoggedInError({email: email}));
             }
             let matchingSession = _.find(user.session, (session) => utils.secureCompare(key, session.key));
             if (!matchingSession) {
-                return Promise.reject(new errors.SessionCredentialsNotMatchingError({email: email}));
+                return Bluebird.reject(new errors.SessionCredentialsNotMatchingError({email: email}));
             }
             if (moment().isAfter(matchingSession.expires)) {
-                return Promise.reject(new errors.SessionExpiredError({email: email}));
+                return Bluebird.reject(new errors.SessionExpiredError({email: email}));
             }
             return user;
         });

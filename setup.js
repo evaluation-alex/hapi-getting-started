@@ -1,7 +1,7 @@
 'use strict';
 let Fs = require('fs');
 let Promptly = require('promptly');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let test = {
     projectName: 'hapistart',
     mongodbUrl: 'mongodb://127.0.0.1:27017/hapistart',
@@ -22,7 +22,7 @@ let test = {
     keyfile: './secure/key.pem'
 };
 let fromStdIn = (results, property, message, opts) => {
-    return new Promise((resolve, reject) => {
+    return new Bluebird((resolve, reject) => {
         if (process.env.NODE_ENV === 'test') {
             results[property] = test[property];
             resolve(results);

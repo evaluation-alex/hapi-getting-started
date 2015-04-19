@@ -2,7 +2,7 @@
 let ModelBuilder = require('./../../common/model-builder');
 let Joi = require('joi');
 let _ = require('lodash');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 var Notifications = (new ModelBuilder())
     .onModel(function Notifications (attrs) {
         _.assign(this, attrs);
@@ -44,7 +44,7 @@ var Notifications = (new ModelBuilder())
 Notifications.create = (email, organisation, objectType, objectId, title, state, action, priority, content, by) => {
     let self = this;
     if (_.isArray(email)) {
-        return Promise.all(_.map(_.unique(_.flatten(email)),
+        return Bluebird.all(_.map(_.unique(_.flatten(email)),
                 (e) => self.create(e, organisation, objectType, objectId, title, state, action, priority, content, by))
         );
     } else {

@@ -4,7 +4,7 @@ let relativeTo = './../../../../../';
 let Config = require(relativeTo + 'config');
 let AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
 let tu = require('./../../../testutils');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
@@ -39,7 +39,7 @@ describe('AuthAttempts Model', () => {
         let authAttemptsConfig = Config.authAttempts;
         let authSpam = [];
         let authRequest = () => {
-            return new Promise((resolve/*, reject*/) => {
+            return new Bluebird((resolve/*, reject*/) => {
                 AuthAttempts.create('127.0.0.1', 'test.abuse@auth.attempts')
                     .then((result) => {
                         expect(result).to.be.an.instanceof(AuthAttempts);
@@ -54,7 +54,7 @@ describe('AuthAttempts Model', () => {
         for (let i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
             authSpam.push(authRequest());
         }
-        Promise.all(authSpam)
+        Bluebird.all(authSpam)
             .then(() => {
                 return AuthAttempts.abuseDetected('127.0.0.1', 'test.abuse@auth.attempts');
             })
@@ -77,7 +77,7 @@ describe('AuthAttempts Model', () => {
             let randomUsername = 'test.abuse' + i + '@auth.attempts';
             authSpam.push(AuthAttempts.create('127.0.0.2', randomUsername));
         }
-        Promise.all(authSpam)
+        Bluebird.all(authSpam)
             .then(() => {
                 return AuthAttempts.abuseDetected('127.0.0.2', 'test.abusexxx@auth.attempts');
             })

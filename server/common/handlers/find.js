@@ -1,8 +1,8 @@
 'use strict';
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let utils = require('./../utils');
 module.exports = function FindHandler (Model, queryBuilder, findCb) {
-    let findHook = Promise.method((output, user) => findCb ? findCb(output, user) : output);
+    let findHook = Bluebird.method((output, user) => findCb ? findCb(output, user) : output);
     return (request, reply) => {
         let query = queryBuilder(request);
         query.organisation = query.organisation ||

@@ -1,7 +1,7 @@
 'use strict';
 let relativeToServer = './../../../../../server/';
 let AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let Code = require('code');
 let Lab = require('lab');
 let tu = require('./../../../testutils');
@@ -56,7 +56,7 @@ describe('AuthAttempts', () => {
                 let randomUsername = 'test.abuse' + i + '@auth.attempts';
                 authSpam.push(AuthAttempts.create('127.0.0.2', randomUsername));
             }
-            Promise.all(authSpam)
+            Bluebird.all(authSpam)
                 .then(() => {
                     let request = {
                         method: 'GET',

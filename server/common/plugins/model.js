@@ -2,7 +2,7 @@
 let Path = require('path');
 let Model = require('./../model');
 let _ = require('lodash');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 module.exports.register = (server, options, next) => {
     let dbconnections = [];
     _.forIn(options.connections, (connectionargs, name) => {
@@ -13,9 +13,9 @@ module.exports.register = (server, options, next) => {
                 return db;
             }));
     });
-    Promise.all(dbconnections)
+    Bluebird.all(dbconnections)
         .then(() => {
-            return Promise.all(_.map(options.models, (model) => {
+            return Bluebird.all(_.map(options.models, (model) => {
                 let loadedmodel = require(Path.join(process.cwd(), model));
                 if (options.autoIndex) {
                     return loadedmodel.ensureIndexes();

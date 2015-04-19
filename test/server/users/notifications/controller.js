@@ -4,7 +4,7 @@ let _ = require('lodash');
 let moment = require('moment');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let Audit = require(relativeToServer + 'audit/model');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let tu = require('./../../testutils');
 let Code = require('code');
 let Lab = require('lab');
@@ -38,7 +38,7 @@ describe('Notifications', () => {
             let n1 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root');
             let n2 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abc1234', 'titles dont matter', 'starred', 'fyi', 'low', 'content is useful', 'root');
             let n3 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abcd1234', 'titles dont matter', 'cancelled', 'fyi', 'low', 'content is useful', 'root');
-            Promise.join(n1, n2, n3, (n11, n21, n31) => {
+            Bluebird.join(n1, n2, n3, (n11, n21, n31) => {
                 n31[0].deactivate('test').save();
                 n21[0].createdOn.setFullYear(2015, 1, 14);
                 n21[0].save();

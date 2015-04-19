@@ -1,5 +1,5 @@
 'use strict';
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let utils = require('./../utils');
 let errors = require('./../errors');
 module.exports = (Model, queryBuilder) => {
@@ -9,7 +9,7 @@ module.exports = (Model, queryBuilder) => {
             Model.findOne(queryBuilder(request))
                 .then((f) => {
                     if (f) {
-                        return Promise.reject(new errors.ObjectAlreadyExistsError());
+                        return Bluebird.reject(new errors.ObjectAlreadyExistsError());
                     }
                     reply(true);
                 })

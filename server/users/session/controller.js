@@ -5,12 +5,12 @@ let AuthAttempts = require('./auth-attempts/model');
 let ControllerFactory = require('./../../common/controller-factory');
 let utils = require('./../../common/utils');
 let errors = require('./../../common/errors');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let abuseDetected = (request, reply) => {
     AuthAttempts.abuseDetected(utils.ip(request), request.payload.email)
         .then((detected) => {
             if (detected) {
-                return Promise.reject(new errors.AbusiveLoginAttemptsError());
+                return Bluebird.reject(new errors.AbusiveLoginAttemptsError());
             }
             reply(false);
         })

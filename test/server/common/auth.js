@@ -1,7 +1,7 @@
 'use strict';
 let relativeToServer = './../../../server/';
 let Users = require(relativeToServer + 'users/model');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let moment = require('moment');
 let tu = require('./../testutils');
 let Code = require('code');
@@ -204,7 +204,7 @@ describe('Auth', () => {
         });
         let prev = Users.findBySessionCredentials;
         Users.findBySessionCredentials = () => {
-            return Promise.reject(new Error('test'));
+            return Bluebird.reject(new Error('test'));
         };
         server.injectThen(request).then(() => {
             Users.findBySessionCredentials = prev;

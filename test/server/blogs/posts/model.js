@@ -6,7 +6,7 @@ let UserGroups = require(relativeToServer + 'user-groups/model');
 let Audit = require(relativeToServer + 'audit/model');
 let _ = require('lodash');
 let tu = require('./../../testutils');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 let Code = require('code');
 let Lab = require('lab');
 let lab = exports.lab = Lab.script();
@@ -57,7 +57,7 @@ describe('Posts Model', () => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             let p1 = Posts.create(blogId, 'silver lining', 'activate', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'activate'], [], 'post', 'content', 'test');
             let p2 = Posts.create(blogId, 'silver lining', 'deactivate', 'published', 'public', true, true, 'testing', ['testing', 'unit testing', 'deactivate'], [], 'post', 'content', 'test');
-            Promise.join(p1, p2, (p11, p12) => {
+            Bluebird.join(p1, p2, (p11, p12) => {
                 activated = p11;
                 deactivated = p12;
                 deactivated.deactivate('test').save()
@@ -400,7 +400,7 @@ describe('Posts Model', () => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             let p1 = Posts.create(blogId, 'silver lining', 'addTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], [], 'post', 'content', 'test');
             let p2 = Posts.create(blogId, 'silver lining', 'addTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'addTags'], [], 'post', 'content', 'test');
-            Promise.join(p1, p2).then(() => {
+            Bluebird.join(p1, p2).then(() => {
                 done();
             });
         });
@@ -458,7 +458,7 @@ describe('Posts Model', () => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             let p1 = Posts.create(blogId, 'silver lining', 'removeTags1', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], [], 'post', 'content', 'test');
             let p2 = Posts.create(blogId, 'silver lining', 'removeTags2', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'removeTags'], [], 'post', 'content', 'test');
-            Promise.join(p1, p2).then(() => {
+            Bluebird.join(p1, p2).then(() => {
                 done();
             });
         });

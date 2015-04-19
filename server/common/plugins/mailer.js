@@ -5,12 +5,12 @@ let Handlebars = require('handlebars');
 let Nodemailer = require('nodemailer');
 let markdown = require('nodemailer-markdown').markdown;
 let Config = require('./../../../config');
-let Promise = require('bluebird');
-let transport = Promise.promisifyAll(Nodemailer.createTransport(Hoek.clone(Config.nodemailer)));
+let Bluebird = require('bluebird');
+let transport = Bluebird.promisifyAll(Nodemailer.createTransport(Hoek.clone(Config.nodemailer)));
 transport.use('compile', markdown({useEmbeddedImages: true}));
-let readFile = Promise.promisify(Fs.readFile);
+let readFile = Bluebird.promisify(Fs.readFile);
 let templateCache = {};
-let renderTemplate = Promise.method((template, context) => {
+let renderTemplate = Bluebird.method((template, context) => {
     context.projectName = Config.projectName;
     if (templateCache[template]) {
         return templateCache[template](context);

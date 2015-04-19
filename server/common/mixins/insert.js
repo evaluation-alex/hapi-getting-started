@@ -1,14 +1,14 @@
 'use strict';
 let saveChangeHistory = require('./save-change-history');
 let errors = require('./../errors');
-let Promise = require('bluebird');
+let Bluebird = require('bluebird');
 module.exports = function decorateWithInsertAndAudit (Model, idToUse, action) {
     Model.insertAndAudit = (doc) => {
         let self = this;
         return self.insert(doc)
             .then((obj) => {
                 if (!obj) {
-                    return Promise.reject(new errors.ObjectNotCreatedError({collection: self.collection}));
+                    return Bluebird.reject(new errors.ObjectNotCreatedError({collection: self.collection}));
                 } else {
                     saveChangeHistory({
                         objectChangedType: self.collection,

@@ -3,15 +3,9 @@ let _ = require('lodash');
 let utils = require('./../utils');
 let Promise = require('bluebird');
 module.exports = function UpdateHandler (Model, notify, updateCb) {
-    /*jshint unused:false*/
-    let updateHook = (u, request, by) =>
-        new Promise((resolve, reject) =>
-                resolve(_.isFunction(updateCb) ?
-                        updateCb(u, request, by) :
-                        u[updateCb](request, by)
-                )
-        );
-    /*jshint unused:true*/
+    let updateHook = Promise.method((u, request, by) =>
+        _.isFunction(updateCb) ? updateCb(u, request, by) : u[updateCb](request, by)
+    );
     return (request, reply) => {
         let u = request.pre[Model.collection];
         let by = request.auth.credentials.user.email;

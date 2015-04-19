@@ -2,15 +2,7 @@
 let Promise = require('bluebird');
 let utils = require('./../utils');
 module.exports = function FindHandler (Model, queryBuilder, findCb) {
-    /*jshint unused:false*/
-    let findHook = (output, user) => {
-        return new Promise((resolve, reject) => {
-            resolve(findCb ?
-                findCb(output, user) :
-                output);
-        });
-    };
-    /*jshint unused:true*/
+    let findHook = Promise.method((output, user) => findCb ? findCb(output, user) : output);
     return (request, reply) => {
         let query = queryBuilder(request);
         query.organisation = query.organisation ||

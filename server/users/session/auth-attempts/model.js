@@ -4,7 +4,7 @@ let Joi = require('joi');
 let Config = require('./../../../../config');
 let Promise = require('bluebird');
 let _ = require('lodash');
-let authAttemptsConfig = Config.authAttempts;
+let limits = Config.authAttempts;
 var AuthAttempts = (new ModelBuilder())
     .onModel(function AuthAttempts (attrs) {
         _.assign(this, attrs);
@@ -33,13 +33,7 @@ AuthAttempts.create = (ip, email) => {
 };
 AuthAttempts.abuseDetected = (ip, email) => {
     let self = this;
-    return Promise.join(
-        self.count({ip: ip}),
-        self.count({ip: ip, email: email}),
-        (abusiveIpCount, abusiveIpUserCount) => {
-            let ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;
-            let ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
-            return (ipLimitReached || ipUserLimitReached);
-        });
+    return Promise.join(self.count({ip: ip}), self.count({ip: ip, email: email}),
+        (attemptsFromIp, attemptsFromIpUser) => attemptsFromIp >= limits.forIp || attemptsFromIpUser >= limits.forIpAndUser);
 };
 module.exports = AuthAttempts;

@@ -117,38 +117,30 @@ Posts.prototype.update = (doc, by) => {
 Posts.prototype.populate = (user) => {
     let self = this;
     return Promise.resolve({canSee: self.access === 'public'})
-        .then((res) => {
-            if (!res.canSee) {
-                return Blogs.findOne({_id: Blogs.ObjectID(self.blogId)});
-            } else {
-                return res;
+        .then((res) => res.canSee ? res : Blogs.findOne({_id: Blogs.ObjectID(self.blogId)}))
+        .then((blog) =>
+            blog.canSee ?
+                blog : {
+                canSee: blog.access === 'public' ||
+                blog.isPresentInOwners(user.email) ||
+                blog.isPresentInContributors(user.email) ||
+                blog.isPresentInSubscribers(user.email),
+                blog: blog
             }
-        })
-        .then((blog) => {
-            if (!blog.canSee) {
-                let isBlogPublic = blog.access === 'public';
-                let isOwner = blog.isPresentInOwners(user.email);
-                let isContributor = blog.isPresentInContributors(user.email);
-                let isSubscriber = blog.isPresentInSubscribers(user.email);
-                return {canSee: isBlogPublic || isOwner || isContributor || isSubscriber, blog: blog};
-            }
-            return blog;
-        })
-        .then((res) => {
-            if (!res.canSee) {
-                return UserGroups.count({
+        )
+        .then((res) =>
+            res.canSee ?
+                res.canSee :
+                UserGroups.count({
                     members: user.email,
                     organisation: user.organisation,
                     name: {$in: res.blog.subscriberGroups}
-                })
-                    .then((count) => {
-                        return count > 0;
-                    });
-            }
-            return res.canSee;
-        })
+                }).then((count) => count > 0)
+        )
         .then((canSee) => {
-            if (!canSee) {
+            if (canSee) {
+                return self;
+            } else {
                 self.content = 'restricted because you are not an owner, contributor or subscriber to this blog and it is not a public post';
             }
             return self;

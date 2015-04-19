@@ -2,14 +2,7 @@
 let utils = require('./../utils');
 let Promise = require('bluebird');
 module.exports = function NewHandler (Model, notify, newCb) {
-    /*jshint unused:false*/
-    let newObjHook = (request, by) => new Promise((resolve, reject) =>
-            resolve(newCb ?
-                    newCb(request, by) :
-                    Model.newObject(request, by)
-            )
-    );
-    /*jshint unused:true*/
+    let newObjHook = Promise.method((request, by) => newCb ? newCb(request, by) : Model.newObject(request, by));
     return (request, reply) => {
         let by = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
         newObjHook(request, by)

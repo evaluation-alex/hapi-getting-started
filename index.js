@@ -1,6 +1,5 @@
 'use strict';
-let Glue = require('glue');
-Glue.compose(require('./config').manifest, {relativeTo: __dirname}, (err, server) => {
+require('glue').compose(require('./config').manifest, {relativeTo: __dirname}, (err, server) => {
     if (err) {
         throw err;
     }

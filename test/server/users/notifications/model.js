@@ -1,6 +1,6 @@
 'use strict';
 let relativeToServer = './../../../../server/';
-var Bluebird = require('bluebird');
+let Bluebird = require('bluebird');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let Audit = require(relativeToServer + 'audit/model');
 let tu = require('./../../testutils');

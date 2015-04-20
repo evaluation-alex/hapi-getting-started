@@ -115,6 +115,10 @@ module.exports.cleanup = (toClear, cb) => {
 };
 module.exports.testComplete = (notify, err) => {
     if (notify) {
-        err ? notify(err) : notify();
+        if (err) {
+            notify(err);
+        } else {
+            notify();
+        }
     }
 };

@@ -1,9 +1,9 @@
 'use strict';
 let relativeToServer = './../../../server/';
-let Users = require(relativeToServer + 'users/model');
 let Code = require('code');
 let Lab = require('lab');
 let tu = require('./../testutils');
+let Users = require(relativeToServer + 'users/model');
 let lab = exports.lab = Lab.script();
 let describe = lab.describe;
 let it = lab.it;

@@ -10,7 +10,7 @@ module.exports = function decorateWithInsertAndAudit (Model, idToUse, action) {
                 if (!obj) {
                     return Bluebird.reject(new errors.ObjectNotCreatedError({collection: self.collection}));
                 } else {
-                    saveChangeHistory({
+                    return saveChangeHistory({
                         objectChangedType: self.collection,
                         objectChangedId: obj[idToUse],
                         organisation: obj.organisation,
@@ -21,8 +21,8 @@ module.exports = function decorateWithInsertAndAudit (Model, idToUse, action) {
                             origValues: null,
                             newValues: doc
                         }]
-                    });
-                    return obj;
+                    })
+                        .then(() => obj);
                 }
             });
     };

@@ -1,9 +1,13 @@
 'use strict';
 let Model = require('./../model');
 let utils = require('./../utils');
-let _ = require('lodash');
-module.exports = function SaveChangeHistory (audit) {
-    if (audit) {
-        Model.db('app').collection('audit').insert(audit, utils.defaultcb('audit.insert', _.noop, _.noop));
-    }
+let Bluebird = require('bluebird');
+module.exports = function saveChangeHistory (audit) {
+    return new Bluebird((resolve, reject) => {
+        if (audit) {
+            Model.db('app').collection('audit').insert(audit, utils.defaultcb('audit.insert', resolve, reject));
+        } else {
+            resolve(true);
+        }
+    });
 };

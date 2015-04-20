@@ -35,8 +35,8 @@ var Controller = new ControllerFactory()
             .then((user) => user.loginSuccess(ip, user.email).save())
             .then((user) => reply(user.afterLogin(ip)))
             .catch((err) => {
-                AuthAttempts.create(ip, email);
-                utils.logAndBoom(err, reply);
+                AuthAttempts.create(ip, email)
+                .then(() => utils.logAndBoom(err, reply));
             });
     })
     .forMethod('logout')

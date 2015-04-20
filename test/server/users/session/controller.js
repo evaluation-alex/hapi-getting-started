@@ -157,30 +157,30 @@ describe('Session', () => {
             });
         });
         it('returns a not found when user has already logged out', (done) => {
-            let request = {
-                method: 'DELETE',
-                url: '/session',
-                headers: {
-                    Authorization: ''
-                }
-            };
+            let request = null;
             tu.findAndLogin('one@first.com')
                 .then((u) => {
-                    request.headers.Authorization = u.authheader;
+                    request = {
+                        method: 'DELETE',
+                        url: '/session',
+                        headers: {
+                            Authorization: u.authheader
+                        }
+                    };
                     return u.user.logout('test', 'test').save();
                 })
-                .done();
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(401);
-                Users.findOne({email: 'one@first.com'})
-                    .then((foundUser) => {
-                        foundUser.loginSuccess('test', 'test').save();
-                        done();
-                    })
-                    .done();
-            }).catch((err) => {
-                done(err);
-            });
+                .then(() => {
+                    server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(401);
+                        Users.findOne({email: 'one@first.com'})
+                            .then((foundUser) => {
+                                foundUser.loginSuccess('test', 'test').save();
+                                done();
+                            });
+                    }).catch((err) => {
+                        done(err);
+                    });
+                });
         });
         it('removes the authenticated user session successfully', (done) => {
             tu.findAndLogin('one@first.com')
@@ -189,10 +189,9 @@ describe('Session', () => {
                         method: 'DELETE',
                         url: '/session',
                         headers: {
-                            Authorization: ''
+                            Authorization: u.authheader
                         }
                     };
-                    request.headers.Authorization = u.authheader;
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         Users.findOne({email: 'one@first.com'})

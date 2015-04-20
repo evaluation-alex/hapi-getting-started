@@ -12,9 +12,7 @@ module.exports.register = (server, options, next) => {
             if (response.source.i18n) {
                 response.source.i18n(locale);
             } else if (utils.hasItems(response.source.data) && response.source.data[0].i18n) {
-                _.forEach(response.source.data, (d) => {
-                    d.i18n(locale);
-                });
+                _.forEach(response.source.data, (d) => d.i18n(locale));
             }
         }
         return reply.continue();

@@ -1,7 +1,6 @@
 'use strict';
 let ModelBuilder = require('./../common/model-builder');
 let Joi = require('joi');
-let Bluebird = require('bluebird');
 let _ = require('lodash');
 let utils = require('./../common/utils');
 var Blogs = (new ModelBuilder())
@@ -70,9 +69,7 @@ Blogs.newObject = (doc, by) => {
 };
 Blogs.create = (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) => {
     let self = this;
-    let id = Blogs.ObjectID();
     let document = {
-        _id: id,
         title: title,
         organisation: organisation,
         description: description,

@@ -10,8 +10,8 @@ let decorateWithI18N = require('./mixins/i18n');
 let decorateWithAreValid = require('./mixins/exist');
 var ModelBuilder = function ModelBuilder () {
 };
-ModelBuilder.prototype.virtualModel = (model) => {
-    this.model = model;
+ModelBuilder.prototype.virtualModel = () => {
+    this.model = function virtualModel() {};
     return this;
 };
 ModelBuilder.prototype.onModel = (model) => {
@@ -22,11 +22,6 @@ ModelBuilder.prototype.onModel = (model) => {
 ModelBuilder.prototype.extendVirtualModel = (fromVirtualModel) => {
     _.extend(this.model, _.omit(fromVirtualModel, ['schema', 'create']));
     _.extend(this.model.prototype, fromVirtualModel.prototype);
-    return this;
-};
-ModelBuilder.prototype.extendModel = (fromModel) => {
-    _.extend(this.model, _.omit(fromModel, ['create', 'newObject', 'collection', 'schema', 'indexes']));
-    _.extend(this.model.prototype, _.omit(fromModel.prototype, ['insertAndAudit', 'save', 'trackChanges']));
     return this;
 };
 ModelBuilder.prototype.usingConnection = (name) => {

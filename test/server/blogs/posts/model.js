@@ -8,19 +8,19 @@ let _ = require('lodash');
 let tu = require('./../../testutils');
 let Bluebird = require('bluebird');
 let Code = require('code');
-let Lab = require('lab');
-let lab = exports.lab = Lab.script();
-let describe = lab.describe;
-let it = lab.it;
-let before = lab.before;
-let after = lab.after;
+//let Lab = require('lab');
+//let lab = exports.lab = Lab.script();
+//let describe = lab.describe;
+//let it = lab.it;
+//let before = lab.before;
+//let after = lab.after;
 let expect = Code.expect;
 describe('Posts Model', () => {
     let postsToClear = [];
     let blogsToClear = [];
     let userGroupsToClear = [];
     let blogId = Posts.ObjectId('54ec3cdbb25155f40ce6107e');
-    before({timeout: 60000000}, (done) => {
+    before((done) => {
         tu.setupRolesAndUsers()
             .then(() => {
                 done();

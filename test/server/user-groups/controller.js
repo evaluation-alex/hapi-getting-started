@@ -5,12 +5,12 @@ let Notifications = require(relativeToServer + 'users/notifications/model');
 let Audit = require(relativeToServer + 'audit/model');
 let tu = require('./../testutils');
 let Code = require('code');
-let Lab = require('lab');
-let lab = exports.lab = Lab.script();
-let describe = lab.describe;
-let it = lab.it;
-let before = lab.before;
-let after = lab.after;
+//let Lab = require('lab');
+//let lab = exports.lab = Lab.script();
+//let describe = lab.describe;
+//let it = lab.it;
+//let before = lab.before;
+//let after = lab.after;
 let expect = Code.expect;
 describe('UserGroups', () => {
     let rootAuthHeader = null;
@@ -507,7 +507,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutGroupAddRemoveUserOwner');
@@ -622,7 +622,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutJoinGroupAddUser');
@@ -682,7 +682,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutJoinPublicGroupAddUser');
@@ -791,7 +791,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutLeaveGroupAddUser');
@@ -904,7 +904,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutApproveGroupAddUser');
@@ -1095,7 +1095,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutRejectGroupAddUser');

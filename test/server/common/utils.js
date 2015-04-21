@@ -3,10 +3,10 @@ let relativeToServer = './../../../server/';
 let utils = require(relativeToServer + '/common/utils');
 let Config = require(relativeToServer + '../config');
 let Code = require('code');
-let Lab = require('lab');
-let lab = exports.lab = Lab.script();
-let describe = lab.describe;
-let it = lab.it;
+//let Lab = require('lab');
+//let lab = exports.lab = Lab.script();
+//let describe = lab.describe;
+//let it = lab.it;
 let expect = Code.expect;
 describe('Utils', () => {
     it('should log when errback called with', (done) => {

@@ -8,12 +8,12 @@ let Bluebird = require('bluebird');
 let AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
 let tu = require('./../../testutils');
 let Code = require('code');
-let Lab = require('lab');
-let lab = exports.lab = Lab.script();
-let describe = lab.describe;
-let it = lab.it;
-let before = lab.before;
-let after = lab.after;
+//let Lab = require('lab');
+//let lab = exports.lab = Lab.script();
+//let describe = lab.describe;
+//let it = lab.it;
+//let before = lab.before;
+//let after = lab.after;
 let expect = Code.expect;
 describe('Session', () => {
     let server = null;

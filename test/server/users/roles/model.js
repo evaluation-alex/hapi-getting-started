@@ -3,12 +3,12 @@ let relativeToServer = './../../../../server/';
 let Roles = require(relativeToServer + '/users/roles/model');
 let tu = require('./../../testutils');
 let Code = require('code');
-let Lab = require('lab');
-let lab = exports.lab = Lab.script();
-let describe = lab.describe;
-let it = lab.it;
-let before = lab.before;
-let after = lab.after;
+//let Lab = require('lab');
+//let lab = exports.lab = Lab.script();
+//let describe = lab.describe;
+//let it = lab.it;
+//let before = lab.before;
+//let after = lab.after;
 let expect = Code.expect;
 describe('Roles Model', () => {
     let rolesToClear = [];

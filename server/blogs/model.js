@@ -3,8 +3,6 @@ let ModelBuilder = require('./../common/model-builder');
 let Joi = require('joi');
 let Bluebird = require('bluebird');
 let _ = require('lodash');
-let mkdirp = Bluebird.promisify(require('mkdirp'));
-let Config = require('./../../config');
 let utils = require('./../common/utils');
 var Blogs = (new ModelBuilder())
     .onModel(function Blogs (attrs) {
@@ -73,7 +71,6 @@ Blogs.newObject = (doc, by) => {
 Blogs.create = (title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) => {
     let self = this;
     let id = Blogs.ObjectID();
-    mkdirp((Config.storage.diskPath + '/' + organisation + '/blogs/' + id.toString()).replace(' ', '-'), {});
     let document = {
         _id: id,
         title: title,

@@ -7,19 +7,19 @@ let Notifications = require(relativeToServer + 'users/notifications/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
 let Code = require('code');
-let Lab = require('lab');
-let lab = exports.lab = Lab.script();
-let describe = lab.describe;
-let it = lab.it;
-let before = lab.before;
-let after = lab.after;
+//let Lab = require('lab');
+//let lab = exports.lab = Lab.script();
+//let describe = lab.describe;
+//let it = lab.it;
+//let before = lab.before;
+//let after = lab.after;
 let expect = Code.expect;
 describe('Blogs', () => {
     let rootAuthHeader = null;
     let server = null;
     let blogsToClear = [];
     let groupsToClear = [];
-    before({timeout: 60000000}, (done) => {
+    before((done) => {
         tu.setupServer()
             .then((res) => {
                 server = res.server;
@@ -486,7 +486,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('test PUT /blogs add remove subscribers and owners');
@@ -703,7 +703,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('testPutSubscribeGroupAddUser');
@@ -760,7 +760,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('testPutSubscribePublicGroupAddUser');
@@ -862,7 +862,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('testPutUnSubscribeGroupAddUser');
@@ -974,7 +974,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('testBlogPutApproveAddUser');
@@ -1165,7 +1165,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 1000);
+                                }, 10000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('testPutRejectBlogAddUser');

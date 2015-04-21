@@ -4,10 +4,10 @@ let relativeTo = './../../../';
 let Config = require(relativeTo + 'config');
 let Mailer = require(relativeToServer + 'common/plugins/mailer');
 let Code = require('code');
-let Lab = require('lab');
-let lab = exports.lab = Lab.script();
-let describe = lab.describe;
-let it = lab.it;
+//let Lab = require('lab');
+//let lab = exports.lab = Lab.script();
+//let describe = lab.describe;
+//let it = lab.it;
 let expect = Code.expect;
 describe('Mailer', () => {
     it('returns error when read file fails', (done) => {

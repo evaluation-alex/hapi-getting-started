@@ -8,8 +8,7 @@ let errors = require('./../../common/errors');
 let utils = require('./../../common/utils');
 let ModelBuilder = require('./../../common/model-builder');
 var Session = (new ModelBuilder())
-    .virtualModel(function Session () {
-    })
+    .virtualModel()
     .usingSchema(Joi.array().items(Joi.object().keys({
         ipaddress: Joi.string(),
         key: Joi.object(),

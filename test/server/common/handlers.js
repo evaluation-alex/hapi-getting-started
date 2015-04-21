@@ -6,10 +6,10 @@ let FindOneHandler = require(relativeToServer + 'common/handlers/find-one');
 let insertAndAudit = require(relativeToServer + 'common/mixins/insert');
 let Bluebird = require('bluebird');
 let Code = require('code');
-let Lab = require('lab');
-let lab = exports.lab = Lab.script();
-let describe = lab.describe;
-let it = lab.it;
+//let Lab = require('lab');
+//let lab = exports.lab = Lab.script();
+//let describe = lab.describe;
+//let it = lab.it;
 let expect = Code.expect;
 describe('Handlers and Mixins', () => {
     it('create handler should log and boom errors when it encounters exceptions', (done) => {

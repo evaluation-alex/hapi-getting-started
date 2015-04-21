@@ -11,8 +11,7 @@ let notificationPrefSchema = Joi.object().keys({
     blocked: Joi.array().items(Joi.object())
 });
 var Preferences = (new ModelBuilder())
-    .virtualModel(function Preferences () {
-    })
+    .virtualModel()
     .usingSchema(Joi.object().keys({
         notifications: Joi.object().keys({
             blogs: notificationPrefSchema,

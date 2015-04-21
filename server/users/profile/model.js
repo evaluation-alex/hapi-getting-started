@@ -13,8 +13,7 @@ let addressSchema = Joi.object().keys({
     country: Joi.string()
 });
 var Profile = (new ModelBuilder())
-    .virtualModel(function Profile () {
-    })
+    .virtualModel()
     .usingSchema(Joi.object().keys({
         firstName: Joi.string(),
         lastName: Joi.string(),

@@ -1,20 +1,20 @@
 'use strict';
 let relativeToServer = './../../../server/';
 let Code = require('code');
-let Lab = require('lab');
+//let Lab = require('lab');
 let tu = require('./../testutils');
 let Users = require(relativeToServer + 'users/model');
-let lab = exports.lab = Lab.script();
-let describe = lab.describe;
-let it = lab.it;
-let before = lab.before;
-let after = lab.after;
+//let lab = exports.lab = Lab.script();
+//let describe = lab.describe;
+//let it = lab.it;
+//let before = lab.before;
+//let after = lab.after;
 let expect = Code.expect;
 describe('Audit', () => {
     let authheader = '';
     let server = null;
     let emails = [];
-    before({timeout: 60000000}, (done) => {
+    before((done) => {
         tu.setupServer()
             .then((res) => {
                 server = res.server;

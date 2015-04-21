@@ -76,7 +76,16 @@
     "nomen": false,// true: Prohibit dangling `_` in variables
     "onevar": false,// true: Allow only one `var` statement per function
     "passfail": false,// true: Stop on first error
-    "white": false// true: Check against strict whitespace and indentation rules
+    "white": false,// true: Check against strict whitespace and indentation rules
 
     // Custom Globals
+    "predef": [
+        "describe",
+        "before",
+        "beforeEach",
+        "after",
+        "afterEach",
+        "it",
+        "expect"
+    ]
 }

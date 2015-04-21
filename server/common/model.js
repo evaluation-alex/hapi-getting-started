@@ -3,8 +3,7 @@ let Mongodb = require('mongodb');
 let utils = require('./utils');
 let Bluebird = require('bluebird');
 let _ = require('lodash');
-var Model = function Model () {
-};
+var Model = function Model () {};
 Model.ObjectId = Model.ObjectID = Mongodb.ObjectID;
 Model.connect = (name, config) => {
     return new Bluebird((resolve, reject) => {
@@ -36,10 +35,8 @@ Model.ensureIndexes = () => {
             Model.db(self.connection).ensureIndex(self.collection,
                 index[0],
                 index[1] || {},
-                utils.defaultcb('ensureIndex', resolve, (err) => {
-                    console.log(err);
-                    reject(err);
-                }));
+                utils.defaultcb(self.collection + '.ensureIndex', resolve, reject)
+            );
         });
     }));
 };

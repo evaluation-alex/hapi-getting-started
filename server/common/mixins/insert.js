@@ -2,7 +2,7 @@
 let saveChangeHistory = require('./save-change-history');
 let errors = require('./../errors');
 let Bluebird = require('bluebird');
-module.exports = function decorateWithInsertAndAudit (Model, idToUse, action) {
+module.exports = (Model, idToUse, action) => {
     Model.insertAndAudit = (doc) => {
         let self = this;
         return self.insert(doc)

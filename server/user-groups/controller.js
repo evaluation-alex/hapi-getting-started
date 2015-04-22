@@ -4,8 +4,8 @@ let UserGroups = require('./model');
 let ControllerFactory = require('./../common/controller-factory');
 let areValid = require('./../common/prereqs/are-valid');
 let isMemberOf = require('./../common/prereqs/is-member-of');
-let CreateDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
-let AddRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
+let createDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
+let addRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
 let utils = require('./../common/utils');
 var Controller = new ControllerFactory(UserGroups)
     .enableNotifications()
@@ -22,10 +22,10 @@ var Controller = new ControllerFactory(UserGroups)
     ], (request) => {
         return {
             name: request.payload.name,
-            organisation: request.auth.credentials.user.organisation
+            organisation: utils.org(request)
         };
     })
-    .sendNotifications(new CreateDeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name', 'new'))
+    .sendNotifications(createDeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name', 'new'))
     .findController({
         query: {
             email: Joi.string(),
@@ -47,9 +47,9 @@ var Controller = new ControllerFactory(UserGroups)
     }, [isMemberOf(UserGroups, ['owners']),
         areValid.users(['addedMembers', 'addedOwners'])
     ], 'update', 'update')
-    .sendNotifications(new AddRemoveNotificationsBuilder('UserGroup', ['owners', 'members'], 'owners', 'name'))
+    .sendNotifications(addRemoveNotificationsBuilder('UserGroup', ['owners', 'members'], 'owners', 'name'))
     .deleteController(isMemberOf(UserGroups, ['owners']))
-    .sendNotifications(new CreateDeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name', 'delete'))
+    .sendNotifications(createDeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name', 'delete'))
     .joinLeaveController(['members'], 'owners', 'name')
     .approveRejectController('addedMembers', 'owners', 'name')
     .doneConfiguring();

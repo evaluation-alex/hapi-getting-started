@@ -130,7 +130,7 @@ let decorateWithJoinApproveRejectLeave = (onObject, affectedRole, needsApproval)
         return self['remove' + affectedRoleMethodSuffix]([by], by);
     };
 };
-module.exports = function decorateWithUpdateMethods (Model, properties, lists, updateMethodName, affectedRole, needsApproval) {
+module.exports = (Model, properties, lists, updateMethodName, affectedRole, needsApproval) => {
     let props = propDescriptors(properties);
     let arrs = arrDescriptors(lists);
     decorateWithSetMethods(Model, props);

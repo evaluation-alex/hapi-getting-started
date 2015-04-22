@@ -1,8 +1,8 @@
 'use strict';
 let relativeToServer = './../../../server/';
-let CreateHandler = require(relativeToServer + 'common/handlers/create');
-let FindHandler = require(relativeToServer + 'common/handlers/find');
-let FindOneHandler = require(relativeToServer + 'common/handlers/find-one');
+let createHandler = require(relativeToServer + 'common/handlers/create');
+let findHandler = require(relativeToServer + 'common/handlers/find');
+let findOneHandler = require(relativeToServer + 'common/handlers/find-one');
 let insertAndAudit = require(relativeToServer + 'common/mixins/insert');
 let Bluebird = require('bluebird');
 let Code = require('code');
@@ -32,7 +32,7 @@ describe('Handlers and Mixins', () => {
                 return Bluebird.reject(new Error('test'));
             }
         };
-        let handler = new CreateHandler(Model, undefined, undefined);
+        let handler = createHandler(Model, undefined, undefined);
         handler(request, reply);
         done();
     });
@@ -59,7 +59,7 @@ describe('Handlers and Mixins', () => {
         let reply = (args) => {
             expect(args).to.be.an.instanceof(Error);
         };
-        let handler = new FindHandler(Model, queryBuilder, undefined);
+        let handler = findHandler(Model, queryBuilder, undefined);
         handler(request, reply);
         done();
     });
@@ -86,7 +86,7 @@ describe('Handlers and Mixins', () => {
             expect(obj).to.equal('test');
             return Bluebird.reject(new Error('test'));
         };
-        let handler = new FindOneHandler(Model, findOneCb);
+        let handler = findOneHandler(Model, findOneCb);
         handler(request, reply);
         done();
     });

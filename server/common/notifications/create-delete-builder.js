@@ -1,5 +1,6 @@
 'use strict';
-module.exports = function ObjectCreateDeleteNotificationBuilder (type, owners, title, action) {
+let utils = require('./../utils');
+module.exports = (type, owners, title, action) => {
     const actions = {
         'new': {
             title: type + ' {{title}} created.',
@@ -16,7 +17,7 @@ module.exports = function ObjectCreateDeleteNotificationBuilder (type, owners, t
             title: [actions[action].title, {title: obj[title]}],
             description: [actions[action].description, {
                 title: obj[title],
-                createdBy: request.auth.credentials.user.email
+                createdBy: utils.by(request)
             }]
         };
     };

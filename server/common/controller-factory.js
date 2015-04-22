@@ -7,16 +7,16 @@ let isMemberOf = require('./prereqs/is-member-of');
 let isUnique = require('./prereqs/is-unique');
 let areValid = require('./prereqs/are-valid');
 let prePopulate = require('./prereqs/pre-populate');
-let NewHandler = require('./handlers/create');
-let FindHandler = require('./handlers/find');
-let FindOneHandler = require('./handlers/find-one');
-let UpdateHandler = require('./handlers/update');
-let SendNotifications = require('./handlers/send-notifications');
-let CancelNotifications = require('./handlers/cancel-notifications');
-let JoinLeaveNotificationsBuilder = require('./notifications/join-leave-builder');
-let CancelJoinNotificationsBuilder = require('./notifications/cancel-join-builder');
-let ApproveNotificationsBuilder = require('./notifications/approve-builder');
-let RejectNotificationsBuilder = require('./notifications/reject-builder');
+let newHandler = require('./handlers/create');
+let findHandler = require('./handlers/find');
+let findOneHandler = require('./handlers/find-one');
+let updateHandler = require('./handlers/update');
+let sendNotifications = require('./handlers/send-notifications');
+let cancelNotifications = require('./handlers/cancel-notifications');
+let joinLeaveNotificationsBuilder = require('./notifications/join-leave-builder');
+let cancelJoinNotificationsBuilder = require('./notifications/cancel-join-builder');
+let approveNotificationsBuilder = require('./notifications/approve-builder');
+let rejectNotificationsBuilder = require('./notifications/reject-builder');
 var ControllerFactory = function ControllerFactory (model) {
     let self = this;
     self.controller = {};
@@ -65,12 +65,12 @@ ControllerFactory.prototype.handleUsing = (handler) => {
 };
 ControllerFactory.prototype.sendNotifications = (notifyCb) => {
     let self = this;
-    self.controller[self.method].on('invoked', new SendNotifications(self.model, notifyCb));
+    self.controller[self.method].on('invoked', sendNotifications(self.model, notifyCb));
     return self;
 };
 ControllerFactory.prototype.cancelNotifications = (cancelAction, cancelNotificationsCb) => {
     let self = this;
-    self.controller[self.method].on('invoked', new CancelNotifications(self.model, cancelAction, cancelNotificationsCb));
+    self.controller[self.method].on('invoked', cancelNotifications(self.model, cancelAction, cancelNotificationsCb));
     return self;
 };
 ControllerFactory.prototype.doneConfiguring = () => {
@@ -84,14 +84,14 @@ ControllerFactory.prototype.newController = (validator, prereqs, uniqueCheck, ne
         prereqs]);
     self.forMethod('new')
         .preProcessWith(pre)
-        .handleUsing(new NewHandler(self.model, self.controller.new, newCb));
+        .handleUsing(newHandler(self.model, self.controller.new, newCb));
     return self;
 };
 ControllerFactory.prototype.customNewController = (method, validator, uniqueCheck, newCb) => {
     let self = this;
     self.forMethod(method)
         .preProcessWith([isUnique(self.model, uniqueCheck)])
-        .handleUsing(new NewHandler(self.model, self.controller[method], newCb));
+        .handleUsing(newHandler(self.model, self.controller[method], newCb));
     return self;
 };
 ControllerFactory.prototype.findController = (validator, queryBuilder, findCb) => {
@@ -103,7 +103,7 @@ ControllerFactory.prototype.findController = (validator, queryBuilder, findCb) =
     self.forMethod('find')
         .withValidation(validator)
         .preProcessWith(ensurePermissions('view', self.component))
-        .handleUsing(new FindHandler(self.model, queryBuilder, findCb));
+        .handleUsing(findHandler(self.model, queryBuilder, findCb));
     return self;
 };
 ControllerFactory.prototype.findOneController = (prereqs, findOneCb) => {
@@ -112,7 +112,7 @@ ControllerFactory.prototype.findOneController = (prereqs, findOneCb) => {
         (f) => !!f);
     self.forMethod('findOne')
         .preProcessWith(pre)
-        .handleUsing(new FindOneHandler(self.model, findOneCb));
+        .handleUsing(findOneHandler(self.model, findOneCb));
     return self;
 };
 ControllerFactory.prototype.updateController = (validator, prereqs, methodName, updateCb) => {
@@ -121,7 +121,7 @@ ControllerFactory.prototype.updateController = (validator, prereqs, methodName, 
     let pre = _.flatten([perms ? [] : ensurePermissions('update', self.component), prePopulate(self.model, 'id'), prereqs]);
     self.forMethod(methodName)
         .preProcessWith(pre)
-        .handleUsing(new UpdateHandler(self.model, self.controller[methodName], updateCb));
+        .handleUsing(updateHandler(self.model, self.controller[methodName], updateCb));
     return self;
 };
 ControllerFactory.prototype.deleteController = (pre) => {
@@ -135,7 +135,7 @@ ControllerFactory.prototype.joinLeaveController = (group, approvers, idForNotifi
         ],
         'join',
         'join');
-    self.sendNotifications(new JoinLeaveNotificationsBuilder(approvers, idForNotificationTitle, 'join', {
+    self.sendNotifications(joinLeaveNotificationsBuilder(approvers, idForNotificationTitle, 'join', {
         'public': '{{email}} has joined {{title}}',
         restricted: '{{email}} has joined {{title}} and needs your approval'
     }, {
@@ -148,7 +148,7 @@ ControllerFactory.prototype.joinLeaveController = (group, approvers, idForNotifi
         ],
         'leave',
         'leave');
-    self.sendNotifications(new JoinLeaveNotificationsBuilder(approvers, idForNotificationTitle, 'leave', {
+    self.sendNotifications(joinLeaveNotificationsBuilder(approvers, idForNotificationTitle, 'leave', {
         'public': '{{email}} has left {{title}}',
         restricted: '{{email}} has left {{title}}'
     }, {
@@ -171,9 +171,9 @@ ControllerFactory.prototype.approveRejectController = (toAdd, approvers, idForNo
             action,
             action);
         self.sendNotifications(action === 'approve' ?
-            new ApproveNotificationsBuilder(toAdd, approvers, idForNotificationsTitle) :
-            new RejectNotificationsBuilder(toAdd, idForNotificationsTitle));
-        self.cancelNotifications('approve', new CancelJoinNotificationsBuilder(toAdd));
+            approveNotificationsBuilder(toAdd, approvers, idForNotificationsTitle) :
+            rejectNotificationsBuilder(toAdd, idForNotificationsTitle));
+        self.cancelNotifications('approve', cancelJoinNotificationsBuilder(toAdd));
     });
     return self;
 };

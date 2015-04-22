@@ -3,5 +3,5 @@ require('glue').compose(require('./config').manifest, {relativeTo: __dirname}, (
     if (err) {
         throw err;
     }
-    server.start(() => console.log('engage'));
+    server.start(() => console.log('engage ' + JSON.stringify(server.info)));
 });

@@ -1,7 +1,7 @@
 'use strict';
 let _ = require('lodash');
 let ___ = require('./../../../config').i18n;
-module.exports = function decorateWithI18N (Model, fields) {
+module.exports = (Model, fields) => {
     Model.i18n = (locale) => {
         let self = this;
         _.forEach(fields, (field) => {

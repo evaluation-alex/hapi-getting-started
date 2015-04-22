@@ -1,12 +1,13 @@
 'use strict';
 let _ = require('lodash');
-module.exports = function JoinCancelNotificationBuilder (toAdd) {
+let utils = require('./../utils');
+module.exports = (toAdd) => {
     return (obj, request, notification) => {
         let modified = false;
         _.forEach(request.payload[toAdd], (a) => {
             if (notification.content.join === a) {
                 modified = true;
-                notification.setState('cancelled', request.auth.credentials.user.email);
+                notification.setState('cancelled', utils.by(request));
             }
         });
         return modified ? notification.save() : notification;

@@ -3,11 +3,11 @@ let Bluebird = require('bluebird');
 let Notifications = require('./../../users/notifications/model');
 let _ = require('lodash');
 let utils = require('./../utils');
-module.exports = function CancelNotification (model, cancelAction, cancelNotificationsCb) {
+module.exports = (model, cancelAction, cancelNotificationsCb) => {
     let cancelNotificationsHook = Bluebird.method((target, request, notification) =>
             cancelNotificationsCb ?
                 cancelNotificationsCb(target, request, notification) :
-                notification.setState('cancelled', request.auth.credentials.user.email).save()
+                notification.setState('cancelled', utils.by(request)).save()
     );
     return (target, request) => {
         return Notifications.find({

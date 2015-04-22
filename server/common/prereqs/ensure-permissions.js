@@ -1,18 +1,15 @@
 'use strict';
 let errors = require('./../errors');
+let utils = require('./../utils');
 module.exports = (forAction, onObject) => {
     return {
         assign: 'ensurePermissions',
         method: (request, reply) => {
-            let ret = request.auth.credentials.user.hasPermissionsTo(forAction, onObject);
-            if (!ret) {
-                return reply(new errors.NoPermissionsForActionError({
-                    action: forAction,
-                    object: onObject,
-                    user: request.auth.credentials.user.email
-                }));
-            }
-            reply(true);
+            reply(
+                !utils.user(request).hasPermissionsTo(forAction, onObject) ?
+                new errors.NoPermissionsForActionError({action: forAction, object: onObject, user: utils.by(request)}) :
+                true
+            );
         }
     };
 };

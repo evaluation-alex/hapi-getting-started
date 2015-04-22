@@ -2,7 +2,7 @@
 let _ = require('lodash');
 let Bluebird = require('bluebird');
 let utils = require('./../utils');
-module.exports = function decorateWithAreValid (Model, property) {
+module.exports = (Model, property) => {
     Model.areValid = Bluebird.method((toCheck, organisation) => {
         let self = this;
         if (!utils.hasItems(toCheck)) {

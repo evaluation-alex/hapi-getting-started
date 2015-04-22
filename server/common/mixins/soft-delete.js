@@ -1,5 +1,5 @@
 'use strict';
-module.exports = function decorateWithSoftDelete (Model) {
+module.exports = (Model) => {
     Model.del = (doc, by) => {
         let self = this;
         return self.deactivate(by);

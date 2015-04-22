@@ -1,5 +1,5 @@
 'use strict';
-module.exports = function decorateWithTrackChanges (Model, type, idToUse) {
+module.exports = (Model, type, idToUse) => {
     Model.trackChanges = (action, oldValues, newValues, by) => {
         let self = this;
         self.audit = self.audit || {

@@ -4,8 +4,8 @@ let Blogs = require('./model');
 let ControllerFactory = require('./../common/controller-factory');
 let areValid = require('./../common/prereqs/are-valid');
 let isMemberOf = require('./../common/prereqs/is-member-of');
-let CreateDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
-let AddRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
+let createDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
+let addRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
 let utils = require('./../common/utils');
 var Controller = new ControllerFactory(Blogs)
     .enableNotifications()
@@ -27,10 +27,10 @@ var Controller = new ControllerFactory(Blogs)
     ], (request) => {
         return {
             title: request.payload.title,
-            organisation: request.auth.credentials.user.organisation
+            organisation: utils.org(request)
         };
     })
-    .sendNotifications(new CreateDeleteObjectNotificationsBuilder('Blog', 'owners', 'title', 'new'))
+    .sendNotifications(createDeleteObjectNotificationsBuilder('Blog', 'owners', 'title', 'new'))
     .findController({
         query: {
             title: Joi.string(),
@@ -68,9 +68,9 @@ var Controller = new ControllerFactory(Blogs)
         areValid.groups(['addedSubscriberGroups']),
         isMemberOf(Blogs, ['owners'])
     ], 'update', 'update')
-    .sendNotifications(new AddRemoveNotificationsBuilder('Blog', ['owners', 'contributors', 'subscribers', 'subscriberGroups'], 'owners', 'title'))
+    .sendNotifications(addRemoveNotificationsBuilder('Blog', ['owners', 'contributors', 'subscribers', 'subscriberGroups'], 'owners', 'title'))
     .deleteController(isMemberOf(Blogs, ['owners']))
-    .sendNotifications(new CreateDeleteObjectNotificationsBuilder('Blog', 'owners', 'title', 'delete'))
+    .sendNotifications(createDeleteObjectNotificationsBuilder('Blog', 'owners', 'title', 'delete'))
     .joinLeaveController(['subscribers'], 'owners', 'title')
     .approveRejectController('addedSubscribers', 'owners', 'title')
     .doneConfiguring();

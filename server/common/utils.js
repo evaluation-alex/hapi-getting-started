@@ -34,25 +34,23 @@ module.exports.defaultcb = (bucket, resolve, reject, query) => {
         }
     };
 };
-module.exports.ip = (request) => {
-    const ret = request.info.remoteAddress;
-    return ret === '' ? 'test' : ret;
-};
+module.exports.ip = (request) => request.info.remoteAddress === '' ? 'test' : request.info.remoteAddress;
+module.exports.by = (request) => request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
+module.exports.org = (request) => request.auth.credentials ? request.auth.credentials.user.organisation : '';
+module.exports.user = (request) => request.auth.credentials ? request.auth.credentials.user : undefined;
 module.exports.locale = (request) => {
     let ret = _.get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
     //TODO: if not found in user prefs, figure out from request headers - tbd
     return ret ? ret : 'en';
 };
-module.exports.lookupParamsOrPayloadOrQuery = (request, field) => {
-    const ret = request.params && request.params[field] ?
+module.exports.lookupParamsOrPayloadOrQuery = (request, field) =>
+    request.params && request.params[field] ?
         request.params[field] :
         request.payload && request.payload[field] ?
             request.payload[field] :
             request.query && request.query[field] ?
                 request.query[field] :
                 undefined;
-    return ret;
-};
 module.exports.hasItems = (arr) => arr && arr.length > 0;
 module.exports.buildQueryFromRequestForFields = (query, request, fields) => {
     _.forEach(fields, (pair) => {

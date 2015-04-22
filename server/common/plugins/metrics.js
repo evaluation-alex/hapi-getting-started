@@ -15,7 +15,7 @@ let gatherPerfStats = (request) => {
     let ua = UserAgent.lookup(request.headers['user-agent']);
     const path = normalizePath(request) + '.' + request.method.toUpperCase();
     const statusCode = '.' + request.response.statusCode;
-    const user = request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
+    const user = utils.by(request);
     const device = ua.device.toString();
     const browser = ua.toString();
     const start = request.info.received;

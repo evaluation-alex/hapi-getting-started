@@ -81,7 +81,7 @@ var Controller = new ControllerFactory(Posts)
     ], (request) => {
         return {
             blogId: utils.lookupParamsOrPayloadOrQuery(request, 'blogId'),
-            organisation: request.auth.credentials.user.organisation,
+            organisation: utils.org(request),
             title: request.payload.title,
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
         };

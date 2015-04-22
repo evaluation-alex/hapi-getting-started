@@ -2,7 +2,7 @@
 let Bluebird = require('bluebird');
 let Notifications = require('./../../users/notifications/model');
 let utils = require('./../utils');
-module.exports = function SendNotifications (model, notifyCb) {
+module.exports = (model, notifyCb) => {
     let notifyHook = Bluebird.method((target, request) => notifyCb(target, request));
     return (target, request) => {
         return notifyHook(target, request)
@@ -17,7 +17,7 @@ module.exports = function SendNotifications (model, notifyCb) {
                         args.action ? args.action : 'fyi',
                         args.priority ? args.priority : 'low',
                         args.description,
-                        request.auth.credentials.user.email);
+                        utils.by(request));
                 }
                 return undefined;
             })

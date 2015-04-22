@@ -16,7 +16,7 @@ let areValid = (Model, pldPropToLookup) => {
         });
         toLookup = _.flatten(toLookup);
         if (utils.hasItems(toLookup)) {
-            Model.areValid(toLookup, request.auth.credentials.user.organisation)
+            Model.areValid(toLookup, utils.org(request))
                 .then((validated) => {
                     let msg = '';
                     _.forEach(toLookup, (a) => {

@@ -1,6 +1,6 @@
 'use strict';
 let saveChangeHistory = require('./save-change-history');
-module.exports = function decorateWithSave (model, Model) {
+module.exports = (model, Model) => {
     model.save = () => {
         let self = this;
         return saveChangeHistory(self.audit)

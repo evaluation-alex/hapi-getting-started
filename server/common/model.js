@@ -3,10 +3,11 @@ let Mongodb = require('mongodb');
 let utils = require('./utils');
 let Bluebird = require('bluebird');
 let _ = require('lodash');
-var Model = function Model () {};
+var Model = function Model () {
+};
 Model.ObjectId = Model.ObjectID = Mongodb.ObjectID;
-Model.connect = (name, config) => {
-    return new Bluebird((resolve, reject) => {
+Model.connect = (name, config) =>
+    new Bluebird((resolve, reject) => {
         Model.connections = Model.connections || {};
         if (Model.connections[name]) {
             resolve(Model.connections[name]);
@@ -21,10 +22,7 @@ Model.connect = (name, config) => {
                     reject));
         }
     });
-};
-Model.db = (name) => {
-    return Model.connections[name];
-};
+Model.db = (name) => Model.connections[name];
 Model.disconnect = (name) => {
     Model.db(name).close(false, utils.errback);
 };

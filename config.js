@@ -1,19 +1,20 @@
 'use strict';
-let Fs = require('fs');
+let _ = require('lodash');
+let fs = require('fs');
 let devnull = require('dev-null');
 let Bunyan = require('bunyan');
 let StatsD = require('node-statsd');
 let i18n = require('i18n');
-if (!Fs.existsSync('.opts')) {
+if (!fs.existsSync('.opts')) {
     console.log('.opts file missing. will exit');
     process.exit(1);
 }
-if (!Fs.existsSync('manifest.json')) {
+if (!fs.existsSync('manifest.json')) {
     console.log('manifest.json file missing. will exit');
     process.exit(1);
 }
-let args = JSON.parse(Fs.readFileSync('.opts'));
-let manifest = JSON.parse(Fs.readFileSync('manifest.json'));
+let args = JSON.parse(fs.readFileSync('.opts'));
+let manifest = JSON.parse(fs.readFileSync('manifest.json'));
 let nodemailer = {};
 if (!args.sendemails) {
     nodemailer = {
@@ -56,16 +57,25 @@ var config = {
     i18n: i18n,
     manifest: {
         plugins: manifest.plugins,
-        server: manifest.server
+        server: manifest.server,
+        connections: manifest.connections
     }
 };
-if (manifest.connections[0].tls.key.length > 0 &&
-    manifest.connections[0].tls.cert.length > 0 &&
-    Fs.existsSync(manifest.connections[0].tls.key) &&
-    Fs.existsSync(manifest.connections[0].tls.cert)) {
-    manifest.connections[0].tls.key = Fs.readFileSync(manifest.connections[0].tls.key);
-    manifest.connections[0].tls.cert = Fs.readFileSync(manifest.connections[0].tls.cert);
-}
-config.manifest.connections = args.connections;
+
+_.forEach(manifest.connections, (connection) => {
+    if (connection.tls &&
+        connection.tls.key &&
+        connection.tls.key.length > 0 &&
+        connection.tls.cert &&
+        connection.tls.cert.length > 0 &&
+        fs.existsSync(connection.tls.key) &&
+        fs.existsSync(connection.tls.cert)) {
+        connection.tls.key = fs.readFileSync(connection.tls.key);
+        connection.tls.cert = fs.readFileSync(connection.tls.cert);
+    } else {
+        delete connection.tls;
+    }
+});
+
 config.manifest.plugins['hapi-bunyan'].logger = config.logger;
 module.exports = config;

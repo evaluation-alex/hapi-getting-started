@@ -22,8 +22,8 @@ var Controller = new ControllerFactory(Notifications)
                 [['state', 'state'], ['objectType', 'objectType']]
             ), request,
             'createdOn');
-        query.email = request.auth.credentials.user.email;
-        let prefs = request.auth.credentials.user.preferences;
+        query.email = utils.by(request);
+        let prefs = utils.user(request).preferences;
         let blocked = _.flatten([
             prefs.notifications.blogs.blocked,
             prefs.notifications.posts.blocked,

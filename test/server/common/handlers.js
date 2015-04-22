@@ -1,5 +1,6 @@
 'use strict';
 let relativeToServer = './../../../server/';
+let Model = require(relativeToServer + 'common/model');
 let createHandler = require(relativeToServer + 'common/handlers/create');
 let findHandler = require(relativeToServer + 'common/handlers/find');
 let findOneHandler = require(relativeToServer + 'common/handlers/find-one');
@@ -103,6 +104,10 @@ describe('Handlers and Mixins', () => {
             .catch((err) => {
                 expect(err).to.exist();
             });
+        done();
+    });
+    it('Model should return already created connection', (done) => {
+        expect(Model.connect('app', {})).to.exist();
         done();
     });
 });

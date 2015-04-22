@@ -40,9 +40,6 @@ $ npm install
 
 ## Setup
 
-__WARNING:__ This will clear all data in existing `users`, `roles` MongoDB collections. It will also overwrite `/.opts` if one
-exists.
-
 ```bash
 $ npm run setup
 
@@ -68,7 +65,7 @@ $ npm run setup
 $ npm start
 
 # > hapi-getting-started@0.0.0 start /Users/k.sheth/projects/hapi-getting-started
-# > node ./index.js
+# > node --harmony ./index.js
 ```
 
 ## Philosophy
@@ -119,7 +116,7 @@ If you're changing something non-trivial, you may want to submit an issue first.
 
 ## Running tests
 
-[Lab](https://github.com/hapijs/lab) is part of the hapi.js toolset and what we use to write all of our tests.
+All our tests are written in mocha and we use istanbul-harmony to get coverage.
 
 For command line output:
 
@@ -127,7 +124,7 @@ For command line output:
 $ npm test
 
 # > hapi-getting-started@0.0.0 test /Users/k-sheth/projects/hapi-getting-started
-# > ./node_modules/lab/bin/lab -c
+# > "node --harmony ./node_modules/istanbul-harmony/lib/cli.js cover --config ./test/istanbul.yml ./node_modules/mocha/bin/_mocha -- ./test/server
 
 # ..................................................
 # ..................................................
@@ -142,18 +139,8 @@ $ npm test
 # Coverage: 100.00%
 ```
 
-With html code coverage report:
-
-```bash
-$ npm run test-with-report
-
-# > hapi-getting-started@0.0.0 test-cover /Users/k-sheth/projects/hapi-getting-started
-# > ./node_modules/lab/bin/lab -c -r html -o ./test/artifacts/coverage.html && open ./test/artifacts/coverage.html
-```
-
 This will run the tests and open a web browser to the visual code coverage
 artifacts. The generated source can be found in `/tests/artifacts/coverage.html`.
-
 
 ## License
 

@@ -69,5 +69,26 @@ describe('Utils', () => {
         }, 'f')).to.be.undefined();
         done();
     });
+    it('should give undefined / blank when unauthorized', (done) => {
+        expect(utils.org({auth: {}})).to.equal('');
+        expect(utils.user({auth: {}})).to.be.undefined();
+        done();
+    });
+    it('should give the query built with in when passed an array', (done) => {
+        let fields = [['a', 'a'], ['b', 'b']];
+        let request = {
+            payload: {
+                a: 'a1',
+                b: ['b1', 'b2']
+            }
+        };
+        let query = utils.buildQueryFromRequestForFields({}, request, fields);
+        expect(query.a.$regex).to.exist();
+        expect(query.b.$in).to.exist();
+        expect(query.b.$in.length).to.equal(2);
+        expect(query.b.$in[0]).to.be.an.instanceof(RegExp);
+        expect(query.b.$in[1]).to.be.an.instanceof(RegExp);
+        done();
+    });
 });
 

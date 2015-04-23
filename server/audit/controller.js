@@ -13,15 +13,9 @@ var Controller = new ControllerFactory(Audit)
             onAfter: Joi.date().format('YYYY-MM-DD')
         }
     }, (request) => {
-        let query = utils.buildQueryFromRequestForDateFields(
-            utils.buildQueryFromRequestForFields({}, request, [['by', 'by']]),
-            request, 'on');
-        if (request.query.objectType) {
-            query.objectChangedType = request.query.objectType;
-        }
-        if (request.query.objectChangedId) {
-            query.objectChangedId = request.query.objectChangedId;
-        }
+        let query = utils.buildQueryForPartialMatch({}, request, [['by', 'by']]);
+        query = utils.buildQueryForDateRange(query, request, 'on');
+        query = utils.buildQueryForExactMatch(query, request, [['objectType','objectChangedType'], ['objectChangedId','objectChangedId']]);
         return query;
     })
     .doneConfiguring();

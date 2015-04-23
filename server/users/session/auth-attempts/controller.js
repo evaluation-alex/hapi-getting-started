@@ -10,7 +10,7 @@ var Controller = new ControllerFactory(AuthAttempts)
             email: Joi.string()
         }
     }, (request) => {
-        let query = utils.buildQueryFromRequestForFields({}, request, [['ip', 'ip'], ['email', 'email']]);
+        let query = utils.buildQueryForPartialMatch({}, request, [['ip', 'ip'], ['email', 'email']]);
         query.organisation = '*';
         return query;
     })

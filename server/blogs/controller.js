@@ -40,8 +40,7 @@ var Controller = new ControllerFactory(Blogs)
             subGroup: Joi.string(),
             isActive: Joi.string()
         }
-    }, (request) => utils.buildQueryFromRequestForFields({},
-        request,
+    }, (request) => utils.buildQueryForPartialMatch({}, request,
         [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
             ['subGroup', 'subscriberGroups']
         ])

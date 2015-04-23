@@ -11,7 +11,7 @@ let isMemberOf = require('./../../common/prereqs/is-member-of');
 let prePopulate = require('./../../common/prereqs/pre-populate');
 let utils = require('./../../common/utils');
 /*jshint unused:false*/
-let stateBasedNotificationSend = {
+let sendNotificationsWhen = {
     'published': (post, request) => {
         let blog = request.pre.blogs;
         return UserGroups.find({name: {$in: blog.subscriberGroups}, organisation: post.organisation})
@@ -86,7 +86,7 @@ var Controller = new ControllerFactory(Posts)
             createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
         };
     })
-    .sendNotifications((post, request) => stateBasedNotificationSend[post.state](post, request))
+    .sendNotifications((post, request) => sendNotificationsWhen[post.state](post, request))
     .findController({
         query: {
             title: Joi.string(),
@@ -99,15 +99,9 @@ var Controller = new ControllerFactory(Posts)
             state: Joi.string()
         }
     }, (request) => {
-        let query = utils.buildQueryFromRequestForDateFields(
-            utils.buildQueryFromRequestForFields({},
-                request,
-                [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]
-            ), request, 'publishedOn');
-        let blogId = utils.lookupParamsOrPayloadOrQuery(request, 'blogId');
-        if (blogId) {
-            query.blogId = Blogs.ObjectID(blogId);
-        }
+        let query = utils.buildQueryForPartialMatch({}, request, [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]);
+        query = utils.buildQueryForDateRange(query, request, 'publishedOn');
+        query = utils.buildQueryForIDMatch(query, request, [['blogId', 'blogId']]);
         return query;
     }, (output, user) => {
         return Bluebird.all(_.map(output.data, (post) => post.populate(user)))
@@ -144,7 +138,7 @@ var Controller = new ControllerFactory(Posts)
     ],
     'publish',
     'publish')
-    .sendNotifications((post, request) => stateBasedNotificationSend[post.state](post, request))
+    .sendNotifications((post, request) => sendNotificationsWhen[post.state](post, request))
     .cancelNotifications('review')
     .updateController({
         payload: {
@@ -156,7 +150,7 @@ var Controller = new ControllerFactory(Posts)
     ],
     'reject',
     'reject')
-    .sendNotifications((post, request) => stateBasedNotificationSend[post.state](post, request))
+    .sendNotifications((post, request) => sendNotificationsWhen[post.state](post, request))
     .cancelNotifications('review')
     .deleteController([
         prePopulate(Blogs, 'blogId'),

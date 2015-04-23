@@ -16,12 +16,8 @@ var Controller = new ControllerFactory(Notifications)
             isActive: Joi.string()
         }
     }, (request) => {
-        let query = utils.buildQueryFromRequestForDateFields(
-            utils.buildQueryFromRequestForFields({},
-                request,
-                [['state', 'state'], ['objectType', 'objectType']]
-            ), request,
-            'createdOn');
+        let query = utils.buildQueryForPartialMatch({}, request, [['state', 'state'], ['objectType', 'objectType']]);
+        query = utils.buildQueryForDateRange(query, request, 'createdOn');
         query.email = utils.by(request);
         let prefs = utils.user(request).preferences;
         let blocked = _.flatten([

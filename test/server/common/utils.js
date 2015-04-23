@@ -82,7 +82,7 @@ describe('Utils', () => {
                 b: ['b1', 'b2']
             }
         };
-        let query = utils.buildQueryFromRequestForFields({}, request, fields);
+        let query = utils.buildQueryForPartialMatch({}, request, fields);
         expect(query.a.$regex).to.exist();
         expect(query.b.$in).to.exist();
         expect(query.b.$in.length).to.equal(2);

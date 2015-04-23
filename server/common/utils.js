@@ -1,5 +1,6 @@
 'use strict';
 let Boom = require('boom');
+let objectID = require('mongodb').ObjectID;
 let logger = require('./../../config').logger;
 let statsd = require('./../../config').statsd;
 let _ = require('lodash');
@@ -52,30 +53,41 @@ module.exports.lookupParamsOrPayloadOrQuery = (request, field) =>
                 request.query[field] :
                 undefined;
 module.exports.hasItems = (arr) => arr && arr.length > 0;
-module.exports.buildQueryFromRequestForFields = (query, request, fields) => {
+let queryBuilderForArray = {
+    objectId: (p) => {return {$in: _.map(p, (op) => objectID(op))};},
+    exact: (p) => {return {$in: p};},
+    partial: (p) => {return {$in: _.map(p, (op) => new RegExp('^.*?' + op + '.*$', 'i'))};}
+};
+let queryBuilderFor = {
+    objectId: (p) => objectID(p),
+    exact: (p) => p,
+    partial: (p) => {return {$regex: new RegExp('^.*?' + p + '.*$', 'i')};}
+};
+let buildQueryFor = (type, query, request, fields) => {
+    let builder = queryBuilderFor[type];
+    let arrBuilder = queryBuilderForArray[type];
     _.forEach(fields, (pair) => {
         let p = module.exports.lookupParamsOrPayloadOrQuery(request, pair[0]);
         if (p) {
-            if(_.isArray(p)) {
-                query[pair[1]] = {$in: _.map(p, (op) => new RegExp('^.*?' + op + '.*$', 'i'))};
-            } else {
-                query[pair[1]] = {$regex: new RegExp('^.*?' + p + '.*$', 'i')};
-            }
+            query[pair[1]] = _.isArray(p) ? arrBuilder(p) : builder(p);
         }
     });
     return query;
 };
-module.exports.buildQueryFromRequestForDateFields = (query, request, field) => {
-    const before = field + 'Before';
-    const after = field + 'After';
-    if (request.query[before]) {
+module.exports.buildQueryForIDMatch = (query, request, fields) => buildQueryFor('objectId', query, request, fields);
+module.exports.buildQueryForExactMatch = (query, request, fields) => buildQueryFor('exact', query, request, fields);
+module.exports.buildQueryForPartialMatch = (query, request, fields) => buildQueryFor('partial', query, request, fields);
+module.exports.buildQueryForDateRange = (query, request, field) => {
+    let pb4 = module.exports.lookupParamsOrPayloadOrQuery(request, field + 'Before');
+    if (pb4) {
         query[field] = {
-            $lte: moment(request.query[before]).toDate()
+            $lte: moment(pb4).toDate()
         };
     }
-    if (request.query[after]) {
+    let paf = module.exports.lookupParamsOrPayloadOrQuery(request, field + 'After');
+    if (paf) {
         query[field] = query[field] || {};
-        query[field].$gte = moment(request.query[after]).toDate();
+        query[field].$gte = moment(paf).toDate();
     }
     return query;
 };

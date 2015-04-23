@@ -51,7 +51,7 @@ var Controller = new ControllerFactory(Users)
             email: Joi.string(),
             isActive: Joi.string()
         }
-    }, (request) => utils.buildQueryFromRequestForFields({}, request, [['email', 'email']]),
+    }, (request) => utils.buildQueryForPartialMatch({}, request, [['email', 'email']]),
     (output) => {
         output.data = _.map(output.data, (user) => user.stripPrivateData());
         return output;

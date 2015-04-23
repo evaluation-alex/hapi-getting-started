@@ -32,7 +32,7 @@ var Controller = new ControllerFactory(UserGroups)
             groupName: Joi.string(),
             isActive: Joi.string()
         }
-    }, (request) => utils.buildQueryFromRequestForFields({}, request, [['email', 'members'], ['groupName', 'name']]))
+    }, (request) => utils.buildQueryForPartialMatch({}, request, [['email', 'members'], ['groupName', 'name']]))
     .findOneController()
     .updateController({
         payload: {

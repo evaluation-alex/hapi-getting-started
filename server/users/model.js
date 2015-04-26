@@ -1,6 +1,6 @@
 'use strict';
 let ModelBuilder = require('./../common/model-builder');
-let Joi = require('joi');
+let schemas = require('./schemas');
 let Uuid = require('node-uuid');
 let Bluebird = require('bluebird');
 let Session = require('./session/model');
@@ -26,25 +26,7 @@ var Users = (new ModelBuilder())
     .extendVirtualModel(Profile)
     .inMongoCollection('users')
     .usingConnection('app')
-    .usingSchema(Joi.object().keys({
-        _id: Joi.object(),
-        email: Joi.string().email().required(),
-        password: Joi.string().required(),
-        organisation: Joi.string().required(),
-        roles: Joi.array().items(Joi.string()).unique(),
-        resetPwd: Joi.object().keys({
-            token: Joi.string().required(),
-            expires: Joi.date().required()
-        }),
-        session: Session.schema,
-        preferences: Preferences.schema,
-        profile: Profile.schema,
-        isActive: Joi.boolean().default(true),
-        createdBy: Joi.string(),
-        createdOn: Joi.date(),
-        updatedBy: Joi.string(),
-        updatedOn: Joi.date()
-    }))
+    .usingSchema(schemas.model)
     .addIndex([{email: 1}, {unique: true}])
     .addIndex([{email: 1, organisation: 1}, {unique: true}])
     .decorateWithInsertAndAudit('email', 'signup')

@@ -1,6 +1,6 @@
 'use strict';
 let _ = require('lodash');
-let Joi = require('joi');
+let schemas = require('./schemas');
 let ModelBuilder = require('./../common/model-builder');
 var Audit = (new ModelBuilder())
     .onModel(function Audit (attrs) {
@@ -8,19 +8,7 @@ var Audit = (new ModelBuilder())
     })
     .inMongoCollection('audit')
     .usingConnection('app')
-    .usingSchema(Joi.object().keys({
-        _id: Joi.object(),
-        objectChangedType: Joi.string().required(),
-        objectChangedId: Joi.string().required(),
-        organisation: Joi.string().required(),
-        by: Joi.string().required(),
-        on: Joi.date(),
-        change: Joi.array().items(Joi.object().keys({
-            action: Joi.string(),
-            origValues: Joi.object(),
-            newValues: Joi.object()
-        }))
-    }))
+    .usingSchema(schemas.model)
     .addIndex([{organisation: 1, objectChangedType: 1}])
     .addIndex([{by: 1, on: 1}])
     .addIndex([{on: 1}])

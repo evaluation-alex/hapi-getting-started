@@ -1,5 +1,5 @@
 'use strict';
-let Joi = require('joi');
+let schemas = require('./schemas');
 let Users = require('./../model');
 let AuthAttempts = require('./auth-attempts/model');
 let ControllerFactory = require('./../../common/controller-factory');
@@ -18,12 +18,7 @@ let abuseDetected = (request, reply) => {
 };
 var Controller = new ControllerFactory()
     .forMethod('login')
-    .withValidation({
-        payload: {
-            email: Joi.string().required(),
-            password: Joi.string().required()
-        }
-    })
+    .withValidation(schemas.login)
     .preProcessWith([
         {assign: 'abuseDetected', method: abuseDetected}
     ])

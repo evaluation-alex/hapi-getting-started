@@ -1,5 +1,5 @@
 'use strict';
-let Joi = require('joi');
+let schemas = require('./schemas');
 let _ = require('lodash');
 let Bluebird = require('bluebird');
 let moment = require('moment');
@@ -62,20 +62,7 @@ let sendNotificationsWhen = {
 /*jshint unused:true*/
 var Controller = new ControllerFactory(Posts)
     .enableNotifications()
-    .newController({
-        payload: {
-            blogId: Joi.string(),
-            title: Joi.string(),
-            state: Joi.string().only(['draft', 'pending review', 'published', 'archived']),
-            content: Joi.string(),
-            tags: Joi.array().items(Joi.string()).unique(),
-            category: Joi.string(),
-            attachments: Joi.array().items(Joi.object()).unique(),
-            access: Joi.string().only(['public', 'restricted']),
-            allowComments: Joi.boolean(),
-            needsReview: Joi.boolean()
-        }
-    }, [
+    .newController(schemas.create, [
         prePopulate(Blogs, 'blogId'),
         isMemberOf(Blogs, ['contributors', 'owners'])
     ], (request) => {
@@ -87,18 +74,7 @@ var Controller = new ControllerFactory(Posts)
         };
     })
     .sendNotifications((post, request) => sendNotificationsWhen[post.state](post, request))
-    .findController({
-        query: {
-            title: Joi.string(),
-            blogId: Joi.string(),
-            tag: Joi.string(),
-            publishedBy: Joi.string(),
-            publishedOnBefore: Joi.date().format('YYYY-MM-DD'),
-            publishedOnAfter: Joi.date().format('YYYY-MM-DD'),
-            isActive: Joi.string(),
-            state: Joi.string()
-        }
-    }, (request) => {
+    .findController(schemas.find, (request) => {
         let query = utils.buildQueryForPartialMatch({}, request, [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]);
         query = utils.buildQueryForDateRange(query, request, 'publishedOn');
         query = utils.buildQueryForIDMatch(query, request, [['blogId', 'blogId']]);
@@ -109,30 +85,13 @@ var Controller = new ControllerFactory(Posts)
             .then(() => output);
     })
     .findOneController([], (post, user) => post.populate(user))
-    .updateController({
-        payload: {
-            blogId: Joi.string(),
-            isActive: Joi.boolean(),
-            addedTags: Joi.array().items(Joi.string()).unique(),
-            removedTags: Joi.array().items(Joi.string()).unique(),
-            addedAttachments: Joi.array().items(Joi.string()).unique(),
-            removedAttachments: Joi.array().items(Joi.string()).unique(),
-            title: Joi.string(),
-            content: Joi.string(),
-            access: Joi.string().only(['public', 'restricted']),
-            allowComments: Joi.boolean()
-        }
-    }, [
+    .updateController(schemas.update, [
         prePopulate(Blogs, 'blogId'),
         isMemberOf(Blogs, ['contributors', 'owners'])
     ],
     'update',
     'update')
-    .updateController({
-        payload: {
-            blogId: Joi.string()
-        }
-    }, [
+    .updateController(schemas.publish, [
         prePopulate(Blogs, 'blogId'),
         isMemberOf(Blogs, ['owners', 'contributors'])
     ],
@@ -140,11 +99,7 @@ var Controller = new ControllerFactory(Posts)
     'publish')
     .sendNotifications((post, request) => sendNotificationsWhen[post.state](post, request))
     .cancelNotifications('review')
-    .updateController({
-        payload: {
-            blogId: Joi.string()
-        }
-    }, [
+    .updateController(schemas.reject, [
         prePopulate(Blogs, 'blogId'),
         isMemberOf(Blogs, ['owners', 'contributors'])
     ],

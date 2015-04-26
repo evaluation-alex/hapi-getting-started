@@ -1,6 +1,6 @@
 'use strict';
 let ModelBuilder = require('./../common/model-builder');
-let Joi = require('joi');
+let schemas = require('./schemas');
 let _ = require('lodash');
 var UserGroups = (new ModelBuilder())
     .onModel(function UserGroups (attrs) {
@@ -12,21 +12,7 @@ var UserGroups = (new ModelBuilder())
     })
     .inMongoCollection('user-groups')
     .usingConnection('app')
-    .usingSchema(Joi.object().keys({
-        _id: Joi.object(),
-        name: Joi.string().required(),
-        organisation: Joi.string().required(),
-        description: Joi.string(),
-        members: Joi.array().items(Joi.string()).unique(),
-        owners: Joi.array().items(Joi.string()).unique(),
-        needsApproval: Joi.array().items(Joi.string()).unique(),
-        access: Joi.string().only(['restricted', 'public']).default('restricted'),
-        isActive: Joi.boolean().default(true),
-        createdBy: Joi.string(),
-        createdOn: Joi.date(),
-        updatedBy: Joi.string(),
-        updatedOn: Joi.date()
-    }))
+    .usingSchema(schemas.model)
     .addIndex([{name: 1, organisation: 1}, {unique: true}])
     .decorateWithInsertAndAudit('name', 'create')
     .decorateWithSoftDeletes()

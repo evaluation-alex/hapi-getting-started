@@ -1,25 +1,9 @@
 'use strict';
-let Joi = require('joi');
+let schemas = require('./schemas');
 let ModelBuilder = require('./../../common/model-builder');
-let channelSchema = Joi.object().keys({
-    frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
-    lastSent: Joi.date()
-});
-let notificationPrefSchema = Joi.object().keys({
-    inapp: channelSchema,
-    email: channelSchema,
-    blocked: Joi.array().items(Joi.object())
-});
 var Preferences = (new ModelBuilder())
     .virtualModel()
-    .usingSchema(Joi.object().keys({
-        notifications: Joi.object().keys({
-            blogs: notificationPrefSchema,
-            posts: notificationPrefSchema,
-            userGroups: notificationPrefSchema
-        }),
-        locale: Joi.string().only('en', 'hi')
-    }))
+    .usingSchema(schemas.model)
     .decorateWithUpdates([
         'preferences.notifications.blogs.inapp.frequency',
         'preferences.notifications.blogs.inapp.lastSent',

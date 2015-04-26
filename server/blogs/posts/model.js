@@ -2,7 +2,7 @@
 let ModelBuilder = require('./../../common/model-builder');
 let Blogs = require('./../model');
 let UserGroups = require('./../../user-groups/model');
-let Joi = require('joi');
+let schemas = require('./schemas');
 let _ = require('lodash');
 let Hoek = require('hoek');
 let errors = require('./../../common/errors');
@@ -17,30 +17,7 @@ var Posts = (new ModelBuilder())
     })
     .inMongoCollection('posts')
     .usingConnection('app')
-    .usingSchema(Joi.object().keys({
-        _id: Joi.object(),
-        blogId: Joi.object().required(),
-        organisation: Joi.string().required(),
-        title: Joi.string(),
-        state: Joi.string().only(['draft', 'pending review', 'published', 'archived', 'do not publish']).default('draft'),
-        access: Joi.string().only(['public', 'restricted']).default('public'),
-        allowComments: Joi.boolean().default(true),
-        needsReview: Joi.boolean().default(false),
-        category: Joi.string(),
-        tags: Joi.array().items(Joi.string()).unique(),
-        attachments: Joi.array().items(Joi.object()).unique(),
-        contentType: Joi.string(),
-        content: Joi.object(),
-        publishedBy: Joi.string(),
-        publishedOn: Joi.date(),
-        reviewedBy: Joi.string(),
-        reviewedOn: Joi.date(),
-        isActive: Joi.boolean().default(true),
-        createdBy: Joi.string(),
-        createdOn: Joi.date(),
-        updatedBy: Joi.string(),
-        updatedOn: Joi.date()
-    }))
+    .usingSchema(schemas.model)
     .addIndex([{organisation: 1, title: 1, blogId: 1, publishedOn: 1}])
     .addIndex([{tags: 1}])
     .addIndex([{state: 1, publishedOn: 1}])

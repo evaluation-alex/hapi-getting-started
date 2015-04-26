@@ -1,18 +1,12 @@
 'use strict';
-let Joi = require('joi');
+let schemas = require('./schemas');
 let Config = require('./../../config');
 let ControllerFactory = require('./../common/controller-factory');
 let mailer = require('./../common/plugins/mailer');
 let utils = require('./../common/utils');
 var Controller = new ControllerFactory()
     .forMethod('contact')
-    .withValidation({
-        payload: {
-            name: Joi.string().required(),
-            email: Joi.string().email().required(),
-            message: Joi.string().required()
-        }
-    })
+    .withValidation(schemas.contact)
     .handleUsing((request, reply) => {
         let options = {
             subject: Config.projectName + ' contact form',

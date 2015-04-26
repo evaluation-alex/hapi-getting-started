@@ -1,6 +1,6 @@
 'use strict';
 let ModelBuilder = require('./../../../common/model-builder');
-let Joi = require('joi');
+let schemas = require('./schemas');
 let Config = require('./../../../../config');
 let Bluebird = require('bluebird');
 let _ = require('lodash');
@@ -11,13 +11,7 @@ var AuthAttempts = (new ModelBuilder())
     })
     .inMongoCollection('auth-attempts')
     .usingConnection('app')
-    .usingSchema(Joi.object().keys({
-        _id: Joi.object(),
-        email: Joi.string().required(),
-        organisation: Joi.string().default('*'),
-        ip: Joi.string().required(),
-        time: Joi.date().required()
-    }))
+    .usingSchema(schemas.model)
     .addIndex([{ip: 1, email: 1}])
     .addIndex([{email: 1}])
     .doneConfiguring();

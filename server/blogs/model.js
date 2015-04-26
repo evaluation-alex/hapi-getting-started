@@ -1,6 +1,6 @@
 'use strict';
 let ModelBuilder = require('./../common/model-builder');
-let Joi = require('joi');
+let schemas = require('./schemas');
 let _ = require('lodash');
 let utils = require('./../common/utils');
 var Blogs = (new ModelBuilder())
@@ -13,25 +13,7 @@ var Blogs = (new ModelBuilder())
     })
     .inMongoCollection('blogs')
     .usingConnection('app')
-    .usingSchema(Joi.object().keys({
-        _id: Joi.object(),
-        title: Joi.string().required(),
-        organisation: Joi.string().required(),
-        description: Joi.string(),
-        owners: Joi.array().items(Joi.string()).unique(),
-        contributors: Joi.array().items(Joi.string()).unique(),
-        subscribers: Joi.array().items(Joi.string()).unique(),
-        subscriberGroups: Joi.array().items(Joi.string()).unique(),
-        needsApproval: Joi.array().items(Joi.string()).unique(),
-        needsReview: Joi.boolean().default(false),
-        access: Joi.string().only(['public', 'restricted']),
-        allowComments: Joi.boolean().default(true),
-        isActive: Joi.boolean().default(true),
-        createdBy: Joi.string(),
-        createdOn: Joi.date(),
-        updatedBy: Joi.string(),
-        updatedOn: Joi.date()
-    }))
+    .usingSchema(schemas.model)
     .addIndex([{title: 1, organisation: 1}, {unique: true}])
     .addIndex([{description: 1}])
     .decorateWithInsertAndAudit('title', 'create')

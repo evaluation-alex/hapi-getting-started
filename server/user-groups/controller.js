@@ -1,5 +1,5 @@
 'use strict';
-let Joi = require('joi');
+let schemas = require('./schemas');
 let UserGroups = require('./model');
 let ControllerFactory = require('./../common/controller-factory');
 let areValid = require('./../common/prereqs/are-valid');
@@ -9,15 +9,7 @@ let addRemoveNotificationsBuilder = require('./../common/notifications/add-remov
 let utils = require('./../common/utils');
 var Controller = new ControllerFactory(UserGroups)
     .enableNotifications()
-    .newController({
-        payload: {
-            name: Joi.string().required(),
-            members: Joi.array().items(Joi.string()),
-            owners: Joi.array().items(Joi.string()),
-            description: Joi.string(),
-            access: Joi.string().only(['restricted', 'public'])
-        }
-    }, [
+    .newController(schemas.create, [
         areValid.users(['members', 'owners'])
     ], (request) => {
         return {
@@ -26,25 +18,10 @@ var Controller = new ControllerFactory(UserGroups)
         };
     })
     .sendNotifications(createDeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name', 'new'))
-    .findController({
-        query: {
-            email: Joi.string(),
-            groupName: Joi.string(),
-            isActive: Joi.string()
-        }
-    }, (request) => utils.buildQueryForPartialMatch({}, request, [['email', 'members'], ['groupName', 'name']]))
+    .findController(schemas.find, (request) => utils.buildQueryForPartialMatch({}, request, [['email', 'members'], ['groupName', 'name']]))
     .findOneController()
-    .updateController({
-        payload: {
-            isActive: Joi.boolean(),
-            addedMembers: Joi.array().items(Joi.string()).unique(),
-            removedMembers: Joi.array().items(Joi.string()).unique(),
-            addedOwners: Joi.array().items(Joi.string()).unique(),
-            removedOwners: Joi.array().items(Joi.string()).unique(),
-            description: Joi.string(),
-            access: Joi.string().only(['restricted', 'public'])
-        }
-    }, [isMemberOf(UserGroups, ['owners']),
+    .updateController(schemas.update, [
+        isMemberOf(UserGroups, ['owners']),
         areValid.users(['addedMembers', 'addedOwners'])
     ], 'update', 'update')
     .sendNotifications(addRemoveNotificationsBuilder('UserGroup', ['owners', 'members'], 'owners', 'name'))

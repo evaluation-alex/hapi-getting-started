@@ -1,6 +1,6 @@
 'use strict';
 let ModelBuilder = require('./../../common/model-builder');
-let Joi = require('joi');
+let schemas = require('./schemas');
 let _ = require('lodash');
 var Roles = (new ModelBuilder())
     .onModel(function Roles (attrs) {
@@ -8,15 +8,7 @@ var Roles = (new ModelBuilder())
     })
     .inMongoCollection('roles')
     .usingConnection('app')
-    .usingSchema(Joi.object().keys({
-        _id: Joi.object(),
-        name: Joi.string().required(),
-        organisation: Joi.string().required(),
-        permissions: Joi.array().items(Joi.object().keys({
-            action: Joi.string().only('view', 'update').required(),
-            object: Joi.string().required()
-        })).unique()
-    }))
+    .usingSchema(schemas.model)
     .addIndex([{name: 1, organisation: 1}, {unique: true}])
     .doneConfiguring();
 Roles.prototype.hasPermissionsTo = (performAction, onObject) => {

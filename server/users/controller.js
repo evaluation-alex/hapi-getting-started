@@ -1,5 +1,5 @@
 'use strict';
-let Joi = require('joi');
+let schemas = require('./schemas');
 let _ = require('lodash');
 let Config = require('./../../config');
 let Users = require('./model');
@@ -10,14 +10,7 @@ let errors = require('./../common/errors');
 let Bluebird = require('bluebird');
 let onlyOwnerAllowed = require('./../common/prereqs/only-owner');
 var Controller = new ControllerFactory(Users)
-    .customNewController('signup', {
-        payload: {
-            email: Joi.string().email().required(),
-            organisation: Joi.string().required(),
-            locale: Joi.string().only(['en', 'hi']).default('en'),
-            password: Joi.string().required()
-        }
-    }, (request) => {
+    .customNewController('signup', schemas.signup, (request) => {
         return {
             email: request.payload.email,
             organisation: request.payload.organisation
@@ -46,12 +39,7 @@ var Controller = new ControllerFactory(Users)
                 /*jshint unused:true*/
             });
     })
-    .findController({
-        query: {
-            email: Joi.string(),
-            isActive: Joi.string()
-        }
-    }, (request) => utils.buildQueryForPartialMatch({}, request, [['email', 'email']]),
+    .findController(schemas.find, (request) => utils.buildQueryForPartialMatch({}, request, [['email', 'email']]),
     (output) => {
         output.data = _.map(output.data, (user) => user.stripPrivateData());
         return output;
@@ -59,23 +47,13 @@ var Controller = new ControllerFactory(Users)
     .findOneController([
         onlyOwnerAllowed(Users, 'email')
     ])
-    .updateController({
-        payload: {
-            isActive: Joi.boolean(),
-            roles: Joi.array().items(Joi.string()),
-            password: Joi.string()
-        }
-    }, [
+    .updateController(schemas.update, [
         onlyOwnerAllowed(Users, 'email')
     ],
     'update',
     (user, request, by) => user._invalidateSession(utils.ip(request), by).updateUser(request, by))
     .forMethod('loginForgot')
-    .withValidation({
-        payload: {
-            email: Joi.string().email().required()
-        }
-    })
+    .withValidation(schemas.loginForgot)
     .handleUsing((request, reply) => {
         Users.findOne({email: request.payload.email})
             .then((user) => user ? user.resetPasswordSent(user.email).save() : user)
@@ -93,13 +71,7 @@ var Controller = new ControllerFactory(Users)
             .catch((err) => utils.logAndBoom(err, reply));
     })
     .forMethod('loginReset')
-    .withValidation({
-        payload: {
-            key: Joi.string().required(),
-            email: Joi.string().email().required(),
-            password: Joi.string().required()
-        }
-    })
+    .withValidation(schemas.loginReset)
     .handleUsing((request, reply) => {
         Users.findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
             .then((user) => {

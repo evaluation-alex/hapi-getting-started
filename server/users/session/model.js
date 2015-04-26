@@ -9,11 +9,7 @@ let utils = require('./../../common/utils');
 let ModelBuilder = require('./../../common/model-builder');
 var Session = (new ModelBuilder())
     .virtualModel()
-    .usingSchema(Joi.array().items(Joi.object().keys({
-        ipaddress: Joi.string(),
-        key: Joi.object(),
-        expires: Joi.date()
-    })))
+    .usingSchema()
     .doneConfiguring();
 Session.prototype._invalidateSession = (ipaddress, by) => {
     let self = this;

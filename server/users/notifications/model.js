@@ -1,6 +1,6 @@
 'use strict';
 let ModelBuilder = require('./../../common/model-builder');
-let Joi = require('joi');
+let schemas = require('./schemas');
 let _ = require('lodash');
 let Bluebird = require('bluebird');
 var Notifications = (new ModelBuilder())
@@ -13,23 +13,7 @@ var Notifications = (new ModelBuilder())
     })
     .inMongoCollection('notifications')
     .usingConnection('app')
-    .usingSchema(Joi.object().keys({
-        _id: Joi.object(),
-        email: Joi.string().email().required(),
-        organisation: Joi.string().required(),
-        objectType: Joi.string().only(['user-groups', 'posts', 'blogs', 'comments']).required(),
-        objectId: Joi.object().required(),
-        title: Joi.array().items(Joi.string()),
-        state: Joi.string().only(['unread', 'starred', 'read', 'cancelled']).default('unread').required(),
-        action: Joi.string(),
-        priority: Joi.string().only(['critical', 'medium', 'low']),
-        content: Joi.object(),
-        isActive: Joi.boolean().default(true),
-        createdBy: Joi.string(),
-        createdOn: Joi.date(),
-        updatedBy: Joi.string(),
-        updatedOn: Joi.date()
-    }))
+    .usingSchema(schemas.model)
     .addIndex([{objectType: 1, objectId: 1, state: 1, action: 1}])
     .addIndex([{email: 1, objectType: 1, objectId: 1, createdOn: 1}])
     .decorateWithSoftDeletes()

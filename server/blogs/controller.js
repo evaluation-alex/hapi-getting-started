@@ -1,5 +1,5 @@
 'use strict';
-let Joi = require('joi');
+let schemas = require('./schemas');
 let Blogs = require('./model');
 let ControllerFactory = require('./../common/controller-factory');
 let areValid = require('./../common/prereqs/are-valid');
@@ -9,19 +9,7 @@ let addRemoveNotificationsBuilder = require('./../common/notifications/add-remov
 let utils = require('./../common/utils');
 var Controller = new ControllerFactory(Blogs)
     .enableNotifications()
-    .newController({
-        payload: {
-            title: Joi.string(),
-            description: Joi.string(),
-            owners: Joi.array().items(Joi.string()).unique(),
-            contributors: Joi.array().items(Joi.string()).unique(),
-            subscribers: Joi.array().items(Joi.string()).unique(),
-            subscriberGroups: Joi.array().items(Joi.string()).unique(),
-            needsReview: Joi.boolean().default(false),
-            access: Joi.string().only(['public', 'restricted']).default('public'),
-            allowComments: Joi.boolean().default(true)
-        }
-    }, [
+    .newController(schemas.create, [
         areValid.users(['owners', 'contributors', 'subscribers']),
         areValid.groups(['subscriberGroups'])
     ], (request) => {
@@ -31,38 +19,14 @@ var Controller = new ControllerFactory(Blogs)
         };
     })
     .sendNotifications(createDeleteObjectNotificationsBuilder('Blog', 'owners', 'title', 'new'))
-    .findController({
-        query: {
-            title: Joi.string(),
-            owner: Joi.string(),
-            contributor: Joi.string(),
-            subscriber: Joi.string(),
-            subGroup: Joi.string(),
-            isActive: Joi.string()
-        }
-    }, (request) => utils.buildQueryForPartialMatch({}, request,
-        [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
-            ['subGroup', 'subscriberGroups']
-        ])
-)
+    .findController(schemas.find, (request) => {
+        return utils.buildQueryForPartialMatch({}, request,
+            [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
+                ['subGroup', 'subscriberGroups']
+            ]);
+    })
     .findOneController()
-    .updateController({
-        payload: {
-            isActive: Joi.boolean(),
-            addedOwners: Joi.array().items(Joi.string()).unique(),
-            removedOwners: Joi.array().items(Joi.string()).unique(),
-            addedContributors: Joi.array().items(Joi.string()).unique(),
-            removedContributors: Joi.array().items(Joi.string()).unique(),
-            addedSubscribers: Joi.array().items(Joi.string()).unique(),
-            removedSubscribers: Joi.array().items(Joi.string()).unique(),
-            addedSubscriberGroups: Joi.array().items(Joi.string()).unique(),
-            removedSubscriberGroups: Joi.array().items(Joi.string()).unique(),
-            description: Joi.string(),
-            needsReview: Joi.boolean(),
-            access: Joi.string().only(['public', 'restricted']),
-            allowComments: Joi.boolean()
-        }
-    }, [
+    .updateController(schemas.update, [
         areValid.users(['addedOwners', 'addedContributors', 'addedSubscribers']),
         areValid.groups(['addedSubscriberGroups']),
         isMemberOf(Blogs, ['owners'])

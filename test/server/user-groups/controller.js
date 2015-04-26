@@ -4,14 +4,7 @@ let UserGroups = require(relativeToServer + 'user-groups/model');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let Audit = require(relativeToServer + 'audit/model');
 let tu = require('./../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('UserGroups', () => {
     let rootAuthHeader = null;
     let server = null;
@@ -72,9 +65,9 @@ describe('UserGroups', () => {
                 expect(response.statusCode).to.equal(200);
                 let p = JSON.parse(response.payload);
                 expect(p.data.length).to.equal(3);
-                expect(p.data[0].isActive).to.be.true();
-                expect(p.data[1].isActive).to.be.true();
-                expect(p.data[2].isActive).to.be.true();
+                expect(p.data[0].isActive).to.be.true;
+                expect(p.data[1].isActive).to.be.true;
+                expect(p.data[2].isActive).to.be.true;
                 done();
             }).catch((err) => {
                 done(err);
@@ -92,7 +85,7 @@ describe('UserGroups', () => {
                 expect(response.statusCode).to.equal(200);
                 let p = JSON.parse(response.payload);
                 expect(p.data.length).to.equal(1);
-                expect(p.data[0].isActive).to.be.false();
+                expect(p.data[0].isActive).to.be.false;
                 done();
             }).catch((err) => {
                 done(err);
@@ -299,8 +292,8 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupDeActivate'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isActive).to.be.false();
+                                expect(ug).to.exist;
+                                expect(ug[0].isActive).to.be.false;
                                 return Audit.findAudit('user-groups', 'testPutGroupDeActivate', {'change.action': 'isActive'});
                             })
                             .then((foundAudit) => {
@@ -339,8 +332,8 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupActivate'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isActive).to.be.true();
+                                expect(ug).to.exist;
+                                expect(ug[0].isActive).to.be.true;
                                 return Audit.findAudit('user-groups', 'testPutGroupActivate', {'change.action': 'isActive'});
                             })
                             .then((foundAudit) => {
@@ -376,9 +369,9 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupAddUserOwner'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
-                                expect(ug[0].isPresentInOwners('root')).to.be.true();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true;
+                                expect(ug[0].isPresentInOwners('root')).to.be.true;
                                 return Audit.findAudit('user-groups', 'testPutGroupAddUserOwner', {'change.action': {$regex: /add/}});
                             })
                             .then((foundAudit) => {
@@ -405,8 +398,8 @@ describe('UserGroups', () => {
                     return ug.save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('root')).to.be.true();
-                    expect(ug.isPresentInOwners('one@first.com')).to.be.true();
+                    expect(ug.isPresentInMembers('root')).to.be.true;
+                    expect(ug.isPresentInOwners('one@first.com')).to.be.true;
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id,
@@ -422,9 +415,9 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupRemoveUserOwner'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInMembers('root')).to.be.false();
-                                expect(ug[0].isPresentInOwners('one@first.com')).to.be.false();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInMembers('root')).to.be.false;
+                                expect(ug[0].isPresentInOwners('one@first.com')).to.be.false;
                                 return Audit.findAudit('user-groups', 'testPutGroupRemoveUserOwner', {'change.action': {$regex: /remove/}});
                             })
                             .then((foundAudit) => {
@@ -451,8 +444,8 @@ describe('UserGroups', () => {
                     return ug.save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('root')).to.be.true();
-                    expect(ug.isPresentInOwners('one@first.com')).to.be.true();
+                    expect(ug.isPresentInMembers('root')).to.be.true;
+                    expect(ug.isPresentInOwners('one@first.com')).to.be.true;
                     request = {
                         method: 'PUT',
                         url: '/user-groups/' + id,
@@ -470,11 +463,11 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupAddRemoveUserOwner'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInMembers('root')).to.be.false();
-                                expect(ug[0].isPresentInOwners('one@first.com')).to.be.false();
-                                expect(ug[0].isPresentInOwners('root')).to.be.true();
-                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInMembers('root')).to.be.false;
+                                expect(ug[0].isPresentInOwners('one@first.com')).to.be.false;
+                                expect(ug[0].isPresentInOwners('root')).to.be.true;
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true;
                                 return Audit.findAudit('user-groups', 'testPutGroupAddRemoveUserOwner', {'change.action': {$regex: /add|remove/}});
                             })
                             .then((foundAudit) => {
@@ -535,7 +528,7 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupChangeDesc'})
                             .then((ug) => {
-                                expect(ug).to.exist();
+                                expect(ug).to.exist;
                                 expect(ug[0].description).to.equal('new description');
                                 return Audit.findAudit('user-groups', 'testPutGroupChangeDesc', {'change.action': {$regex: /description/}});
                             })
@@ -594,8 +587,8 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutJoinGroupAddUser'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true;
                                 return Audit.findAudit('user-groups', 'testPutJoinGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
                             })
                             .then((foundAudit) => {
@@ -654,8 +647,8 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutJoinPublicGroupAddUser'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true;
                                 return Audit.findAudit('user-groups', 'testPutJoinPublicGroupAddUser', {'change.action': {$regex: /add member/}});
                             })
                             .then((foundAudit) => {
@@ -763,8 +756,8 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutLeaveGroupAddUser'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.false();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.false;
                                 return Audit.findAudit('user-groups', 'testPutLeaveGroupAddUser', {'change.action': {$regex: /remove member/}});
                             })
                             .then((foundAudit) => {
@@ -874,9 +867,9 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutApproveGroupAddUser'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true();
-                                expect(ug[0].isPresentInNeedsApproval('someotherguy')).to.be.true();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true;
+                                expect(ug[0].isPresentInNeedsApproval('someotherguy')).to.be.true;
                                 return Audit.findAudit('user-groups', 'testPutApproveGroupAddUser', {'change.action': {$regex: /add member/}});
                             })
                             .then((foundAudit) => {
@@ -935,9 +928,9 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutApproveGroupAddUserEmpty'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
-                                expect(ug[0].isPresentInNeedsApproval('someotherguy')).to.be.true();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true;
+                                expect(ug[0].isPresentInNeedsApproval('someotherguy')).to.be.true;
                                 return Audit.findAudit('user-groups', 'testPutApproveGroupAddUserEmpty', {'change.action': {$regex: /add member/}});
                             })
                             .then((foundAudit) => {
@@ -979,8 +972,8 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(401);
                         UserGroups.find({name: 'testPutApproveGroupNotOwner'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.false();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.false;
                                 return Audit.findAudit('user-groups', 'testPutApproveGroupNotOwner', {'change.auction': {$regex: /add member/}});
                             })
                             .then((foundAudit) => {
@@ -1065,8 +1058,8 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutRejectGroupAddUser'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.false();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.false;
                                 return Audit.findAudit('user-groups', 'testPutRejectGroupAddUser', {'change.action': {$regex: /remove needsApproval/}});
                             })
                             .then((foundAudit) => {
@@ -1126,8 +1119,8 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutRejectGroupAddUserEmpty'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true;
                                 return Audit.findAudit('user-groups', 'testPutRejectGroupAddUserEmpty', {'change.action': {$regex: /remove needsApproval/}});
                             })
                             .then((foundAudit) => {
@@ -1169,8 +1162,8 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(401);
                         UserGroups.find({name: 'testPutRejectGroupNotOwner'})
                             .then((ug) => {
-                                expect(ug).to.exist();
-                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                expect(ug).to.exist;
+                                expect(ug[0].isPresentInNeedsApproval('one@first.com')).to.be.true;
                                 groupsToClear.push('testPutRejectGroupNotOwner');
                                 done();
                             });
@@ -1226,7 +1219,7 @@ describe('UserGroups', () => {
                 expect(response.statusCode).to.equal(422);
                 UserGroups.findOne({name: 'testGroupUserExist', organisation: 'silver lining'})
                     .then((ug) => {
-                        expect(ug).to.be.undefined();
+                        expect(ug).to.be.undefined;
                         groupsToClear.push('testGroupUserExist');
                         done();
                     });
@@ -1253,9 +1246,9 @@ describe('UserGroups', () => {
                 expect(response.statusCode).to.equal(201);
                 UserGroups.findOne({name: 'testUserGroupCreate', organisation: 'silver lining'})
                     .then((ug) => {
-                        expect(ug).to.exist();
-                        expect(ug.isPresentInOwners('one@first.com')).to.be.true();
-                        expect(ug.isPresentInMembers('one@first.com')).to.be.true();
+                        expect(ug).to.exist;
+                        expect(ug.isPresentInOwners('one@first.com')).to.be.true;
+                        expect(ug.isPresentInMembers('one@first.com')).to.be.true;
                         expect(ug.description).to.match(/test POST/);
                         groupsToClear.push('testUserGroupCreate');
                         done();
@@ -1326,7 +1319,7 @@ describe('UserGroups', () => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.findOne({name: 'testDelGroup', organisation: 'silver lining'})
                             .then((found) => {
-                                expect(found.isActive).to.be.false();
+                                expect(found.isActive).to.be.false;
                                 groupsToClear.push('testDelGroup');
                                 done();
                             });

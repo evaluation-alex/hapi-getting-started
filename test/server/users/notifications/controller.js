@@ -6,14 +6,7 @@ let Notifications = require(relativeToServer + 'users/notifications/model');
 let Audit = require(relativeToServer + 'audit/model');
 let Bluebird = require('bluebird');
 let tu = require('./../../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Notifications', () => {
     let rootAuthHeader = null;
     let server = null;
@@ -63,8 +56,8 @@ describe('Notifications', () => {
                 expect(response.statusCode).to.equal(200);
                 let p = JSON.parse(response.payload);
                 expect(p.data.length).to.equal(2);
-                expect(p.data[0].isActive).to.be.true();
-                expect(p.data[1].isActive).to.be.true();
+                expect(p.data[0].isActive).to.be.true;
+                expect(p.data[1].isActive).to.be.true;
                 done();
             }).catch((err) => {
                 done(err);
@@ -82,7 +75,7 @@ describe('Notifications', () => {
                 expect(response.statusCode).to.equal(200);
                 let p = JSON.parse(response.payload);
                 expect(p.data.length).to.equal(1);
-                expect(p.data[0].isActive).to.be.false();
+                expect(p.data[0].isActive).to.be.false;
                 done();
             }).catch((err) => {
                 done(err);
@@ -157,7 +150,7 @@ describe('Notifications', () => {
                 expect(response.statusCode).to.equal(200);
                 let p = JSON.parse(response.payload);
                 _.forEach(p.data, (d) => {
-                    expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true();
+                    expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true;
                 });
                 done();
             }).catch((err) => {
@@ -254,7 +247,7 @@ describe('Notifications', () => {
                         expect(response.statusCode).to.equal(200);
                         Notifications.findOne({_id: Notifications.ObjectID(id)})
                             .then((found) => {
-                                expect(found.isActive).to.be.false();
+                                expect(found.isActive).to.be.false;
                                 return Audit.findAudit('notifications', n._id, {'change.action': /isActive/});
                             })
                             .then((audit) => {

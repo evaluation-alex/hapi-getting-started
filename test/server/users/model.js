@@ -4,14 +4,7 @@ let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
 let Roles = require(relativeToServer + 'users/roles/model');
 let tu = require('./../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Users Model', () => {
     let firstEmail = 'test.create@users.module';
     let secondEmail = 'test.search@users.module';
@@ -31,7 +24,7 @@ describe('Users Model', () => {
                     expect(result.roles).to.deep.equal(['readonly']);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -41,7 +34,7 @@ describe('Users Model', () => {
         it('should throw an error when create fails if you try to create with the same email', (done) => {
             Users.create(firstEmail, 'silver lining', 'test123', 'en')
                 .then((result) => {
-                    expect(result).to.not.exist();
+                    expect(result).to.not.exist;
                 })
                 .catch((err) => {
                     expect(err).to.be.an.instanceof(Error);
@@ -68,7 +61,7 @@ describe('Users Model', () => {
                     expect(foundUser2.email).to.equal(secondEmail);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -80,7 +73,7 @@ describe('Users Model', () => {
             Users.findByCredentials(secondEmail, 'wrongpassword')
                 .then((foundUser) => {
                     error = foundUser;
-                    expect(foundUser).to.not.exist();
+                    expect(foundUser).to.not.exist;
                 })
                 .catch((err) => {
                     expect(err.name).to.equal('IncorrectPasswordError');
@@ -94,7 +87,7 @@ describe('Users Model', () => {
             Users.findByCredentials('test.search.fail@users.module', 'unknownuser')
                 .then((foundUser) => {
                     error = foundUser;
-                    expect(foundUser).to.not.exist();
+                    expect(foundUser).to.not.exist;
                 })
                 .catch((err) => {
                     expect(err.name).to.equal('UserNotFoundError');
@@ -112,7 +105,7 @@ describe('Users Model', () => {
                     expect(result).to.be.empty();
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -123,13 +116,13 @@ describe('Users Model', () => {
             let error = null;
             Users.areValid([firstEmail, secondEmail, 'bogus'], 'silver lining')
                 .then((result) => {
-                    expect(result).to.exist();
-                    expect(result[firstEmail]).to.be.true();
-                    expect(result[secondEmail]).to.be.true();
-                    expect(result.bogus).to.be.false();
+                    expect(result).to.exist;
+                    expect(result[firstEmail]).to.be.true;
+                    expect(result[secondEmail]).to.be.true;
+                    expect(result.bogus).to.be.false;
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -149,11 +142,11 @@ describe('Users Model', () => {
                         });
                 })
                 .then((decoratedUser) => {
-                    expect(decoratedUser.hasPermissionsTo('view', '*')).to.be.true();
-                    expect(decoratedUser.hasPermissionsTo('update', '*')).to.be.false();
+                    expect(decoratedUser.hasPermissionsTo('view', '*')).to.be.true;
+                    expect(decoratedUser.hasPermissionsTo('update', '*')).to.be.false;
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -171,11 +164,11 @@ describe('Users Model', () => {
                         });
                 })
                 .then((decoratedUser) => {
-                    expect(decoratedUser.hasPermissionsTo('view', '*')).to.be.true();
-                    expect(decoratedUser.hasPermissionsTo('update', '*')).to.be.true();
+                    expect(decoratedUser.hasPermissionsTo('view', '*')).to.be.true;
+                    expect(decoratedUser.hasPermissionsTo('update', '*')).to.be.true;
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -197,7 +190,7 @@ describe('Users Model', () => {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -217,7 +210,7 @@ describe('Users Model', () => {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -240,7 +233,7 @@ describe('Users Model', () => {
                     expect(userAudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -255,15 +248,15 @@ describe('Users Model', () => {
                 .then((user) => {
                     return user.setRoles(['root'], 'test').save();
                 }).then((user) => {
-                    expect(user.roles).to.include(['root']);
+                    expect(user.roles).to.include('root');
                     return Audit.findAudit('users', user.email, {'change.action': 'roles'});
                 })
                 .then((userAudit) => {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].change[0].origValues).to.include(['readonly']);
+                    expect(userAudit[0].change[0].origValues).to.include('readonly');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -279,15 +272,15 @@ describe('Users Model', () => {
                     return user.deactivate('test').save();
                 })
                 .then((user) => {
-                    expect(user.isActive).to.be.false();
+                    expect(user.isActive).to.be.false;
                     return Audit.findAudit('users', user.email, {'change.action': 'isActive'});
                 })
                 .then((userAudit) => {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
-                    expect(userAudit[0].change[0].origValues).to.be.true();
+                    expect(userAudit[0].change[0].origValues).to.be.true;
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -301,14 +294,14 @@ describe('Users Model', () => {
                     return user.reactivate('test').save();
                 })
                 .then((user) => {
-                    expect(user.isActive).to.be.true();
+                    expect(user.isActive).to.be.true;
                     return Audit.findAudit('users', user.email, {'change.action': 'isActive'});
                 })
                 .then((userAudit) => {
                     expect(userAudit.length).to.equal(2);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {

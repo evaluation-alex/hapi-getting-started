@@ -48,7 +48,6 @@
         "joi": "6.x.x",
         "lodash": "3.7.x",
         "lout": "6.x.x",
-        "mkdirp": "0.5.x",
         "moment": "2.10.x",
         "mongodb": "2.0.x",
         "node-statsd": "0.1.x",
@@ -61,15 +60,12 @@
     },
     "devDependencies": {
         "chai": "2.2.x",
-        "code": "1.x.x",
         "codeclimate-test-reporter": "0.0.x",
         "coveralls": "2.11.x",
         "inject-then": "2.x.x",
         "istanbul-harmony": "0.3.x",
         "jshint": "2.7.x",
-        "lab": "5.x.x",
         "mocha": "2.2.x",
-        "promptly": "0.2.x",
-        "rimraf": "2.3.x"
+        "promptly": "0.2.x"
     }
 }

@@ -2,14 +2,7 @@
 let relativeToServer = './../../../../server/';
 let Roles = require(relativeToServer + '/users/roles/model');
 let tu = require('./../../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Roles Model', () => {
     let rolesToClear = [];
     before((done) => {
@@ -29,11 +22,11 @@ describe('Roles Model', () => {
                 object: 'nooneelse'
             }])
                 .then((r) => {
-                    expect(r).to.exist();
+                    expect(r).to.exist;
                     expect(r).to.be.an.instanceof(Roles);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -52,10 +45,10 @@ describe('Roles Model', () => {
             }])
                 .then((r) => {
                     error = r;
-                    expect(r).to.not.exist();
+                    expect(r).to.not.exist;
                 })
                 .catch((err) => {
-                    expect(err).to.exist();
+                    expect(err).to.exist;
                 })
                 .done(() => {
                     tu.testComplete(done, error);
@@ -84,7 +77,7 @@ describe('Roles Model', () => {
         });
         it('should return true if you match a specific action, object combination', (done) => {
             try {
-                expect(role.hasPermissionsTo('view', 'test')).to.be.true();
+                expect(role.hasPermissionsTo('view', 'test')).to.be.true;
                 done();
             } catch (err) {
                 if (err) {
@@ -94,7 +87,7 @@ describe('Roles Model', () => {
         });
         it('should return true if you ask for view when you have update permissions set on the role for the givn object', (done) => {
             try {
-                expect(role.hasPermissionsTo('view', 'test2')).to.be.true();
+                expect(role.hasPermissionsTo('view', 'test2')).to.be.true;
                 done();
             } catch (err) {
                 if (err) {
@@ -104,8 +97,8 @@ describe('Roles Model', () => {
         });
         it('should return false if you dont match any permissions for the role', (done) => {
             try {
-                expect(role.hasPermissionsTo('view', 'test3')).to.be.false();
-                expect(role.hasPermissionsTo('update', 'test3')).to.be.false();
+                expect(role.hasPermissionsTo('view', 'test3')).to.be.false;
+                expect(role.hasPermissionsTo('update', 'test3')).to.be.false;
                 done();
             } catch (err) {
                 if (err) {
@@ -116,9 +109,9 @@ describe('Roles Model', () => {
         it('should return true if you have permissions permissions on *', (done) => {
             Roles.find({name: 'root', organisation: 'silver lining'})
                 .then((root) => {
-                    expect(root[0].hasPermissionsTo('view', 'test3')).to.be.true();
-                    expect(root[0].hasPermissionsTo('update', 'test3')).to.be.true();
-                    expect(root[0].hasPermissionsTo('update', '*')).to.be.true();
+                    expect(root[0].hasPermissionsTo('view', 'test3')).to.be.true;
+                    expect(root[0].hasPermissionsTo('update', 'test3')).to.be.true;
+                    expect(root[0].hasPermissionsTo('update', '*')).to.be.true;
                     done();
                 })
                 .catch((err) => {

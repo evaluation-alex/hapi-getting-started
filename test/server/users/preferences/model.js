@@ -5,14 +5,7 @@ let Audit = require(relativeToServer + 'audit/model');
 let moment = require('moment');
 let _ = require('lodash');
 let tu = require('./../../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Preferences Model', () => {
     let usersToClear = [];
     before((done) => {
@@ -42,7 +35,7 @@ describe('Preferences Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -61,7 +54,7 @@ describe('Preferences Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal('en');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -98,7 +91,7 @@ describe('Preferences Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -117,7 +110,7 @@ describe('Preferences Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal('immediate');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -154,7 +147,7 @@ describe('Preferences Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -173,7 +166,7 @@ describe('Preferences Model', () => {
                     expect(moment(paudit[0].change[0].newValues).format('YYYYMMDD')).to.equal('20150324');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -215,7 +208,7 @@ describe('Preferences Model', () => {
                     return found.addPreferencesNotificationsBlogsBlocked(['newBlocked'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'newBlocked')).to.exist();
+                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'newBlocked')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then((paudit) => {
@@ -223,7 +216,7 @@ describe('Preferences Model', () => {
                     expect(paudit[0].change[0].action).to.match(/^add preferences\.notifications\.blogs\.blocked/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -237,14 +230,14 @@ describe('Preferences Model', () => {
                     return found.addPreferencesNotificationsBlogsBlocked(['blocked1'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'blocked1')).to.exist();
+                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'blocked1')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -280,14 +273,14 @@ describe('Preferences Model', () => {
                     return found.removePreferencesNotificationsBlogsBlocked(['unknownBlog'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'unknownBlog1')).to.not.exist();
+                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'unknownBlog1')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -301,7 +294,7 @@ describe('Preferences Model', () => {
                     return found.removePreferencesNotificationsBlogsBlocked(['toBeRemoved'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'toBeRemoved')).to.not.exist();
+                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'toBeRemoved')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then((paudit) => {
@@ -309,7 +302,7 @@ describe('Preferences Model', () => {
                     expect(paudit[0].change[0].action).to.match(/^remove preferences\.notifications\.blogs\.blocked/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -346,7 +339,7 @@ describe('Preferences Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -365,7 +358,7 @@ describe('Preferences Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal('immediate');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -402,7 +395,7 @@ describe('Preferences Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -421,7 +414,7 @@ describe('Preferences Model', () => {
                     expect(moment(paudit[0].change[0].newValues).format('YYYYMMDD')).to.equal('20150324');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -463,7 +456,7 @@ describe('Preferences Model', () => {
                     return found.addPreferencesNotificationsPostsBlocked(['newBlocked'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'newBlocked')).to.exist();
+                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'newBlocked')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.posts\.blocked/}});
                 })
                 .then((paudit) => {
@@ -471,7 +464,7 @@ describe('Preferences Model', () => {
                     expect(paudit[0].change[0].action).to.match(/^add preferences\.notifications\.posts\.blocked/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -485,14 +478,14 @@ describe('Preferences Model', () => {
                     return found.addPreferencesNotificationsPostsBlocked(['blocked1'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'blocked1')).to.exist();
+                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'blocked1')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.posts\.blocked/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -528,14 +521,14 @@ describe('Preferences Model', () => {
                     return found.removePreferencesNotificationsPostsBlocked(['unknownBlog'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'unknownBlog1')).to.not.exist();
+                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'unknownBlog1')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.posts\.blocked/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -549,7 +542,7 @@ describe('Preferences Model', () => {
                     return found.removePreferencesNotificationsPostsBlocked(['toBeRemoved'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'toBeRemoved')).to.not.exist();
+                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'toBeRemoved')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.posts\.blocked/}});
                 })
                 .then((paudit) => {
@@ -557,7 +550,7 @@ describe('Preferences Model', () => {
                     expect(paudit[0].change[0].action).to.match(/^remove preferences\.notifications\.posts\.blocked/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -594,7 +587,7 @@ describe('Preferences Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -613,7 +606,7 @@ describe('Preferences Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal('immediate');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -650,7 +643,7 @@ describe('Preferences Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -669,7 +662,7 @@ describe('Preferences Model', () => {
                     expect(moment(paudit[0].change[0].newValues).format('YYYYMMDD')).to.equal('20150324');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -711,7 +704,7 @@ describe('Preferences Model', () => {
                     return found.addPreferencesNotificationsUserGroupsBlocked(['newBlocked'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'newBlocked')).to.exist();
+                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'newBlocked')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then((paudit) => {
@@ -719,7 +712,7 @@ describe('Preferences Model', () => {
                     expect(paudit[0].change[0].action).to.match(/^add preferences\.notifications\.userGroups\.blocked/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -733,14 +726,14 @@ describe('Preferences Model', () => {
                     return found.addPreferencesNotificationsUserGroupsBlocked(['blocked1'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'blocked1')).to.exist();
+                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'blocked1')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -776,14 +769,14 @@ describe('Preferences Model', () => {
                     return found.removePreferencesNotificationsUserGroupsBlocked(['unknownBlog'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'unknownBlog')).to.not.exist();
+                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'unknownBlog')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -797,7 +790,7 @@ describe('Preferences Model', () => {
                     return found.removePreferencesNotificationsUserGroupsBlocked(['toBeRemoved'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'toBeRemoved')).to.not.exist();
+                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'toBeRemoved')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then((paudit) => {
@@ -805,7 +798,7 @@ describe('Preferences Model', () => {
                     expect(paudit[0].change[0].action).to.match(/^remove preferences\.notifications\.userGroups\.blocked/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {

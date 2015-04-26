@@ -6,14 +6,7 @@ let Audit = require(relativeToServer + 'audit/model');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Blogs', () => {
     let rootAuthHeader = null;
     let server = null;
@@ -57,7 +50,7 @@ describe('Blogs', () => {
                 expect(response.statusCode).to.equal(200);
                 let p = JSON.parse(response.payload);
                 _.forEach(p.data, (d) => {
-                    expect(d.isActive).to.be.true();
+                    expect(d.isActive).to.be.true;
                 });
                 done();
             }).catch((err) => {
@@ -76,7 +69,7 @@ describe('Blogs', () => {
                 expect(response.statusCode).to.equal(200);
                 let p = JSON.parse(response.payload);
                 _.forEach(p.data, (d) => {
-                    expect(d.isActive).to.be.false();
+                    expect(d.isActive).to.be.false;
                 });
                 done();
             }).catch((err) => {
@@ -100,7 +93,7 @@ describe('Blogs', () => {
                     _.find(d.owners, (u) => {
                         match = match || patt.test(u);
                     });
-                    expect(match).to.be.true();
+                    expect(match).to.be.true;
                 });
                 done();
             }).catch((err) => {
@@ -292,11 +285,11 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({_id: Blogs.ObjectID(id)})
                             .then((found) => {
-                                expect(found[0].isActive).to.be.true();
+                                expect(found[0].isActive).to.be.true;
                                 return Audit.findAudit('blogs', found[0].title, {'change.action': 'isActive'});
                             })
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 expect(foundAudit.length).to.equal(1);
                                 expect(foundAudit[0].change[0].action).to.match(/isActive/);
                                 blogsToClear.push('test PUT /blogs isActive=true');
@@ -327,11 +320,11 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({_id: Blogs.ObjectID(id)})
                             .then((found) => {
-                                expect(found[0].isActive).to.be.false();
+                                expect(found[0].isActive).to.be.false;
                                 return Audit.findAudit('blogs', found[0].title, {'change.action': 'isActive'});
                             })
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 expect(foundAudit.length).to.equal(1);
                                 expect(foundAudit[0].change[0].action).to.match(/isActive/);
                                 blogsToClear.push('test PUT /blogs isActive=false');
@@ -371,7 +364,7 @@ describe('Blogs', () => {
                                 return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /add/}});
                             })
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 expect(foundAudit.length).to.equal(1);
                                 expect(foundAudit[0].change[0].action).to.match(/add/);
                                 expect(foundAudit[0].change[1].action).to.match(/add/);
@@ -411,7 +404,7 @@ describe('Blogs', () => {
                                 return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /remove/}});
                             })
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 expect(foundAudit.length).to.equal(1);
                                 expect(foundAudit[0].change[0].action).to.match(/remove/);
                                 expect(foundAudit[0].change[0].action).to.match(/remove/);
@@ -431,8 +424,8 @@ describe('Blogs', () => {
             Blogs.create('test PUT /blogs add remove subscribers and owners', 'silver lining', 'test PUT /blogs add remove subscribers and owners', ['one@first.com'], [], ['root'], [], false, 'public', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
-                    expect(b.isPresentInSubscribers('root')).to.be.true();
-                    expect(b.isPresentInOwners('one@first.com')).to.be.true();
+                    expect(b.isPresentInSubscribers('root')).to.be.true;
+                    expect(b.isPresentInOwners('one@first.com')).to.be.true;
                     request = {
                         method: 'PUT',
                         url: '/blogs/' + id,
@@ -450,11 +443,11 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({title: 'test PUT /blogs add remove subscribers and owners'})
                             .then((b) => {
-                                expect(b).to.exist();
-                                expect(b[0].isPresentInSubscribers('root')).to.be.false();
-                                expect(b[0].isPresentInOwners('one@first.com')).to.be.false();
-                                expect(b[0].isPresentInOwners('root')).to.be.true();
-                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true();
+                                expect(b).to.exist;
+                                expect(b[0].isPresentInSubscribers('root')).to.be.false;
+                                expect(b[0].isPresentInOwners('one@first.com')).to.be.false;
+                                expect(b[0].isPresentInOwners('root')).to.be.true;
+                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true;
                                 return Audit.findAudit('blogs', 'test PUT /blogs add remove subscribers and owners', {'change.action': {$regex: /add|remove/}});
                             })
                             .then((foundAudit) => {
@@ -516,7 +509,7 @@ describe('Blogs', () => {
                                 return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /description/}});
                             })
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 expect(foundAudit.length).to.equal(1);
                                 expect(foundAudit[0].change[0].action).to.match(/description/);
                                 blogsToClear.push('test PUT /blogs update desc');
@@ -553,7 +546,7 @@ describe('Blogs', () => {
                                 return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /access/}});
                             })
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 expect(foundAudit.length).to.equal(1);
                                 expect(foundAudit[0].change[0].action).to.match(/access/);
                                 blogsToClear.push('test PUT /blogs access');
@@ -588,7 +581,7 @@ describe('Blogs', () => {
                                 return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /needsReview/}});
                             })
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 expect(foundAudit.length).to.equal(1);
                                 expect(foundAudit[0].change[0].action).to.match(/needsReview/);
                                 blogsToClear.push('test PUT /blogs needsReview');
@@ -623,7 +616,7 @@ describe('Blogs', () => {
                                 return Audit.findAudit('blogs', found[0].title, {'change.action': {$regex: /allowComments/}});
                             })
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 expect(foundAudit.length).to.equal(1);
                                 expect(foundAudit[0].change[0].action).to.match(/allowComments/);
                                 blogsToClear.push('test PUT /blogs allowComments');
@@ -676,8 +669,8 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({title: 'testPutSubscribeGroupAddUser'})
                             .then((b) => {
-                                expect(b).to.exist();
-                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                expect(b).to.exist;
+                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true;
                                 return Audit.findAudit('blogs', 'testPutSubscribeGroupAddUser', {'change.action': {$regex: /add needsApproval/}});
                             })
                             .then((foundAudit) => {
@@ -732,8 +725,8 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({title: 'testPutSubscribePublicGroupAddUser'})
                             .then((b) => {
-                                expect(b).to.exist();
-                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true();
+                                expect(b).to.exist;
+                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true;
                                 return Audit.findAudit('blogs', 'testPutSubscribePublicGroupAddUser', {'change.action': {$regex: /add subscriber/}});
                             })
                             .then((foundAudit) => {
@@ -835,8 +828,8 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({title: 'testPutUnSubscribeGroupAddUser'})
                             .then((b) => {
-                                expect(b).to.exist();
-                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.false();
+                                expect(b).to.exist;
+                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.false;
                                 return Audit.findAudit('blogs', 'testPutUnSubscribeGroupAddUser', {'change.action': {$regex: /remove subscriber/}});
                             })
                             .then((foundAudit) => {
@@ -944,9 +937,9 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({title: 'testBlogPutApproveAddUser'})
                             .then((b) => {
-                                expect(b).to.exist();
-                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true();
-                                expect(b[0].isPresentInNeedsApproval('someotherguytoo')).to.be.true();
+                                expect(b).to.exist;
+                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true;
+                                expect(b[0].isPresentInNeedsApproval('someotherguytoo')).to.be.true;
                                 return Audit.findAudit('blogs', 'testBlogPutApproveAddUser', {'change.action': {$regex: /add subscriber/}});
                             })
                             .then((foundAudit) => {
@@ -1005,9 +998,9 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({title: 'testBlogPutApproveAddUserEmpty'})
                             .then((b) => {
-                                expect(b).to.exist();
-                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
-                                expect(b[0].isPresentInNeedsApproval('someotherguytoo')).to.be.true();
+                                expect(b).to.exist;
+                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true;
+                                expect(b[0].isPresentInNeedsApproval('someotherguytoo')).to.be.true;
                                 return Audit.findAudit('blogs', 'testBlogPutApproveAddUserEmpty', {'change.action': {$regex: /add subscriber/}});
                             })
                             .then((foundAudit) => {
@@ -1049,8 +1042,8 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(401);
                         Blogs.find({title: 'testPutApproveBlogNotOwner'})
                             .then((b) => {
-                                expect(b).to.exist();
-                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.false();
+                                expect(b).to.exist;
+                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.false;
                                 return Audit.findAudit('blogs', 'testPutApproveBlogNotOwner', {'change.action': {$regex: /add subscriber/}});
                             })
                             .then((foundAudit) => {
@@ -1135,8 +1128,8 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({title: 'testPutRejectBlogAddUser'})
                             .then((b) => {
-                                expect(b).to.exist();
-                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.false();
+                                expect(b).to.exist;
+                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.false;
                                 return Audit.findAudit('blogs', 'testPutRejectBlogAddUser', {'change.action': {$regex: /remove needsApproval/}});
                             })
                             .then((foundAudit) => {
@@ -1196,8 +1189,8 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({title: 'testPutRejectBlogAddUserEmpty'})
                             .then((b) => {
-                                expect(b).to.exist();
-                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                expect(b).to.exist;
+                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true;
                                 return Audit.findAudit('blogs', 'testPutRejectBlogAddUserEmpty', {'change.action': {$regex: /remove needsApproval/}});
                             })
                             .then((foundAudit) => {
@@ -1239,8 +1232,8 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(401);
                         Blogs.find({title: 'testPutRejectBlogNotOwner'})
                             .then((b) => {
-                                expect(b).to.exist();
-                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true();
+                                expect(b).to.exist;
+                                expect(b[0].isPresentInNeedsApproval('one@first.com')).to.be.true;
                                 blogsToClear.push('testPutRejectBlogNotOwner');
                                 done();
                             });
@@ -1355,7 +1348,7 @@ describe('Blogs', () => {
                         expect(response.statusCode).to.equal(201);
                         Blogs.find({title: 'test post /blogs success'})
                             .then((found) => {
-                                expect(found).to.exist();
+                                expect(found).to.exist;
                                 expect(found.length).to.equal(1);
                                 expect(found[0].description).to.equal('test post /blogs sucess');
                                 expect(found[0].title).to.equal('test post /blogs success');
@@ -1439,7 +1432,7 @@ describe('Blogs', () => {
                                 return Audit.findAudit('blogs', p[0].title, {'change.action': 'isActive'});
                             })
                             .then((a) => {
-                                expect(a).to.exist();
+                                expect(a).to.exist;
                                 expect(a[0].change[0].action).to.match(/isActive/);
                                 blogsToClear.push('test DELETE /blogs/id');
                                 done();

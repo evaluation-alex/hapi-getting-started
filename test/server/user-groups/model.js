@@ -3,14 +3,7 @@ let relativeToServer = './../../../server/';
 let UserGroups = require(relativeToServer + 'user-groups/model');
 let Audit = require(relativeToServer + 'audit/model');
 let tu = require('./../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('UserGroups Model', () => {
     let groupsToCleanup = [];
     before((done) => {
@@ -24,11 +17,11 @@ describe('UserGroups Model', () => {
             let error = null;
             UserGroups.create('test.group@test.api', 'silver lining', 'creating groups', 'test')
                 .then((userGroup) => {
-                    expect(userGroup).to.exist();
+                    expect(userGroup).to.exist;
                     expect(userGroup).to.be.an.instanceof(UserGroups);
                     expect(userGroup.name).to.contain('test.group@test.api');
-                    expect(userGroup.isPresentInMembers('test')).to.be.true();
-                    expect(userGroup.isPresentInOwners('test')).to.be.true();
+                    expect(userGroup.isPresentInMembers('test')).to.be.true;
+                    expect(userGroup.isPresentInOwners('test')).to.be.true;
                 })
                 .then(() => {
                     return Audit.findAudit('user-groups', 'test.group@test.api', {'change.action': 'create'});
@@ -39,7 +32,7 @@ describe('UserGroups Model', () => {
                 })
                 .catch((err) => {
                     error = err;
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                 })
                 .done(() => {
                     groupsToCleanup.push('test.group@test.api');
@@ -52,15 +45,15 @@ describe('UserGroups Model', () => {
                 .then(() => {
                     return UserGroups.create('test.dupe@test.api', 'silver lining', 'testing dupes', 'test')
                         .then((dupeGroup) => {
-                            expect(dupeGroup).to.not.exist();
+                            expect(dupeGroup).to.not.exist;
                         })
                         .catch((err) => {
-                            expect(err).to.exist();
+                            expect(err).to.exist;
                             expect(err).to.be.an.instanceof(Error);
                         });
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -77,7 +70,7 @@ describe('UserGroups Model', () => {
                     expect(result).to.be.empty();
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -91,12 +84,12 @@ describe('UserGroups Model', () => {
                     return UserGroups.areValid(['test UserGroups.areValid', 'bogus'], 'silver lining');
                 })
                 .then((result) => {
-                    expect(result).to.exist();
-                    expect(result['test UserGroups.areValid']).to.be.true();
-                    expect(result.bogus).to.be.false();
+                    expect(result).to.exist;
+                    expect(result['test UserGroups.areValid']).to.be.true;
+                    expect(result.bogus).to.be.false;
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -114,7 +107,7 @@ describe('UserGroups Model', () => {
                     return ug.save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('alreadyMember')).to.be.true();
+                    expect(ug.isPresentInMembers('alreadyMember')).to.be.true;
                     return ug.addMembers(['alreadyMember'], 'test3').save();
                 })
                 .then((ug) => {
@@ -124,7 +117,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -140,7 +133,7 @@ describe('UserGroups Model', () => {
                     return ug.save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInOwners('alreadyOwner')).to.be.true();
+                    expect(ug.isPresentInOwners('alreadyOwner')).to.be.true;
                     return ug.addOwners(['alreadyOwner'], 'test3').save();
                 })
                 .then((ug) => {
@@ -150,7 +143,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -165,8 +158,8 @@ describe('UserGroups Model', () => {
                     return ug.addOwners(['test3'], 'test4').addMembers(['test3'], 'test4').save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInOwners('test3')).to.be.true();
-                    expect(ug.isPresentInMembers('test3')).to.be.true();
+                    expect(ug.isPresentInOwners('test3')).to.be.true;
+                    expect(ug.isPresentInMembers('test3')).to.be.true;
                     return ug;
                 })
                 .then((ug) => {
@@ -176,7 +169,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -191,7 +184,7 @@ describe('UserGroups Model', () => {
                     return ug.addOwners(['newOwner'], 'test3').save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInOwners('newOwner')).to.be.true();
+                    expect(ug.isPresentInOwners('newOwner')).to.be.true;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add owner/}});
                 })
                 .then((ugaudit) => {
@@ -200,7 +193,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit[0].change[0].action).to.match(/add owner/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -215,7 +208,7 @@ describe('UserGroups Model', () => {
                     return ug.addMembers(['newMember'], 'test3').save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('newMember')).to.be.true();
+                    expect(ug.isPresentInMembers('newMember')).to.be.true;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add member/}});
                 })
                 .then((ugaudit) => {
@@ -224,7 +217,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit[0].change[0].action).to.match(/add member/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -239,8 +232,8 @@ describe('UserGroups Model', () => {
                     return ug.addOwners(['newMemberOwner'], 'test3').addMembers(['newMemberOwner'], 'test3').save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('newMemberOwner')).to.be.true();
-                    expect(ug.isPresentInOwners('newMemberOwner')).to.be.true();
+                    expect(ug.isPresentInMembers('newMemberOwner')).to.be.true;
+                    expect(ug.isPresentInOwners('newMemberOwner')).to.be.true;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add/}});
                 })
                 .then((ugaudit) => {
@@ -255,8 +248,8 @@ describe('UserGroups Model', () => {
                     return ug.addOwners(['newBoth'], 'test3').addMembers(['newBoth'], 'test3').save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('newBoth')).to.be.true();
-                    expect(ug.isPresentInOwners('newBoth')).to.be.true();
+                    expect(ug.isPresentInMembers('newBoth')).to.be.true;
+                    expect(ug.isPresentInOwners('newBoth')).to.be.true;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^add/}});
                 })
                 .then((ugaudit) => {
@@ -265,7 +258,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit[0].change[0].newValues).to.equal('newBoth');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -284,20 +277,20 @@ describe('UserGroups Model', () => {
                     return ug.save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('notMemberButOwner')).to.be.false();
-                    expect(ug.isPresentInOwners('notMemberButOwner')).to.be.true();
+                    expect(ug.isPresentInMembers('notMemberButOwner')).to.be.false;
+                    expect(ug.isPresentInOwners('notMemberButOwner')).to.be.true;
                     return ug.removeMembers(['notMemberButOwner'], 'test4').save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('notMemberButOwner')).to.be.false();
-                    expect(ug.isPresentInOwners('notMemberButOwner')).to.be.true();
+                    expect(ug.isPresentInMembers('notMemberButOwner')).to.be.false;
+                    expect(ug.isPresentInOwners('notMemberButOwner')).to.be.true;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove user/}});
                 })
                 .then((ugaudit) => {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -313,20 +306,20 @@ describe('UserGroups Model', () => {
                     return ug.save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('notOwnerButMember')).to.be.true();
-                    expect(ug.isPresentInOwners('notOwnerButMember')).to.be.false();
+                    expect(ug.isPresentInMembers('notOwnerButMember')).to.be.true;
+                    expect(ug.isPresentInOwners('notOwnerButMember')).to.be.false;
                     return ug.removeOwners(['notOwnerButMember'], 'test4').save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('notOwnerButMember')).to.be.true();
-                    expect(ug.isPresentInOwners('notOwnerButMember')).to.be.false();
+                    expect(ug.isPresentInMembers('notOwnerButMember')).to.be.true;
+                    expect(ug.isPresentInOwners('notOwnerButMember')).to.be.false;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove user/}});
                 })
                 .then((ugaudit) => {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -338,20 +331,20 @@ describe('UserGroups Model', () => {
             let error = null;
             UserGroups.create('removeUsersTest3', 'UserGroups.this.removeBothNotPresent', 'test4')
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('neither')).to.be.false();
-                    expect(ug.isPresentInOwners('neither')).to.be.false();
+                    expect(ug.isPresentInMembers('neither')).to.be.false;
+                    expect(ug.isPresentInOwners('neither')).to.be.false;
                     return ug.removeMembers(['neither'], 'test4').removeOwners(['neither'], 'test4').save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('neither')).to.be.false();
-                    expect(ug.isPresentInOwners('neither')).to.be.false();
+                    expect(ug.isPresentInMembers('neither')).to.be.false;
+                    expect(ug.isPresentInOwners('neither')).to.be.false;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove/}});
                 })
                 .then((ugaudit) => {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -367,13 +360,13 @@ describe('UserGroups Model', () => {
                     return ug.save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('owners')).to.be.false();
-                    expect(ug.isPresentInOwners('owners')).to.be.true();
+                    expect(ug.isPresentInMembers('owners')).to.be.false;
+                    expect(ug.isPresentInOwners('owners')).to.be.true;
                     return ug.removeOwners(['owners'], 'test4').save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('owners')).to.be.false();
-                    expect(ug.isPresentInOwners('owners')).to.be.false();
+                    expect(ug.isPresentInMembers('owners')).to.be.false;
+                    expect(ug.isPresentInOwners('owners')).to.be.false;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove owner/}});
                 })
                 .then((ugaudit) => {
@@ -381,7 +374,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit[0].change[0].action).to.match(/^remove owner/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -398,13 +391,13 @@ describe('UserGroups Model', () => {
                     return ug.save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('members')).to.be.true();
-                    expect(ug.isPresentInOwners('members')).to.be.false();
+                    expect(ug.isPresentInMembers('members')).to.be.true;
+                    expect(ug.isPresentInOwners('members')).to.be.false;
                     return ug.removeMembers(['members'], 'test4').save();
                 })
                 .then((ug) => {
-                    expect(ug.isPresentInMembers('members')).to.be.false();
-                    expect(ug.isPresentInOwners('members')).to.be.false();
+                    expect(ug.isPresentInMembers('members')).to.be.false;
+                    expect(ug.isPresentInOwners('members')).to.be.false;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^remove member/}});
                 })
                 .then((ugaudit) => {
@@ -412,7 +405,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit[0].change[0].action).to.match(/^remove member/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -430,7 +423,7 @@ describe('UserGroups Model', () => {
                     return ug.reactivate('test5').save();
                 })
                 .then((ug) => {
-                    expect(ug.isActive).to.be.true();
+                    expect(ug.isActive).to.be.true;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((ugaudit) => {
@@ -447,14 +440,14 @@ describe('UserGroups Model', () => {
                     return ug.deactivate('test5').save();
                 })
                 .then((ug) => {
-                    expect(ug.isActive).to.be.false();
+                    expect(ug.isActive).to.be.false;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((ugaudit) => {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -470,7 +463,7 @@ describe('UserGroups Model', () => {
                     return ug.deactivate('test5').save();
                 })
                 .then((ug) => {
-                    expect(ug.isActive).to.be.false();
+                    expect(ug.isActive).to.be.false;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((ugaudit) => {
@@ -488,7 +481,7 @@ describe('UserGroups Model', () => {
                     return ug.reactivate('test5').save();
                 })
                 .then((ug) => {
-                    expect(ug.isActive).to.be.true();
+                    expect(ug.isActive).to.be.true;
                     return Audit.findAudit('user-groups', ug.name, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((ugaudit) => {
@@ -496,7 +489,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit[0].change[0].action).to.equal('isActive');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -521,7 +514,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -544,7 +537,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit[0].change[0].action).to.equal('description');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -568,7 +561,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -591,7 +584,7 @@ describe('UserGroups Model', () => {
                     expect(ugaudit[0].change[0].action).to.equal('access');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {

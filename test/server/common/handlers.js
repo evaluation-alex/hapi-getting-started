@@ -6,12 +6,7 @@ let findHandler = require(relativeToServer + 'common/handlers/find');
 let findOneHandler = require(relativeToServer + 'common/handlers/find-one');
 let insertAndAudit = require(relativeToServer + 'common/mixins/insert');
 let Bluebird = require('bluebird');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Handlers and Mixins', () => {
     it('create handler should log and boom errors when it encounters exceptions', (done) => {
         let reply = (args) => {
@@ -28,7 +23,7 @@ describe('Handlers and Mixins', () => {
         };
         let Model = {
             newObject: (request, by) => {
-                expect(request).to.exist();
+                expect(request).to.exist;
                 expect(by).to.equal('test');
                 return Bluebird.reject(new Error('test'));
             }
@@ -40,11 +35,11 @@ describe('Handlers and Mixins', () => {
     it('find handler should log and boom errors when it encounters exceptions', (done) => {
         let Model = {
             pagedFind: (query, fields, sort, limit, page) => {
-                expect(query).to.exist();
-                expect(fields).to.not.exist();
-                expect(sort).to.not.exist();
-                expect(limit).to.not.exist();
-                expect(page).to.not.exist();
+                expect(query).to.exist;
+                expect(fields).to.not.exist;
+                expect(sort).to.not.exist;
+                expect(limit).to.not.exist;
+                expect(page).to.not.exist;
                 return Bluebird.reject(new Error('test'));
             }
         };
@@ -52,7 +47,7 @@ describe('Handlers and Mixins', () => {
             query: {}
         };
         let queryBuilder = (request) => {
-            expect(request).to.exist();
+            expect(request).to.exist;
             return {
                 organisation: '*'
             };
@@ -94,7 +89,7 @@ describe('Handlers and Mixins', () => {
     it('insertAndAudit should return a not created error when _insert fails', (done) => {
         let obj = {
             insert: (doc) => {
-                expect(doc).to.exist();
+                expect(doc).to.exist;
                 return Bluebird.resolve(undefined);
             },
             collection: 'test'
@@ -102,12 +97,12 @@ describe('Handlers and Mixins', () => {
         insertAndAudit(obj, '_id', 'create');
         obj.insertAndAudit({test: 'error'})
             .catch((err) => {
-                expect(err).to.exist();
+                expect(err).to.exist;
             });
         done();
     });
     it('Model should return already created connection', (done) => {
-        expect(Model.connect('app', {})).to.exist();
+        expect(Model.connect('app', {})).to.exist;
         done();
     });
 });

@@ -7,14 +7,7 @@ let Audit = require(relativeToServer + 'audit/model');
 let Bluebird = require('bluebird');
 let AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
 let tu = require('./../../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Session', () => {
     let server = null;
     let emails = [];
@@ -75,12 +68,12 @@ describe('Session', () => {
                 expect(response.statusCode).to.equal(401);
                 AuthAttempts.find({email: 'test.users@test.api'})
                     .then((aa) => {
-                        expect(aa).to.exist();
+                        expect(aa).to.exist;
                         expect(aa.length).to.equal(1);
                         return Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login fail'});
                     })
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         done();
                     });
             }).catch((err) => {
@@ -114,11 +107,11 @@ describe('Session', () => {
             };
             server.injectThen(request).then((response) => {
                 expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
+                expect(response.payload).to.exist;
                 expect(response.payload).to.contain('test.users@test.api');
                 Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login success'})
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         done();
                     });
             }).catch((err) => {

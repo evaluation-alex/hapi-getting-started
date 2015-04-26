@@ -1,13 +1,7 @@
 'use strict';
 let tu = require('./../testutils');
 let Fs = require('fs');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Contact', () => {
     let server;
     before((done) => {

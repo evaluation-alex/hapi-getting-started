@@ -9,14 +9,7 @@ let _ = require('lodash');
 let moment = require('moment');
 let Bluebird = require('bluebird');
 let tu = require('./../../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Posts', () => {
     let rootAuthHeader = null;
     let server = null;
@@ -81,7 +74,7 @@ describe('Posts', () => {
                 expect(response.statusCode).to.equal(200);
                 let p = JSON.parse(response.payload);
                 _.forEach(p.data, (d) => {
-                    expect(d.isActive).to.be.true();
+                    expect(d.isActive).to.be.true;
                 });
                 done();
             }).catch((err) => {
@@ -100,7 +93,7 @@ describe('Posts', () => {
                 expect(response.statusCode).to.equal(200);
                 let p = JSON.parse(response.payload);
                 _.forEach(p.data, (d) => {
-                    expect(d.isActive).to.be.false();
+                    expect(d.isActive).to.be.false;
                 });
                 done();
             }).catch((err) => {
@@ -122,7 +115,7 @@ describe('Posts', () => {
                 _.forEach(p.data, (d) => {
                     let match = false;
                     match = match || patt.test(d.title);
-                    expect(match).to.be.true();
+                    expect(match).to.be.true;
                 });
                 done();
             }).catch((err) => {
@@ -146,7 +139,7 @@ describe('Posts', () => {
                     _.forEach(d.tags, (t) => {
                         match = match || patt.test(t);
                     });
-                    expect(match).to.be.true();
+                    expect(match).to.be.true;
                 });
                 done();
             }).catch((err) => {
@@ -222,7 +215,7 @@ describe('Posts', () => {
                 expect(response.statusCode).to.equal(200);
                 let p = JSON.parse(response.payload);
                 _.forEach(p.data, (d) => {
-                    expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true();
+                    expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true;
                 });
                 done();
             }).catch((err) => {
@@ -413,11 +406,11 @@ describe('Posts', () => {
                 expect(response.statusCode).to.equal(200);
                 Posts.find({_id: Posts.ObjectID(postId)})
                     .then((found) => {
-                        expect(found[0].isActive).to.be.false();
+                        expect(found[0].isActive).to.be.false;
                         return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
                     })
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         expect(foundAudit.length).to.equal(1);
                         expect(foundAudit[0].change[0].action).to.match(/isActive/);
                     })
@@ -444,11 +437,11 @@ describe('Posts', () => {
                 expect(response.statusCode).to.equal(200);
                 Posts.find({_id: Posts.ObjectID(postId)})
                     .then((found) => {
-                        expect(found[0].isActive).to.be.true();
+                        expect(found[0].isActive).to.be.true;
                         return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
                     })
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         expect(foundAudit.length).to.equal(1);
                         expect(foundAudit[0].change[0].action).to.match(/isActive/);
                     })
@@ -480,7 +473,7 @@ describe('Posts', () => {
                         return Audit.findAudit('posts', found[0]._id, {'change.action': {$regex: /tag/}});
                     })
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         expect(foundAudit.length).to.equal(1);
                         expect(foundAudit[0].change[0].action).to.match(/remove/);
                         expect(foundAudit[0].change[1].action).to.match(/add/);
@@ -512,7 +505,7 @@ describe('Posts', () => {
                         return Audit.findAudit('posts', found[0]._id, {by: 'root'});
                     })
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         expect(foundAudit.length).to.equal(1);
                         expect(foundAudit[0].change[0].action).to.match(/content/);
                     })
@@ -547,7 +540,7 @@ describe('Posts', () => {
                         return Audit.findAudit('posts', found[0]._id, {by: 'root'});
                     })
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         expect(foundAudit.length).to.equal(1);
                         expect(foundAudit[0].change[0].action).to.match(/access/);
                         expect(foundAudit[0].change[1].action).to.match(/allowComments/);
@@ -635,7 +628,7 @@ describe('Posts', () => {
                                 return Audit.findAudit('posts', found[0]._id, {by: 'one@first.com'});
                             })
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 expect(foundAudit.length).to.equal(1);
                                 expect(foundAudit[0].change[0].action).to.equal('state');
                             })
@@ -693,7 +686,7 @@ describe('Posts', () => {
                                 return Audit.findAudit('posts', found[0]._id, {by: 'root'});
                             })
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 expect(foundAudit.length).to.equal(1);
                                 expect(foundAudit[0].change[0].action).to.equal('state');
                             })
@@ -1458,11 +1451,11 @@ describe('Posts', () => {
                         expect(response.statusCode).to.equal(200);
                         Posts.find({_id: Posts.ObjectID(postId)})
                             .then((p) => {
-                                expect(p[0].isActive).to.be.false();
+                                expect(p[0].isActive).to.be.false;
                                 return Audit.findAudit('posts', p[0]._id, {by: 'one@first.com'});
                             })
                             .then((a) => {
-                                expect(a).to.exist();
+                                expect(a).to.exist;
                                 expect(a[0].change[0].action).to.match(/isActive/);
                             })
                             .then(() => {

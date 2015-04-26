@@ -6,14 +6,7 @@ let Uuid = require('node-uuid');
 let Audit = require(relativeToServer + 'audit/model');
 let moment = require('moment');
 let tu = require('./../../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Session Model', () => {
     let firstEmail = 'test.create@session.module';
     let secondEmail = 'test.search@session.module';
@@ -44,7 +37,7 @@ describe('Session Model', () => {
                     expect(foundUser2.email).to.equal(secondEmail);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -56,7 +49,7 @@ describe('Session Model', () => {
             Users.findBySessionCredentials(secondEmail, 'wrongpassword')
                 .then((foundUser) => {
                     error = foundUser;
-                    expect(foundUser).to.not.exist();
+                    expect(foundUser).to.not.exist;
                 })
                 .catch((err) => {
                     expect(err.name).to.equal('SessionCredentialsNotMatchingError');
@@ -70,7 +63,7 @@ describe('Session Model', () => {
             Users.findBySessionCredentials('test.search.fail@users.module', 'unknownuser')
                 .then((foundUser) => {
                     error = foundUser;
-                    expect(foundUser).to.not.exist();
+                    expect(foundUser).to.not.exist;
                 })
                 .catch((err) => {
                     expect(err.name).to.equal('UserNotFoundError');
@@ -91,7 +84,7 @@ describe('Session Model', () => {
                 })
                 .then((foundUser) => {
                     error = foundUser;
-                    expect(foundUser).to.not.exist();
+                    expect(foundUser).to.not.exist;
                 })
                 .catch((err) => {
                     expect(err.name).to.equal('SessionExpiredError');
@@ -111,7 +104,7 @@ describe('Session Model', () => {
                 })
                 .then((foundUser) => {
                     error = foundUser;
-                    expect(foundUser).to.not.exist();
+                    expect(foundUser).to.not.exist;
                 })
                 .catch((err) => {
                     expect(err.name).to.equal('UserNotLoggedInError');
@@ -143,7 +136,7 @@ describe('Session Model', () => {
                     expect(userAudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -166,14 +159,14 @@ describe('Session Model', () => {
                 })
                 .then((user) => {
                     expect(user.session.length).to.equal(1);
-                    expect(moment().isBefore(user.session[0].expires)).to.be.true();
+                    expect(moment().isBefore(user.session[0].expires)).to.be.true;
                     return Audit.findAudit('users', user.email, {'change.action': 'user.session'});
                 })
                 .then((userAudit) => {
                     expect(userAudit.length).to.equal(1);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -201,7 +194,7 @@ describe('Session Model', () => {
                     expect(userAudit[0].change[0].newValues.ipaddress).to.equal('test');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -233,7 +226,7 @@ describe('Session Model', () => {
                     expect(userAudit[0].change[0].newValues.ipaddress).to.equal('test2');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -267,7 +260,7 @@ describe('Session Model', () => {
                     expect(userAudit[0]).to.be.an.instanceof(Audit);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -291,7 +284,7 @@ describe('Session Model', () => {
                     expect(userAudit[0].change[0].newValues).to.equal('test');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {

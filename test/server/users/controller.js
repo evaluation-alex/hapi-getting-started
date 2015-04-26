@@ -5,14 +5,7 @@ let Audit = require(relativeToServer + 'audit/model');
 let Mailer = require(relativeToServer + 'common/plugins/mailer');
 let Bluebird = require('bluebird');
 let tu = require('./../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Users', () => {
     let server = null;
     let emails = [];
@@ -93,7 +86,7 @@ describe('Users', () => {
                 };
                 server.injectThen(request).then((response) => {
                     expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
+                    expect(response.payload).to.exist;
                     done();
                 }).catch((err) => {
                     done(err);
@@ -129,7 +122,7 @@ describe('Users', () => {
             };
             server.injectThen(request).then((response) => {
                 expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
+                expect(response.payload).to.exist;
                 expect(response.payload).to.not.contain('test.users2@test.api');
                 done();
             }).catch((err) => {
@@ -146,7 +139,7 @@ describe('Users', () => {
             };
             server.injectThen(request).then((response) => {
                 expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
+                expect(response.payload).to.exist;
                 expect(response.payload).to.contain('test.users2@test.api');
                 done();
             }).catch((err) => {
@@ -163,7 +156,7 @@ describe('Users', () => {
             };
             server.injectThen(request).then((response) => {
                 expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
+                expect(response.payload).to.exist;
                 expect(response.payload).to.not.contain('test.users2@test.api');
                 expect(response.payload).to.contain('one@first.com');
                 done();
@@ -181,7 +174,7 @@ describe('Users', () => {
             };
             server.injectThen(request).then((response) => {
                 expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
+                expect(response.payload).to.exist;
                 expect(response.payload).to.contain('test.users2@test.api');
                 expect(response.payload).to.contain('one@first.com');
                 done();
@@ -220,7 +213,7 @@ describe('Users', () => {
             };
             server.injectThen(request).then((response) => {
                 expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist();
+                expect(response.payload).to.exist;
                 expect(response.payload).to.contain('one@first.com');
                 done();
             }).catch((err) => {
@@ -292,12 +285,12 @@ describe('Users', () => {
                 expect(response.statusCode).to.equal(200);
                 Users.findOne({_id: Users.ObjectID(id)})
                     .then((foundUser) => {
-                        expect(foundUser.isActive).to.be.false();
+                        expect(foundUser.isActive).to.be.false;
                         expect(foundUser.session.length).to.equal(0);
                         return Audit.findAudit('users', foundUser.email, {'change.audit': 'isActive'});
                     })
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         done();
                     })
                     .done();
@@ -320,12 +313,13 @@ describe('Users', () => {
                 expect(response.statusCode).to.equal(200);
                 Users.findOne({_id: Users.ObjectID(id)})
                     .then((foundUser) => {
-                        expect(foundUser.roles).to.include(['readonly', 'limitedupd']);
+                        expect(foundUser.roles).to.include('readonly');
+                        expect(foundUser.roles).to.include('limitedupd');
                         expect(foundUser.session.length).to.equal(0);
                         return Audit.findAudit('users', foundUser.email, {'change.audit': 'update roles'});
                     })
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         done();
                     })
                     .done();
@@ -352,7 +346,7 @@ describe('Users', () => {
                         return Audit.findAudit('users', foundUser.email, {'change.audit': 'reset password'});
                     })
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         done();
                     })
                     .done();
@@ -378,8 +372,8 @@ describe('Users', () => {
                 Users.findOne({_id: Users.ObjectID(id)})
                     .then((foundUser) => {
                         expect(foundUser.session.length).to.equal(0);
-                        expect(foundUser.roles).to.include(['readonly']);
-                        expect(foundUser.isActive).to.be.true();
+                        expect(foundUser.roles).to.include('readonly');
+                        expect(foundUser.isActive).to.be.true;
                         done();
                     })
                     .done();
@@ -464,17 +458,17 @@ describe('Users', () => {
                 expect(response.statusCode).to.equal(201);
                 Users.findOne({email: 'test.signup2@signup.api'})
                     .then((foundUser) => {
-                        expect(foundUser).to.exist();
-                        expect(foundUser.session).to.exist();
+                        expect(foundUser).to.exist;
+                        expect(foundUser.session).to.exist;
                         expect(foundUser.session.length).to.equal(1);
                         return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'signup'});
                     })
                     .then((foundSignup) => {
-                        expect(foundSignup).to.exist();
+                        expect(foundSignup).to.exist;
                         return Audit.findAudit('users', 'test.signup2@signup.api', {'change.audit': 'login success'});
                     })
                     .then((foundLogin) => {
-                        expect(foundLogin).to.exist();
+                        expect(foundLogin).to.exist;
                         emails.push(request.payload.email);
                         done();
                     });
@@ -514,11 +508,11 @@ describe('Users', () => {
                 expect(response.payload).to.contain('Success');
                 Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password sent'})
                     .then((foundAudit) => {
-                        expect(foundAudit).to.exist();
+                        expect(foundAudit).to.exist;
                         return Users.findOne({email: 'test.users@test.api'});
                     })
                     .then((foundUser) => {
-                        expect(foundUser.resetPwd).to.exist();
+                        expect(foundUser.resetPwd).to.exist;
                         done();
                     });
             }).catch((err) => {
@@ -612,11 +606,11 @@ describe('Users', () => {
                         expect(response.payload).to.contain('Success');
                         Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password'})
                             .then((foundAudit) => {
-                                expect(foundAudit).to.exist();
+                                expect(foundAudit).to.exist;
                                 return Users.findOne({email: 'test.users@test.api'});
                             })
                             .then((foundUser) => {
-                                expect(foundUser.resetPwd).to.not.exist();
+                                expect(foundUser.resetPwd).to.not.exist;
                                 done();
                             });
                     }).catch((err) => {

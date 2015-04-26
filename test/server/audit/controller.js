@@ -1,15 +1,8 @@
 'use strict';
 let relativeToServer = './../../../server/';
-let Code = require('code');
-//let Lab = require('lab');
 let tu = require('./../testutils');
 let Users = require(relativeToServer + 'users/model');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Audit', () => {
     let authheader = '';
     let server = null;
@@ -63,7 +56,7 @@ describe('Audit', () => {
                 };
                 server.injectThen(request).then((response) => {
                     expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
+                    expect(response.payload).to.exist;
                     expect(response.payload).to.contain('test.users2@test.api');
                     expect(response.payload).to.not.contain('test.users@test.api');
                     done();
@@ -81,7 +74,7 @@ describe('Audit', () => {
                 };
                 server.injectThen(request).then((response) => {
                     expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
+                    expect(response.payload).to.exist;
                     expect(response.payload).to.contain('test');
                     done();
                 }).catch((err) => {
@@ -98,7 +91,7 @@ describe('Audit', () => {
                 };
                 server.injectThen(request).then((response) => {
                     expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist();
+                    expect(response.payload).to.exist;
                     done();
                 }).catch((err) => {
                     done(err);

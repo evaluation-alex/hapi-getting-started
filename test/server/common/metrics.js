@@ -2,11 +2,6 @@
 let relativeToServer = './../../../server/';
 let Hapi = require('hapi');
 let MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
 describe('Metrics', () => {
     let server = null;
     before((done) => {

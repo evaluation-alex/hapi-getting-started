@@ -6,14 +6,7 @@ let UserGroups = require(relativeToServer + 'user-groups/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
 let Bluebird = require('bluebird');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Blogs Model', () => {
     let blogsToClear = [];
     let groupsToClear = [];
@@ -28,17 +21,17 @@ describe('Blogs Model', () => {
             let error = null;
             Blogs.create('newBlog', 'silver lining', 'Blog.create testing', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
-                    expect(p).to.exist();
+                    expect(p).to.exist;
                     expect(p).to.be.an.instanceof(Blogs);
                     return Audit.findAudit('blogs', 'newBlog', {'change.action': {$regex: /create/}});
                 })
                 .then((paudit) => {
-                    expect(paudit).to.exist();
+                    expect(paudit).to.exist;
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0]).to.be.instanceof(Audit);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -50,20 +43,20 @@ describe('Blogs Model', () => {
             let error = null;
             Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
-                    expect(p).to.exist();
+                    expect(p).to.exist;
                     expect(p).to.be.an.instanceof(Blogs);
                 })
                 .then(() => {
                     Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
                         .then((p) => {
-                            expect(p).to.not.exist();
+                            expect(p).to.not.exist;
                         })
                         .catch((err) => {
-                            expect(err).to.exist();
+                            expect(err).to.exist;
                         });
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -100,7 +93,7 @@ describe('Blogs Model', () => {
                     return found.addSubscriberGroups(['newUserGroup'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscriberGroups, 'newUserGroup')).to.exist();
+                    expect(_.findWhere(p.subscriberGroups, 'newUserGroup')).to.exist;
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^add subscriberGroup/}});
                 })
                 .then((paudit) => {
@@ -112,7 +105,7 @@ describe('Blogs Model', () => {
                     return found.addSubscribers(['newSubscriber'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscribers, 'newSubscriber')).to.exist();
+                    expect(_.findWhere(p.subscribers, 'newSubscriber')).to.exist;
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^add subscribers/}});
                 })
                 .then((paudit) => {
@@ -120,7 +113,7 @@ describe('Blogs Model', () => {
                     expect(paudit[0].change[0].action).to.match(/^add subscribers/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -134,7 +127,7 @@ describe('Blogs Model', () => {
                     return found.addSubscriberGroups(['testBlogAddUsers'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscriberGroups, 'testBlogAddUsers')).to.exist();
+                    expect(_.findWhere(p.subscriberGroups, 'testBlogAddUsers')).to.exist;
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^add subscriberGroup/}});
                 })
                 .then((paudit) => {
@@ -145,14 +138,14 @@ describe('Blogs Model', () => {
                     return found.addOwners(['directlyadded'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.owners, 'directlyadded')).to.exist();
+                    expect(_.findWhere(p.owners, 'directlyadded')).to.exist;
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^add owner/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -186,7 +179,7 @@ describe('Blogs Model', () => {
                     return found.removeSubscriberGroups(['unknownGroup'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscriberGroups, 'unknownGroup')).to.not.exist();
+                    expect(_.findWhere(p.subscriberGroups, 'unknownGroup')).to.not.exist;
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^remove subscriberGroup/}});
                 })
                 .then((paudit) => {
@@ -197,14 +190,14 @@ describe('Blogs Model', () => {
                     return found.removeSubscribers(['unknownUser'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscribers, 'unknownUser')).to.not.exist();
+                    expect(_.findWhere(p.subscribers, 'unknownUser')).to.not.exist;
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^remove subscriber/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -218,7 +211,7 @@ describe('Blogs Model', () => {
                     return found.removeSubscriberGroups(['testBlogsRemoveUsers'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscriberGroups, 'testBlogsRemoveUsers')).to.not.exist();
+                    expect(_.findWhere(p.subscriberGroups, 'testBlogsRemoveUsers')).to.not.exist;
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^remove subscriberGroups/}});
                 })
                 .then((paudit) => {
@@ -230,7 +223,7 @@ describe('Blogs Model', () => {
                     return found.removeOwners(['directlyadded'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.owners, 'directlyadded')).to.not.exist();
+                    expect(_.findWhere(p.owners, 'directlyadded')).to.not.exist;
                     return Audit.findAudit('blogs', p.title, {'change.action': {$regex: /^remove owner/}});
                 })
                 .then((paudit) => {
@@ -238,7 +231,7 @@ describe('Blogs Model', () => {
                     expect(paudit[0].change[0].action).to.match(/^remove owner/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -272,7 +265,7 @@ describe('Blogs Model', () => {
             let error = null;
             activated.reactivate('test').save()
                 .then((a) => {
-                    expect(a.isActive).to.be.true();
+                    expect(a.isActive).to.be.true;
                     return Audit.findAudit('blogs', a.title, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
@@ -282,14 +275,14 @@ describe('Blogs Model', () => {
                     return deactivated.deactivate('test').save();
                 })
                 .then((d) => {
-                    expect(d.isActive).to.be.false();
+                    expect(d.isActive).to.be.false;
                     return Audit.findAudit('blogs', d.title, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -300,7 +293,7 @@ describe('Blogs Model', () => {
             let error = null;
             activated.deactivate('test').save()
                 .then((a) => {
-                    expect(a.isActive).to.be.false();
+                    expect(a.isActive).to.be.false;
                     return Audit.findAudit('blogs', a.title, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
@@ -311,7 +304,7 @@ describe('Blogs Model', () => {
                     return deactivated.reactivate('test').save();
                 })
                 .then((d) => {
-                    expect(d.isActive).to.be.true();
+                    expect(d.isActive).to.be.true;
                     return Audit.findAudit('blogs', d.title, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
@@ -319,7 +312,7 @@ describe('Blogs Model', () => {
                     expect(paudit[0].change[0].action).to.equal('isActive');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -352,7 +345,7 @@ describe('Blogs Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -371,7 +364,7 @@ describe('Blogs Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal('newDescription');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -404,7 +397,7 @@ describe('Blogs Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -423,7 +416,7 @@ describe('Blogs Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal('restricted');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -455,7 +448,7 @@ describe('Blogs Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -474,7 +467,7 @@ describe('Blogs Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal(true);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -506,7 +499,7 @@ describe('Blogs Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -525,7 +518,7 @@ describe('Blogs Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal(false);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {

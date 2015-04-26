@@ -2,12 +2,7 @@
 let relativeToServer = './../../../server/';
 let utils = require(relativeToServer + '/common/utils');
 let Config = require(relativeToServer + '../config');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Utils', () => {
     it('should log when errback called with', (done) => {
         let prev = Config.logger;
@@ -24,7 +19,7 @@ describe('Utils', () => {
         let prev = Config.logger;
         Config.logger = {
             error: () => {
-                expect(true).to.be.false();
+                expect(true).to.be.false;
             }
         };
         utils.errback(undefined);
@@ -36,7 +31,7 @@ describe('Utils', () => {
         done();
     });
     it('should lookup params first, then payload, then query', (done) => {
-        expect(utils.lookupParamsOrPayloadOrQuery({}, 'f')).to.be.undefined();
+        expect(utils.lookupParamsOrPayloadOrQuery({}, 'f')).to.be.undefined;
         expect(utils.lookupParamsOrPayloadOrQuery({
             params: {
                 f: 'inparams'
@@ -46,7 +41,7 @@ describe('Utils', () => {
             params: {
                 g: 'inparams'
             }
-        }, 'f')).to.be.undefined();
+        }, 'f')).to.be.undefined;
         expect(utils.lookupParamsOrPayloadOrQuery({
             payload: {
                 f: 'inpayload'
@@ -56,7 +51,7 @@ describe('Utils', () => {
             payload: {
                 g: 'inpayload'
             }
-        }, 'f')).to.be.undefined();
+        }, 'f')).to.be.undefined;
         expect(utils.lookupParamsOrPayloadOrQuery({
             query: {
                 f: 'inquery'
@@ -66,12 +61,12 @@ describe('Utils', () => {
             query: {
                 g: 'inquery'
             }
-        }, 'f')).to.be.undefined();
+        }, 'f')).to.be.undefined;
         done();
     });
     it('should give undefined / blank when unauthorized', (done) => {
         expect(utils.org({auth: {}})).to.equal('');
-        expect(utils.user({auth: {}})).to.be.undefined();
+        expect(utils.user({auth: {}})).to.be.undefined;
         done();
     });
     it('should give the query built with in when passed an array', (done) => {
@@ -83,8 +78,8 @@ describe('Utils', () => {
             }
         };
         let query = utils.buildQueryForPartialMatch({}, request, fields);
-        expect(query.a.$regex).to.exist();
-        expect(query.b.$in).to.exist();
+        expect(query.a.$regex).to.exist;
+        expect(query.b.$in).to.exist;
         expect(query.b.$in.length).to.equal(2);
         expect(query.b.$in[0]).to.be.an.instanceof(RegExp);
         expect(query.b.$in[1]).to.be.an.instanceof(RegExp);

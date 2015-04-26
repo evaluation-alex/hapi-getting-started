@@ -4,14 +4,7 @@ let Users = require(relativeToServer + 'users/model');
 let Bluebird = require('bluebird');
 let moment = require('moment');
 let tu = require('./../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Auth', () => {
     let server;
     let email = 'test.auth@plugin.auth';
@@ -53,10 +46,10 @@ describe('Auth', () => {
             path: '/',
             handler: (request, reply) => {
                 server.auth.test('simple', request, (err, credentials) => {
-                    expect(err).to.not.exist();
-                    expect(credentials).to.exist();
+                    expect(err).to.not.exist;
+                    expect(credentials).to.exist;
                     expect(credentials.user).to.be.an.instanceof(Users);
-                    expect(credentials.user._roles).to.exist();
+                    expect(credentials.user._roles).to.exist;
                     reply('ok').takeover();
                 });
             }
@@ -81,7 +74,7 @@ describe('Auth', () => {
             handler: (request, reply) => {
                 server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.be.an.instanceof(Error);
-                    expect(credentials).to.not.exist();
+                    expect(credentials).to.not.exist;
                     reply('ok').takeover();
                 });
             }
@@ -106,7 +99,7 @@ describe('Auth', () => {
             handler: (request, reply) => {
                 server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.be.an.instanceof(Error);
-                    expect(credentials).to.not.exist();
+                    expect(credentials).to.not.exist;
                     reply('ok').takeover();
                 });
             }
@@ -124,7 +117,7 @@ describe('Auth', () => {
             handler: (request, reply) => {
                 server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.be.an.instanceof(Error);
-                    expect(credentials).to.not.exist();
+                    expect(credentials).to.not.exist;
                     reply('ok');
                 });
             }
@@ -156,7 +149,7 @@ describe('Auth', () => {
             handler: (request, reply) => {
                 server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.be.an.instanceof(Error);
-                    expect(credentials).to.not.exist();
+                    expect(credentials).to.not.exist;
                     reply('ok');
                 });
             }
@@ -197,7 +190,7 @@ describe('Auth', () => {
             handler: (request, reply) => {
                 server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.be.an.instanceof(Error);
-                    expect(credentials).to.not.exist();
+                    expect(credentials).to.not.exist;
                     reply('ok');
                 });
             }

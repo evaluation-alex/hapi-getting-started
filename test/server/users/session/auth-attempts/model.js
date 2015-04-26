@@ -5,14 +5,7 @@ let Config = require(relativeTo + 'config');
 let AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
 let tu = require('./../../../testutils');
 let Bluebird = require('bluebird');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('AuthAttempts Model', () => {
     before((done) => {
         tu.setupRolesAndUsers()
@@ -27,7 +20,7 @@ describe('AuthAttempts Model', () => {
                 expect(authAttempt).to.be.an.instanceof(AuthAttempts);
             })
             .catch((err) => {
-                expect(err).to.not.exist();
+                expect(err).to.not.exist;
                 error = err;
             })
             .finally(() => {
@@ -46,7 +39,7 @@ describe('AuthAttempts Model', () => {
                         resolve(true);
                     })
                     .catch((err) => {
-                        expect(err).to.not.exist();
+                        expect(err).to.not.exist;
                         resolve(false);
                     });
             });
@@ -62,7 +55,7 @@ describe('AuthAttempts Model', () => {
                 expect(result).to.equal(true);
             })
             .catch((err) => {
-                expect(err).to.not.exist();
+                expect(err).to.not.exist;
                 error = err;
             })
             .finally(() => {
@@ -85,7 +78,7 @@ describe('AuthAttempts Model', () => {
                 expect(result).to.equal(true);
             })
             .catch((err) => {
-                expect(err).to.not.exist();
+                expect(err).to.not.exist;
                 error = err;
             })
             .finally(() => {

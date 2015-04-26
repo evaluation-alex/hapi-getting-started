@@ -4,14 +4,7 @@ let Bluebird = require('bluebird');
 let Notifications = require(relativeToServer + 'users/notifications/model');
 let Audit = require(relativeToServer + 'audit/model');
 let tu = require('./../../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Notifications Model', () => {
     before((done) => {
         tu.setupRolesAndUsers()
@@ -25,14 +18,14 @@ describe('Notifications Model', () => {
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
             Notifications.create(['one', 'two', 'three'], 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test')
                 .then((notifications) => {
-                    expect(notifications).to.exist();
+                    expect(notifications).to.exist;
                     expect(notifications.length).to.equal(3);
                     expect(notifications[0].email).to.equal('one');
                     expect(notifications[1].email).to.equal('two');
                     expect(notifications[2].email).to.equal('three');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .finally(() => {
@@ -63,7 +56,7 @@ describe('Notifications Model', () => {
             let error = null;
             activated.reactivate('test').save()
                 .then((a) => {
-                    expect(a.isActive).to.be.true();
+                    expect(a.isActive).to.be.true;
                     return Audit.findAudit('notifications', a._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
@@ -73,14 +66,14 @@ describe('Notifications Model', () => {
                     return deactivated.deactivate('test').save();
                 })
                 .then((d) => {
-                    expect(d.isActive).to.be.false();
+                    expect(d.isActive).to.be.false;
                     return Audit.findAudit('notifications', d._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -91,7 +84,7 @@ describe('Notifications Model', () => {
             let error = null;
             activated.deactivate('test').save()
                 .then((a) => {
-                    expect(a.isActive).to.be.false();
+                    expect(a.isActive).to.be.false;
                     return Audit.findAudit('notifications', a._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
@@ -102,7 +95,7 @@ describe('Notifications Model', () => {
                     return deactivated.reactivate('test').save();
                 })
                 .then((d) => {
-                    expect(d.isActive).to.be.true();
+                    expect(d.isActive).to.be.true;
                     return Audit.findAudit('notifications', d._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
@@ -110,7 +103,7 @@ describe('Notifications Model', () => {
                     expect(paudit[0].change[0].action).to.equal('isActive');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -142,7 +135,7 @@ describe('Notifications Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -161,7 +154,7 @@ describe('Notifications Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal('cancelled');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -187,7 +180,7 @@ describe('Notifications Model', () => {
                     expect(localised.title).to.equal('titles dont matter');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {

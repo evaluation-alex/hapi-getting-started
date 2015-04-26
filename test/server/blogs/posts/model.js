@@ -7,14 +7,7 @@ let Audit = require(relativeToServer + 'audit/model');
 let _ = require('lodash');
 let tu = require('./../../testutils');
 let Bluebird = require('bluebird');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Posts Model', () => {
     let postsToClear = [];
     let blogsToClear = [];
@@ -32,17 +25,17 @@ describe('Posts Model', () => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             Posts.create(blogId, 'silver lining', 'newPost', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing'], [], 'post', 'content', 'test')
                 .then((post) => {
-                    expect(post).to.exist();
+                    expect(post).to.exist;
                     expect(post).to.be.instanceof(Posts);
                     return Audit.findAudit('posts', post._id, {'change.action': 'create'});
                 })
                 .then((audit) => {
-                    expect(audit).to.exist();
+                    expect(audit).to.exist;
                     expect(audit.length).to.equal(1);
                     expect(audit[0].change[0].action).to.equal('create');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -74,7 +67,7 @@ describe('Posts Model', () => {
             let error = null;
             activated.reactivate('test').save()
                 .then((a) => {
-                    expect(a.isActive).to.be.true();
+                    expect(a.isActive).to.be.true;
                     return Audit.findAudit('posts', a._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
@@ -84,14 +77,14 @@ describe('Posts Model', () => {
                     return deactivated.deactivate('test').save();
                 })
                 .then((d) => {
-                    expect(d.isActive).to.be.false();
+                    expect(d.isActive).to.be.false;
                     return Audit.findAudit('posts', d._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -102,7 +95,7 @@ describe('Posts Model', () => {
             let error = null;
             activated.deactivate('test').save()
                 .then((a) => {
-                    expect(a.isActive).to.be.false();
+                    expect(a.isActive).to.be.false;
                     return Audit.findAudit('posts', a._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
@@ -113,7 +106,7 @@ describe('Posts Model', () => {
                     return deactivated.reactivate('test').save();
                 })
                 .then((d) => {
-                    expect(d.isActive).to.be.true();
+                    expect(d.isActive).to.be.true;
                     return Audit.findAudit('posts', d._id, {'change.action': {$regex: /^isActive/}});
                 })
                 .then((paudit) => {
@@ -121,7 +114,7 @@ describe('Posts Model', () => {
                     expect(paudit[0].change[0].action).to.equal('isActive');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -155,7 +148,7 @@ describe('Posts Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -174,7 +167,7 @@ describe('Posts Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal('newTitle');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -208,7 +201,7 @@ describe('Posts Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -227,7 +220,7 @@ describe('Posts Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal('newCategory');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -260,7 +253,7 @@ describe('Posts Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -279,7 +272,7 @@ describe('Posts Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal('restricted');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -312,7 +305,7 @@ describe('Posts Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -331,7 +324,7 @@ describe('Posts Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal(false);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -364,7 +357,7 @@ describe('Posts Model', () => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -383,7 +376,7 @@ describe('Posts Model', () => {
                     expect(paudit[0].change[0].newValues).to.equal(false);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -411,7 +404,7 @@ describe('Posts Model', () => {
                     return found.addTags(['newTag'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.tags, 'newTag')).to.exist();
+                    expect(_.findWhere(p.tags, 'newTag')).to.exist;
                     return Audit.findAudit('posts', p._id, {'change.action': {$regex: /^add tag/}});
                 })
                 .then((paudit) => {
@@ -419,7 +412,7 @@ describe('Posts Model', () => {
                     expect(paudit[0].change[0].action).to.match(/^add tag/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -433,14 +426,14 @@ describe('Posts Model', () => {
                     return found.addTags(['testing'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.tags, 'testing')).to.exist();
+                    expect(_.findWhere(p.tags, 'testing')).to.exist;
                     return Audit.findAudit('posts', p._id, {'change.action': {$regex: /^add tag/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -469,14 +462,14 @@ describe('Posts Model', () => {
                     return found.removeTags(['unknownTag'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.tags, 'unknownTag')).to.not.exist();
+                    expect(_.findWhere(p.tags, 'unknownTag')).to.not.exist;
                     return Audit.findAudit('posts', p._id, {'change.action': {$regex: /^remove tag/}});
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -490,7 +483,7 @@ describe('Posts Model', () => {
                     return found.removeTags(['removeTags'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.tags, 'removeTags')).to.not.exist();
+                    expect(_.findWhere(p.tags, 'removeTags')).to.not.exist;
                     return Audit.findAudit('posts', p._id, {'change.action': {$regex: /^remove tag/}});
                 })
                 .then((paudit) => {
@@ -498,7 +491,7 @@ describe('Posts Model', () => {
                     expect(paudit[0].change[0].action).to.match(/^remove tag/);
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -543,7 +536,7 @@ describe('Posts Model', () => {
                     expect(p.content).to.equal('i have something to offer');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -569,7 +562,7 @@ describe('Posts Model', () => {
                     expect(p.content).to.equal('i have something to offer');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -595,7 +588,7 @@ describe('Posts Model', () => {
                     expect(p.content).to.equal('i have something to offer');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -621,7 +614,7 @@ describe('Posts Model', () => {
                     expect(p.content).to.equal('i have something to offer');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -647,7 +640,7 @@ describe('Posts Model', () => {
                     expect(p.content).to.equal('i have something to offer');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -673,7 +666,7 @@ describe('Posts Model', () => {
                     expect(p.content).to.equal('i have something to offer');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {
@@ -699,7 +692,7 @@ describe('Posts Model', () => {
                     expect(p.content).to.equal('restricted because you are not an owner, contributor or subscriber to this blog and it is not a public post');
                 })
                 .catch((err) => {
-                    expect(err).to.not.exist();
+                    expect(err).to.not.exist;
                     error = err;
                 })
                 .done(() => {

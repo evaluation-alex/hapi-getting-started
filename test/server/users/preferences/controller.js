@@ -3,14 +3,7 @@ let relativeToServer = './../../../../server/';
 let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
 let tu = require('./../../testutils');
-let Code = require('code');
-//let Lab = require('lab');
-//let lab = exports.lab = Lab.script();
-//let describe = lab.describe;
-//let it = lab.it;
-//let before = lab.before;
-//let after = lab.after;
-let expect = Code.expect;
+let expect = require('chai').expect;
 describe('Preferences', () => {
     let rootAuthHeader = null;
     let server = null;
@@ -144,7 +137,7 @@ describe('Preferences', () => {
                                 return Audit.findAudit('users', 'root', {'change.action': 'preferences.locale'});
                             })
                             .then((audit) => {
-                                expect(audit).to.exist();
+                                expect(audit).to.exist;
                                 expect(audit.length).to.equal(1);
                                 done();
                             });

@@ -102,7 +102,7 @@ describe('Users Model', () => {
             let error = null;
             Users.areValid([], 'silver lining')
                 .then((result) => {
-                    expect(result).to.be.empty();
+                    expect(result).to.be.empty;
                 })
                 .catch((err) => {
                     expect(err).to.not.exist;

@@ -59,7 +59,7 @@
         "useragent": "2.1.x"
     },
     "devDependencies": {
-        "chai": "2.2.x",
+        "chai": "2.3.x",
         "codeclimate-test-reporter": "0.0.x",
         "coveralls": "2.11.x",
         "inject-then": "2.x.x",

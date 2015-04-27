@@ -1,5 +1,5 @@
 'use strict';
-let Joi = require('joi');
+let schemas = require('./schemas');
 let _ = require('lodash');
 let Uuid = require('node-uuid');
 let Bluebird = require('bluebird');
@@ -9,7 +9,7 @@ let utils = require('./../../common/utils');
 let ModelBuilder = require('./../../common/model-builder');
 var Session = (new ModelBuilder())
     .virtualModel()
-    .usingSchema()
+    .usingSchema(schemas.model)
     .doneConfiguring();
 Session.prototype._invalidateSession = (ipaddress, by) => {
     let self = this;

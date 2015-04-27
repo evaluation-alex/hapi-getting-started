@@ -13,8 +13,8 @@ module.exports = {
         category: Joi.string(),
         tags: Joi.array().items(Joi.string()).unique(),
         attachments: Joi.array().items(Joi.object()).unique(),
-        contentType: Joi.string(),
-        content: Joi.object(),
+        contentType: Joi.string().only(['post']).default('post'),
+        content: Joi.alternatives().try(Joi.string()),
         publishedBy: Joi.string(),
         publishedOn: Joi.date(),
         reviewedBy: Joi.string(),
@@ -30,13 +30,14 @@ module.exports = {
             blogId: Joi.string(),
             title: Joi.string(),
             state: Joi.string().only(['draft', 'pending review', 'published', 'archived']),
-            content: Joi.string(),
             tags: Joi.array().items(Joi.string()).unique(),
             category: Joi.string(),
             attachments: Joi.array().items(Joi.object()).unique(),
             access: Joi.string().only(['public', 'restricted']),
             allowComments: Joi.boolean(),
-            needsReview: Joi.boolean()
+            needsReview: Joi.boolean(),
+            contentType: Joi.string().only(['post']).default('post'),
+            content: Joi.alternatives().try(Joi.string())
         }
     },
     find: {

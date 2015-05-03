@@ -73,6 +73,7 @@ Users.prototype.afterLogin = (ipaddress) => {
     let self = this;
     let session = _.find(self.session, (session) => session.ipaddress === ipaddress);
     return {
+        _id: self._id,
         user: self.email,
         session: session,
         authHeader: 'Basic ' + new Buffer(self.email + ':' + session.key).toString('base64'),

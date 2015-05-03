@@ -50,9 +50,6 @@ var config = {
             address: args.nodemailer.auth.user
         }
     },
-    storage: {
-        diskPath: args.storage.diskPath
-    },
     statsd: new StatsD(args.statsd),
     i18n: i18n,
     manifest: {

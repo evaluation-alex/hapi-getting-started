@@ -74,7 +74,8 @@ describe('Utils', () => {
         let request = {
             payload: {
                 a: 'a1',
-                b: ['b1', 'b2']
+                b: ['b1', 'b2'],
+                id: ['54c894fe1d1d4ab4032ed94e', '54c894fe1d1d4ab4032ed94e']
             }
         };
         let query = utils.buildQueryForPartialMatch({}, request, fields);
@@ -83,6 +84,14 @@ describe('Utils', () => {
         expect(query.b.$in.length).to.equal(2);
         expect(query.b.$in[0]).to.be.an.instanceof(RegExp);
         expect(query.b.$in[1]).to.be.an.instanceof(RegExp);
+        let query2 = utils.buildQueryForExactMatch({}, request, fields);
+        expect(query2.a).to.exist;
+        expect(query2.b.$in).to.exist;
+        expect(query2.b.$in.length).to.equal(2);
+        let query3 = utils.buildQueryForIDMatch({}, request, [['id','id']]);
+        expect(query3.id).to.exist;
+        expect(query3.id.$in).to.exist;
+        expect(query3.id.$in.length).to.equal(2);
         done();
     });
 });

@@ -29,7 +29,7 @@
     },
     "homepage": "https://github.com/k-sheth/hapi-getting-started",
     "engines": {
-        "node": ">= 0.10.x"
+        "node": ">= 0.12.x"
     },
     "dependencies": {
         "bcrypt": "^0.8.x",

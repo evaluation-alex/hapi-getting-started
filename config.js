@@ -5,10 +5,12 @@ let devnull = require('dev-null');
 let Bunyan = require('bunyan');
 let StatsD = require('node-statsd');
 let i18n = require('i18n');
+/* istanbul ignore if  */
 if (!fs.existsSync('.opts')) {
     console.log('.opts file missing. will exit');
     process.exit(1);
 }
+/* istanbul ignore if  */
 if (!fs.existsSync('manifest.json')) {
     console.log('manifest.json file missing. will exit');
     process.exit(1);
@@ -16,6 +18,7 @@ if (!fs.existsSync('manifest.json')) {
 let args = JSON.parse(fs.readFileSync('.opts'));
 let manifest = JSON.parse(fs.readFileSync('manifest.json'));
 let nodemailer = {};
+/* istanbul ignore else  */
 if (!args.sendemails) {
     nodemailer = {
         name: 'minimal',

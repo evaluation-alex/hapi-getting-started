@@ -22,12 +22,8 @@ module.exports.register = (server, options, next) => {
                 }
             }));
         })
-        .then(() => {
-            next();
-        })
-        .catch((err) => {
-            next(err);
-        });
+        .then(() => undefined)
+        .then(next, next);
 };
 module.exports.register.attributes = {
     name: 'MongoModels'

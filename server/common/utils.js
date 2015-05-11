@@ -39,11 +39,8 @@ module.exports.ip = (request) => request.info.remoteAddress === '' ? 'test' : re
 module.exports.by = (request) => request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
 module.exports.org = (request) => request.auth.credentials ? request.auth.credentials.user.organisation : '';
 module.exports.user = (request) => request.auth.credentials ? request.auth.credentials.user : undefined;
-module.exports.locale = (request) => {
-    let ret = _.get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
+module.exports.locale = (request) => _.get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
     //TODO: if not found in user prefs, figure out from request headers - tbd
-    return ret ? ret : 'en';
-};
 module.exports.lookupParamsOrPayloadOrQuery = (request, field) =>
     request.params && request.params[field] ?
         request.params[field] :

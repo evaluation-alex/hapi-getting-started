@@ -12,6 +12,7 @@ module.exports = (Model, property) => {
                 isActive: true,
                 organisation: organisation
             };
+            /* istanbul ignore if  */
             if (property === '_id') {
                 toCheck = _.map(toCheck, (id) => self.ObjectID(id));
             }

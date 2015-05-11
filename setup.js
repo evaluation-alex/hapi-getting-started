@@ -15,7 +15,6 @@ let test = {
     port: 3000,
     logdir: './logs',
     logMetrics: false,
-    diskStoragePath: './data',
     statsdhost: '127.0.0.1',
     statsdport: 8125,
     certfile: './secure/cert.pem',
@@ -42,13 +41,6 @@ let fromStdIn = (results, property, message, opts) => {
         }
     });
 };
-var handleErr = (err) => {
-    if (err) {
-        console.error('Setup failed.');
-        console.error(err);
-        return process.exit(1);
-    }
-};
 fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistart'})
     .then((results) => fromStdIn(results,
         'mongodbUrl',
@@ -67,7 +59,6 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
     .then((results) => fromStdIn(results, 'port', 'port: ', {'default': 3000}))
     .then((results) => fromStdIn(results, 'logdir', 'log directory: ', {'default': './logs'}))
     .then((results) => fromStdIn(results, 'logMetrics', 'capture metrics: ', {'default': true}))
-    .then((results) => fromStdIn(results, 'diskStoragePath', 'disk storage path: ', {'default': './'}))
     .then((results) => fromStdIn(results, 'statsdhost', 'statsd host: ', {'default': '127.0.0.1'}))
     .then((results) => fromStdIn(results, 'statsdport', 'statsd port: ', {'default': 8125}))
     .then((results) => fromStdIn(results, 'statsdport', 'statsd port: ', {'default': 8125}))
@@ -75,7 +66,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
     .then((results) => fromStdIn(results, 'keyfile', 'key file for https: ', {'default': './secure/key.pem'}))
     .then((results) => {
         console.log('setting up with - ' + JSON.stringify(results));
-        var opts = {
+        let opts = {
             env: 'dev',
             project: results.projectName,
             nodemailer: {
@@ -99,9 +90,6 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 }]
             },
             sendemails: false,
-            storage: {
-                diskPath: results.diskStoragePath
-            },
             statsd: {
                 host: results.statsdhost,
                 port: results.statsdport,
@@ -113,7 +101,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 directory: './i18n'
             }
         };
-        var manifest = {
+        let manifest = {
             plugins: {
                 'hapi-bunyan': {
                     'logger': '',
@@ -179,8 +167,14 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
         Fs.writeFileSync('manifest.json', JSON.stringify(manifest, null, 4));
         return results;
     })
-    .catch(handleErr)
-    .done(() => {
+    .then(() => {
         console.log('Setup complete.');
         process.exit(0);
+    })
+    .catch((err) => {
+        if (err) {
+            console.error('Setup failed.');
+            console.error(err);
+            return process.exit(1);
+        }
     });

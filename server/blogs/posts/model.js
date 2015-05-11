@@ -4,6 +4,7 @@ let Blogs = require('./../model');
 let UserGroups = require('./../../user-groups/model');
 let schemas = require('./schemas');
 let _ = require('lodash');
+let utils = require('./../../common/utils');
 let Hoek = require('hoek');
 let errors = require('./../../common/errors');
 let Bluebird = require('bluebird');
@@ -53,7 +54,7 @@ Posts.newObject = (doc, by) => {
         }
     }
     return self.create(blog._id,
-        doc.auth.credentials.user.organisation,
+        utils.org(doc),
         doc.payload.title,
         doc.payload.state,
         doc.payload.access,

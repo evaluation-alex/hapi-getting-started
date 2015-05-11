@@ -61,7 +61,6 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
     .then((results) => fromStdIn(results, 'logMetrics', 'capture metrics: ', {'default': true}))
     .then((results) => fromStdIn(results, 'statsdhost', 'statsd host: ', {'default': '127.0.0.1'}))
     .then((results) => fromStdIn(results, 'statsdport', 'statsd port: ', {'default': 8125}))
-    .then((results) => fromStdIn(results, 'statsdport', 'statsd port: ', {'default': 8125}))
     .then((results) => fromStdIn(results, 'certfile', 'certificate file for https: ', {'default': './secure/cert.pem'}))
     .then((results) => fromStdIn(results, 'keyfile', 'key file for https: ', {'default': './secure/key.pem'}))
     .then((results) => {

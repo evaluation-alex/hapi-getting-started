@@ -38,7 +38,7 @@ var Blogs = (new ModelBuilder())
 Blogs.newObject = (doc, by) => {
     let self = this;
     return self.create(doc.payload.title,
-        doc.auth.credentials.user.organisation,
+        utils.org(doc),
         doc.payload.description,
         doc.payload.owners,
         doc.payload.contributors,

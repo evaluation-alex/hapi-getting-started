@@ -43,7 +43,7 @@ describe('Auth', () => {
         };
         server.route({
             method: 'GET',
-            path: '/',
+            path: '/testauth',
             handler: (request, reply) => {
                 server.auth.test('simple', request, (err, credentials) => {
                     expect(err).to.not.exist;

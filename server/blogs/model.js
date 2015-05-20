@@ -16,10 +16,10 @@ var Blogs = (new ModelBuilder())
     .usingSchema(schemas.model)
     .addIndex([{title: 1, organisation: 1}, {unique: true}])
     .addIndex([{description: 1}])
-    .decorateWithInsertAndAudit('title', 'create')
+    .decorateWithInsertAndAudit('_id', 'create')
     .decorateWithSave()
     .decorateWithSoftDeletes()
-    .decorateWithTrackChanges('title')
+    .decorateWithTrackChanges('_id')
     .decorateWithUpdates([
         'isActive',
         'description',

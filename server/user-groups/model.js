@@ -14,7 +14,7 @@ var UserGroups = (new ModelBuilder())
     .usingConnection('app')
     .usingSchema(schemas.model)
     .addIndex([{name: 1, organisation: 1}, {unique: true}])
-    .decorateWithInsertAndAudit('name', 'create')
+    .decorateWithInsertAndAudit('_id', 'create')
     .decorateWithSoftDeletes()
     .decorateWithUpdates([
         'isActive',
@@ -26,7 +26,7 @@ var UserGroups = (new ModelBuilder())
     ], 'update',
     'members', 'needsApproval')
     .decorateWithSave()
-    .decorateWithTrackChanges('name')
+    .decorateWithTrackChanges('_id')
     .decorateWithAreValidQuery('name')
     .doneConfiguring();
 UserGroups.newObject = (doc, by) => {

@@ -45,6 +45,7 @@ module.exports = {
     },
     update: {
         payload: {
+            title: Joi.string(),
             isActive: Joi.boolean(),
             addedOwners: Joi.array().items(Joi.string()).unique(),
             removedOwners: Joi.array().items(Joi.string()).unique(),

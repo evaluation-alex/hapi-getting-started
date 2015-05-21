@@ -1,6 +1,7 @@
 'use strict';
 let ModelBuilder = require('./../common/model-builder');
 let schemas = require('./schemas');
+let utils = require('./../common/utils');
 let _ = require('lodash');
 var UserGroups = (new ModelBuilder())
     .onModel(function UserGroups (attrs) {
@@ -32,7 +33,7 @@ var UserGroups = (new ModelBuilder())
 UserGroups.newObject = (doc, by) => {
     let self = this;
     return self.create(doc.payload.name,
-        doc.auth.credentials.user.organisation,
+        utils.org(doc),
         doc.payload.description,
         by)
         .then((userGroup) => {

@@ -39,6 +39,7 @@ var Posts = (new ModelBuilder())
     ], 'updatePost')
     .decorateWithSave()
     .decorateWithTrackChanges()
+    .decorateWithAreValidQuery('_id')
     .doneConfiguring();
 Posts.newObject = (doc, by) => {
     let self = this;

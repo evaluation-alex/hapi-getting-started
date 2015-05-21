@@ -36,7 +36,7 @@ describe('Auth', () => {
     it('returns authentication credentials when correct authorization header is sent in the request', (done) => {
         let request = {
             method: 'GET',
-            url: '/',
+            url: '/testauth',
             headers: {
                 Authorization: authheader
             }

@@ -25,7 +25,8 @@ var Blogs = (new ModelBuilder())
         'description',
         'needsReview',
         'access',
-        'allowComments'
+        'allowComments',
+        'title'
     ], [
         'owners',
         'contributors',

@@ -34,7 +34,7 @@
     "dependencies": {
         "bcrypt": "0.8.x",
         "bluebird": "2.9.x",
-        "boom": "2.7.x",
+        "boom": "2.8.x",
         "bunyan": "1.4.x",
         "dev-null": "0.1.x",
         "glue": "2.0.x",

@@ -4,6 +4,7 @@
     "description": "User management, authentication and authorization api for Node.js using hapi",
     "main": "index.js",
     "scripts": {
+        "updatedeps": "rm -rf ./node_modules && npm i",
         "setup": "node --harmony ./setup.js",
         "start": "node --harmony ./index.js",
         "test": "node --harmony ./node_modules/istanbul-harmony/lib/cli.js cover --config ./test/istanbul.yml ./node_modules/mocha/bin/_mocha -- ./test/server",
@@ -37,7 +38,7 @@
         "boom": "2.8.x",
         "bunyan": "1.4.x",
         "dev-null": "0.1.x",
-        "glue": "2.0.x",
+        "glue": "2.1.x",
         "handlebars": "3.0.x",
         "hapi": "8.6.x",
         "hapi-auth-basic": "2.0.x",

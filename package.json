@@ -47,7 +47,7 @@
         "hoek": "2.14.x",
         "i18n": "0.5.x",
         "joi": "6.5.x",
-        "lodash": "3.9.x",
+        "lodash": "3.10.x",
         "lout": "6.2.x",
         "moment": "2.10.x",
         "mongodb": "2.0.x",
@@ -62,7 +62,7 @@
     },
     "devDependencies": {
         "chai": "3.0.x",
-        "codeclimate-test-reporter": "0.0.x",
+        "codeclimate-test-reporter": "0.1.x",
         "coveralls": "2.11.x",
         "inject-then": "2.0.x",
         "istanbul-harmony": "0.3.x",

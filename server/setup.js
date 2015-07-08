@@ -158,8 +158,8 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 }
             }
         };
-        Fs.writeFileSync('.opts', JSON.stringify(opts, null, 4));
-        Fs.writeFileSync('manifest.json', JSON.stringify(manifest, null, 4));
+        Fs.writeFileSync('./server/.opts', JSON.stringify(opts, null, 4));
+        Fs.writeFileSync('./server/manifest.json', JSON.stringify(manifest, null, 4));
         return results;
     })
     .then(() => {

@@ -1,7 +1,7 @@
 'use strict';
 let schemas = require('./schemas');
 let ModelBuilder = require('./../../common/model-builder');
-var Preferences = (new ModelBuilder())
+let Preferences = (new ModelBuilder())
     .virtualModel()
     .usingSchema(schemas.model)
     .decorateWithUpdates([

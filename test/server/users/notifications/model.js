@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../../server/';
 let Bluebird = require('bluebird');
 let Notifications = require(relativeToServer + 'users/notifications/model');
@@ -34,7 +36,8 @@ describe('Notifications Model', () => {
         });
     });
     describe('Notifications.this.activate/deactivate', () => {
-        let activated = null, deactivated = null;
+        let activated = null;
+        let deactivated = null;
         before((done) => {
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
             let p1 = Notifications.create('activated', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');

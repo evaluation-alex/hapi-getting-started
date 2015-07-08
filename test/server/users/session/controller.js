@@ -1,7 +1,8 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../../server/';
-let relativeTo = './../../../../';
-let Config = require(relativeTo + 'config');
+let Config = require(relativeToServer + 'config');
 let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
 let Bluebird = require('bluebird');

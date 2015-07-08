@@ -11,6 +11,7 @@ let isMemberOf = require('./../../common/prereqs/is-member-of');
 let prePopulate = require('./../../common/prereqs/pre-populate');
 let utils = require('./../../common/utils');
 /*jshint unused:false*/
+/*eslint-disable no-unused-vars*/
 let sendNotificationsWhen = {
     'published': (post, request) => {
         let blog = request.pre.blogs;
@@ -60,7 +61,8 @@ let sendNotificationsWhen = {
     }
 };
 /*jshint unused:true*/
-var Controller = new ControllerFactory(Posts)
+/*eslint-enable no-unused-vars*/
+let Controller = new ControllerFactory(Posts)
     .enableNotifications()
     .newController(schemas.create, [
         prePopulate(Blogs, 'blogId'),
@@ -78,7 +80,17 @@ var Controller = new ControllerFactory(Posts)
         let query = utils.buildQueryForPartialMatch({}, request, [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]);
         query = utils.buildQueryForDateRange(query, request, 'publishedOn');
         query = utils.buildQueryForIDMatch(query, request, [['blogId', 'blogId']]);
-        return query;
+        if (utils.lookupParamsOrPayloadOrQuery(request, 'blogTitle')) {
+            let blogQuery = utils.buildQueryForPartialMatch({}, [['blogTitle', 'title']]);
+            return Blogs.find(blogQuery)
+                .then((blogs) => {
+                    request.query.blogId = _.map(blogs, (blog) => blog._id);
+                    query = utils.buildQueryForIDMatch(query, request, [['blogId, blogId']]);
+                    return query;
+                });
+        } else {
+            return query;
+        }
     }, (output, user) => {
         return Bluebird.all(_.map(output.data, (post) => post.populate(user)))
             .then((op) => output.data = op)

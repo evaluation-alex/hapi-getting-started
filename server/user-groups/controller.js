@@ -7,7 +7,7 @@ let isMemberOf = require('./../common/prereqs/is-member-of');
 let createDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
 let addRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
 let utils = require('./../common/utils');
-var Controller = new ControllerFactory(UserGroups)
+let Controller = new ControllerFactory(UserGroups)
     .enableNotifications()
     .newController(schemas.create, [
         areValid.users(['members', 'owners'])

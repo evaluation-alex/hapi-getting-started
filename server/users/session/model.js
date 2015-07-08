@@ -7,7 +7,7 @@ let moment = require('moment');
 let errors = require('./../../common/errors');
 let utils = require('./../../common/utils');
 let ModelBuilder = require('./../../common/model-builder');
-var Session = (new ModelBuilder())
+let Session = (new ModelBuilder())
     .virtualModel()
     .usingSchema(schemas.model)
     .doneConfiguring();

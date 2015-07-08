@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../../server/';
 let _ = require('lodash');
 let moment = require('moment');

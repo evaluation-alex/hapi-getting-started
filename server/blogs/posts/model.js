@@ -4,12 +4,12 @@ let Blogs = require('./../model');
 let UserGroups = require('./../../user-groups/model');
 let schemas = require('./schemas');
 let _ = require('lodash');
-let utils = require('./../../common/utils');
 let Hoek = require('hoek');
 let errors = require('./../../common/errors');
 let Bluebird = require('bluebird');
-var Posts = (new ModelBuilder())
-    .onModel(function Posts (attrs) {
+let utils = require('./../../common/utils');
+let Posts = (new ModelBuilder())
+    .onModel(function Posts(attrs) {
         _.assign(this, attrs);
         Object.defineProperty(this, 'audit', {
             writable: true,
@@ -66,7 +66,11 @@ Posts.newObject = (doc, by) => {
         doc.payload.attachments,
         doc.payload.contentType || 'post',
         doc.payload.content,
-        by);
+        by)
+        .then((post) => {
+            post.blog = blog;
+            return post;
+        });
 };
 Posts.create = (blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, contentType, content, by) => {
     let self = this;
@@ -130,8 +134,12 @@ Posts.prototype.reject = (doc, by) => {
 };
 Posts.prototype.populate = (user) => {
     let self = this;
-    return Bluebird.resolve({canSee: self.access === 'public'})
-        .then((res) => res.canSee ? res : Blogs.findOne({_id: Blogs.ObjectID(self.blogId)}))
+    return Blogs.findOne({_id: Blogs.ObjectID(self.blogId)})
+        .then((blog) => {
+            self.blog = blog;
+            return {canSee: self.access === 'public', blog: self.blog};
+        })
+        .then((res) => res.canSee ? res : res.blog)
         .then((blog) =>
             blog.canSee ?
                 blog : {
@@ -140,8 +148,7 @@ Posts.prototype.populate = (user) => {
                 blog.isPresentInContributors(user.email) ||
                 blog.isPresentInSubscribers(user.email),
                 blog: blog
-            }
-        )
+            })
         .then((res) =>
             res.canSee ?
                 res.canSee :

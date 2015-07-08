@@ -3,7 +3,7 @@ let ModelBuilder = require('./../common/model-builder');
 let schemas = require('./schemas');
 let utils = require('./../common/utils');
 let _ = require('lodash');
-var UserGroups = (new ModelBuilder())
+let UserGroups = (new ModelBuilder())
     .onModel(function UserGroups (attrs) {
         _.assign(this, attrs);
         Object.defineProperty(this, 'audit', {

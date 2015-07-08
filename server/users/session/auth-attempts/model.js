@@ -1,11 +1,11 @@
 'use strict';
 let ModelBuilder = require('./../../../common/model-builder');
 let schemas = require('./schemas');
-let Config = require('./../../../../config');
+let Config = require('./../../../config');
 let Bluebird = require('bluebird');
 let _ = require('lodash');
 let limits = Config.authAttempts;
-var AuthAttempts = (new ModelBuilder())
+let AuthAttempts = (new ModelBuilder())
     .onModel(function AuthAttempts (attrs) {
         _.assign(this, attrs);
     })

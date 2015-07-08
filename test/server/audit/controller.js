@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../server/';
 let tu = require('./../testutils');
 let Users = require(relativeToServer + 'users/model');

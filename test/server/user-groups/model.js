@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../server/';
 let UserGroups = require(relativeToServer + 'user-groups/model');
 let Audit = require(relativeToServer + 'audit/model');
@@ -33,7 +35,7 @@ describe('UserGroups Model', () => {
                 })
                 .done(() => {
                     groupsToCleanup.push('test.group@test.api');
-                    tu.testComplete(done, null);
+                    tu.testComplete(done, error);
                 });
         });
         it('should not allow two groups with the name', (done) => {

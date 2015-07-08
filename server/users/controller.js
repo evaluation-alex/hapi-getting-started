@@ -1,7 +1,8 @@
 'use strict';
 let schemas = require('./schemas');
+let path = require('path');
 let _ = require('lodash');
-let Config = require('./../../config');
+let Config = require('./../config');
 let Users = require('./model');
 let Mailer = require('./../common/plugins/mailer');
 let ControllerFactory = require('./../common/controller-factory');
@@ -9,7 +10,7 @@ let utils = require('./../common/utils');
 let errors = require('./../common/errors');
 let Bluebird = require('bluebird');
 let onlyOwnerAllowed = require('./../common/prereqs/only-owner');
-var Controller = new ControllerFactory(Users)
+let Controller = new ControllerFactory(Users)
     .customNewController('signup', schemas.signup, (request) => {
         return {
             email: request.payload.email,
@@ -63,7 +64,7 @@ var Controller = new ControllerFactory(Users)
                         subject: 'Reset your ' + Config.projectName + ' password',
                         to: request.payload.email
                     };
-                    return Mailer.sendEmail(options, __dirname + '/templates/forgot-password.hbs.md', {key: user.resetPwd.token});
+                    return Mailer.sendEmail(options, path.join(__dirname, '/templates/forgot-password.hbs.md'), {key: user.resetPwd.token});
                 }
                 return undefined;
             })

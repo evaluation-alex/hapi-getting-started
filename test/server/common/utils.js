@@ -1,7 +1,9 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../server/';
 let utils = require(relativeToServer + '/common/utils');
-let Config = require(relativeToServer + '../config');
+let Config = require(relativeToServer + 'config');
 let expect = require('chai').expect;
 describe('Utils', () => {
     it('should log when errback called with', (done) => {
@@ -88,7 +90,7 @@ describe('Utils', () => {
         expect(query2.a).to.exist;
         expect(query2.b.$in).to.exist;
         expect(query2.b.$in.length).to.equal(2);
-        let query3 = utils.buildQueryForIDMatch({}, request, [['id','id']]);
+        let query3 = utils.buildQueryForIDMatch({}, request, [['id', 'id']]);
         expect(query3.id).to.exist;
         expect(query3.id.$in).to.exist;
         expect(query3.id.$in.length).to.equal(2);

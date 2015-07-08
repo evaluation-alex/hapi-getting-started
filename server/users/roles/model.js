@@ -2,7 +2,7 @@
 let ModelBuilder = require('./../../common/model-builder');
 let schemas = require('./schemas');
 let _ = require('lodash');
-var Roles = (new ModelBuilder())
+let Roles = (new ModelBuilder())
     .onModel(function Roles (attrs) {
         _.assign(this, attrs);
     })

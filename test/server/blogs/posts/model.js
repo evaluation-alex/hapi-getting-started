@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../../server/';
 let Posts = require(relativeToServer + 'blogs/posts/model');
 let Blogs = require(relativeToServer + 'blogs/model');
@@ -61,8 +63,8 @@ describe('Posts Model', () => {
         });
         it('should return an object with as many entries as ids sent, appropriately populated', (done) => {
             let error = null;
-            var postId = '';
-            var bogus = '';
+            let postId = '';
+            let bogus = '';
             Posts.create(blogId, 'silver lining', 'test Posts.areValid', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'activate'], [], 'post', null, 'test')
                 .then((p) => {
                     postId = p._id.toString();
@@ -85,7 +87,8 @@ describe('Posts Model', () => {
         });
     });
     describe('Posts.this.activate/deactivate', () => {
-        let activated = null, deactivated = null;
+        let activated = null;
+        let deactivated = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
             let p1 = Posts.create(blogId, 'silver lining', 'activate', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'activate'], [], 'post', 'content', 'test');
@@ -570,7 +573,7 @@ describe('Posts Model', () => {
                     return post.setAccess('public').save();
                 })
                 .then((p) => {
-                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -586,7 +589,7 @@ describe('Posts Model', () => {
         it('should load content if post.access is not public, but blog.access is public', (done) => {
             let error = null;
             Blogs.findOne({title: 'test post.populate'})
-            .then((blog) => {
+                .then((blog) => {
                     return blog.setAccess('public').save();
                 })
                 .then(() => {
@@ -596,7 +599,7 @@ describe('Posts Model', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -622,7 +625,7 @@ describe('Posts Model', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -648,7 +651,7 @@ describe('Posts Model', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -674,7 +677,7 @@ describe('Posts Model', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -700,7 +703,7 @@ describe('Posts Model', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -726,7 +729,7 @@ describe('Posts Model', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email:'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('restricted because you are not an owner, contributor or subscriber to this blog and it is not a public post');

@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../server/';
 let UserGroups = require(relativeToServer + 'user-groups/model');
 let Notifications = require(relativeToServer + 'users/notifications/model');
@@ -291,10 +293,10 @@ describe('UserGroups', () => {
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupDeActivate'})
-                            .then((ug) => {
-                                expect(ug).to.exist;
-                                expect(ug[0].isActive).to.be.false;
-                                return Audit.findAudit('user-groups', ug[0]._id, {'change.action': 'isActive'});
+                            .then((ug2) => {
+                                expect(ug2).to.exist;
+                                expect(ug2[0].isActive).to.be.false;
+                                return Audit.findAudit('user-groups', ug2[0]._id, {'change.action': 'isActive'});
                             })
                             .then((foundAudit) => {
                                 expect(foundAudit.length).to.equal(1);
@@ -368,11 +370,11 @@ describe('UserGroups', () => {
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupAddUserOwner'})
-                            .then((ug) => {
-                                expect(ug).to.exist;
-                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true;
-                                expect(ug[0].isPresentInOwners('root')).to.be.true;
-                                return Audit.findAudit('user-groups', ug[0]._id, {'change.action': {$regex: /add/}});
+                            .then((ug2) => {
+                                expect(ug2).to.exist;
+                                expect(ug2[0].isPresentInMembers('one@first.com')).to.be.true;
+                                expect(ug2[0].isPresentInOwners('root')).to.be.true;
+                                return Audit.findAudit('user-groups', ug2[0]._id, {'change.action': {$regex: /add/}});
                             })
                             .then((foundAudit) => {
                                 expect(foundAudit.length).to.equal(1);
@@ -414,11 +416,11 @@ describe('UserGroups', () => {
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupRemoveUserOwner'})
-                            .then((ug) => {
-                                expect(ug).to.exist;
-                                expect(ug[0].isPresentInMembers('root')).to.be.false;
-                                expect(ug[0].isPresentInOwners('one@first.com')).to.be.false;
-                                return Audit.findAudit('user-groups', ug[0]._id, {'change.action': {$regex: /remove/}});
+                            .then((ug2) => {
+                                expect(ug2).to.exist;
+                                expect(ug2[0].isPresentInMembers('root')).to.be.false;
+                                expect(ug2[0].isPresentInOwners('one@first.com')).to.be.false;
+                                return Audit.findAudit('user-groups', ug2[0]._id, {'change.action': {$regex: /remove/}});
                             })
                             .then((foundAudit) => {
                                 expect(foundAudit.length).to.equal(1);
@@ -462,13 +464,13 @@ describe('UserGroups', () => {
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupAddRemoveUserOwner'})
-                            .then((ug) => {
-                                expect(ug).to.exist;
-                                expect(ug[0].isPresentInMembers('root')).to.be.false;
-                                expect(ug[0].isPresentInOwners('one@first.com')).to.be.false;
-                                expect(ug[0].isPresentInOwners('root')).to.be.true;
-                                expect(ug[0].isPresentInMembers('one@first.com')).to.be.true;
-                                return Audit.findAudit('user-groups', ug[0]._id, {'change.action': {$regex: /add|remove/}});
+                            .then((ug2) => {
+                                expect(ug2).to.exist;
+                                expect(ug2[0].isPresentInMembers('root')).to.be.false;
+                                expect(ug2[0].isPresentInOwners('one@first.com')).to.be.false;
+                                expect(ug2[0].isPresentInOwners('root')).to.be.true;
+                                expect(ug2[0].isPresentInMembers('one@first.com')).to.be.true;
+                                return Audit.findAudit('user-groups', ug2[0]._id, {'change.action': {$regex: /add|remove/}});
                             })
                             .then((foundAudit) => {
                                 expect(foundAudit.length).to.equal(1);
@@ -500,7 +502,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutGroupAddRemoveUserOwner');
@@ -527,10 +529,10 @@ describe('UserGroups', () => {
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         UserGroups.find({name: 'testPutGroupChangeDesc'})
-                            .then((ug) => {
-                                expect(ug).to.exist;
-                                expect(ug[0].description).to.equal('new description');
-                                return Audit.findAudit('user-groups', ug[0]._id, {'change.action': {$regex: /description/}});
+                            .then((ug2) => {
+                                expect(ug2).to.exist;
+                                expect(ug2[0].description).to.equal('new description');
+                                return Audit.findAudit('user-groups', ug2[0]._id, {'change.action': {$regex: /description/}});
                             })
                             .then((foundAudit) => {
                                 expect(foundAudit.length).to.equal(1);
@@ -615,7 +617,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutJoinGroupAddUser');
@@ -675,7 +677,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutJoinPublicGroupAddUser');
@@ -784,7 +786,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutLeaveGroupAddUser');
@@ -897,7 +899,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutApproveGroupAddUser');
@@ -1088,7 +1090,7 @@ describe('UserGroups', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         groupsToClear.push('testPutRejectGroupAddUser');

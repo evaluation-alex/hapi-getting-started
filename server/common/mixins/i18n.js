@@ -1,6 +1,6 @@
 'use strict';
 let _ = require('lodash');
-let ___ = require('./../../../config').i18n;
+let ___ = require('./../../config').i18n;
 module.exports = (Model, fields) => {
     Model.i18n = (locale) => {
         let self = this;

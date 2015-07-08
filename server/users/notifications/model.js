@@ -3,7 +3,7 @@ let ModelBuilder = require('./../../common/model-builder');
 let schemas = require('./schemas');
 let _ = require('lodash');
 let Bluebird = require('bluebird');
-var Notifications = (new ModelBuilder())
+let Notifications = (new ModelBuilder())
     .onModel(function Notifications (attrs) {
         _.assign(this, attrs);
         Object.defineProperty(this, 'audit', {

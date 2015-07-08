@@ -17,7 +17,7 @@ let joinLeaveNotificationsBuilder = require('./notifications/join-leave-builder'
 let cancelJoinNotificationsBuilder = require('./notifications/cancel-join-builder');
 let approveNotificationsBuilder = require('./notifications/approve-builder');
 let rejectNotificationsBuilder = require('./notifications/reject-builder');
-var ControllerFactory = function ControllerFactory (model) {
+let ControllerFactory = function ControllerFactory (model) {
     let self = this;
     self.controller = {};
     if (model) {

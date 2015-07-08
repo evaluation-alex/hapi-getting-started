@@ -4,7 +4,7 @@ let Fs = require('fs');
 let Handlebars = require('handlebars');
 let Nodemailer = require('nodemailer');
 let markdown = require('nodemailer-markdown').markdown;
-let Config = require('./../../../config');
+let Config = require('./../../config');
 let Bluebird = require('bluebird');
 let transport = Bluebird.promisifyAll(Nodemailer.createTransport(Hoek.clone(Config.nodemailer)));
 transport.use('compile', markdown({useEmbeddedImages: true}));

@@ -1,7 +1,8 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../server/';
-let relativeTo = './../../../';
-let Config = require(relativeTo + 'config');
+let Config = require(relativeToServer + 'config');
 let Mailer = require(relativeToServer + 'common/plugins/mailer');
 let expect = require('chai').expect;
 describe('Mailer', () => {

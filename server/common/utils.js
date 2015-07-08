@@ -1,8 +1,8 @@
 'use strict';
 let Boom = require('boom');
 let objectID = require('mongodb').ObjectID;
-let logger = require('./../../config').logger;
-let statsd = require('./../../config').statsd;
+let logger = require('./../config').logger;
+let statsd = require('./../config').statsd;
 let _ = require('lodash');
 let moment = require('moment');
 let Bcrypt = require('bcrypt');
@@ -40,7 +40,7 @@ module.exports.by = (request) => request.auth.credentials ? request.auth.credent
 module.exports.org = (request) => request.auth.credentials ? request.auth.credentials.user.organisation : '';
 module.exports.user = (request) => request.auth.credentials ? request.auth.credentials.user : undefined;
 module.exports.locale = (request) => _.get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
-    //TODO: if not found in user prefs, figure out from request headers - tbd
+// TODO: if not found in user prefs, figure out from request headers - tbd
 module.exports.lookupParamsOrPayloadOrQuery = (request, field) =>
     request.params && request.params[field] ?
         request.params[field] :
@@ -51,14 +51,22 @@ module.exports.lookupParamsOrPayloadOrQuery = (request, field) =>
                 undefined;
 module.exports.hasItems = (arr) => arr && arr.length > 0;
 let queryBuilderForArray = {
-    objectId: (p) => {return {$in: _.map(p, (op) => objectID(op))};},
-    exact: (p) => {return {$in: p};},
-    partial: (p) => {return {$in: _.map(p, (op) => new RegExp('^.*?' + op + '.*$', 'i'))};}
+    objectId: (p) => {
+        return {$in: _.map(p, (op) => objectID(op))};
+    },
+    exact: (p) => {
+        return {$in: p};
+    },
+    partial: (p) => {
+        return {$in: _.map(p, (op) => new RegExp('^.*?' + op + '.*$', 'i'))};
+    }
 };
 let queryBuilderFor = {
     objectId: (p) => objectID(p),
     exact: (p) => p,
-    partial: (p) => {return {$regex: new RegExp('^.*?' + p + '.*$', 'i')};}
+    partial: (p) => {
+        return {$regex: new RegExp('^.*?' + p + '.*$', 'i')};
+    }
 };
 let buildQueryFor = (type, query, request, fields) => {
     let builder = queryBuilderFor[type];

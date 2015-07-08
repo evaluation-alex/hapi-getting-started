@@ -17,7 +17,7 @@ module.exports.register = (server, options, next) => {
         }
         return reply.continue();
     });
-    next();
+    return next();
 };
 module.exports.register.attributes = {
     name: 'i18n'

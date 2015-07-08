@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../../server/';
 let Roles = require(relativeToServer + '/users/roles/model');
 let tu = require('./../../testutils');
@@ -36,13 +38,14 @@ describe('Roles Model', () => {
         });
         it('should not allow two objects with the same name', (done) => {
             let error = null;
-            Roles.create('newRole', 'silver lining', [{
-                action: 'view',
-                object: 'self'
-            }, {
-                action: 'update',
-                object: 'nooneelse'
-            }])
+            Roles.ensureIndexes()
+                .then(() => Roles.create('newRole', 'silver lining', [{
+                    action: 'view',
+                    object: 'self'
+                }, {
+                    action: 'update',
+                    object: 'nooneelse'
+                }]))
                 .then((r) => {
                     error = r;
                     expect(r).to.not.exist;
@@ -132,4 +135,5 @@ describe('Roles Model', () => {
             })
             .done();
     });
-});
+})
+;

@@ -1,17 +1,17 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../../server/';
 let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
 describe('Preferences', () => {
-    let rootAuthHeader = null;
     let server = null;
     before((done) => {
         tu.setupServer()
             .then((res) => {
                 server = res.server;
-                rootAuthHeader = res.authheader;
                 done();
             })
             .catch((err) => {

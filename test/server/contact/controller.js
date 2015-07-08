@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let tu = require('./../testutils');
 let Fs = require('fs');
 let expect = require('chai').expect;
@@ -18,7 +20,7 @@ describe('Contact', () => {
             .done();
     });
     it('returns an error when send email fails', (done) => {
-        Fs.renameSync('./server/contact/contact.hbs.md', './server/contact/contact2.hbs.md');
+        Fs.renameSync('./server/web/contact/contact.hbs.md', './server/web/contact/contact2.hbs.md');
         let request = {
             method: 'POST',
             url: '/contact',
@@ -29,8 +31,8 @@ describe('Contact', () => {
             }
         };
         server.injectThen(request).then((response) => {
+            Fs.renameSync('./server/web/contact/contact2.hbs.md', './server/web/contact/contact.hbs.md');
             expect(response.statusCode).to.equal(500);
-            Fs.renameSync('./server/contact/contact2.hbs.md', './server/contact/contact.hbs.md');
             done();
         }).catch((err) => {
             done(err);

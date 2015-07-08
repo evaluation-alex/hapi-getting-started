@@ -3,7 +3,8 @@ let Mongodb = require('mongodb');
 let utils = require('./utils');
 let Bluebird = require('bluebird');
 let _ = require('lodash');
-var Model = function Model () {};
+let Model = function Model() {
+};
 Model.ObjectId = Model.ObjectID = Mongodb.ObjectID;
 Model.connect = (name, config) =>
     new Bluebird((resolve, reject) => {
@@ -23,7 +24,10 @@ Model.connect = (name, config) =>
     });
 Model.db = (name) => Model.connections[name];
 Model.disconnect = (name) => {
-    Model.db(name).close(false, utils.errback);
+    Model.db(name).close(false, (err) => {
+        Model.connections[name] = undefined;
+        utils.errback(err);
+    });
 };
 Model.ensureIndexes = () => {
     let self = this;
@@ -119,13 +123,13 @@ Model.insert = Model.update = Model.save = Model.upsert = (obj) => {
             obj,
             {upsert: true, returnOriginal: false},
             utils.defaultcb(self.collection + '.upsert',
-                (doc) => resolve(doc ? new self(doc.value) : undefined),
+                (doc) => resolve(new self(doc.value)),
                 reject)
         );
         /*jshint +W055*/
     });
 };
-Model.remove = Model['delete'] = (query) => {
+Model.remove = Model.delete = (query) => {
     let self = this;
     return new Bluebird((resolve, reject) => {
         self.cllctn().deleteMany(query,

@@ -1,8 +1,8 @@
 'use strict';
 module.exports.register = (server, options, next) => {
     server.route(require('./routes'));
-    next();
+    return next();
 };
 module.exports.register.attributes = {
-    name: 'auth-attempts'
+    name: 'users/session/auth-attempts'
 };

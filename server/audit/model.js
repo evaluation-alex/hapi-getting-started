@@ -2,7 +2,7 @@
 let _ = require('lodash');
 let schemas = require('./schemas');
 let ModelBuilder = require('./../common/model-builder');
-var Audit = (new ModelBuilder())
+let Audit = (new ModelBuilder())
     .onModel(function Audit (attrs) {
         _.assign(this, attrs);
     })

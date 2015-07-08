@@ -6,7 +6,7 @@ let profile = require('./profile/schemas').model;
 module.exports = {
     model: Joi.object().keys({
         _id: Joi.object(),
-        email: Joi.string().email().required(),
+        email: Joi.string().required(),
         password: Joi.string().required(),
         organisation: Joi.string().required(),
         roles: Joi.array().items(Joi.string()).unique(),
@@ -25,7 +25,7 @@ module.exports = {
     }),
     signup: {
         payload: {
-            email: Joi.string().email().required(),
+            email: Joi.string().required(),
             organisation: Joi.string().required(),
             locale: Joi.string().only(['en', 'hi']).default('en'),
             password: Joi.string().required()
@@ -46,13 +46,13 @@ module.exports = {
     },
     loginForgot: {
         payload: {
-            email: Joi.string().email().required()
+            email: Joi.string().required()
         }
     },
     loginReset: {
         payload: {
             key: Joi.string().required(),
-            email: Joi.string().email().required(),
+            email: Joi.string().required(),
             password: Joi.string().required()
         }
     }

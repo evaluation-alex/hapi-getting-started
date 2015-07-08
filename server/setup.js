@@ -13,12 +13,12 @@ let test = {
     smtpUsername: 'you',
     smtpPassword: '^YOURSMTPWD$',
     port: 3000,
-    logdir: './logs',
+    logdir: './../logs',
     logMetrics: false,
     statsdhost: '127.0.0.1',
     statsdport: 8125,
-    certfile: './secure/cert.pem',
-    keyfile: './secure/key.pem'
+    certfile: './.secure/cert.pem',
+    keyfile: './.secure/key.pem'
 };
 let fromStdIn = (results, property, message, opts) => {
     return new Bluebird((resolve, reject) => {
@@ -109,34 +109,29 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                     'joinTags': ','
                 },
                 'lout': {},
-                'poop': {logPath: results.logdir},
                 'tv': {},
                 'hapi-require-https': {},
                 'hapi-auth-basic': {},
-                './server/common/plugins/model': {
-                    connections: {
-                        app: {
-                            url: results.mongodbUrl
+                './server/common/plugins/connections': {
+                    'mongo': {
+                        'app': {
+                            'url': results.mongodbUrl
                         }
-                    },
-                    models: [
-                        './server/audit/model',
-                        './server/users/model',
-                        './server/users/session/auth-attempts/model',
-                        './server/users/roles/model',
-                        './server/users/notifications/model',
-                        './server/user-groups/model',
-                        './server/blogs/model',
-                        './server/blogs/posts/model'
-                    ],
-                    'autoIndex': true
+                    }
+                },
+                './server/common/plugins/dbindexes': {
+                    'dependencies': [
+                        'MongoConnections',
+                        'auth'
+                    ]
                 },
                 './server/common/plugins/auth': {},
                 './server/common/plugins/i18n': {},
                 './server/common/plugins/metrics': {},
-                './server/contact': {},
-                './server/audit': {},
+                './server/web/public': {},
+                './server/web/contact': {},
                 './server/users': {},
+                './server/users/roles': {},
                 './server/users/session': {},
                 './server/users/session/auth-attempts': {},
                 './server/users/notifications': {},
@@ -144,7 +139,8 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 './server/users/profile': {},
                 './server/user-groups': {},
                 './server/blogs': {},
-                './server/blogs/posts': {}
+                './server/blogs/posts': {},
+                './server/audit': {}
             },
             connections: [{
                 port: results.port,
@@ -177,3 +173,5 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
             return process.exit(1);
         }
     });
+
+/*eslint-enable no-process-exit*/

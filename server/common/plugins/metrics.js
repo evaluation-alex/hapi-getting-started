@@ -32,7 +32,7 @@ let gatherPerfStats = (request) => {
 };
 module.exports.register = (server, options, next) => {
     server.on('tail', gatherPerfStats);
-    next();
+    return next();
 };
 module.exports.register.attributes = {
     name: 'metrics'

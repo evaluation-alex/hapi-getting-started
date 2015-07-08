@@ -9,7 +9,7 @@ let Profile = require('./profile/model');
 let _ = require('lodash');
 let errors = require('./../common/errors');
 let utils = require('./../common/utils');
-var Users = (new ModelBuilder())
+let Users = (new ModelBuilder())
     .onModel(function Users (attrs) {
         _.assign(this, attrs);
         Object.defineProperty(this, '_roles', {
@@ -71,7 +71,7 @@ Users.prototype.stripPrivateData = () => {
 };
 Users.prototype.afterLogin = (ipaddress) => {
     let self = this;
-    let session = _.find(self.session, (session) => session.ipaddress === ipaddress);
+    let session = _.find(self.session, (sesion) => sesion.ipaddress === ipaddress);
     return {
         _id: self._id,
         user: self.email,

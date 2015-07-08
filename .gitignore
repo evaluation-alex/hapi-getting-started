@@ -2,9 +2,9 @@ node_modules/*
 test/artifacts/*
 logs/*
 .idea/*
-.opts
+server/.opts
 npm-debug.log
 .secure/*
 statsd
-manifest.json
+server/manifest.json
 data

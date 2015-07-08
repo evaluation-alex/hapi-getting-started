@@ -8,7 +8,7 @@ let decorateWithSoftDelete = require('./mixins/soft-delete');
 let decorateWithUpdate = require('./mixins/update');
 let decorateWithI18N = require('./mixins/i18n');
 let decorateWithAreValid = require('./mixins/exist');
-var ModelBuilder = function ModelBuilder () {
+let ModelBuilder = function ModelBuilder () {
 };
 ModelBuilder.prototype.virtualModel = () => {
     this.model = function virtualModel() {};

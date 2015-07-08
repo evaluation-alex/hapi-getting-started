@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../server/';
 let Blogs = require(relativeToServer + 'blogs/model');
 let UserGroups = require(relativeToServer + 'user-groups/model');
@@ -442,13 +444,13 @@ describe('Blogs', () => {
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({title: 'test PUT /blogs add remove subscribers and owners'})
-                            .then((b) => {
-                                expect(b).to.exist;
-                                expect(b[0].isPresentInSubscribers('root')).to.be.false;
-                                expect(b[0].isPresentInOwners('one@first.com')).to.be.false;
-                                expect(b[0].isPresentInOwners('root')).to.be.true;
-                                expect(b[0].isPresentInSubscribers('one@first.com')).to.be.true;
-                                return Audit.findAudit('blogs', b[0]._id, {'change.action': {$regex: /add|remove/}});
+                            .then((b2) => {
+                                expect(b2).to.exist;
+                                expect(b2[0].isPresentInSubscribers('root')).to.be.false;
+                                expect(b2[0].isPresentInOwners('one@first.com')).to.be.false;
+                                expect(b2[0].isPresentInOwners('root')).to.be.true;
+                                expect(b2[0].isPresentInSubscribers('one@first.com')).to.be.true;
+                                return Audit.findAudit('blogs', b2[0]._id, {'change.action': {$regex: /add|remove/}});
                             })
                             .then((foundAudit) => {
                                 expect(foundAudit.length).to.equal(1);
@@ -479,7 +481,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('test PUT /blogs add remove subscribers and owners');
@@ -696,7 +698,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('testPutSubscribeGroupAddUser');
@@ -753,7 +755,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('testPutSubscribePublicGroupAddUser');
@@ -855,7 +857,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('testPutUnSubscribeGroupAddUser');
@@ -967,7 +969,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('testBlogPutApproveAddUser');
@@ -1158,7 +1160,7 @@ describe('Blogs', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         blogsToClear.push('testPutRejectBlogAddUser');
@@ -1427,9 +1429,9 @@ describe('Blogs', () => {
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         Blogs.find({_id: Blogs.ObjectID(id)})
-                            .then((p) => {
-                                expect(p[0].isActive).to.be.false;
-                                return Audit.findAudit('blogs', p[0]._id, {'change.action': 'isActive'});
+                            .then((p2) => {
+                                expect(p2[0].isActive).to.be.false;
+                                return Audit.findAudit('blogs', p2[0]._id, {'change.action': 'isActive'});
                             })
                             .then((a) => {
                                 expect(a).to.exist;

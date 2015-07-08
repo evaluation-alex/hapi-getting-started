@@ -1,14 +1,14 @@
 'use strict';
 let RouteFactory = require('./../../common/route-factory');
 let Controller = require('./controller');
-let routeFactory = new RouteFactory();
-routeFactory.newRoute()
+module.exports = (new RouteFactory())
+    .newRoute()
     .forMethod('POST')
     .onPath('/session')
-    .withController(Controller.login);
-routeFactory.newRoute()
+    .withController(Controller.login)
+    .newRoute()
     .forMethod('DELETE')
     .onPath('/session')
     .usingAuthStrategy('simple')
-    .withController(Controller.logout);
-module.exports = routeFactory.doneConfiguring();
+    .withController(Controller.logout)
+    .doneConfiguring();

@@ -1,4 +1,5 @@
 'use strict';
+/*eslint-disable no-process-exit*/
 let _ = require('lodash');
 let fs = require('fs');
 let devnull = require('dev-null');
@@ -6,28 +7,28 @@ let Bunyan = require('bunyan');
 let StatsD = require('node-statsd');
 let i18n = require('i18n');
 /* istanbul ignore if  */
-if (!fs.existsSync('.opts')) {
+if (!fs.existsSync('./server/.opts')) {
     console.log('.opts file missing. will exit');
     process.exit(1);
 }
 /* istanbul ignore if  */
-if (!fs.existsSync('manifest.json')) {
+if (!fs.existsSync('./server/manifest.json')) {
     console.log('manifest.json file missing. will exit');
     process.exit(1);
 }
-let args = JSON.parse(fs.readFileSync('.opts'));
-let manifest = JSON.parse(fs.readFileSync('manifest.json'));
+let args = JSON.parse(fs.readFileSync('./server/.opts'));
+let manifest = JSON.parse(fs.readFileSync('./server/manifest.json'));
 let nodemailer = {};
 /* istanbul ignore else  */
 if (!args.sendemails) {
     nodemailer = {
         name: 'minimal',
         version: '0.1.0',
-        send: (mail, callback) => {
+        send: (mail, cb) => {
             let input = mail.message.createReadStream();
             input.pipe(devnull());
             input.on('end', function () {
-                callback(null, true);
+                cb(null, true);
             });
         }
     };
@@ -35,7 +36,7 @@ if (!args.sendemails) {
     nodemailer = args.nodemailer;
 }
 i18n.configure(args.i18n);
-var config = {
+let config = {
     projectName: args.project,
     authAttempts: {
         forIp: 50,
@@ -76,6 +77,16 @@ _.forEach(manifest.connections, (connection) => {
         delete connection.tls;
     }
 });
-
 config.manifest.plugins['hapi-bunyan'].logger = config.logger;
+config.manifest.plugins['./server/common/plugins/dbindexes'].modules = [
+    'audit',
+    'users',
+    'users/roles',
+    'users/notifications',
+    'users/session/auth-attempts',
+    'user-groups',
+    'blogs',
+    'blogs/posts'
+];
+/*eslint-enable no-process-exit*/
 module.exports = config;

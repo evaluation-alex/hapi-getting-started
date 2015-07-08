@@ -1,10 +1,12 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
 let relativeTo = './../../';
 let relativeToServer = relativeTo + 'server/';
 let Bluebird = require('bluebird');
 Bluebird.longStackTraces();
 let server;
-let serverBluebird = require('./server')(require(relativeTo + 'config').manifest);
+let serverBluebird = require('./server')(require(relativeToServer + 'config').manifest);
+let _ = require('lodash');
 let utils = require(relativeToServer + 'common/utils');
 let Users = require(relativeToServer + 'users/model');
 let UserGroups = require(relativeToServer + 'user-groups/model');
@@ -14,7 +16,6 @@ let Posts = require(relativeToServer + 'blogs/posts/model');
 let AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
 let Roles = require(relativeToServer + 'users/roles/model');
 let Notifications = require(relativeToServer + 'users/notifications/model');
-let _ = require('lodash');
 module.exports.authorizationHeader = (user) => 'Basic ' + (new Buffer(user.email + ':' + user.session[0].key)).toString('base64');
 module.exports.authorizationHeader2 = (user, password) => 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
 let setupRootRole = () => {

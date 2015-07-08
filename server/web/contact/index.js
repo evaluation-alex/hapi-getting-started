@@ -4,5 +4,5 @@ module.exports.register = (server, options, next) => {
     return next();
 };
 module.exports.register.attributes = {
-    name: 'audit'
+    name: 'contact'
 };

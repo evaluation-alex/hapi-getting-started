@@ -7,7 +7,7 @@ let isMemberOf = require('./../common/prereqs/is-member-of');
 let createDeleteObjectNotificationsBuilder = require('./../common/notifications/create-delete-builder');
 let addRemoveNotificationsBuilder = require('./../common/notifications/add-remove-builder');
 let utils = require('./../common/utils');
-var Controller = new ControllerFactory(Blogs)
+let Controller = new ControllerFactory(Blogs)
     .enableNotifications()
     .newController(schemas.create, [
         areValid.users(['owners', 'contributors', 'subscribers']),

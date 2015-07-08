@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../server/';
 let Blogs = require(relativeToServer + 'blogs/model');
 let Audit = require(relativeToServer + 'audit/model');
@@ -244,7 +246,8 @@ describe('Blogs Model', () => {
         });
     });
     describe('Blogs.this.activate/deactivate', () => {
-        let activated = null, deactivated = null;
+        let activated = null;
+        let deactivated = null;
         before((done) => {
             let p1 = Blogs.create('activated', 'silver lining', 'blog.activate, deactivate', [], [], [], [], false, 'public', true, 'test');
             let p2 = Blogs.create('deactivated', 'silver lining', 'blog.deactive, activate', [], [], [], [], false, 'public', true, 'test');

@@ -44,6 +44,7 @@ module.exports = {
         query: {
             title: Joi.string(),
             blogId: Joi.string(),
+            blogTitle: Joi.string(),
             tag: Joi.string(),
             publishedBy: Joi.string(),
             publishedOnBefore: Joi.date().format('YYYY-MM-DD'),

@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../../server/';
 let UserGroups = require(relativeToServer + 'user-groups/model');
 let Notifications = require(relativeToServer + 'users/notifications/model');
@@ -37,13 +39,13 @@ describe('Posts', () => {
             let b2 = Blogs.create('test GET /posts2 is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
             Bluebird.join(b1, b2)
                 .then((b) => {
-                    let b1 = b[0];
-                    let b2 = b[1];
-                    blogId = b1._id;
+                    let b11 = b[0];
+                    let b21 = b[1];
+                    blogId = b11._id;
                     //blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, by
-                    let p1 = Posts.create(b1._id, 'silver lining', 'searchByTitle', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'post', 'p[0]', 'test');
-                    let p2 = Posts.create(b1._id, 'silver lining', 'searchByTitle2', 'published', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'post', 'p[1]', 'test');
-                    let p3 = Posts.create(b2._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, 'testing', ['testing', 'search testing'], [], 'post', 'p[2]', 'test');
+                    let p1 = Posts.create(b11._id, 'silver lining', 'searchByTitle', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'post', 'p[0]', 'test');
+                    let p2 = Posts.create(b11._id, 'silver lining', 'searchByTitle2', 'published', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'post', 'p[1]', 'test');
+                    let p3 = Posts.create(b21._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, 'testing', ['testing', 'search testing'], [], 'post', 'p[2]', 'test');
                     return Bluebird.join(p1, p2, p3);
                 })
                 .then((p) => {
@@ -179,6 +181,28 @@ describe('Posts', () => {
                 _.forEach(p.data, (d) => {
                     expect(d.blogId.toString()).to.equal(blogId.toString());
                 });
+                done();
+            }).catch((err) => {
+                done(err);
+            });
+        });
+        it('should give all posts for a given blog3', (done) => {
+            let request = {
+                method: 'GET',
+                url: '/posts?blogTitle=GET',
+                headers: {
+                    Authorization: rootAuthHeader
+                }
+            };
+            server.injectThen(request).then((response) => {
+                expect(response.statusCode).to.equal(200);
+                let p = JSON.parse(response.payload);
+                let patt = /.*GET.*/i;
+                let match = true;
+                _.forEach(p.data, (d) => {
+                    match = match && patt.test(d.blog.title);
+                });
+                expect(match).to.be.true;
                 done();
             }).catch((err) => {
                 done(err);
@@ -654,7 +678,7 @@ describe('Posts', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         done(err);
@@ -712,7 +736,7 @@ describe('Posts', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         done(err);
@@ -806,7 +830,7 @@ describe('Posts', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         done(err);
@@ -863,7 +887,7 @@ describe('Posts', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         done(err);
@@ -982,7 +1006,7 @@ describe('Posts', () => {
                                             done();
                                             clearTimeout(ct);
                                         });
-                                }, 10000);
+                                }, 2000);
                             });
                     }).catch((err) => {
                         done(err);

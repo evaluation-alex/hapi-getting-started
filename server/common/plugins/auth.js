@@ -1,8 +1,9 @@
 'use strict';
+let logger = require('./../../config').logger;
+let errors = require('./../errors');
+let cookie = require('cookie');
 let Users = require('./../../users/model');
 let Roles = require('./../../users/roles/model');
-let logger = require('./../../../config').logger;
-let errors = require('./../errors');
 let loginValidation = (request, email, sessionkey, callback) => {
     Users.findBySessionCredentials(email, sessionkey)
         .then((user) => {
@@ -26,12 +27,23 @@ let loginValidation = (request, email, sessionkey, callback) => {
         });
 };
 module.exports.register = (server, options, next) => {
+    // this is being done to prevent users and roles fom creating indexes before mongo connections have been established
     server.connections.forEach((connection) => {
         connection.auth.strategy('simple', 'basic', {
             validateFunc: loginValidation
         });
     });
-    next();
+    server.ext('onPreAuth', (request, reply) => {
+        if (!request.headers.authorization && request.headers.cookie) {
+            let ckie = cookie.parse(request.headers.cookie);
+            if (ckie.site) {
+                let o = JSON.parse(ckie.site);
+                request.headers.authorization = o.authorization;
+            }
+        }
+        return reply.continue();
+    });
+    return next();
 };
 exports.register.attributes = {
     name: 'auth'

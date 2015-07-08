@@ -16,7 +16,7 @@ let abuseDetected = (request, reply) => {
         })
         .catch((err) => utils.logAndBoom(err, reply));
 };
-var Controller = new ControllerFactory()
+let Controller = new ControllerFactory()
     .forMethod('login')
     .withValidation(schemas.login)
     .preProcessWith([

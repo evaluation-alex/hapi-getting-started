@@ -1,4 +1,6 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../server/';
 let Model = require(relativeToServer + 'common/model');
 let createHandler = require(relativeToServer + 'common/handlers/create');
@@ -21,19 +23,19 @@ describe('Handlers and Mixins', () => {
                 }
             }
         };
-        let Model = {
-            newObject: (request, by) => {
-                expect(request).to.exist;
+        let Mdel = {
+            newObject: (rquest, by) => {
+                expect(rquest).to.exist;
                 expect(by).to.equal('test');
                 return Bluebird.reject(new Error('test'));
             }
         };
-        let handler = createHandler(Model, undefined, undefined);
+        let handler = createHandler(Mdel, undefined, undefined);
         handler(request, reply);
         done();
     });
     it('find handler should log and boom errors when it encounters exceptions', (done) => {
-        let Model = {
+        let Mdel = {
             pagedFind: (query, fields, sort, limit, page) => {
                 expect(query).to.exist;
                 expect(fields).to.not.exist;
@@ -46,8 +48,8 @@ describe('Handlers and Mixins', () => {
         let request = {
             query: {}
         };
-        let queryBuilder = (request) => {
-            expect(request).to.exist;
+        let queryBuilder = (rquest) => {
+            expect(rquest).to.exist;
             return {
                 organisation: '*'
             };
@@ -55,12 +57,12 @@ describe('Handlers and Mixins', () => {
         let reply = (args) => {
             expect(args).to.be.an.instanceof(Error);
         };
-        let handler = findHandler(Model, queryBuilder, undefined);
+        let handler = findHandler(Mdel, queryBuilder, undefined);
         handler(request, reply);
         done();
     });
     it('findOne handler should log and boom exceptions when it encounters exceptions', (done) => {
-        let Model = {
+        let Mdel = {
             collection: 'test'
         };
         let request = {
@@ -82,7 +84,7 @@ describe('Handlers and Mixins', () => {
             expect(obj).to.equal('test');
             return Bluebird.reject(new Error('test'));
         };
-        let handler = findOneHandler(Model, findOneCb);
+        let handler = findOneHandler(Mdel, findOneCb);
         handler(request, reply);
         done();
     });

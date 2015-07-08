@@ -1,6 +1,6 @@
 'use strict';
 let _ = require('lodash');
-var RouteFactory = function RouteFactory () {
+let RouteFactory = function RouteFactory () {
     let self = this;
     self.routes = [];
     self.current = -1;

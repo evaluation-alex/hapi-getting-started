@@ -5,7 +5,6 @@
     "main": "index.js",
     "scripts": {
         "updatedeps": "rm -rf ./node_modules && npm i",
-        "clean_slate": "sudo update.sh",
         "setup": "node --harmony ./server/setup.js",
         "start": "node --harmony ./server/index.js",
         "test": "node --harmony ./node_modules/istanbul-harmony/lib/cli.js cover --config ./test/istanbul.yml ./node_modules/mocha/bin/_mocha -- ./test/server",
@@ -68,7 +67,7 @@
         "babel": "5.6.x",
         "babel-core": "5.6.x",
         "babel-eslint": "3.1.x",
-        "babel-jscs": "1.0.x",
+        "babel-jscs": "2.0.x",
         "chai": "3.0.x",
         "codeclimate-test-reporter": "0.1.x",
         "coveralls": "2.11.x",

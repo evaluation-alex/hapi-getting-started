@@ -4,5 +4,5 @@ module.exports.register = (server, options, next) => {
     next();
 };
 module.exports.register.attributes = {
-    name: 'profile'
+    name: 'users/profile'
 };

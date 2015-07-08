@@ -1,17 +1,17 @@
 'use strict';
+/*eslint-disable no-unused-expressions*/
+/*jshint -W079*/
 let relativeToServer = './../../../../server/';
 let Users = require(relativeToServer + 'users/model');
 let Audit = require(relativeToServer + 'audit/model');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
 describe('Profile', () => {
-    let rootAuthHeader = null;
     let server = null;
     before((done) => {
         tu.setupServer()
             .then((res) => {
                 server = res.server;
-                rootAuthHeader = res.authheader;
                 done();
             })
             .catch((err) => {
@@ -101,8 +101,8 @@ describe('Profile', () => {
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         Users.findOne({email: 'root'})
-                            .then((p) => {
-                                expect(p.profile.preferredName).to.equal('mr. me');
+                            .then((p1) => {
+                                expect(p1.profile.preferredName).to.equal('mr. me');
                                 return Audit.findAudit('users', 'root', {'change.action': 'profile.preferredName'});
                             })
                             .then((audit) => {

@@ -33,10 +33,12 @@ let Controller = new ControllerFactory(Users)
                     }
                 };
                 /*jshint unused:false*/
+                /*eslint-disable no-unused-vars*/
                 return Bluebird.join(user.afterLogin(ip),
-                    Mailer.sendEmail(options, __dirname + '/templates/welcome.hbs.md', request.payload),
-                    (user, m) => user
+                    Mailer.sendEmail(options, path.join(__dirname, '/templates/welcome.hbs.md'), request.payload),
+                    (user1, m) => user1
                 );
+                /*eslint-enable no-unused-vars*/
                 /*jshint unused:true*/
             });
     })

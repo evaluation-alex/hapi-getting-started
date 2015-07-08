@@ -1,4 +1,5 @@
 'use strict';
+/*eslint-disable no-process-exit*/
 let Fs = require('fs');
 let Promptly = require('promptly');
 let Bluebird = require('bluebird');

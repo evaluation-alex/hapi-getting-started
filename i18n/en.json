@@ -6,7 +6,7 @@
 	"Blog {{title}} updated by {{updatedBy}}": "Blog {{title}} updated by {{updatedBy}}",
 	"{{title}} has new subscribers that need approval": "{{title}} has new subscribers that need approval",
 	"{{title}} has new approved subscribers": "{{title}} has new approved subscribers",
-    "{{title}} has some subscribers that have left": "{{title}} has some subscribers that have left",
+	"{{title}} has some subscribers that have left": "{{title}} has some subscribers that have left",
 	"Your request to follow {{title}} was denied": "Your request to follow {{title}} was denied",
 	"Your request to follow {{title}} was denied by {{updatedBy}}": "Your request to follow {{title}} was denied by {{updatedBy}}",
 	"New Post {{postTitle}} needs your approval to be published.": "New Post {{postTitle}} needs your approval to be published.",
@@ -37,10 +37,11 @@
 	"{{email}} does not have the right credentials, login again": "{{email}} does not have the right credentials, login again",
 	"Your session has expired, login again": "Your session has expired, login again",
 	"Your ({{email}}) session has expired, login again": "Your ({{email}}) session has expired, login again",
-    "Bad user / groups : {{msg}}": "Bad user / groups : {{msg}}",
-    "{{email}} does not have permission to modify": "{{email}} does not have permission to modify",
-    "{{email}} has joined {{title}}": "{{email}} has joined {{title}}",
-    "{{email}} has joined {{title}} and needs your approval": "{{email}} has joined {{title}} and needs your approval",
-    "{{email}} has left {{title}}": "{{email}} has left {{title}}"
-
+	"Bad user / groups : {{msg}}": "Bad user / groups : {{msg}}",
+	"{{email}} does not have permission to modify": "{{email}} does not have permission to modify",
+	"{{email}} has joined {{title}}": "{{email}} has joined {{title}}",
+	"{{email}} has joined {{title}} and needs your approval": "{{email}} has joined {{title}} and needs your approval",
+	"{{email}} has left {{title}}": "{{email}} has left {{title}}",
+	"UserGroup {{title}} deleted.": "UserGroup {{title}} deleted.",
+	"UserGroup {{title}} deleted by {{updatedBy}}": "UserGroup {{title}} deleted by {{updatedBy}}"
 }

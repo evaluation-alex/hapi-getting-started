@@ -123,29 +123,51 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 './server/common/plugins/dbindexes': {
                     'dependencies': [
                         'MongoConnections',
-                        'auth'
+                        'auth',
+                        'AppRoutes'
+                    ],
+                    'modules': [
+                        'users',
+                        'users/roles',
+                        'users/session/auth-attempts',
+                        'users/notifications',
+                        'user-groups',
+                        'blogs',
+                        'blogs/posts',
+                        'meal-plans',
+                        'meal-plans/grocery-list',
+                        'audit'
                     ]
                 },
                 './server/common/plugins/auth': {},
                 './server/common/plugins/i18n': {},
                 './server/common/plugins/metrics': {},
-                './server/web/public': {},
-                './server/web/contact': {},
-                './server/users': {},
-                './server/users/roles': {},
-                './server/users/session': {},
-                './server/users/session/auth-attempts': {},
-                './server/users/notifications': {},
-                './server/users/preferences': {},
-                './server/users/profile': {},
-                './server/user-groups': {},
-                './server/blogs': {},
-                './server/blogs/posts': {},
-                './server/audit': {}
+                './server/common/plugins/app-routes': {
+                    'prependRoute': '/api',
+                    'modules': [
+                        './server/web/contact',
+                        './server/users',
+                        './server/users/session',
+                        './server/users/session/auth-attempts',
+                        './server/users/notifications',
+                        './server/users/preferences',
+                        './server/user-groups',
+                        './server/blogs',
+                        './server/blogs/posts',
+                        './server/blogs/posts/meals',
+                        './server/blogs/posts/recipes',
+                        './server/meal-plans',
+                        './server/meal-plans/grocery-list',
+                        './server/audit'
+                    ]
+                }
             },
             connections: [{
-                port: results.port,
-                labels: ['api'],
+                port: 8000,
+                labels: ['http']
+            }, {
+                port: 443,
+                labels: ['secure', 'api'],
                 tls: {
                     key: results.keyfile,
                     cert: results.certfile

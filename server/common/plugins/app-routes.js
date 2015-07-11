@@ -1,5 +1,13 @@
 'use strict';
+let _ = require('lodash');
+let Path = require('path');
 module.exports.register = (server, options, next) => {
+    _.forEach(options.modules, (module) => {
+        _.forEach(require(Path.join(process.cwd(), '/server/' + module, '/routes')), (route) => {
+            route.path = options.prependRoute + route.path;
+            server.route(route);
+        });
+    });
     server.route({
         method: 'GET',
         path: '/public/{param*}',
@@ -13,5 +21,5 @@ module.exports.register = (server, options, next) => {
     return next();
 };
 module.exports.register.attributes = {
-    name: 'public'
+    name: 'AppRoutes'
 };

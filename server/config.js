@@ -16,6 +16,7 @@ if (!fs.existsSync('./server/manifest.json')) {
     console.log('manifest.json file missing. will exit');
     process.exit(1);
 }
+/*eslint-enable no-process-exit*/
 let args = JSON.parse(fs.readFileSync('./server/.opts'));
 let manifest = JSON.parse(fs.readFileSync('./server/manifest.json'));
 let nodemailer = {};
@@ -88,5 +89,5 @@ config.manifest.plugins['./server/common/plugins/dbindexes'].modules = [
     'blogs',
     'blogs/posts'
 ];
-/*eslint-enable no-process-exit*/
+
 module.exports = config;

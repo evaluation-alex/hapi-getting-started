@@ -9,7 +9,7 @@ before_script:
   - mkdir ./logs
 after_script:
   - npm run jshint
-  - npm run elsint
+  - npm run eslint
   - npm run jscs
   - npm run coveralls
   - npm run climate

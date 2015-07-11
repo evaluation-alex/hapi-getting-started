@@ -1,11 +1,11 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
-let Glue = require('glue');
 let Bluebird = require('bluebird');
 let path = require('path');
 module.exports = (Manifest) => {
+    Manifest.plugins['./server/common/plugins/app-routes'].prependRoute = '';
     return new Bluebird((resolve, reject) => {
-        Glue.compose(Manifest, {relativeTo: path.join(__dirname, './../../')}, (err, server1) => {
+        require('glue').compose(Manifest, {relativeTo: path.join(__dirname, './../../')}, (err, server1) => {
             if (err) {
                 reject(err);
             } else {

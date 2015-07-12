@@ -72,7 +72,7 @@
         "codeclimate-test-reporter": "0.1.x",
         "coveralls": "2.11.x",
         "eslint": "0.24.x",
-        "eslint-plugin-react": "2.6.x",
+        "eslint-plugin-react": "2.7.x",
         "esprima-fb": "15001.1.0-dev-harmony-fb",
         "inject-then": "2.0.x",
         "istanbul-harmony": "0.3.x",

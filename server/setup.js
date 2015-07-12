@@ -145,20 +145,17 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 './server/common/plugins/app-routes': {
                     'prependRoute': '/api',
                     'modules': [
-                        './server/web/contact',
-                        './server/users',
-                        './server/users/session',
-                        './server/users/session/auth-attempts',
-                        './server/users/notifications',
-                        './server/users/preferences',
-                        './server/user-groups',
-                        './server/blogs',
-                        './server/blogs/posts',
-                        './server/blogs/posts/meals',
-                        './server/blogs/posts/recipes',
-                        './server/meal-plans',
-                        './server/meal-plans/grocery-list',
-                        './server/audit'
+                        'web/contact',
+                        'users',
+                        'users/session',
+                        'users/profile',
+                        'users/session/auth-attempts',
+                        'users/notifications',
+                        'users/preferences',
+                        'user-groups',
+                        'blogs',
+                        'blogs/posts',
+                        'audit'
                     ]
                 }
             },

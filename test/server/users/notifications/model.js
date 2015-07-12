@@ -45,10 +45,10 @@ describe('Notifications Model', () => {
             Bluebird.join(p1, p2, (p11, p12) => {
                 activated = p11;
                 deactivated = p12;
-                deactivated.deactivate('test').save()
+                return deactivated.deactivate('test').save()
                     .then((d) => {
                         deactivated = d;
-                        Audit.remove({objectChangedId: d._id});
+                        return Audit.remove({objectChangedId: d._id});
                     });
             })
                 .then(() => {

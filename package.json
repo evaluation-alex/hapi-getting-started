@@ -68,7 +68,7 @@
         "babel-core": "5.7.x",
         "babel-eslint": "3.1.x",
         "babel-jscs": "2.0.x",
-        "chai": "3.0.x",
+        "chai": "3.1.x",
         "codeclimate-test-reporter": "0.1.x",
         "coveralls": "2.11.x",
         "eslint": "1.0.0-rc-1",

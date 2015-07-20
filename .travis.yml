@@ -7,9 +7,3 @@ before_script:
   - npm run setup
   - mkdir ./test/artifacts
   - mkdir ./logs
-after_script:
-  - npm run jshint
-  - npm run eslint
-  - npm run jscs
-  - npm run coveralls
-  - npm run climate

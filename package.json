@@ -2,19 +2,6 @@
     "name": "hapi-getting-started",
     "version": "0.0.4",
     "description": "User management, authentication and authorization api for Node.js using hapi",
-    "main": "index.js",
-    "scripts": {
-        "updatedeps": "rm -rf ./node_modules && npm i",
-        "setup": "node --harmony ./server/setup.js",
-        "start": "node --harmony ./server/index.js",
-        "test": "node --harmony ./node_modules/istanbul-harmony/lib/cli.js cover --config ./test/istanbul.yml ./node_modules/mocha/bin/_mocha -- ./test/server",
-        "test:nocov": "node --harmony ./node_modules/mocha/bin/mocha ./test/server",
-        "jshint": "node --harmony ./node_modules/jshint/bin/jshint --config ./.jshintrc --verbose --reporter unix .",
-        "eslint": "node --harmony ./node_modules/eslint/bin/eslint --config ./.eslintrc --ignore-path ./.eslintignore  ./server ./test ",
-        "jscs": "node --harmony ./node_modules/jscs/bin/jscs --config ./.jscsrc --esnext --reporter console ./server ./test",
-        "coveralls": "cat ./test/artifacts/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
-        "climate": "cat ./test/artifacts/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js"
-    },
     "keywords": [
         "hapijs",
         "getting started"
@@ -34,6 +21,322 @@
     "homepage": "https://github.com/k-sheth/hapi-getting-started",
     "engines": {
         "node": ">= 0.12.x"
+    },
+    "main": "index.js",
+    "eslintConfig": {
+        "ecmaFeatures": {
+            "arrowFunctions": true,
+            "blockBindings": true,
+            "classes": true,
+            "defaultParams": true,
+            "destructuring": true,
+            "forOf": true,
+            "generators": true,
+            "modules": true,
+            "objectLiteralComputedProperties": true,
+            "objectLiteralDuplicateProperties": false,
+            "objectLiteralShorthandMethods": true,
+            "objectLiteralShorthandProperties": true,
+            "spread": true,
+            "superInFunctions": true,
+            "templateStrings": true,
+            "jsx": true
+        },
+        "env": {
+            "browser": true,
+            "node": true,
+            "mocha": true,
+            "es6": true
+        },
+        "globals": {
+            "expect": true
+        },
+        "parser": "babel-eslint",
+        "rules": {
+            "eol-last": 0,
+            "no-alert": 2,
+            "no-empty": 2,
+            "spaced-line-comment": 2,
+            "no-underscore-dangle": 0,
+            "no-var": 2,
+            "quotes": [
+                2,
+                "single"
+            ],
+            "new-cap": 0,
+            "react/display-name": 1,
+            "react/jsx-boolean-value": 1,
+            "react/jsx-no-undef": 2,
+            "react/jsx-quotes": [
+                2,
+                "single"
+            ],
+            "react/jsx-sort-prop-types": 0,
+            "react/jsx-sort-props": 0,
+            "react/jsx-uses-react": 1,
+            "react/jsx-uses-vars": 1,
+            "react/no-did-mount-set-state": [
+                2,
+                "allow-in-func"
+            ],
+            "react/no-did-update-set-state": 2,
+            "react/no-multi-comp": 2,
+            "react/no-unknown-property": 2,
+            "react/prop-types": 2,
+            "react/react-in-jsx-scope": 2,
+            "react/self-closing-comp": 2,
+            "react/sort-comp": 2,
+            "react/wrap-multilines": 2,
+            "spaced-line-comment": 0
+        },
+        "plugins": [
+            "react"
+        ]
+    },
+    "jscsConfig": {
+        "esprima": "./node_modules/babel-jscs",
+        "esnext": true,
+        "requireCurlyBraces": [
+            "else",
+            "for",
+            "while",
+            "do",
+            "try",
+            "catch",
+            "case",
+            "default"
+        ],
+        "requireSpaceAfterKeywords": [
+            "if",
+            "else",
+            "for",
+            "while",
+            "do",
+            "switch",
+            "return",
+            "try",
+            "catch"
+        ],
+        "requireParenthesesAroundIIFE": true,
+        "requireSpacesInConditionalExpression": true,
+        "requireSpacesInFunctionExpression": {
+            "beforeOpeningCurlyBrace": true
+        },
+        "requireSpacesInFunctionDeclaration": {
+            "beforeOpeningCurlyBrace": true
+        },
+        "disallowMultipleVarDecl": "exceptUndefined",
+        "requireBlocksOnNewline": 1,
+        "disallowPaddingNewlinesInBlocks": true,
+        "disallowEmptyBlocks": true,
+        "disallowSpacesInsideObjectBrackets": "all",
+        "disallowSpacesInsideArrayBrackets": "all",
+        "disallowSpacesInsideParentheses": true,
+        "disallowSpaceAfterObjectKeys": true,
+        "requireCommaBeforeLineBreak": true,
+        "disallowSpacesInCallExpression": true,
+        "requireSpaceBeforeObjectValues": true,
+        "requireOperatorBeforeLineBreak": [
+            "?",
+            "+",
+            "-",
+            "/",
+            "*",
+            "=",
+            "==",
+            "===",
+            "!=",
+            "!==",
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "||",
+            "&&"
+        ],
+        "disallowSpaceAfterPrefixUnaryOperators": [
+            "++",
+            "--",
+            "+",
+            "-",
+            "~",
+            "!"
+        ],
+        "disallowSpaceBeforePostfixUnaryOperators": [
+            "++",
+            "--"
+        ],
+        "requireSpaceBeforeBinaryOperators": [
+            "?",
+            "+",
+            "-",
+            "/",
+            "*",
+            "=",
+            "==",
+            "===",
+            "!=",
+            "!==",
+            ">",
+            ">=",
+            "<",
+            "<="
+        ],
+        "requireSpaceAfterBinaryOperators": [
+            "?",
+            "+",
+            "/",
+            "*",
+            ":",
+            "=",
+            "==",
+            "===",
+            "!=",
+            "!==",
+            ">",
+            ">=",
+            "<",
+            "<="
+        ],
+        "disallowSpaceAfterBinaryOperators": [
+            "!"
+        ],
+        "disallowImplicitTypeConversion": [
+            "numeric",
+            "binary",
+            "string"
+        ],
+        "requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
+        "disallowKeywords": [
+            "with"
+        ],
+        "disallowMultipleLineStrings": true,
+        "disallowMultipleLineBreaks": true,
+        "validateLineBreaks": "LF",
+        "validateQuoteMarks": true,
+        "validateIndentation": 4,
+        "disallowMixedSpacesAndTabs": true,
+        "disallowTrailingWhitespace": true,
+        "disallowTrailingComma": true,
+        "disallowKeywordsOnNewLine": [
+            "else",
+            "catch"
+        ],
+        "maximumLineLength": {
+            "value": 360,
+            "allowUrlComments": true
+        },
+        "requireCapitalizedConstructors": {
+            "allExcept": [
+                "self"
+            ]
+        },
+        "requireDotNotation": true,
+        "validateParameterSeparator": ", ",
+        "disallowNewlineBeforeBlockStatements": true,
+        "requirePaddingNewlinesBeforeKeywords": [
+        ],
+        "excludeFiles": [
+            "node_modules/**",
+            "dist",
+            "public",
+            ".idea",
+            "test/artifacts"
+        ]
+    },
+    "jshintConfig": {
+        "maxerr": 500,
+        "bitwise": true,
+        "camelcase": true,
+        "curly": true,
+        "eqeqeq": true,
+        "forin": true,
+        "immed": false,
+        "indent": 4,
+        "latedef": true,
+        "newcap": true,
+        "noarg": true,
+        "noempty": false,
+        "nonew": false,
+        "plusplus": false,
+        "quotmark": "single",
+        "undef": true,
+        "unused": true,
+        "strict": false,
+        "trailing": false,
+        "maxparams": false,
+        "maxdepth": false,
+        "maxstatements": false,
+        "maxcomplexity": 10,
+        "maxlen": false,
+        "asi": false,
+        "boss": false,
+        "debug": false,
+        "eqnull": false,
+        "esnext": true,
+        "moz": false,
+        "evil": false,
+        "expr": true,
+        "funcscope": true,
+        "globalstrict": true,
+        "iterator": false,
+        "lastsemic": false,
+        "laxbreak": false,
+        "laxcomma": false,
+        "loopfunc": false,
+        "multistr": false,
+        "proto": false,
+        "scripturl": false,
+        "smarttabs": false,
+        "shadow": false,
+        "sub": false,
+        "supernew": false,
+        "validthis": false,
+        "browser": false,
+        "couch": false,
+        "devel": true,
+        "dojo": false,
+        "jquery": false,
+        "mootools": false,
+        "node": true,
+        "nonstandard": true,
+        "prototypejs": false,
+        "rhino": false,
+        "worker": false,
+        "wsh": false,
+        "yui": false,
+        "nomen": false,
+        "onevar": false,
+        "passfail": false,
+        "white": false,
+        "predef": [
+            "describe",
+            "before",
+            "beforeEach",
+            "after",
+            "afterEach",
+            "it",
+            "expect"
+        ]
+    },
+    "babel": {
+        "stage": 1,
+        "loose": "all"
+    },
+    "scripts": {
+        "updatedeps": "rm -rf ./node_modules && npm i",
+        "setup": "node --harmony ./server/setup.js",
+        "start": "node --harmony ./server/index.js",
+        "test:cov": "node --harmony ./node_modules/istanbul-harmony/lib/cli.js cover --config ./test/istanbul.yml ./node_modules/mocha/bin/_mocha -- ./test/server",
+        "test:nocov": "node --harmony ./node_modules/mocha/bin/mocha ./test/server",
+        "jshint": "node --harmony ./node_modules/jshint/bin/jshint --exclude-path ./.gitignore --verbose --reporter unix .",
+        "eslint": "node --harmony ./node_modules/eslint/bin/eslint --ignore-path ./.gitignore  ./server ./test ",
+        "jscs": "node --harmony ./node_modules/jscs/bin/jscs --esnext --reporter console ./server ./test",
+        "coveralls": "cat ./test/artifacts/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
+        "climate": "cat ./test/artifacts/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
+        "coverage": "npm run coveralls && npm run climate",
+        "lint": "npm run jshint && npm run eslint && npm run jscs",
+        "test": "npm run test:cov && npm run lint && npm run coverage"
     },
     "dependencies": {
         "bcrypt": "0.8.x",
@@ -73,7 +376,6 @@
         "coveralls": "2.11.x",
         "eslint": "1.0.0-rc-1",
         "eslint-plugin-react": "2.7.x",
-        "esprima-fb": "15001.1.0-dev-harmony-fb",
         "inject-then": "2.0.x",
         "istanbul-harmony": "0.3.x",
         "jscs": "1.13.x",

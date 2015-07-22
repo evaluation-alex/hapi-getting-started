@@ -94,7 +94,7 @@
         ]
     },
     "jscsConfig": {
-        "esprima": "babel-jscs",
+        "esprima": "esprima-fb",
         "esnext": true,
         "requireCurlyBraces": [
             "else",
@@ -337,7 +337,7 @@
         "server:climate": "cat ./test/artifacts/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
         "coverage": "npm run server:coveralls && npm run server:climate",
         "lint": "npm run server:jshint && npm run server:eslint && npm run server:jscs",
-        "test": "npm run server:test && npm run lint && npm run coverage"
+        "test": "npm run server:test && npm run coverage"
     },
     "dependencies": {
         "bcrypt": "0.8.x",
@@ -368,8 +368,8 @@
         "useragent": "2.1.x"
     },
     "devDependencies": {
-        "babel": "5.6.x",
-        "babel-core": "5.7.x",
+        "babel": "5.8.x",
+        "babel-core": "5.8.x",
         "babel-eslint": "3.1.x",
         "babel-jscs": "2.0.x",
         "chai": "3.2.x",
@@ -377,6 +377,7 @@
         "coveralls": "2.11.x",
         "eslint": "1.0.0-rc-1",
         "eslint-plugin-react": "3.0.x",
+        "esprima-fb": "15001.1.0-dev-harmony-fb",
         "inject-then": "2.0.x",
         "istanbul-harmony": "0.3.x",
         "jscs": "1.13.x",

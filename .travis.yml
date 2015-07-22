@@ -7,3 +7,4 @@ before_script:
   - npm run server:setup
   - mkdir ./test/artifacts
   - mkdir ./logs
+  - npm run lint

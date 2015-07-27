@@ -380,7 +380,7 @@
         "esprima-fb": "15001.1.0-dev-harmony-fb",
         "inject-then": "2.0.x",
         "istanbul-harmony": "0.3.x",
-        "jscs": "1.13.x",
+        "jscs": "2.0.x",
         "jshint": "2.8.x",
         "mocha": "2.2.x",
         "promptly": "0.2.x"

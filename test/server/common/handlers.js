@@ -86,21 +86,6 @@ describe('Handlers and Mixins', () => {
         handler(request, reply);
         done();
     });
-    it('insertAndAudit should return a not created error when _insert fails', (done) => {
-        let obj = {
-            upsert: (doc) => {
-                expect(doc).to.exist;
-                return Bluebird.resolve(undefined);
-            },
-            collection: 'test'
-        };
-        insertAndAudit(obj, '_id', 'create');
-        obj.insertAndAudit({test: 'error'})
-            .catch((err) => {
-                expect(err).to.exist;
-            });
-        done();
-    });
     it('Model should return already created connection', (done) => {
         expect(Model.connect('app', {})).to.exist;
         done();

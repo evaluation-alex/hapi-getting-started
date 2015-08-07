@@ -1,13 +1,12 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../server/';
-let Users = require(relativeToServer + 'users/model');
-let Audit = require(relativeToServer + 'audit/model');
-let Roles = require(relativeToServer + 'users/roles/model');
+let Users = require('./../../../server/users/model');
+let Audit = require('./../../../server/audit/model');
+let Roles = require('./../../../server/users/roles/model');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
-describe('Users Model', () => {
+describe('Users DAO', () => {
     let firstEmail = 'test.create@users.module';
     let secondEmail = 'test.search@users.module';
     before((done) => {

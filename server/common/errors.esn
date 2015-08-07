@@ -1,0 +1,81 @@
+'use strict';
+import Boom from 'boom';
+let i18n = require('./../config').i18n;
+function makeCustomError(message, name, errorType, phrase) {
+    class CustomError extends Error {
+        constructor(data) {
+            super();
+            this.message = message;
+            this.name = name;
+            this.errorType = errorType;
+            this.phrase = phrase;
+            this.data = data || {};
+            this.canMakeBoomError = true;
+            Error.captureStackTrace(this, CustomError);
+        }
+        i18nError(locale) {
+            return Boom[this.errorType](i18n.__({phrase: this.phrase, locale: locale}, this.data));
+        }
+    }
+    return CustomError;
+}
+export let UserNotFoundError = makeCustomError('UserNotFound',
+    'UserNotFoundError',
+    'notFound',
+    '{{email}} not found');
+export let UserNotLoggedInError = makeCustomError('UserNotLoggedIn',
+    'UserNotLoggedInError',
+    'unauthorized',
+    '{{email}} not logged in');
+export let SessionExpiredError = makeCustomError('SessionExpired',
+    'SessionExpiredError',
+    'unauthorized',
+    'Your ({{email}}) session has expired, login again');
+export let SessionCredentialsNotMatchingError = makeCustomError('SessionCredentialsNotMatching',
+    'SessionCredentialsNotMatchingError',
+    'unauthorized',
+    '{{email}} does not have the right credentials, login again');
+export let IncorrectPasswordError = makeCustomError('IncorrectPassword',
+    'IncorrectPasswordError',
+    'unauthorized',
+    'Invalid password for {{email}}');
+export let ArchivedPostUpdateError = makeCustomError('ArchivedPostUpdate',
+    'ArchivedPostUpdateError',
+    'conflict',
+    'Cannot update archived posts');
+export let ObjectNotCreatedError = makeCustomError('ObjectNotCreated',
+    'ObjectNotCreatedError',
+    'notFound',
+    '{{collection}} object could not be created.');
+export let ObjectAlreadyExistsError = makeCustomError('ObjectAlreadyExists',
+    'ObjectAlreadyExistsError',
+    'conflict',
+    'Object already exists');
+export let ObjectNotFoundError = makeCustomError('ObjectNotFound',
+    'ObjectNotFoundError',
+    'notFound',
+    '{{type}} ({{idstr}}) not found');
+export let NotAMemberOfValidGroupError = makeCustomError('NotAMemberOfValidGroup',
+    'NotAMemberOfValidGroup',
+    'unauthorized',
+    'Only members of {{owners}} group are permitted to perform this action');
+export let NotValidUsersOrGroupsError = makeCustomError('NotValidUsersOrGroups',
+    'NotValidUsersOrGroupsError',
+    'badData',
+    'Bad user / groups : {{msg}}');
+export let AbusiveLoginAttemptsError = makeCustomError('AbusiveLoginAttempts',
+    'AbusiveLoginAttemptsError',
+    'tooManyRequests',
+    'Maximum number of auth attempts reached. Please try again later.');
+export let PasswordResetError = makeCustomError('PasswordResetFailed',
+    'PasswordResetError',
+    'badRequest',
+    'Invalid email or key.');
+export let NoPermissionsForActionError = makeCustomError('NoPermissionsForAction',
+    'NoPermissionsForActionError',
+    'forbidden',
+    'Permission denied {{action}} on {{object}} for user {{user}}');
+export let NotObjectOwnerError = makeCustomError('NotObjectOwner',
+    'NotObjectOwnerError',
+    'unauthorized',
+    '{{email}} does not have permission to modify');

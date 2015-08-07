@@ -1,0 +1,15 @@
+'use strict';
+import * as errors from './../errors';
+import * as utils from './../utils';
+export default function(forAction, onObject) {
+    return {
+        assign: 'ensurePermissions',
+        method(request, reply) {
+            reply(
+                !utils.user(request).hasPermissionsTo(forAction, onObject) ?
+                new errors.NoPermissionsForActionError({action: forAction, object: onObject, user: utils.by(request)}) :
+                true
+            );
+        }
+    };
+}

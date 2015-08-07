@@ -1,9 +1,8 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../../server/';
-let Users = require(relativeToServer + 'users/model');
-let Audit = require(relativeToServer + 'audit/model');
+let Users = require('./../../../../server/users/model');
+let Audit = require('./../../../../server/audit/model');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
 describe('Profile', () => {

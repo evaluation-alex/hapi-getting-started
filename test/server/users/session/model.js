@@ -1,15 +1,14 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../../server/';
-let Users = require(relativeToServer + 'users/model');
-let utils = require(relativeToServer + 'common/utils');
+let Users = require('./../../../../server/users/model');
+let utils = require('./../../../../server/common/utils');
 let Uuid = require('node-uuid');
-let Audit = require(relativeToServer + 'audit/model');
+let Audit = require('./../../../../server/audit/model');
 let moment = require('moment');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
-describe('Session Model', () => {
+describe('Session DAO', () => {
     let firstEmail = 'test.create@session.module';
     let secondEmail = 'test.search@session.module';
     before((done) => {

@@ -1,14 +1,13 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../../server/';
-let Users = require(relativeToServer + 'users/model');
-let Audit = require(relativeToServer + 'audit/model');
+let Users = require('./../../../../server/users/model');
+let Audit = require('./../../../../server/audit/model');
 let moment = require('moment');
 let _ = require('lodash');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
-describe('Preferences Model', () => {
+describe('Preferences DAO', () => {
     let usersToClear = [];
     before((done) => {
         tu.setupRolesAndUsers()

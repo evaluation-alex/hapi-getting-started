@@ -1,0 +1,126 @@
+'use strict';
+import buildModel from './../common/model-builder';
+import * as DAO from './../common/dao';
+import schemas from './schemas';
+import Uuid from 'node-uuid';
+import Bluebird from 'bluebird';
+import Session from './session/model';
+import moment from 'moment';
+import Preferences from './preferences/model';
+import Profile from './profile/model';
+import _ from 'lodash';
+import * as errors from './../common/errors';
+import * as utils from './../common/utils';
+class Users {
+    constructor(attrs) {
+        _.assign(this, attrs);
+        Object.defineProperty(this, '_roles', {
+            writable: true,
+            enumerable: false
+        });
+        Object.defineProperty(this, 'audit', {
+            writable: true,
+            enumerable: false
+        });
+    }
+
+    hasPermissionsTo(performAction, onObject) {
+        return !!_.find(this._roles, (role) => role.hasPermissionsTo(performAction, onObject));
+    }
+
+    resetPasswordSent(by) {
+        this.resetPwd = {
+            token: Uuid.v4(),
+            expires: Date.now() + 10000000
+        };
+        return this.trackChanges('reset password sent', null, this.resetPwd, by);
+    }
+
+    setPassword(newPassword, by) {
+        if (newPassword) {
+            let oldPassword = this.password;
+            let newHashedPassword = utils.secureHash(newPassword);
+            this.password = newHashedPassword;
+            delete this.resetPwd;
+            this.trackChanges('reset password', oldPassword, newHashedPassword, by);
+        }
+        return this;
+    }
+
+    stripPrivateData() {
+        return {
+            email: this.email
+        };
+    }
+
+    afterLogin(ipaddress) {
+        let session = _.find(this.session, (sesion) => sesion.ipaddress === ipaddress);
+        return {
+            _id: this._id,
+            user: this.email,
+            session: session,
+            authHeader: 'Basic ' + new Buffer(this.email + ':' + session.key).toString('base64'),
+            preferences: this.preferences
+        };
+    }
+
+    static create(email, organisation, password, locale) {
+        let document = {
+            email,
+            password: utils.secureHash(password),
+            organisation,
+            roles: ['readonly'],
+            session: [],
+            preferences: Preferences.create(),
+            profile: Profile.create()
+        };
+        document.preferences.locale = locale;
+        return Users.insertAndAudit(document, email);
+    }
+
+    static findByCredentials(email, password) {
+        return Users.findOne({email: email, isActive: true})
+            .then((user) => {
+                if (!user) {
+                    return Bluebird.reject(new errors.UserNotFoundError({email: email}));
+                }
+                if (!utils.secureCompare(password, user.password)) {
+                    return Bluebird.reject(new errors.IncorrectPasswordError({email: email}));
+                }
+                return user;
+            });
+    }
+
+    static findBySessionCredentials(email, key) {
+        return Users.findOne({email: email, isActive: true})
+            .then((user) => {
+                if (!user) {
+                    return Bluebird.reject(new errors.UserNotFoundError({email: email}));
+                }
+                if (!utils.hasItems(user.session)) {
+                    return Bluebird.reject(new errors.UserNotLoggedInError({email: email}));
+                }
+                let matchingSession = _.find(user.session, (session) => {
+                    return utils.secureCompare(key, session.key);
+                });
+                if (!matchingSession) {
+                    return Bluebird.reject(new errors.SessionCredentialsNotMatchingError({email: email}));
+                }
+                if (moment().isAfter(matchingSession.expires)) {
+                    return Bluebird.reject(new errors.SessionExpiredError({email: email}));
+                }
+                return user;
+            });
+    }
+}
+DAO.makeDao(Users, 'app', 'users', schemas.indexes, schemas.model, 'email', 'email');
+buildModel(Users, 'email')
+    .extendVirtualModel(Session)
+    .extendVirtualModel(Preferences)
+    .extendVirtualModel(Profile)
+    .decorateWithUpdates([
+        'isActive',
+        'roles'
+    ], [], 'updateUser')
+    .doneConfiguring();
+export default Users;

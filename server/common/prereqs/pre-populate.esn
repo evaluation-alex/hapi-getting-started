@@ -1,0 +1,26 @@
+'use strict';
+import _ from 'lodash';
+import * as utils from './../utils';
+import * as errors from './../errors';
+import Bluebird from 'bluebird';
+export default function(Model, idToUse) {
+    return {
+        assign: Model.collection,
+        method(request, reply) {
+            let id = utils.lookupParamsOrPayloadOrQuery(request, idToUse);
+            Model.findOne({_id: Model.ObjectID(id)})
+                .then((obj) => {
+                    if (!obj) {
+                        return Bluebird.reject(new errors.ObjectNotFoundError({
+                            type: _.capitalize(Model.collection),
+                            idstr: id.toString()
+                        }));
+                    }
+                    reply(obj);
+                })
+                .catch((err) => {
+                    utils.logAndBoom(err, reply)
+                });
+        }
+    };
+}

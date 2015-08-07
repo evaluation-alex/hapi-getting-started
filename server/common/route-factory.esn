@@ -1,0 +1,102 @@
+'use strict';
+import _ from 'lodash';
+let path = (pathPrefix, component) => ((pathPrefix ? pathPrefix : '') + '/' + component);
+let pathWithId = (pathPrefix, component) => ((pathPrefix ? pathPrefix : '') + '/' + component + '/{id}');
+export default class RouteFactory {
+    constructor() {
+        this.routes = [];
+        this.current = -1;
+    }
+    newRoute() {
+        this.current = this.current + 1;
+        this.routes.push({
+            config: {
+                pre: []
+            }
+        });
+        return this;
+    }
+    forMethod(method) {
+        this.routes[this.current].method = method;
+        return this;
+    }
+    onPath(path) {
+        this.routes[this.current].path = path;
+        return this;
+    }
+    usingAuthStrategy(strategy) {
+        this.routes[this.current].config.auth = {
+            strategy: strategy
+        };
+        return this;
+    }
+    withValidation(validator) {
+        this.routes[this.current].config.validate = validator;
+        return this;
+    }
+    preProcessWith(preProcess) {
+        preProcess.forEach((pre) => {
+            this.routes[this.current].config.pre.push(pre);
+        }, this);
+        return this;
+    }
+    handleUsing(handler) {
+        this.routes[this.current].handler = handler;
+        return this;
+    }
+    doneConfiguring() {
+        return this.routes;
+    }
+    withController(controller) {
+        this.handleUsing(controller.handler);
+        if (controller.validate) {
+            this.withValidation(controller.validate);
+        }
+        this.preProcessWith(controller.pre);
+        return this;
+    }
+    _defaultRoute(method, pth, controller) {
+        this.newRoute()
+            .forMethod(method)
+            .onPath(pth)
+            .usingAuthStrategy('simple')
+            .withController(controller);
+        return this;
+    }
+    defaultNewRoute(component, controller, pathPrefix) {
+        return this._defaultRoute('POST', path(pathPrefix, component), controller);
+    }
+    defaultFindRoute(component, controller, pathPrefix) {
+        return this._defaultRoute('GET', path(pathPrefix, component), controller);
+    }
+    defaultFindOneRoute(component, controller, pathPrefix) {
+        return this._defaultRoute('GET', pathWithId(pathPrefix, component), controller);
+    }
+    defaultUpdateRoute(component, controller, pathPrefix) {
+        return this._defaultRoute('PUT', pathWithId(pathPrefix, component), controller);
+    }
+    defaultDeleteRoute(component, controller, pathPrefix) {
+        return this._defaultRoute('DELETE', pathWithId(pathPrefix, component), controller);
+    }
+    discoverDefaultRoutes(component, controller, pathPrefix) {
+        const discover = {
+            'new': 'defaultNewRoute',
+            find: 'defaultFindRoute',
+            findOne: 'defaultFindOneRoute',
+            update: 'defaultUpdateRoute',
+            'delete': 'defaultDeleteRoute'
+        };
+        _.forOwn(discover, (dfn, mthd) => {
+            if (controller[mthd]) {
+                this[dfn](component, controller[mthd], pathPrefix);
+            }
+        }, this);
+        return this;
+    }
+    joinApproveRejectLeaveRoutes(component, controller, pathPrefix) {
+        ['join', 'approve', 'reject', 'leave'].forEach((action) => {
+            this._defaultRoute('PUT', pathWithId(pathPrefix, component) + '/' + action, controller[action]);
+        }, this);
+        return this;
+    }
+}

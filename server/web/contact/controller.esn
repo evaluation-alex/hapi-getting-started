@@ -1,0 +1,25 @@
+'use strict';
+import schemas from './schemas';
+import Config from './../../config';
+import ControllerFactory from './../../common/controller-factory';
+import * as mailer from './../../common/plugins/mailer';
+import * as utils from './../../common/utils';
+import path from 'path';
+let Controller = new ControllerFactory()
+    .forMethod('contact')
+    .withValidation(schemas.contact)
+    .handleUsing((request, reply) => {
+        let options = {
+            subject: Config.projectName + ' contact form',
+            to: Config.system.toAddress,
+            replyTo: {
+                name: request.payload.name,
+                address: request.payload.email
+            }
+        };
+        mailer.sendEmail(options, path.join(__dirname, '/contact.hbs.md'), request.payload)
+            .then(() => reply({message: 'Success.'}))
+            .catch((err) => utils.logAndBoom(err, reply));
+    })
+    .doneConfiguring();
+export default Controller;

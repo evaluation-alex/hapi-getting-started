@@ -1,11 +1,10 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../../server/';
-let Roles = require(relativeToServer + '/users/roles/model');
+let Roles = require('./../../../../server/users/roles/model');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
-describe('Roles Model', () => {
+describe('Roles DAO', () => {
     let rolesToClear = [];
     before((done) => {
         tu.setupRolesAndUsers()

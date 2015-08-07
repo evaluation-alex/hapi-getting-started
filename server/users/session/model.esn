@@ -1,0 +1,48 @@
+'use strict';
+import schemas from './schemas';
+import _ from 'lodash';
+import Uuid from 'node-uuid';
+import Bluebird from 'bluebird';
+import moment from 'moment';
+import * as utils from './../../common/utils';
+class Session {
+    _invalidateSession(ipaddress, by) {
+        let removed = _.remove(this.session, (session) => session.ipaddress === ipaddress);
+        this.trackChanges('user.session', removed, null, by);
+        return this;
+    }
+
+    _newSession(ipaddress, by) {
+        let session = {
+            ipaddress,
+            key: utils.secureHash(Uuid.v4().toString()),
+            expires: moment().add(1, 'month').toDate()
+        };
+        this.session.push(session);
+        this.trackChanges('user.session', null, session, by);
+        return this;
+    }
+
+    loginSuccess(ipaddress, by) {
+        let found = _.find(this.session, (session) => session.ipaddress === ipaddress);
+        if (!found) {
+            this._newSession(ipaddress, by);
+        } else {
+            if (moment().isAfter(found.expires)) {
+                this._invalidateSession(ipaddress, by);
+                this._newSession(ipaddress, by);
+            }
+        }
+        return this;
+    }
+
+    loginFail(ipaddress, by) {
+        return this.trackChanges('login fail', null, ipaddress, by);
+    }
+
+    logout(ipaddress, by) {
+        this._invalidateSession(ipaddress, by);
+        return this;
+    }
+}
+export default Session;

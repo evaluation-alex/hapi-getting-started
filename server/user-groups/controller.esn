@@ -1,0 +1,33 @@
+'use strict';
+import schemas from './schemas';
+import UserGroups from './model';
+import ControllerFactory from './../common/controller-factory';
+import * as areValid from './../common/prereqs/are-valid';
+import isMemberOf from './../common/prereqs/is-member-of';
+import createDeleteObjectNotificationsBuilder from './../common/notifications/create-delete-builder';
+import addRemoveNotificationsBuilder from './../common/notifications/add-remove-builder';
+import * as utils from './../common/utils';
+let Controller = new ControllerFactory(UserGroups)
+    .enableNotifications()
+    .newController(schemas.create, [
+        areValid.users(['members', 'owners'])
+    ], (request) => {
+        return {
+            name: request.payload.name,
+            organisation: utils.org(request)
+        };
+    })
+    .sendNotifications(createDeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name', 'new'))
+    .findController(schemas.find, (request) => utils.buildQueryForPartialMatch({}, request, [['email', 'members'], ['groupName', 'name']]))
+    .findOneController()
+    .updateController(schemas.update, [
+        isMemberOf(UserGroups, ['owners']),
+        areValid.users(['addedMembers', 'addedOwners'])
+    ], 'update', 'update')
+    .sendNotifications(addRemoveNotificationsBuilder('UserGroup', ['owners', 'members'], 'owners', 'name'))
+    .deleteController(isMemberOf(UserGroups, ['owners']))
+    .sendNotifications(createDeleteObjectNotificationsBuilder('UserGroup', 'owners', 'name', 'delete'))
+    .joinLeaveController(['members'], 'owners', 'name')
+    .approveRejectController('addedMembers', 'owners', 'name')
+    .doneConfiguring();
+export default Controller;

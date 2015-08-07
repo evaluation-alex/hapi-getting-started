@@ -1,9 +1,8 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../server/';
 let Hapi = require('hapi');
-let MetricsPlugin = require(relativeToServer + 'common/plugins/metrics');
+let MetricsPlugin = require('./../../../server/common/plugins/metrics');
 describe('Metrics', () => {
     let server = null;
     before((done) => {

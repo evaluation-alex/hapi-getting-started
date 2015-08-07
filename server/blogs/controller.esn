@@ -1,0 +1,40 @@
+'use strict';
+import schemas from './schemas';
+import Blogs from './model';
+import ControllerFactory from './../common/controller-factory';
+import * as areValid from './../common/prereqs/are-valid';
+import isMemberOf from './../common/prereqs/is-member-of';
+import createDeleteObjectNotificationsBuilder from './../common/notifications/create-delete-builder';
+import addRemoveNotificationsBuilder from './../common/notifications/add-remove-builder';
+import * as utils from './../common/utils';
+let Controller = new ControllerFactory(Blogs)
+    .enableNotifications()
+    .newController(schemas.create, [
+        areValid.users(['owners', 'contributors', 'subscribers']),
+        areValid.groups(['subscriberGroups'])
+    ], (request) => {
+        return {
+            title: request.payload.title,
+            organisation: utils.org(request)
+        };
+    })
+    .sendNotifications(createDeleteObjectNotificationsBuilder('Blog', 'owners', 'title', 'new'))
+    .findController(schemas.find, (request) => {
+        return utils.buildQueryForPartialMatch({}, request,
+            [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
+                ['subGroup', 'subscriberGroups']
+            ]);
+    })
+    .findOneController()
+    .updateController(schemas.update, [
+        areValid.users(['addedOwners', 'addedContributors', 'addedSubscribers']),
+        areValid.groups(['addedSubscriberGroups']),
+        isMemberOf(Blogs, ['owners'])
+    ], 'update', 'update')
+    .sendNotifications(addRemoveNotificationsBuilder('Blog', ['owners', 'contributors', 'subscribers', 'subscriberGroups'], 'owners', 'title'))
+    .deleteController(isMemberOf(Blogs, ['owners']))
+    .sendNotifications(createDeleteObjectNotificationsBuilder('Blog', 'owners', 'title', 'delete'))
+    .joinLeaveController(['subscribers'], 'owners', 'title')
+    .approveRejectController('addedSubscribers', 'owners', 'title')
+    .doneConfiguring();
+export default Controller;

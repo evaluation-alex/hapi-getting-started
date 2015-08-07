@@ -1,0 +1,163 @@
+'use strict';
+import Joi from 'joi';
+import _ from 'lodash';
+import EventEmitter from 'events';
+import ensurePermissions from './prereqs/ensure-permissions';
+import isMemberOf from './prereqs/is-member-of';
+import isUnique from './prereqs/is-unique';
+import * as areValid from './prereqs/are-valid';
+import prePopulate from './prereqs/pre-populate';
+import newHandler from './handlers/create';
+import findHandler from './handlers/find';
+import findOneHandler from './handlers/find-one';
+import updateHandler from './handlers/update';
+import sendNotifications from './handlers/send-notifications';
+import cancelNotifications from './handlers/cancel-notifications';
+import joinLeaveNotificationsBuilder from './notifications/join-leave-builder';
+import cancelJoinNotificationsBuilder from './notifications/cancel-join-builder';
+import approveNotificationsBuilder from './notifications/approve-builder';
+import rejectNotificationsBuilder from './notifications/reject-builder';
+export default class ControllerFactory {
+    constructor(model) {
+        this.controller = {};
+        if (model) {
+            this.model = model;
+            this.component = model.collection;
+        }
+    }
+    enableNotifications() {
+        this.notify = true;
+        return this;
+    }
+    forMethod(method) {
+        this.method = method;
+        this.controller[this.method] = {
+            pre: []
+        };
+        if (this.notify) {
+            _.extend(this.controller[this.method], EventEmitter.prototype);
+        }
+        return this;
+    }
+    withValidation(validator) {
+        this.controller[this.method].validate = validator;
+        return this;
+    }
+    preProcessWith(preProcess) {
+        if (_.isArray(preProcess)) {
+            preProcess.forEach((pre) => {
+                this.controller[this.method].pre.push(pre);
+            }, this);
+        } else {
+            this.controller[this.method].pre.push(preProcess);
+        }
+        return this;
+    }
+    handleUsing(handler) {
+        this.controller[this.method].handler = handler;
+        return this;
+    }
+    sendNotifications(notifyCb) {
+        this.controller[this.method].on('invoked', sendNotifications(this.model, notifyCb));
+        return this;
+    }
+    cancelNotifications(cancelAction, cancelNotificationsCb) {
+        this.controller[this.method].on('invoked', cancelNotifications(this.model, cancelAction, cancelNotificationsCb));
+        return this;
+    }
+    doneConfiguring() {
+        return this.controller;
+    }
+    newController(validator, prereqs, uniqueCheck, newCb) {
+        let pre = _.flatten([ensurePermissions('update', this.component),
+            isUnique(this.model, uniqueCheck),
+            prereqs]);
+        this.forMethod('new')
+            .preProcessWith(pre)
+            .handleUsing(newHandler(this.model, this.controller.new, newCb));
+        return this;
+    }
+    customNewController(method, validator, uniqueCheck, newCb) {
+        this.forMethod(method)
+            .preProcessWith([isUnique(this.model, uniqueCheck)])
+            .handleUsing(newHandler(this.model, this.controller[method], newCb));
+        return this;
+    }
+    findController(validator, queryBuilder, findCb) {
+        validator.query.fields = Joi.string();
+        validator.query.sort = Joi.string();
+        validator.query.limit = Joi.number();
+        validator.query.page = Joi.number();
+        this.forMethod('find')
+            .withValidation(validator)
+            .preProcessWith(ensurePermissions('view', this.component))
+            .handleUsing(findHandler(this.model, queryBuilder, findCb));
+        return this;
+    }
+    findOneController(prereqs, findOneCb) {
+        let pre = _.filter(_.flatten([ensurePermissions('view', this.component), prePopulate(this.model, 'id'), prereqs]),
+            (f) => !!f);
+        this.forMethod('findOne')
+            .preProcessWith(pre)
+            .handleUsing(findOneHandler(this.model, findOneCb));
+        return this;
+    }
+    updateController(validator, prereqs, methodName, updateCb) {
+        let perms = _.find(prereqs, (prereq) => prereq.assign === 'ensurePermissions');
+        let pre = _.flatten([perms ? [] : ensurePermissions('update', this.component), prePopulate(this.model, 'id'), prereqs]);
+        this.forMethod(methodName)
+            .preProcessWith(pre)
+            .handleUsing(updateHandler(this.model, this.controller[methodName], updateCb));
+        return this;
+    }
+    deleteController(pre) {
+        return this.updateController(undefined, pre, 'delete', 'del');
+    }
+    joinLeaveController(group, approvers, idForNotificationTitle) {
+        this.updateController(undefined, [
+                ensurePermissions('view', this.component)
+            ],
+            'join',
+            'join');
+        this.sendNotifications(joinLeaveNotificationsBuilder(approvers, idForNotificationTitle, 'join', {
+            'public': '{{email}} has joined {{title}}',
+            restricted: '{{email}} has joined {{title}} and needs your approval'
+        }, {
+            'public': 'fyi',
+            restricted: 'approve'
+        }));
+        this.updateController(undefined, [
+                ensurePermissions('view', this.component),
+                isMemberOf(this.model, group)
+            ],
+            'leave',
+            'leave');
+        this.sendNotifications(joinLeaveNotificationsBuilder(approvers, idForNotificationTitle, 'leave', {
+            'public': '{{email}} has left {{title}}',
+            restricted: '{{email}} has left {{title}}'
+        }, {
+            'public': 'fyi',
+            restricted: 'fyi'
+        }));
+        return this;
+    }
+    approveRejectController(toAdd, approvers, idForNotificationsTitle) {
+        let validator = {
+            payload: {}
+        };
+        validator.payload[toAdd] = Joi.array().items(Joi.string()).unique();
+        ['approve', 'reject'].forEach((action) => {
+            this.updateController(validator, [
+                    isMemberOf(this.model, [approvers]),
+                    areValid.users([toAdd])
+                ],
+                action,
+                action);
+            this.sendNotifications(action === 'approve' ?
+                approveNotificationsBuilder(toAdd, approvers, idForNotificationsTitle) :
+                rejectNotificationsBuilder(toAdd, idForNotificationsTitle));
+            this.cancelNotifications('approve', cancelJoinNotificationsBuilder(toAdd));
+        }, this);
+        return this;
+    }
+}

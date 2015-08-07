@@ -1,0 +1,14 @@
+'use strict';
+import schemas from './schemas';
+import Audit from './model';
+import ControllerFactory from './../common/controller-factory';
+import * as utils from './../common/utils';
+let Controller = new ControllerFactory(Audit)
+    .findController(schemas.find, (request) => {
+        let query = utils.buildQueryForPartialMatch({}, request, [['by', 'by']]);
+        query = utils.buildQueryForDateRange(query, request, 'on');
+        query = utils.buildQueryForExactMatch(query, request, [['objectType', 'objectChangedType'], ['objectChangedId', 'objectChangedId']]);
+        return query;
+    })
+    .doneConfiguring();
+export default Controller;

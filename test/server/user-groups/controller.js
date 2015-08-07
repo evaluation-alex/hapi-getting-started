@@ -1,10 +1,9 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../server/';
-let UserGroups = require(relativeToServer + 'user-groups/model');
-let Notifications = require(relativeToServer + 'users/notifications/model');
-let Audit = require(relativeToServer + 'audit/model');
+let UserGroups = require('./../../../server/user-groups/model');
+let Notifications = require('./../../../server/users/notifications/model');
+let Audit = require('./../../../server/audit/model');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
 describe('UserGroups', () => {
@@ -480,7 +479,7 @@ describe('UserGroups', () => {
                                 expect(foundAudit[0].change[3].action).to.match(/add|remove/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'user-groups',
                                         objectId: UserGroups.ObjectID(id)
@@ -598,7 +597,7 @@ describe('UserGroups', () => {
                                 expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'user-groups',
                                         objectId: UserGroups.ObjectID(id),
@@ -658,7 +657,7 @@ describe('UserGroups', () => {
                                 expect(foundAudit[0].change[0].action).to.match(/add member/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'user-groups',
                                         objectId: UserGroups.ObjectID(id),
@@ -767,7 +766,7 @@ describe('UserGroups', () => {
                                 expect(foundAudit[0].change[0].action).to.match(/remove member/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'user-groups',
                                         objectId: UserGroups.ObjectID(id),
@@ -879,7 +878,7 @@ describe('UserGroups', () => {
                                 expect(foundAudit[0].change[0].action).to.match(/add member/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'user-groups',
                                         objectId: UserGroups.ObjectID(id),
@@ -1069,7 +1068,7 @@ describe('UserGroups', () => {
                                 expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'user-groups',
                                         objectId: UserGroups.ObjectID(id),

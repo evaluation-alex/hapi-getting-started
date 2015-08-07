@@ -1,12 +1,10 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../server/';
-let Model = require(relativeToServer + 'common/model');
-let createHandler = require(relativeToServer + 'common/handlers/create');
-let findHandler = require(relativeToServer + 'common/handlers/find');
-let findOneHandler = require(relativeToServer + 'common/handlers/find-one');
-let insertAndAudit = require(relativeToServer + 'common/mixins/insert');
+let Model = require('./../../../server/common/dao');
+let createHandler = require('./../../../server/common/handlers/create');
+let findHandler = require('./../../../server/common/handlers/find');
+let findOneHandler = require('./../../../server/common/handlers/find-one');
 let Bluebird = require('bluebird');
 let expect = require('chai').expect;
 describe('Handlers and Mixins', () => {
@@ -90,7 +88,7 @@ describe('Handlers and Mixins', () => {
     });
     it('insertAndAudit should return a not created error when _insert fails', (done) => {
         let obj = {
-            insert: (doc) => {
+            upsert: (doc) => {
                 expect(doc).to.exist;
                 return Bluebird.resolve(undefined);
             },

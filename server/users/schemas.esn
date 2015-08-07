@@ -1,0 +1,63 @@
+'use strict';
+import Joi from 'joi';
+let session = require('./session/schemas').model;
+let preferences = require('./preferences/schemas').model;
+let profile = require('./profile/schemas').model;
+export default {
+    model: {
+        _id: Joi.object(),
+        email: Joi.string().required(),
+        password: Joi.string().required(),
+        organisation: Joi.string().required(),
+        roles: Joi.array().items(Joi.string()).unique(),
+        resetPwd: Joi.object().keys({
+            token: Joi.string().required(),
+            expires: Joi.date().required()
+        }),
+        session: session,
+        preferences: preferences,
+        profile: profile,
+        isActive: Joi.boolean().default(true),
+        createdBy: Joi.string(),
+        createdOn: Joi.date(),
+        updatedBy: Joi.string(),
+        updatedOn: Joi.date()
+    },
+    indexes: [
+        [{email: 1}, {unique: true}],
+        [{email: 1, organisation: 1}, {unique: true}]
+    ],
+    signup: {
+        payload: {
+            email: Joi.string().required(),
+            organisation: Joi.string().required(),
+            locale: Joi.string().only(['en', 'hi']).default('en'),
+            password: Joi.string().required()
+        }
+    },
+    find: {
+        query: {
+            email: Joi.string(),
+            isActive: Joi.string()
+        }
+    },
+    update: {
+        payload: {
+            isActive: Joi.boolean(),
+            roles: Joi.array().items(Joi.string()),
+            password: Joi.string()
+        }
+    },
+    loginForgot: {
+        payload: {
+            email: Joi.string().required()
+        }
+    },
+    loginReset: {
+        payload: {
+            key: Joi.string().required(),
+            email: Joi.string().required(),
+            password: Joi.string().required()
+        }
+    }
+};

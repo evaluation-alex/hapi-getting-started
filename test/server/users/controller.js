@@ -1,10 +1,9 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../server/';
-let Users = require(relativeToServer + 'users/model');
-let Audit = require(relativeToServer + 'audit/model');
-let Mailer = require(relativeToServer + 'common/plugins/mailer');
+let Users = require('./../../../server/users/model');
+let Audit = require('./../../../server/audit/model');
+let Mailer = require('./../../../server/common/plugins/mailer');
 let Bluebird = require('bluebird');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
@@ -606,7 +605,7 @@ describe('Users', () => {
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(200);
                         expect(response.payload).to.contain('Success');
-                        Audit.findAudit('users', 'test.users@test.api', {'change.audit': 'reset password'})
+                        Audit.findAudit('users', 'test.users@test.api', {'change.action': 'reset password'})
                             .then((foundAudit) => {
                                 expect(foundAudit).to.exist;
                                 return Users.findOne({email: 'test.users@test.api'});

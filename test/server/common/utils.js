@@ -1,9 +1,8 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../server/';
-let utils = require(relativeToServer + '/common/utils');
-let Config = require(relativeToServer + 'config');
+let utils = require('./../../../server/common/utils');
+let Config = require('./../../../server/config');
 let expect = require('chai').expect;
 describe('Utils', () => {
     it('should log when errback called with', (done) => {

@@ -1,0 +1,24 @@
+'use strict';
+import Bluebird from 'bluebird';
+import Notifications from './../../users/notifications/model';
+import * as utils from './../utils';
+export default function (model, cancelAction, cancelNotificationsCb) {
+    let cancelNotificationsHook = Bluebird.method((target, request, notification) =>
+            cancelNotificationsCb ?
+                cancelNotificationsCb(target, request, notification) :
+                notification.setState('cancelled', utils.by(request)).save()
+    );
+    return function (target, request) {
+        return Notifications.find({
+            objectType: model.collection,
+            objectId: target._id,
+            state: 'unread',
+            action: cancelAction
+        })
+            .then((notifications) => Bluebird.settle(
+                notifications.map((notification) => cancelNotificationsHook(target, request, notification))
+            )
+        ).catch(utils.errback)
+            .done();
+    };
+};

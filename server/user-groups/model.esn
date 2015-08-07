@@ -1,0 +1,53 @@
+'use strict';
+import buildModel from './../common/model-builder';
+import * as DAO from './../common/dao';
+import schemas from './schemas';
+import * as utils from './../common/utils';
+import _ from 'lodash';
+class UserGroups {
+    constructor(attrs) {
+        _.assign(this, attrs);
+        Object.defineProperty(this, 'audit', {
+            writable: true,
+            enumerable: false
+        });
+    }
+    static newObject(doc, by) {
+        return UserGroups.create(doc.payload.name,
+            utils.org(doc),
+            doc.payload.description,
+            by)
+            .then((userGroup) => {
+                return userGroup
+                    .addMembers(doc.payload.members, by)
+                    .addOwners(doc.payload.owners, by)
+                    .setAccess(doc.payload.access, by)
+                    .save();
+            });
+    }
+    static create(name, organisation, description, owner) {
+        let document = {
+            name,
+            organisation,
+            description,
+            members: [owner],
+            owners: [owner],
+            needsApproval: [],
+            access: 'restricted'
+        };
+        return UserGroups.insertAndAudit(document, owner);
+    }
+}
+DAO.makeDao(UserGroups, 'app', 'user-groups', schemas.indexes, schemas.model, 'name');
+buildModel(UserGroups)
+    .decorateWithUpdates([
+        'isActive',
+        'description',
+        'access'
+    ], ['owners',
+        'members',
+        'needsApproval'
+    ], 'update')
+    .decorateWithApproveRejectJoinLeave('members', 'needsApproval')
+    .doneConfiguring();
+export default UserGroups;

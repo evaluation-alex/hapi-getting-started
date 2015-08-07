@@ -1,12 +1,11 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../server/';
-let UserGroups = require(relativeToServer + 'user-groups/model');
-let Audit = require(relativeToServer + 'audit/model');
+let UserGroups = require('./../../../server/user-groups/model');
+let Audit = require('./../../../server/audit/model');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
-describe('UserGroups Model', () => {
+describe('UserGroups DAO', () => {
     let groupsToCleanup = [];
     before((done) => {
         tu.setupRolesAndUsers()

@@ -1,9 +1,8 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../server/';
 let Cookie = require('cookie');
-let Users = require(relativeToServer + 'users/model');
+let Users = require('./../../../server/users/model');
 let Bluebird = require('bluebird');
 let moment = require('moment');
 let tu = require('./../testutils');

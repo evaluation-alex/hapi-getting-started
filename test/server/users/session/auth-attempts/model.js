@@ -1,13 +1,12 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../../../server/';
-let Config = require(relativeToServer + 'config');
-let AuthAttempts = require(relativeToServer + '/users/session/auth-attempts/model');
+let Config = require('./../../../../../server/config');
+let AuthAttempts = require('./../../../../../server/users/session/auth-attempts/model');
 let tu = require('./../../../testutils');
 let Bluebird = require('bluebird');
 let expect = require('chai').expect;
-describe('AuthAttempts Model', () => {
+describe('AuthAttempts DAO', () => {
     before((done) => {
         tu.setupRolesAndUsers()
             .then(() => {

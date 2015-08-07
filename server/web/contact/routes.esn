@@ -1,0 +1,10 @@
+'use strict';
+import RouteFactory from './../../common/route-factory';
+import Controller from './controller';
+let routes = (new RouteFactory())
+    .newRoute()
+    .forMethod('POST')
+    .onPath('/contact')
+    .withController(Controller.contact)
+    .doneConfiguring();
+export default routes;

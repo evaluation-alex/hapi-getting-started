@@ -1,12 +1,11 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../../server/';
-let UserGroups = require(relativeToServer + 'user-groups/model');
-let Notifications = require(relativeToServer + 'users/notifications/model');
-let Blogs = require(relativeToServer + 'blogs/model');
-let Posts = require(relativeToServer + 'blogs/posts/model');
-let Audit = require(relativeToServer + 'audit/model');
+let UserGroups = require('./../../../../server/user-groups/model');
+let Notifications = require('./../../../../server/users/notifications/model');
+let Blogs = require('./../../../../server/blogs/model');
+let Posts = require('./../../../../server/blogs/posts/model');
+let Audit = require('./../../../../server/audit/model');
 let _ = require('lodash');
 let moment = require('moment');
 let Bluebird = require('bluebird');
@@ -661,7 +660,7 @@ describe('Posts', () => {
                             })
                             .then(() => {
                                 //because the events from the controller may not be complete
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'posts',
                                         objectId: Posts.ObjectID(postId)
@@ -719,7 +718,7 @@ describe('Posts', () => {
                             })
                             .then(() => {
                                 //because the events from the controller may not be complete
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'posts',
                                         objectId: Posts.ObjectID(postId)
@@ -813,7 +812,7 @@ describe('Posts', () => {
                             })
                             .then(() => {
                                 //because the events from the controller may not be complete
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'posts',
                                         objectId: Posts.ObjectID(postId)
@@ -870,7 +869,7 @@ describe('Posts', () => {
                             })
                             .then(() => {
                                 //because the events from the controller may not be complete
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'posts',
                                         objectId: Posts.ObjectID(postId)
@@ -988,7 +987,7 @@ describe('Posts', () => {
                                 tu.cleanupAudit();
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'posts',
                                         objectId: Posts.ObjectID(postId),

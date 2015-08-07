@@ -1,0 +1,49 @@
+'use strict';
+import buildModel from './../../common/model-builder';
+import * as DAO from './../../common/dao';
+import schemas from './schemas';
+import _ from 'lodash';
+import Bluebird from 'bluebird';
+class Notifications {
+    constructor(attrs) {
+        _.assign(this, attrs);
+        Object.defineProperty(this, 'audit', {
+            writable: true,
+            enumerable: false
+        });
+    }
+    static create(email, organisation, objectType, objectId, title, state, action, priority, content, by) {
+        if (_.isArray(email)) {
+            return Bluebird.all(_.unique(_.flatten(email)).map((e) =>
+                Notifications.create(e, organisation, objectType, objectId, title, state, action, priority, content, by))
+            );
+        } else {
+            let document = {
+                email,
+                organisation,
+                objectType,
+                objectId,
+                title,
+                state,
+                action,
+                priority,
+                content,
+                isActive: true,
+                createdBy: by,
+                createdOn: new Date(),
+                updatedBy: by,
+                updatedOn: new Date()
+            };
+            return Notifications.upsert(document);
+        }
+    }
+}
+DAO.makeDao(Notifications, 'app', 'notifications', schemas.indexes, schemas.model);
+buildModel(Notifications)
+    .decorateWithUpdates([
+        'state',
+        'isActive'
+    ])
+    .decorateWithI18N(['title', 'content'])
+    .doneConfiguring();
+export default Notifications;

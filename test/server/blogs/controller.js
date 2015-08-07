@@ -1,11 +1,10 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../server/';
-let Blogs = require(relativeToServer + 'blogs/model');
-let UserGroups = require(relativeToServer + 'user-groups/model');
-let Audit = require(relativeToServer + 'audit/model');
-let Notifications = require(relativeToServer + 'users/notifications/model');
+let Blogs = require('./../../../server/blogs/model');
+let UserGroups = require('./../../../server/user-groups/model');
+let Audit = require('./../../../server/audit/model');
+let Notifications = require('./../../../server/users/notifications/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
@@ -460,7 +459,7 @@ describe('Blogs', () => {
                                 expect(foundAudit[0].change[3].action).to.match(/add|remove/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'blogs',
                                         objectId: Blogs.ObjectID(id)
@@ -680,7 +679,7 @@ describe('Blogs', () => {
                                 expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'blogs',
                                         objectId: Blogs.ObjectID(id),
@@ -736,7 +735,7 @@ describe('Blogs', () => {
                                 expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'blogs',
                                         objectId: Blogs.ObjectID(id),
@@ -839,7 +838,7 @@ describe('Blogs', () => {
                                 expect(foundAudit[0].change[0].action).to.match(/remove subscriber/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'blogs',
                                         objectId: Blogs.ObjectID(id),
@@ -949,7 +948,7 @@ describe('Blogs', () => {
                                 expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'blogs',
                                         objectId: Blogs.ObjectID(id),
@@ -1139,7 +1138,7 @@ describe('Blogs', () => {
                                 expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
                             })
                             .then(() => {
-                                let ct = setTimeout(() => {
+                                var ct = setTimeout(() => {
                                     Notifications.find({
                                         objectType: 'blogs',
                                         objectId: Blogs.ObjectID(id),

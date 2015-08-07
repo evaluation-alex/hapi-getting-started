@@ -1,0 +1,65 @@
+'use strict';
+import buildModel from './../common/model-builder';
+import * as DAO from './../common/dao';
+import schemas from './schemas';
+import _ from 'lodash';
+import * as utils from './../common/utils';
+class Blogs {
+    constructor(attrs) {
+        _.assign(this, attrs);
+        Object.defineProperty(this, 'audit', {
+            writable: true,
+            enumerable: false
+        });
+    }
+
+    static newObject(doc, by) {
+        return Blogs.create(doc.payload.title,
+            utils.org(doc),
+            doc.payload.description,
+            doc.payload.owners,
+            doc.payload.contributors,
+            doc.payload.subscribers,
+            doc.payload.subscriberGroups,
+            doc.payload.needsReview,
+            doc.payload.access,
+            doc.payload.allowComments,
+            by);
+    }
+
+    static create(title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {
+        let document = {
+            title,
+            organisation,
+            description,
+            owners: utils.hasItems(owners) ? owners : [by],
+            contributors: utils.hasItems(contributors) ? contributors : [by],
+            subscribers: utils.hasItems(subscribers) ? subscribers : [by],
+            subscriberGroups: utils.hasItems(subscriberGroups) ? subscriberGroups : [],
+            needsApproval: [],
+            needsReview,
+            access,
+            allowComments
+        };
+        return Blogs.insertAndAudit(document, by);
+    }
+}
+DAO.makeDao(Blogs, 'app', 'blogs', schemas.indexes, schemas.model);
+buildModel(Blogs)
+    .decorateWithUpdates([
+        'isActive',
+        'description',
+        'needsReview',
+        'access',
+        'allowComments',
+        'title'
+    ], [
+        'owners',
+        'contributors',
+        'subscribers',
+        'subscriberGroups',
+        'needsApproval'
+    ], 'update')
+    .decorateWithApproveRejectJoinLeave('subscribers', 'needsApproval')
+    .doneConfiguring();
+export default Blogs;

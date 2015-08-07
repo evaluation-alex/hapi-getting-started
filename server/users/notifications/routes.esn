@@ -1,0 +1,7 @@
+'use strict';
+import RouteFactory from './../../common/route-factory';
+import Controller from './controller';
+let routes = (new RouteFactory())
+    .discoverDefaultRoutes('notifications', Controller)
+    .doneConfiguring();
+export default routes;

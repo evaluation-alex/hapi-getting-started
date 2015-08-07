@@ -1,0 +1,50 @@
+'use strict';
+import _ from 'lodash';
+import Bluebird from 'bluebird';
+import * as utils from './../utils';
+import Users from './../../users/model';
+import UserGroups from './../../user-groups/model';
+import Posts from './../../blogs/posts/model';
+import * as errors from './../errors';
+function areValid(Model, pldPropToLookup) {
+    return function(request, reply) {
+        let toLookup = [];
+        pldPropToLookup.forEach((pldProp) => {
+            let arrInReq = _.get(request.payload, pldProp.split('.'));
+            if (utils.hasItems(arrInReq)) {
+                toLookup.push(arrInReq);
+            }
+        });
+        toLookup = _.flatten(toLookup);
+        if (utils.hasItems(toLookup)) {
+            Model.areValid(toLookup, utils.org(request))
+                .then((validated) => {
+                    let msg = '';
+                    toLookup.forEach((a) => {
+                        if (!validated[a]) {
+                            msg += a.toString() + ',';
+                        }
+                    });
+                    if (msg.indexOf(',') > -1) {
+                        return Bluebird.reject(new errors.NotValidUsersOrGroupsError({msg: msg}));
+                    }
+                    reply(true);
+                })
+                .catch((err) => utils.logAndBoom(err, reply));
+        } else {
+            reply(true);
+        }
+    };
+}
+export function users(payloadPropertiesToLookup) {
+    return {
+        assign: 'validUsers',
+        method: areValid(Users, payloadPropertiesToLookup)
+    };
+}
+export function groups(payloadPropertiesToLookup) {
+    return {
+        assign: 'validUserGroups',
+        method: areValid(UserGroups, payloadPropertiesToLookup)
+    };
+}

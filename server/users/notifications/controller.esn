@@ -1,0 +1,29 @@
+'use strict';
+import schemas from './schemas';
+import _ from 'lodash';
+import Notifications from './model';
+import ControllerFactory from './../../common/controller-factory';
+import onlyOwnerAllowed from './../../common/prereqs/only-owner';
+import * as utils from './../../common/utils';
+let Controller = new ControllerFactory(Notifications)
+    .findController(schemas.find, (request) => {
+        let query = utils.buildQueryForPartialMatch({}, request, [['state', 'state'], ['objectType', 'objectType']]);
+        query = utils.buildQueryForDateRange(query, request, 'createdOn');
+        query.email = utils.by(request);
+        let prefs = utils.user(request).preferences;
+        let blocked = _.flatten([
+            prefs.notifications.blogs.blocked,
+            prefs.notifications.posts.blocked,
+            prefs.notifications.userGroups.blocked
+        ]);
+        if (utils.hasItems(blocked)) {
+            query.objectId = {$nin: blocked};
+        }
+        return query;
+    })
+    .updateController(schemas.update, [
+        onlyOwnerAllowed(Notifications, 'email')
+    ], 'update',
+    'update')
+    .doneConfiguring();
+export default Controller;

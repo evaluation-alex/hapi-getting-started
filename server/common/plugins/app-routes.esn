@@ -1,0 +1,25 @@
+'use strict';
+import Path from 'path';
+export let register = function register(server, options, next) {
+    options.modules.forEach((module) => {
+        let routes = require(Path.join(process.cwd(), '/server/' + module, '/routes'));
+        routes.forEach((route) => {
+            route.path = options.prependRoute + route.path;
+            server.route(route);
+        });
+    });
+    server.route({
+        method: 'GET',
+        path: '/public/{param*}',
+        handler: {
+            directory: {
+                path: 'public',
+                listing: true
+            }
+        }
+    });
+    return next();
+};
+register.attributes = {
+    name: 'AppRoutes'
+};

@@ -1,54 +1,56 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
-let relativeTo = './../../';
-let relativeToServer = relativeTo + 'server/';
 let Bluebird = require('bluebird');
 Bluebird.longStackTraces();
 let server;
-let serverBluebird = require('./server')(require(relativeToServer + 'config').manifest);
+let serverBluebird = require('./server')();
 let _ = require('lodash');
-let utils = require(relativeToServer + 'common/utils');
-let Users = require(relativeToServer + 'users/model');
-let UserGroups = require(relativeToServer + 'user-groups/model');
-let Audit = require(relativeToServer + 'audit/model');
-let Blogs = require(relativeToServer + 'blogs/model');
-let Posts = require(relativeToServer + 'blogs/posts/model');
-let AuthAttempts = require(relativeToServer + 'users/session/auth-attempts/model');
-let Roles = require(relativeToServer + 'users/roles/model');
-let Notifications = require(relativeToServer + 'users/notifications/model');
-module.exports.authorizationHeader = (user) => 'Basic ' + (new Buffer(user.email + ':' + user.session[0].key)).toString('base64');
-module.exports.authorizationHeader2 = (user, password) => 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
-let setupRootRole = () => {
+let utils = require('./../../server/common/utils');
+let Users = require('./../../server/users/model');
+let UserGroups = require('./../../server/user-groups/model');
+let Audit = require('./../../server/audit/model');
+let Blogs = require('./../../server/blogs/model');
+let Posts = require('./../../server/blogs/posts/model');
+let AuthAttempts = require('./../../server/users/session/auth-attempts/model');
+let Roles = require('./../../server/users/roles/model');
+let Notifications = require('./../../server/users/notifications/model');
+module.exports.authorizationHeader = function authorizationHeader(user) {
+    return 'Basic ' + (new Buffer(user.email + ':' + user.session[0].key)).toString('base64')
+};
+module.exports.authorizationHeader2 = function authorizationHeader2(user, password) {
+    return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
+};
+function setupRootRole() {
     return Roles.findOne({name: 'root', organisation: 'silver lining'})
         .then((found) =>
             found ? found : Roles.create('root', 'silver lining', [
                 {action: 'update', object: '*'}, {action: 'view', object: '*'}
             ]));
-};
-let setupReadonlyRole = () => {
+}
+function setupReadonlyRole() {
     return Roles.findOne({name: 'readonly', organisation: 'silver lining'})
         .then((found) =>
             found ? found : Roles.create('readonly', 'silver lining', [{action: 'view', object: '*'}]));
-};
-let setupRootUser = () => {
+}
+function setupRootUser() {
     return Users.findOne({email: 'root'})
         .then((found) =>
             found ? found.setRoles(['root'], 'testSetup').resetPrefs().resetProfile().save()
                 : Users.create('root', 'silver lining', 'password123', 'en')
                 .then((rt) => rt.setRoles(['root'], 'testSetup').save())
     );
-};
-let setupFirstUser = () => {
+}
+function setupFirstUser() {
     return Users.findOne({email: 'one@first.com'})
         .then((found) =>
             found ? found.resetPrefs().resetProfile().save()
                 : Users.create('one@first.com', 'silver lining', 'password', 'en')
     );
-};
-module.exports.setupRolesAndUsers = () => {
+}
+module.exports.setupRolesAndUsers =  function setupRolesAndUsers() {
     return Bluebird.join(setupRootRole(), setupReadonlyRole(), setupRootUser(), setupFirstUser(), () => true);
 };
-module.exports.findAndLogin = (user, roles) => {
+module.exports.findAndLogin = function findAndLogin(user, roles) {
     return Users.findOne({email: user})
         .then((foundUser) => roles ? foundUser.setRoles(roles, 'test') : foundUser)
         .then((foundUser) => foundUser.loginSuccess('test', 'test').save())
@@ -56,7 +58,7 @@ module.exports.findAndLogin = (user, roles) => {
             return {user: loggedin, authheader: module.exports.authorizationHeader(loggedin)};
         });
 };
-module.exports.setupServer = () => {
+module.exports.setupServer = function setupServer() {
     return serverBluebird
         .then((server1) => {
             server = server1;
@@ -70,7 +72,7 @@ module.exports.setupServer = () => {
                 return {server: server, authheader: foundUser.authheader};
             }
         });
-};
+}
 let cleanupUsers = Bluebird.method((usersToCleanup) =>
         utils.hasItems(usersToCleanup) ? Users.remove({email: {$in: usersToCleanup}}) : true
 );
@@ -93,12 +95,16 @@ let cleanupNotifications = Bluebird.method((toClear) => {
         ]
     }) : true;
 });
-module.exports.cleanupAudit = () => Audit.remove({});
-module.exports.cleanupAuthAttempts = () => AuthAttempts.remove({});
+module.exports.cleanupAudit = function cleanupAudit() {
+    return Audit.remove({})
+};
+module.exports.cleanupAuthAttempts = function cleanupAuthAttempts() {
+    return AuthAttempts.remove({})
+};
 module.exports.cleanupRoles = Bluebird.method((roles) =>
         utils.hasItems(roles) ? Roles.remove({name: {$in: roles}}) : true
 );
-module.exports.cleanup = (toClear, cb) => {
+module.exports.cleanup = function cleanup(toClear, cb) {
     Bluebird.join(cleanupUsers(toClear.users),
         cleanupUserGroups(toClear.userGroups),
         cleanupBlogs(toClear.blogs),
@@ -114,7 +120,7 @@ module.exports.cleanup = (toClear, cb) => {
         })
         .done();
 };
-module.exports.testComplete = (notify, err) => {
+module.exports.testComplete = function testComplete(notify, err) {
     if (notify) {
         if (err) {
             notify(err);

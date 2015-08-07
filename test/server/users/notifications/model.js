@@ -1,13 +1,12 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../../server/';
 let Bluebird = require('bluebird');
-let Notifications = require(relativeToServer + 'users/notifications/model');
-let Audit = require(relativeToServer + 'audit/model');
+let Notifications = require('./../../../../server/users/notifications/model');
+let Audit = require('./../../../../server/audit/model');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
-describe('Notifications Model', () => {
+describe('Notifications DAO', () => {
     before((done) => {
         tu.setupRolesAndUsers()
             .then(() => {

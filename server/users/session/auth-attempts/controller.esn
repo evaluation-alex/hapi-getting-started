@@ -1,0 +1,13 @@
+'use strict';
+import schemas from './schemas';
+import AuthAttempts from './model';
+import ControllerFactory from './../../../common/controller-factory';
+import * as utils from './../../../common/utils';
+let Controller = new ControllerFactory(AuthAttempts)
+    .findController(schemas.find, (request) => {
+        let query = utils.buildQueryForPartialMatch({}, request, [['ip', 'ip'], ['email', 'email']]);
+        query.organisation = '*';
+        return query;
+    })
+    .doneConfiguring();
+export default Controller;

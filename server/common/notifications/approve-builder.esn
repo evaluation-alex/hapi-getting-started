@@ -1,0 +1,12 @@
+'use strict';
+import * as utils from './../utils';
+export default function(toAdd, approvers, idForNotificationsTitle) {
+    return function(obj, request) {
+        return {
+            to: utils.hasItems(request.payload[toAdd]) ? obj[approvers] : [],
+            title: ['{{title}} has new approved subscribers', {title: obj[idForNotificationsTitle]}],
+            description: utils.hasItems(request.payload[toAdd]) ? {approved: request.payload[toAdd]} : {},
+            priority: 'medium'
+        };
+    };
+};

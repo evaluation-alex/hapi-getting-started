@@ -1,0 +1,16 @@
+'use strict';
+import * as utils from './../utils';
+import Bluebird from 'bluebird';
+export default function (Model, notify, newCb) {
+    let newObjHook = Bluebird.method((request, by) => newCb ? newCb(request, by) : Model.newObject(request, by));
+    return function (request, reply) {
+        newObjHook(request, utils.by(request))
+            .then((n) => {
+                if (notify.emit) {
+                    notify.emit('invoked', n, request);
+                }
+                reply(n).code(201);
+            })
+            .catch((err) => utils.logAndBoom(err, reply));
+    };
+};

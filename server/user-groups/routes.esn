@@ -1,0 +1,8 @@
+'use strict';
+import RouteFactory from './../common/route-factory';
+import Controller from './controller';
+let routes = (new RouteFactory())
+    .discoverDefaultRoutes('user-groups', Controller)
+    .joinApproveRejectLeaveRoutes('user-groups', Controller)
+    .doneConfiguring();
+export default routes;

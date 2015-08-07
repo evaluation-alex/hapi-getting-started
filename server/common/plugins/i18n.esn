@@ -1,0 +1,23 @@
+'use strict';
+import * as utils from './../utils';
+export let register = function register(server, options, next) {
+    server.ext('onPreResponse', (request, reply) => {
+        const locale = utils.locale(request);
+        let response = request.response;
+        if (response.canMakeBoomError) {
+            return reply(response.i18nError(locale));
+        }
+        if (response.source) {
+            if (response.source.i18n) {
+                response.source.i18n(locale);
+            } else if (utils.hasItems(response.source.data) && response.source.data[0].i18n) {
+                response.source.data.forEach((d) => d.i18n(locale));
+            }
+        }
+        return reply.continue();
+    });
+    return next();
+};
+register.attributes = {
+    name: 'i18n'
+};

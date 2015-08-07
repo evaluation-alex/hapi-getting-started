@@ -1,0 +1,19 @@
+'use strict';
+import _ from 'lodash';
+import * as errors from './../errors';
+import * as utils from './../utils';
+export default function(Model, groups) {
+    return {
+        assign: 'isMemberOf' + _.capitalize(Model.collection) + '(' + groups.join(',') + ')',
+        method(request, reply) {
+            let obj = request.pre[Model.collection];
+            let user = utils.by(request);
+            if (user === 'root' || !!_.find(groups, (role) => obj['isPresentIn' + role.split('.').map(_.capitalize).join('')](user))) {
+                reply(true);
+            } else {
+                reply(new errors.NotAMemberOfValidGroupError({owners: JSON.stringify(groups)}));
+            }
+            return {message: 'not permitted'};
+        }
+    };
+}

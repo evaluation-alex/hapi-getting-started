@@ -1,0 +1,12 @@
+'use strict';
+import schemas from './schemas';
+import Users from './../model';
+import ControllerFactory from './../../common/controller-factory';
+import onlyOwnerAllowed from './../../common/prereqs/only-owner';
+let Controller = new ControllerFactory(Users)
+    .updateController(schemas.update, [
+        onlyOwnerAllowed(Users, 'email')
+    ], 'update',
+    'updatePreferences')
+    .doneConfiguring();
+export default Controller;

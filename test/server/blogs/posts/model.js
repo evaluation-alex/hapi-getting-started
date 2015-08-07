@@ -1,16 +1,15 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../../server/';
-let Posts = require(relativeToServer + 'blogs/posts/model');
-let Blogs = require(relativeToServer + 'blogs/model');
-let UserGroups = require(relativeToServer + 'user-groups/model');
-let Audit = require(relativeToServer + 'audit/model');
+let Posts = require('./../../../../server/blogs/posts/model');
+let Blogs = require('./../../../../server/blogs/model');
+let UserGroups = require('./../../../../server/user-groups/model');
+let Audit = require('./../../../../server/audit/model');
 let _ = require('lodash');
 let tu = require('./../../testutils');
 let Bluebird = require('bluebird');
 let expect = require('chai').expect;
-describe('Posts Model', () => {
+describe('Posts DAO', () => {
     let postsToClear = [];
     let blogsToClear = [];
     let userGroupsToClear = [];

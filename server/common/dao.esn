@@ -1,0 +1,202 @@
+'use strict';
+import Mongodb from 'mongodb';
+import * as utils from './utils';
+import * as errors from './errors';
+import Bluebird from 'bluebird';
+import _ from 'lodash';
+let connections = {};
+export function connect(name, config) {
+    return new Bluebird((resolve, reject) => {
+        if (connections[name]) {
+            resolve(connections[name]);
+        } else {
+            Mongodb.MongoClient.connect(config.url,
+                config.options,
+                utils.defaultcb('connect',
+                    (db) => {
+                        connections[name] = db;
+                        resolve(db);
+                    },
+                    reject));
+        }
+    });
+}
+export function db(name) {
+    return connections[name];
+}
+export function disconnect(name) {
+    db(name).close(false, (err) => {
+        connections[name] = undefined;
+        utils.errback(err);
+    });
+}
+export function makeDao(toDecorate, connection, collection, indexes, schema, areValidProperty = undefined, idForAudit = '_id') {
+    return _.extend(toDecorate, {
+        ObjectID: Mongodb.ObjectID,
+        ObjectId: Mongodb.ObjectID,
+        schema,
+        collection,
+        indexes,
+        connection,
+        ensureIndexes() {
+            return Bluebird.all(indexes.map((index) => {
+                return new Bluebird((resolve, reject) => {
+                    db(connection).ensureIndex(collection,
+                        index[0],
+                        index[1] || {},
+                        utils.defaultcb(collection + '.ensureIndex', resolve, reject)
+                    );
+                });
+            }));
+        },
+        count(query) {
+            return new Bluebird((resolve, reject) => {
+                db(connection).collection(collection).count(query,
+                    utils.defaultcb(collection + '.count',
+                        resolve,
+                        reject,
+                        query));
+            });
+        },
+        find(query, fields, sort, limit, skip) {
+            return new Bluebird((resolve, reject) => {
+                db(connection).collection(collection).find(query,
+                    {fields: fields, sort: sort, limit: limit, skip: skip}
+                ).toArray(utils.defaultcb(collection + '.find',
+                        (docs) => {
+                            if (utils.hasItems(docs)) {
+                                /*jshint -W055*/
+                                resolve(docs.map((doc) => new toDecorate(doc)));
+                                /*jshint +W055*/
+                            } else {
+                                resolve([]);
+                            }
+                        },
+                        reject,
+                        query)
+                );
+            });
+        },
+        findOne(query) {
+            return new Bluebird((resolve, reject) => {
+                /*jshint -W055*/
+                db(connection).collection(collection).findOne(query,
+                    {},
+                    utils.defaultcb(collection + '.findOne',
+                        (doc) => resolve(doc ? new toDecorate(doc) : undefined),
+                        reject,
+                        query)
+                );
+                /*jshint +W055*/
+            });
+        },
+        pagedFind(query, fields, sort, limit, page) {
+            return Bluebird.join(
+                toDecorate.find(query, fields, sort, limit, (page - 1) * limit),
+                toDecorate.count(query),
+                (results, count) => {
+                    return {
+                        data: results,
+                        pages: {
+                            current: page,
+                            prev: page - 1,
+                            hasPrev: ((page - 1) !== 0),
+                            next: page + 1,
+                            hasNext: ((page + 1) <= Math.ceil(count / limit)),
+                            total: Math.ceil(count / limit)
+                        },
+                        items: {
+                            limit: limit,
+                            begin: Math.min(count, ((page * limit) - limit) + 1),
+                            end: Math.min(count, page * limit),
+                            total: count
+                        }
+                    };
+                });
+        },
+        upsert(obj) {
+            return new Bluebird((resolve, reject) => {
+                obj._id = obj._id || toDecorate.ObjectID();
+                /*jshint -W055*/
+                db(connection).collection(collection).findOneAndReplace({_id: obj._id},
+                    obj,
+                    {upsert: true, returnOriginal: false},
+                    utils.defaultcb(collection + '.upsert',
+                        (doc) => resolve(new toDecorate(doc.value)),
+                        reject)
+                );
+                /*jshint +W055*/
+            });
+        },
+        remove(query) {
+            return new Bluebird((resolve, reject) => {
+                db(connection).collection(collection).deleteMany(query,
+                    utils.defaultcb(collection + '.remove',
+                        (doc) => resolve(doc.deletedCount),
+                        reject,
+                        query)
+                );
+            });
+        },
+        saveChangeHistory(audit) {
+            return new Bluebird((resolve, reject) => {
+                if (audit) {
+                    db(connection).collection('audit').insert(audit, utils.defaultcb('audit.insert', resolve, reject));
+                } else {
+                    resolve(true);
+                }
+            });
+        },
+        insertAndAudit(doc, by) {
+            let now = new Date();
+            _.merge(doc, {
+                isActive: true,
+                createdBy: by,
+                createdOn: now,
+                updatedBy: by,
+                updatedOn: now
+            });
+            return toDecorate.upsert(doc)
+                .then((obj) => {
+                    /*istanbul ignore if: too lazy to write this test case*/
+                    if (!obj) {
+                        return Bluebird.reject(new errors.ObjectNotCreatedError({collection}));
+                    } else {
+                        return toDecorate.saveChangeHistory({
+                            objectChangedType: collection,
+                            objectChangedId: obj[idForAudit],
+                            organisation: obj.organisation,
+                            by: by,
+                            on: now,
+                            change: [{
+                                action: 'create',
+                                newValues: doc
+                            }]
+                        })
+                            .then(() => obj);
+                    }
+                });
+        },
+        areValid(toCheck, organisation) {
+            if (!utils.hasItems(toCheck) || !areValidProperty) {
+                return Bluebird.resolve({});
+            } else {
+                let conditions = {
+                    isActive: true,
+                    organisation: organisation
+                };
+                if (areValidProperty === '_id') {
+                    toCheck = toCheck.map((id) => toDecorate.ObjectID(id));
+                }
+                conditions[areValidProperty] = {$in: toCheck};
+                return toDecorate.find(conditions)
+                    .then((docs) => {
+                        let results = {};
+                        docs.forEach((doc) => results[doc[areValidProperty]] = true);
+                        toCheck.forEach((e) => results[e] = !!results[e]);
+                        return results;
+                    });
+            }
+        }
+    });
+}

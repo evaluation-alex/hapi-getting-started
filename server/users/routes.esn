@@ -1,0 +1,18 @@
+'use strict';
+import RouteFactory from './../common/route-factory';
+import Controller from './controller';
+let routes = (new RouteFactory()).discoverDefaultRoutes('users', Controller)
+    .newRoute()
+    .forMethod('POST')
+    .onPath('/signup')
+    .withController(Controller.signup)
+    .newRoute()
+    .forMethod('POST')
+    .onPath('/login/forgot')
+    .withController(Controller.loginForgot)
+    .newRoute()
+    .forMethod('POST')
+    .onPath('/login/reset')
+    .withController(Controller.loginReset)
+    .doneConfiguring();
+export default routes;

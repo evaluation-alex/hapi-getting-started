@@ -1,0 +1,31 @@
+'use strict';
+import _ from 'lodash';
+import Fs from 'fs';
+import Handlebars from 'handlebars';
+import Nodemailer from 'nodemailer';
+let markdown = require('nodemailer-markdown').markdown;
+import Config from './../../config';
+import Bluebird from 'bluebird';
+let transport = Bluebird.promisifyAll(Nodemailer.createTransport(_.clone(Config.nodemailer)));
+transport.use('compile', markdown({useEmbeddedImages: true}));
+let readFile = Bluebird.promisify(Fs.readFile);
+let templateCache = {};
+let renderTemplate = Bluebird.method((template, context) => {
+    context.projectName = Config.projectName;
+    if (templateCache[template]) {
+        return templateCache[template](context);
+    } else {
+        return readFile(template, {encoding: 'utf-8'})
+            .then((source) => {
+                templateCache[template] = Handlebars.compile(source);
+                return templateCache[template](context);
+            });
+    }
+});
+export function sendEmail (options, template, context) {
+    return renderTemplate(template, context)
+        .then((content) => {
+            options = _.merge(options, {from: Config.system.fromAddress, markdown: content});
+            return transport.sendMailAsync(options);
+        });
+}

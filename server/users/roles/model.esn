@@ -1,0 +1,24 @@
+'use strict';
+import * as DAO from './../../common/dao';
+import schemas from './schemas';
+import _ from 'lodash';
+class Roles {
+    constructor(attrs) {
+        _.assign(this, attrs);
+    }
+    hasPermissionsTo(performAction, onObject) {
+        return !!_.find(this.permissions,
+            (p) => ((p.object === onObject || p.object === '*') && (p.action === performAction || p.action === 'update'))
+        );
+    }
+    static create(name, organisation, permissions) {
+        let document = {
+            name,
+            organisation,
+            permissions
+        };
+        return Roles.upsert(document);
+    };
+}
+DAO.makeDao(Roles, 'app', 'roles', schemas.indexes, schemas.model);
+export default Roles;

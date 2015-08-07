@@ -1,0 +1,21 @@
+'use strict';
+import Joi from 'joi';
+export default {
+    model: {
+        _id: Joi.object(),
+        email: Joi.string().required(),
+        organisation: Joi.string().default('*'),
+        ip: Joi.string().required(),
+        time: Joi.date().required()
+    },
+    indexes: [
+        [{ip: 1, email: 1}],
+        [{email: 1}]
+    ],
+    find: {
+        query: {
+            ip: Joi.string(),
+            email: Joi.string()
+        }
+    }
+};

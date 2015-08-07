@@ -1,0 +1,33 @@
+'use strict';
+import * as DAO from './../../../common/dao';
+import schemas from './schemas';
+import config from './../../../config';
+import Bluebird from 'bluebird';
+import _ from 'lodash';
+let limits = config.authAttempts;
+class AuthAttempts {
+    constructor(attrs) {
+        _.assign(this, attrs);
+    }
+
+    static create(ip, email) {
+        let document = {
+            ip,
+            email,
+            organisation: '*',
+            time: new Date()
+        };
+        return AuthAttempts.upsert(document);
+    }
+
+    static abuseDetected(ip, email) {
+        return Bluebird.join(
+            AuthAttempts.count({ip: ip}),
+            AuthAttempts.count({ip: ip, email: email}),
+            (attemptsFromIp, attemptsFromIpUser) => {
+                return attemptsFromIp >= limits.forIp || attemptsFromIpUser >= limits.forIpAndUser
+            });
+    }
+}
+DAO.makeDao(AuthAttempts, 'app', 'auth-attempts', schemas.indexes, schemas.model);
+export default AuthAttempts;

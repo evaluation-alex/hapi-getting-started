@@ -3,8 +3,6 @@ import buildModel from './../../common/model-builder';
 import * as DAO from './../../common/dao';
 import Blogs from './../model';
 import UserGroups from './../../user-groups/model';
-import Recipes from './recipes/model';
-import Meals from './meals/model';
 import schemas from './schemas';
 import _ from 'lodash';
 import * as errors from './../../common/errors';
@@ -134,8 +132,6 @@ class Posts {
 }
 DAO.makeDao(Posts, 'app', 'posts', schemas.indexes, schemas.model, '_id');
 buildModel(Posts)
-    .extendVirtualModel(Recipes)
-    .extendVirtualModel(Meals)
     .decorateWithUpdates([
         'isActive',
         'state',

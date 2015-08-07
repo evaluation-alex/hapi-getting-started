@@ -6,5 +6,6 @@ server/.opts
 npm-debug.log
 .secure/*
 statsd
-server/manifest.json
-data
+public/*
+server/**/*.js
+server/**/*.js.map

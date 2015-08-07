@@ -15,7 +15,7 @@ let AuthAttempts = require('./../../server/users/session/auth-attempts/model');
 let Roles = require('./../../server/users/roles/model');
 let Notifications = require('./../../server/users/notifications/model');
 module.exports.authorizationHeader = function authorizationHeader(user) {
-    return 'Basic ' + (new Buffer(user.email + ':' + user.session[0].key)).toString('base64')
+    return 'Basic ' + (new Buffer(user.email + ':' + user.session[0].key)).toString('base64');
 };
 module.exports.authorizationHeader2 = function authorizationHeader2(user, password) {
     return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
@@ -72,7 +72,7 @@ module.exports.setupServer = function setupServer() {
                 return {server: server, authheader: foundUser.authheader};
             }
         });
-}
+};
 let cleanupUsers = Bluebird.method((usersToCleanup) =>
         utils.hasItems(usersToCleanup) ? Users.remove({email: {$in: usersToCleanup}}) : true
 );
@@ -96,10 +96,10 @@ let cleanupNotifications = Bluebird.method((toClear) => {
     }) : true;
 });
 module.exports.cleanupAudit = function cleanupAudit() {
-    return Audit.remove({})
+    return Audit.remove({});
 };
 module.exports.cleanupAuthAttempts = function cleanupAuthAttempts() {
-    return AuthAttempts.remove({})
+    return AuthAttempts.remove({});
 };
 module.exports.cleanupRoles = Bluebird.method((roles) =>
         utils.hasItems(roles) ? Roles.remove({name: {$in: roles}}) : true

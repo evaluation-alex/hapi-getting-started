@@ -125,7 +125,7 @@
             "no-empty": 2,
             "spaced-line-comment": 0,
             "no-underscore-dangle": 0,
-            "no-var": 2,
+            "no-var": 1,
             "quotes": [
                 2,
                 "single"
@@ -272,7 +272,8 @@
                 "self"
             ]
         },
-        "requireDotNotation": true,
+        "requireDotNotation": { "allExcept": [ "keywords" ] },
+        "requireSpacesInsideObjectBrackets": "all",
         "validateParameterSeparator": ", ",
         "disallowNewlineBeforeBlockStatements": true,
         "requirePaddingNewlinesBeforeKeywords": [],

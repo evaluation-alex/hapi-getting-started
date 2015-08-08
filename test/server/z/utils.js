@@ -1,5 +1,6 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
+/*eslint-disable no-var*/
 /*jshint -W079*/
 let tu = require('./../testutils');
 let Model = require('./../../../server/common/dao');
@@ -19,4 +20,4 @@ describe('DAO', () => {
             });
     });
 });
-
+/*eslint-enable no-var*/

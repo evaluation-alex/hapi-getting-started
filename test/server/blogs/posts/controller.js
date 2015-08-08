@@ -1,5 +1,6 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
+/*eslint-disable no-var*/
 /*jshint -W079*/
 let UserGroups = require('./../../../../server/user-groups/model');
 let Notifications = require('./../../../../server/users/notifications/model');
@@ -1499,3 +1500,4 @@ describe('Posts', () => {
         return tu.cleanup({blogs: blogsToClear, posts: postsToClear, userGroups: groupsToClear}, done);
     });
 });
+/*eslint-enable no-var*/

@@ -11,7 +11,7 @@
         "./server/common/plugins/connections": {
             "mongo": {
                 "app": {
-                    "url": "mongodb://frameRoot:frameRoot@127.0.0.1:27017/frame"
+                    "url": "mongodb://localhost:27017/hapistart"
                 }
             }
         },
@@ -54,17 +54,25 @@
             ]
         }
     },
-    "connections": [{
-        "port": 80,
-        "labels": ["http"]
-    }, {
-        "port": 443,
-        "labels": ["secure", "api"],
-        "tls": {
-            "key": "./.secure/key.pem",
-            "cert": "./.secure/cert.pem"
+    "connections": [
+        {
+            "port": 8000,
+            "labels": [
+                "http"
+            ]
+        },
+        {
+            "port": 443,
+            "labels": [
+                "secure",
+                "api"
+            ],
+            "tls": {
+                "key": "./secure/key.pem",
+                "cert": "./secure/cert.pem"
+            }
         }
-    }],
+    ],
     "server": {
         "connections": {
             "routes": {

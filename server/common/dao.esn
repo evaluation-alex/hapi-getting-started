@@ -65,9 +65,7 @@ export function makeDao(toDecorate, connection, collection, indexes, schema, are
                 ).toArray(utils.defaultcb(collection + '.find',
                         (docs) => {
                             if (utils.hasItems(docs)) {
-                                /*jshint -W055*/
                                 resolve(docs.map((doc) => new toDecorate(doc)));
-                                /*jshint +W055*/
                             } else {
                                 resolve([]);
                             }
@@ -79,7 +77,6 @@ export function makeDao(toDecorate, connection, collection, indexes, schema, are
         },
         findOne(query) {
             return new Bluebird((resolve, reject) => {
-                /*jshint -W055*/
                 db(connection).collection(collection).findOne(query,
                     {},
                     utils.defaultcb(collection + '.findOne',
@@ -87,7 +84,6 @@ export function makeDao(toDecorate, connection, collection, indexes, schema, are
                         reject,
                         query)
                 );
-                /*jshint +W055*/
             });
         },
         pagedFind(query, fields, sort, limit, page) {
@@ -117,7 +113,6 @@ export function makeDao(toDecorate, connection, collection, indexes, schema, are
         upsert(obj) {
             return new Bluebird((resolve, reject) => {
                 obj._id = obj._id || toDecorate.ObjectID();
-                /*jshint -W055*/
                 db(connection).collection(collection).findOneAndReplace({_id: obj._id},
                     obj,
                     {upsert: true, returnOriginal: false},
@@ -125,7 +120,6 @@ export function makeDao(toDecorate, connection, collection, indexes, schema, are
                         (doc) => resolve(new toDecorate(doc.value)),
                         reject)
                 );
-                /*jshint +W055*/
             });
         },
         remove(query) {

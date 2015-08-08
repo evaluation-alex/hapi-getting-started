@@ -15,7 +15,7 @@
         "server:climate": "cat ./test/artifacts/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
         "server:coverage": "npm run server:coveralls && npm run server:climate",
         "server:lint": "npm run server:jshint && npm run server:eslint && npm run server:jscs",
-        "test": "npm run server:build:clean && npm run server:lint && npm run server:test && npm run server:coverage"
+        "test": "npm run server:lint && npm run server:test && npm run server:coverage"
     },
     "dependencies": {
         "bcrypt": "0.8.x",

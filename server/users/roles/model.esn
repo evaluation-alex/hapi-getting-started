@@ -18,7 +18,7 @@ class Roles {
             permissions
         };
         return Roles.upsert(document);
-    };
+    }
 }
 DAO.makeDao(Roles, 'app', 'roles', schemas.indexes, schemas.model);
 export default Roles;

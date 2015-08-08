@@ -7,7 +7,7 @@
         "server:setup": "node --harmony ./server/setup.js",
         "server:start": "node --harmony ./server/index.js",
         "server:test": "node --harmony ./node_modules/istanbul-harmony/lib/cli.js cover --config ./test/istanbul.yml ./node_modules/mocha/bin/_mocha -- ./test/server",
-        "server:test:nocov": "npm run server:build:clean && node --harmony ./node_modules/mocha/bin/mocha ./test/server",
+        "server:test:nocov": "node --harmony ./node_modules/mocha/bin/mocha ./test/server",
         "server:jshint": "node --harmony ./node_modules/jshint/bin/jshint --exclude-path ./.gitignore --verbose --reporter unix .",
         "server:eslint": "node --harmony ./node_modules/eslint/bin/eslint --ignore-path ./.gitignore ./server ./test",
         "server:jscs": "node --harmony ./node_modules/jscs/bin/jscs --esnext --reporter console ./server ./test",
@@ -48,15 +48,16 @@
         "babel-eslint": "4.x.x",
         "babel-jscs": "2.x.x",
         "chai": "3.2.x",
-        "del": "1.2.x",
         "codeclimate-test-reporter": "0.1.x",
         "coveralls": "2.11.x",
+        "del": "1.2.x",
         "eslint": "1.0.0-rc-1",
         "gulp": "3.9.x",
         "gulp-babel": "5.x.x",
         "gulp-concat": "2.x.x",
         "gulp-eslint": "1.x.x",
         "gulp-jscs": "2.x.x",
+        "gulp-jshint": "1.11.x",
         "gulp-replace": "0.x.x",
         "gulp-sourcemaps": "1.x.x",
         "inject-then": "2.0.x",
@@ -263,10 +264,15 @@
         ],
         "requireCapitalizedConstructors": {
             "allExcept": [
-                "self", "toDecorate"
+                "self",
+                "toDecorate"
             ]
         },
-        "requireDotNotation": { "allExcept": [ "keywords" ] },
+        "requireDotNotation": {
+            "allExcept": [
+                "keywords"
+            ]
+        },
         "validateParameterSeparator": ", ",
         "disallowNewlineBeforeBlockStatements": true,
         "requirePaddingNewlinesBeforeKeywords": [],

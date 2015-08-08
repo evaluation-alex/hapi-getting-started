@@ -1,5 +1,4 @@
 'use strict';
-import schemas from './schemas';
 import { buildVirtualModel } from './../../common/model-builder';
 class Profile {
     resetProfile() {

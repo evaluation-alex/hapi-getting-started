@@ -25,7 +25,7 @@ class AuthAttempts {
             AuthAttempts.count({ip: ip}),
             AuthAttempts.count({ip: ip, email: email}),
             (attemptsFromIp, attemptsFromIpUser) => {
-                return attemptsFromIp >= limits.forIp || attemptsFromIpUser >= limits.forIpAndUser
+                return attemptsFromIp >= limits.forIp || attemptsFromIpUser >= limits.forIpAndUser;
             });
     }
 }

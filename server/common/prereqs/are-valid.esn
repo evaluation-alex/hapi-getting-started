@@ -4,7 +4,6 @@ import Bluebird from 'bluebird';
 import * as utils from './../utils';
 import Users from './../../users/model';
 import UserGroups from './../../user-groups/model';
-import Posts from './../../blogs/posts/model';
 import * as errors from './../errors';
 function areValid(Model, pldPropToLookup) {
     return function(request, reply) {

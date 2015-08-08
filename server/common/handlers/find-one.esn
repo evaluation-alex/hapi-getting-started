@@ -7,7 +7,7 @@ export default function(Model, findOneCb) {
         findOneHook(request.pre[Model.collection], utils.user(request))
             .then(reply)
             .catch((err) => {
-                utils.logAndBoom(err, reply)
+                utils.logAndBoom(err, reply);
             });
     };
-};
+}

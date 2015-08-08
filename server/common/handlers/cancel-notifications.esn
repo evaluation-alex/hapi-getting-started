@@ -21,4 +21,4 @@ export default function (model, cancelAction, cancelNotificationsCb) {
         ).catch(utils.errback)
             .done();
     };
-};
+}

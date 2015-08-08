@@ -41,7 +41,7 @@ function fromStdIn(results, property, message, opts) {
             });
         }
     });
-};
+}
 fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistart'})
     .then((results) => fromStdIn(results,
         'mongodbUrl',

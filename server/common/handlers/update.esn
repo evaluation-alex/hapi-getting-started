@@ -15,6 +15,8 @@ export default function(Model, notify, updateCb) {
                 }
                 reply(u);
             })
-            .catch((err) => utils.logAndBoom(err, reply));
+            .catch((err) => {
+                utils.logAndBoom(err, reply);
+            });
     };
-};
+}

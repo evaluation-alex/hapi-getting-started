@@ -1,8 +1,6 @@
 'use strict';
-import schemas from './schemas';
 import _ from 'lodash';
 import Uuid from 'node-uuid';
-import Bluebird from 'bluebird';
 import moment from 'moment';
 import * as utils from './../../common/utils';
 class Session {

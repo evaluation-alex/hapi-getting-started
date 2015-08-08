@@ -1,7 +1,6 @@
 'use strict';
 import _ from 'lodash';
 import * as utils from './utils';
-import Bluebird from 'bluebird';
 import config from './../config';
 let i18n = config.i18n;
 function propDescriptors(properties) {
@@ -124,8 +123,9 @@ class ModelBuilder {
     decorateWithArrMethods(lists) {
         lists.forEach((role) => {
             let {path, name, methodSuffix, addMethod, removeMethod} = role;
+            let isPresentIn = 'isPresentIn' + methodSuffix;
             _.extend(this.model.prototype, {
-                ['isPresentIn' + methodSuffix](toCheck) {
+                [isPresentIn](toCheck) {
                     return !!_.find(_.get(this, path), _.matches(toCheck));
                 },
                 [addMethod](toAdd, by) {

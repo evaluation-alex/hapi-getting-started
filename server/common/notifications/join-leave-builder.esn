@@ -16,4 +16,4 @@ export default function(approvers, idForNotificationTitle, action, title, notify
         ret.description[action] = u;
         return ret;
     };
-};
+}

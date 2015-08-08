@@ -13,17 +13,16 @@ export default function(Model, queryBuilder, findCb) {
                     query.isActive = request.query.isActive === '"true"';
                 }
                 return query;
-            }
-        )
+            })
             .then((query) =>
                 Model.pagedFind(query, request.query.fields, request.query.sort, request.query.limit, request.query.page)
-        )
+            )
             .then((output) =>
                 findHook(output, utils.user(request))
-        )
+            )
             .then(reply)
-            .catch((err) =>
-                utils.logAndBoom(err, reply)
-        );
+            .catch((err) => {
+                utils.logAndBoom(err, reply);
+            });
     };
-};
+}

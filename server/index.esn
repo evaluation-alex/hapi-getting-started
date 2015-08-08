@@ -2,7 +2,6 @@
 import Path from 'path';
 import Glue from 'glue';
 import config from './config';
-import Bluebird from 'bluebird';
 Glue.compose(config.manifest, {relativeTo: Path.join(__dirname, '/../')}, (err, server) => {
     if (err) {
         throw err;

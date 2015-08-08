@@ -13,4 +13,4 @@ export default function (Model, notify, newCb) {
             })
             .catch((err) => utils.logAndBoom(err, reply));
     };
-};
+}

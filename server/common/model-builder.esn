@@ -126,12 +126,12 @@ class ModelBuilder {
             let isPresentIn = 'isPresentIn' + methodSuffix;
             _.extend(this.model.prototype, {
                 [isPresentIn](toCheck) {
-                    return !!_.find(_.get(this, path), _.matches(toCheck));
+                    return !!_.find(_.get(this, path), (item) => _.isEqual(item, toCheck));
                 },
                 [addMethod](toAdd, by) {
                     let list = _.get(this, path);
                     toAdd.forEach((memberToAdd) => {
-                        let found = _.find(list, _.matches(memberToAdd));
+                        let found = _.find(list, (item) => _.isEqual(item, memberToAdd));
                         if (!found) {
                             list.push(memberToAdd);
                             this.trackChanges('add ' + name, null, memberToAdd, by);
@@ -142,7 +142,7 @@ class ModelBuilder {
                 [removeMethod](toRemove, by) {
                     let list = _.get(this, path);
                     toRemove.forEach((memberToRemove) => {
-                        let removed = _.remove(list, _.matches(memberToRemove));
+                        let removed = _.remove(list, (item) => _.isEqual(item, memberToRemove));
                         if (utils.hasItems(removed)) {
                             this.trackChanges('remove ' + name, memberToRemove, null, by);
                         }

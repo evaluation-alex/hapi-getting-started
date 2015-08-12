@@ -1,56 +1,92 @@
 'use strict';
 let gulp = require('gulp');
-let sourcemaps = require('gulp-sourcemaps');
-let babel = require('gulp-babel');
-let del = require('del');
-let eslint = require('gulp-eslint');
-let jscs = require('gulp-jscs');
-let jshint = require('gulp-jshint');
-let replace = require('gulp-replace');
-let config = require('./package.json');
-
-gulp.task('build', ['eslint', 'jscs', 'jshint'], () => {
+let $ = require('gulp-load-plugins')({pattern: ['gulp-*', 'del', 'gutil']});
+let path = require('path');
+let _ = require('lodash');
+let pkg = require('./package.json');
+gulp.task('server:eslint', () => {
     return gulp.src('server/**/*.esn')
-        .pipe(sourcemaps.init())
-        .pipe(babel())
-        .pipe(replace(/function _interopRequireWildcard(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _interopRequireWildcard$1\n//jscs:enable' ))
-        .pipe(replace(/function _classCallCheck(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _classCallCheck$1\n//jscs:enable' ))
-        .pipe(replace(/function _interopRequireDefault(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _interopRequireDefault$1\n//jscs:enable' ))
-        .pipe(replace(/function _inherits(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _inherits$1\n//jscs:enable' ))
-        .pipe(replace(/(\s+)_classCallCheck\(this/, '/*istanbul ignore next: dont mess up my coverage*/\n$1_classCallCheck(this' ))
-        .pipe(sourcemaps.write('.',  {
+        .pipe($.eslint(pkg.eslintConfig))
+        .pipe($.eslint.format())
+        .pipe($.eslint.failOnError());
+});
+gulp.task('server:jscs', () => {
+    return gulp.src('server/**/*.esn')
+        .pipe($.jscs(pkg.jscsConfig));
+});
+gulp.task('server:jshint', () => {
+    let jshintConfig = pkg.jshintConfig;
+    jshintConfig.lookup = false;
+    return gulp.src('server/**/*.esn')
+        .pipe($.jshint(jshintConfig))
+        .pipe($.jshint.reporter('unix'));
+});
+gulp.task('server:clean', (cb) => {
+    $.del(['server/**/*.js.map', 'server/**/*.js', 'test/server/artifacts/**/*.*'], cb);
+});
+gulp.task('server:build', ['server:eslint', 'server:jscs', 'server:jshint'], () => {
+    return gulp.src('server/**/*.esn')
+        .pipe($.sourcemaps.init())
+        .pipe($.babel())
+        .pipe($.replace(/function _interopRequireWildcard(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _interopRequireWildcard$1\n//jscs:enable'))
+        .pipe($.replace(/function _classCallCheck(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _classCallCheck$1\n//jscs:enable'))
+        .pipe($.replace(/function _interopRequireDefault(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _interopRequireDefault$1\n//jscs:enable'))
+        .pipe($.replace(/function _inherits(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _inherits$1\n//jscs:enable'))
+        .pipe($.replace(/(\s+)_classCallCheck\(this/, '/*istanbul ignore next: dont mess up my coverage*/\n$1_classCallCheck(this'))
+        .pipe($.sourcemaps.write('.', {
             includeContent: false,
             sourceRoot: ''
         })) //http://stackoverflow.com/questions/29440811/debug-compiled-es6-nodejs-app-in-webstorm
         .pipe(gulp.dest('server'));
 });
-
-gulp.task('eslint', () => {
-    return gulp.src('server/**/*.esn')
-        .pipe(eslint(config.eslintConfig))
-        .pipe(eslint.format())
-        .pipe(eslint.failOnError());
+gulp.task('server:watch', () => {
+    gulp.watch('server/**/*.esn', ['server:build']);
 });
-
-gulp.task('jscs', () => {
-    return gulp.src('server/**/*.esn')
-        .pipe(jscs(config.jscsConfig));
+gulp.task('server:test:nocov', ['server:clean', 'server:build'], () => {
+    return gulp.src(['test/server/**/*.js'], {read: false})
+        .pipe($.mocha({
+            reporter: 'spec',
+            ui: 'bdd',
+            timeout: 6000000
+        }))
+        .on('error', $.gutil.log);
 });
-
-gulp.task('jshint', () => {
-    let jshintConfig = config.jshintConfig;
-    jshintConfig.lookup = false;
-    return gulp.src('server/**/*.esn')
-        .pipe(jshint(jshintConfig))
-        .pipe(jshint.reporter('unix'));
+gulp.task('server:test:cov', ['server:clean', 'server:build'], (cb) => {
+    gulp.src(['server/**/*.js'])
+        .pipe($.istanbul())
+        .pipe($.istanbul.hookRequire())
+        .on('finish', function () {
+            gulp.src(['test/server/**/*.js'])
+                .pipe($.mocha({
+                    reporter: 'spec',
+                    ui: 'bdd',
+                    timeout: 6000000
+                }))
+                .pipe($.istanbul.writeReports({
+                    dir: './test/artifacts',
+                    reporters: ['lcov', 'html', 'text', 'text-summary'],
+                    reportOpts: {dir: './test/artifacts'}
+                }))
+                .pipe($.istanbul.enforceThresholds({thresholds: {global: 95}}))
+                .on('error', $.gutil.log)
+                .on('end', cb);
 });
-
-gulp.task('clean', (cb) => {
-    del(['server/**/*.js.map', 'server/**/*.js'], cb);
 });
-
-gulp.task('watch', () => {
-    gulp.watch('server/**/*.esn', ['build']);
+gulp.task('server:test:watch', () => {
+    return gulp.watch(['test/server/**/*.js', 'server/**/*.js'], ['server:test:nocov']);
 });
-
-gulp.task('default', ['clean', 'build', 'watch']);
+gulp.task('server:dev', ['server:clean', 'server:build'], () => {
+    //https://github.com/remy/nodemon/blob/master/doc/arch.md
+    $.nodemon({
+        exec: 'node --harmony ',
+        script: './server/index.js',
+        watch: ['server/**/*.js'],
+        ignore: ['**/node_modules/**/*', 'public/**/*.*', 'dist/**/*.*', 'test/**/*.*', '.git/**/*.*'],
+        tasks: ['server:build'],
+        delay: '5000ms'
+    })
+});
+console.log('running for ' + process.env.NODE_ENV);
+gulp.task('server:default', ['server:watch', 'server:dev']);
+gulp.task('default', ['server:default']);
+gulp.task('test', ['server:test:cov']);

@@ -118,25 +118,6 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                         }
                     }
                 },
-                './server/common/plugins/dbindexes': {
-                    'dependencies': [
-                        'MongoConnections',
-                        'auth',
-                        'AppRoutes'
-                    ],
-                    'modules': [
-                        'users',
-                        'users/roles',
-                        'users/session/auth-attempts',
-                        'users/notifications',
-                        'user-groups',
-                        'blogs',
-                        'blogs/posts',
-                        'meal-plans',
-                        'meal-plans/grocery-list',
-                        'audit'
-                    ]
-                },
                 './server/common/plugins/auth': {},
                 './server/common/plugins/i18n': {},
                 './server/common/plugins/metrics': {},

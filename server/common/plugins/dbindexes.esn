@@ -2,13 +2,16 @@
 import Bluebird from 'bluebird';
 import Path from 'path';
 export let register = function register(server, options, next) {
-    server.dependency(options.dependencies, (srver, nxt) => {
-        Bluebird.all(options.modules.map((module) => require(Path.join(process.cwd(), '/server/', module, '/model')).ensureIndexes()))
-            .then(() => undefined)
-            .then(nxt, nxt)
-            .done();
-    });
-    return next();
+    Bluebird.all(options.modules.map((module) => {
+        return require(Path.join(process.cwd(), '/server/', module, '/model')).ensureIndexes();
+    }))
+        .then(() => undefined)
+        .then(() => {
+            next();
+        }, (err) => {
+            next(err);
+        })
+        .done();
 };
 register.attributes = {
     name: 'MongoIndexes'

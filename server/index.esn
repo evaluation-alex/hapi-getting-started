@@ -6,5 +6,26 @@ Glue.compose(config.manifest, {relativeTo: Path.join(__dirname, '/../')}, (err, 
     if (err) {
         throw err;
     }
+    if (process.env.NODE_ENV !== 'production') {
+        server.register({
+            register: require('./common/plugins/dbindexes'),
+            options: {
+                'modules': [
+                    'users',
+                    'users/roles',
+                    'users/session/auth-attempts',
+                    'users/notifications',
+                    'user-groups',
+                    'blogs',
+                    'blogs/posts',
+                    'audit'
+                ]
+            }
+        }, (err) => {
+            if (err) {
+                throw err;
+            }
+        });
+    }
     server.start(() => console.log('engage ' + JSON.stringify(server.info)));
 });

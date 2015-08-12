@@ -78,14 +78,4 @@ manifest.connections.forEach((connection) => {
     }
 });
 config.manifest.plugins['hapi-bunyan'].logger = config.logger;
-config.manifest.plugins['./server/common/plugins/dbindexes'].modules = [
-    'audit',
-    'users',
-    'users/roles',
-    'users/notifications',
-    'users/session/auth-attempts',
-    'user-groups',
-    'blogs',
-    'blogs/posts'
-];
 export default config;

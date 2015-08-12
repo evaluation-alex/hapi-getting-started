@@ -73,12 +73,14 @@ export default class ControllerFactory {
             isUnique(this.model, uniqueCheck),
             prereqs]);
         this.forMethod('new')
+            .withValidation(validator)
             .preProcessWith(pre)
             .handleUsing(newHandler(this.model, this.controller.new, newCb));
         return this;
     }
     customNewController(method, validator, uniqueCheck, newCb) {
         this.forMethod(method)
+            .withValidation(validator)
             .preProcessWith([isUnique(this.model, uniqueCheck)])
             .handleUsing(newHandler(this.model, this.controller[method], newCb));
         return this;
@@ -106,6 +108,7 @@ export default class ControllerFactory {
         let perms = _.find(prereqs, (prereq) => prereq.assign === 'ensurePermissions');
         let pre = _.flatten([perms ? [] : ensurePermissions('update', this.component), prePopulate(this.model, 'id'), prereqs]);
         this.forMethod(methodName)
+            .withValidation(validator)
             .preProcessWith(pre)
             .handleUsing(updateHandler(this.model, this.controller[methodName], updateCb));
         return this;

@@ -15,8 +15,8 @@ export default {
             expires: Joi.date().required()
         }),
         session: session,
-        preferences: preferences,
-        profile: profile,
+        preferences: Joi.object().keys(preferences),
+        profile: Joi.object().keys(profile),
         isActive: Joi.boolean().default(true),
         createdBy: Joi.string(),
         createdOn: Joi.date(),

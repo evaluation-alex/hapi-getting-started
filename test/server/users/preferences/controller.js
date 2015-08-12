@@ -84,8 +84,8 @@ describe('Preferences', () => {
         it('should modify preferences and audit changes', (done) => {
             Users.findOne({email: 'root'})
                 .then((p) => {
-                    p.preferences.notifications.blogs.blocked.push('something');
-                    p.preferences.notifications.posts.blocked.push('none of them');
+                    p.preferences.notifications.blogs.blocked.push({id: 'something'});
+                    p.preferences.notifications.posts.blocked.push({id: 'none of them'});
                     id = p._id.toString();
                     return p.save();
                 })
@@ -104,19 +104,19 @@ describe('Preferences', () => {
                                         email: {
                                             frequency: 'daily'
                                         },
-                                        addedBlocked: ['something']
+                                        addedBlocked: [{id: 'something'}]
                                     },
                                     userGroups: {
                                         email: {
                                             frequency: 'weekly'
                                         },
-                                        addedBlocked: ['all of them']
+                                        addedBlocked: [{id: 'all of them'}]
                                     },
                                     posts: {
                                         inapp: {
                                             frequency: 'daily'
                                         },
-                                        removedBlocked: ['none of them']
+                                        removedBlocked: [{id: 'none of them'}]
                                     }
                                 }
                             }
@@ -130,8 +130,8 @@ describe('Preferences', () => {
                                 expect(p.preferences.notifications.blogs.email.frequency).to.equal('daily');
                                 expect(p.preferences.notifications.userGroups.email.frequency).to.equal('weekly');
                                 expect(p.preferences.notifications.posts.inapp.frequency).to.equal('daily');
-                                expect(p.preferences.notifications.blogs.blocked[0]).to.equal('something');
-                                expect(p.preferences.notifications.userGroups.blocked[0]).to.equal('all of them');
+                                expect(p.preferences.notifications.blogs.blocked[0]).to.deep.equal({id: 'something'});
+                                expect(p.preferences.notifications.userGroups.blocked[0]).to.deep.equal({id: 'all of them'});
                                 expect(p.preferences.notifications.posts.blocked.length).to.equal(0);
                                 return Audit.findAudit('users', 'root', {'change.action': 'preferences.locale'});
                             })

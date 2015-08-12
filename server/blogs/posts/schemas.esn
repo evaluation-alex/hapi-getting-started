@@ -69,7 +69,8 @@ export default {
             title: Joi.string(),
             content: Joi.string(),
             access: Joi.string().only(['public', 'restricted']),
-            allowComments: Joi.boolean()
+            allowComments: Joi.boolean(),
+            needsReview: Joi.boolean()
         }
     },
     publish: {

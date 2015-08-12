@@ -14,7 +14,7 @@ let test = {
     smtpUsername: 'you',
     smtpPassword: '^YOURSMTPWD$',
     port: 3000,
-    logdir: './../logs',
+    logdir: './logs',
     logMetrics: false,
     statsdhost: '127.0.0.1',
     statsdport: 8125,

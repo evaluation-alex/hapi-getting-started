@@ -175,6 +175,8 @@ describe('Blogs', () => {
                 url: '/blogs/54d4430eed61ad701cc7a721',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
                 }
             };
             server.injectThen(request).then((response) => {
@@ -639,6 +641,8 @@ describe('Blogs', () => {
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/join',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
                 }
             };
             server.injectThen(request).then((response) => {
@@ -665,6 +669,8 @@ describe('Blogs', () => {
                         url: '/blogs/' + id + '/join',
                         headers: {
                             Authorization: authHeader
+                        },
+                        payload: {
                         }
                     };
                     server.injectThen(request).then((response) => {
@@ -721,6 +727,8 @@ describe('Blogs', () => {
                         url: '/blogs/' + id + '/join',
                         headers: {
                             Authorization: authHeader
+                        },
+                        payload: {
                         }
                     };
                     server.injectThen(request).then((response) => {
@@ -771,6 +779,8 @@ describe('Blogs', () => {
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/leave',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
                 }
             };
             server.injectThen(request).then((response) => {
@@ -797,6 +807,8 @@ describe('Blogs', () => {
                         url: '/blogs/' + id + '/leave',
                         headers: {
                             Authorization: authHeader
+                        },
+                        payload: {
                         }
                     };
                     server.injectThen(request).then((response) => {
@@ -824,6 +836,8 @@ describe('Blogs', () => {
                         url: '/blogs/' + id + '/leave',
                         headers: {
                             Authorization: authHeader
+                        },
+                        payload: {
                         }
                     };
                     server.injectThen(request).then((response) => {
@@ -873,6 +887,9 @@ describe('Blogs', () => {
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/approve',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
+                    addedSubscribers: ['unknown']
                 }
             };
             server.injectThen(request).then((response) => {
@@ -1067,6 +1084,9 @@ describe('Blogs', () => {
                 url: '/blogs/54c894fe1d1d4ab4032ed94e/reject',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
+                    addedSubscribers: ['unknown']
                 }
             };
             server.injectThen(request).then((response) => {

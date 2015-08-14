@@ -24,15 +24,13 @@
         "bluebird": "2.9.x",
         "boom": "2.8.x",
         "bunyan": "1.4.x",
-        "cookie": "0.1.x",
         "dev-null": "0.1.x",
-        "glue": "2.1.x",
         "handlebars": "3.0.x",
-        "hapi": "8.8.x",
+        "hapi": "9.x.x",
         "hapi-auth-basic": "3.0.x",
         "hapi-bunyan": "0.6.x",
-        "hapi-require-https": "2.0.x",
         "i18n": "0.5.x",
+        "inert": "3.0.1",
         "joi": "6.6.x",
         "lodash": "3.10.x",
         "moment": "2.10.x",
@@ -53,7 +51,7 @@
         "codeclimate-test-reporter": "0.1.x",
         "coveralls": "2.11.x",
         "del": "1.2.x",
-        "eslint": "1.0.0-rc-1",
+        "eslint": "1.1.0",
         "gulp": "3.9.x",
         "gulp-babel": "5.x.x",
         "gulp-concat": "2.x.x",
@@ -67,7 +65,6 @@
         "gulp-replace": "0.x.x",
         "gulp-sourcemaps": "1.x.x",
         "gutil": "1.x.x",
-        "inject-then": "2.0.x",
         "istanbul-harmony": "0.3.x",
         "jscs": "2.x.x",
         "jshint": "2.x.x",
@@ -136,8 +133,7 @@
             "no-underscore-dangle": 0,
             "no-var": 1,
             "quotes": [
-                2,
-                "single"
+                2, "single"
             ],
             "new-cap": 0
         },
@@ -147,25 +143,10 @@
         "esprima": "babel-jscs",
         "esnext": true,
         "requireCurlyBraces": [
-            "else",
-            "for",
-            "while",
-            "do",
-            "try",
-            "catch",
-            "case",
-            "default"
+            "else", "for", "while", "do", "try", "catch", "case", "default"
         ],
         "requireSpaceAfterKeywords": [
-            "if",
-            "else",
-            "for",
-            "while",
-            "do",
-            "switch",
-            "return",
-            "try",
-            "catch"
+            "if", "else", "for", "while", "do", "switch", "return", "try", "catch"
         ],
         "requireParenthesesAroundIIFE": true,
         "requireSpacesInConditionalExpression": true,
@@ -185,74 +166,25 @@
         "disallowSpacesInCallExpression": true,
         "requireSpaceBeforeObjectValues": true,
         "requireOperatorBeforeLineBreak": [
-            "?",
-            "+",
-            "-",
-            "/",
-            "*",
-            "=",
-            "==",
-            "===",
-            "!=",
-            "!==",
-            ">",
-            ">=",
-            "<",
-            "<=",
-            "||",
-            "&&"
+            "?", "+", "-", "/", "*", "=", "==", "===", "!=", "!==", ">", ">=", "<", "<=", "||", "&&"
         ],
         "disallowSpaceAfterPrefixUnaryOperators": [
-            "++",
-            "--",
-            "+",
-            "-",
-            "~",
-            "!"
+            "++", "--", "+", "-", "~", "!"
         ],
         "disallowSpaceBeforePostfixUnaryOperators": [
-            "++",
-            "--"
+            "++", "--"
         ],
         "requireSpaceBeforeBinaryOperators": [
-            "?",
-            "+",
-            "-",
-            "/",
-            "*",
-            "=",
-            "==",
-            "===",
-            "!=",
-            "!==",
-            ">",
-            ">=",
-            "<",
-            "<="
+            "?", "+", "-", "/", "*", "=", "==", "===", "!=", "!==", ">", ">=", "<", "<="
         ],
         "requireSpaceAfterBinaryOperators": [
-            "?",
-            "+",
-            "/",
-            "*",
-            ":",
-            "=",
-            "==",
-            "===",
-            "!=",
-            "!==",
-            ">",
-            ">=",
-            "<",
-            "<="
+            "?", "+", "/", "*", ":", "=", "==", "===", "!=", "!==", ">", ">=", "<", "<="
         ],
         "disallowSpaceAfterBinaryOperators": [
             "!"
         ],
         "disallowImplicitTypeConversion": [
-            "numeric",
-            "binary",
-            "string"
+            "numeric", "binary", "string"
         ],
         "requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
         "disallowKeywords": [
@@ -267,13 +199,11 @@
         "disallowTrailingWhitespace": true,
         "disallowTrailingComma": true,
         "disallowKeywordsOnNewLine": [
-            "else",
-            "catch"
+            "else", "catch"
         ],
         "requireCapitalizedConstructors": {
             "allExcept": [
-                "self",
-                "toDecorate"
+                "self", "toDecorate"
             ]
         },
         "requireDotNotation": {
@@ -285,12 +215,7 @@
         "disallowNewlineBeforeBlockStatements": true,
         "requirePaddingNewlinesBeforeKeywords": [],
         "excludeFiles": [
-            "node_modules/**",
-            "dist",
-            "coverage",
-            "public",
-            ".idea",
-            "test/artifacts"
+            "node_modules/**", "dist", "coverage", "public", ".idea", "test/artifacts"
         ]
     },
     "jshintConfig": {
@@ -359,13 +284,7 @@
         "passfail": false,
         "white": false,
         "predef": [
-            "describe",
-            "before",
-            "beforeEach",
-            "after",
-            "afterEach",
-            "it",
-            "expect"
+            "describe", "before", "beforeEach", "after", "afterEach", "it", "expect"
         ]
     },
     "babel": {

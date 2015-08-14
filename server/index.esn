@@ -1,31 +1,52 @@
 'use strict';
-import Path from 'path';
-import Glue from 'glue';
+import Hapi from 'hapi';
+import Bluebird from 'bluebird';
+import path from 'path';
 import config from './config';
-Glue.compose(config.manifest, {relativeTo: Path.join(__dirname, '/../')}, (err, server) => {
-    if (err) {
-        throw err;
-    }
-    if (process.env.NODE_ENV !== 'production') {
-        server.register({
-            register: require('./common/plugins/dbindexes'),
-            options: {
-                'modules': [
-                    'users',
-                    'users/roles',
-                    'users/session/auth-attempts',
-                    'users/notifications',
-                    'user-groups',
-                    'blogs',
-                    'blogs/posts',
-                    'audit'
-                ]
-            }
-        }, (err) => {
-            if (err) {
-                throw err;
-            }
-        });
-    }
-    server.start(() => console.log('engage ' + JSON.stringify(server.info)));
+let manifest = config.manifest;
+function start(server) {
+    server.start(() => {
+        console.log('engage' + JSON.stringify(server.info));
+    });
+}
+let server = new Hapi.Server(manifest.server);
+manifest.connections.forEach((connection) => {
+    server.connection(connection);
 });
+Bluebird.all(Object.keys(manifest.plugins).map((plugin) => {
+    let module = plugin[0] === '.' ? path.join(__dirname, '/../', plugin) : plugin;
+    return new Bluebird((resolve, reject) => {
+        server.register({register: require(module), options: manifest.plugins[plugin]}, (err) => {
+            err ? reject(err) : resolve();
+        });
+    });
+}))
+    .then(() => {
+        if (process.env.NODE_ENV !== 'production') {
+            server.register({
+                register: require('./common/plugins/dbindexes'),
+                options: {
+                    'modules': [
+                        'users',
+                        'users/roles',
+                        'users/session/auth-attempts',
+                        'users/notifications',
+                        'user-groups',
+                        'blogs',
+                        'blogs/posts',
+                        'audit'
+                    ]
+                }
+            }, (err) => {
+                if (err) {
+                    throw err;
+                }
+                start(server);
+            });
+        } else {
+            start(server);
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    });

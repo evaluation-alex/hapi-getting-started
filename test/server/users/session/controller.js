@@ -34,7 +34,7 @@ describe('Session', () => {
             let authAttemptsConfig = Config.authAttempts;
             let authSpam = [];
             for (let i = 0; i < authAttemptsConfig.forIpAndUser + 1; i++) {
-                authSpam.push(AuthAttempts.create('test', 'test.users@test.api'));
+                authSpam.push(AuthAttempts.create('127.0.0.1', 'test.users@test.api'));
             }
             Bluebird.all(authSpam)
                 .then(() => {
@@ -160,14 +160,14 @@ describe('Session', () => {
                             Authorization: u.authheader
                         }
                     };
-                    return u.user.logout('test', 'test').save();
+                    return u.user.logout('127.0.0.1', 'test').save();
                 })
                 .then(() => {
                     server.injectThen(request).then((response) => {
                         expect(response.statusCode).to.equal(401);
                         Users.findOne({email: 'one@first.com'})
                             .then((foundUser) => {
-                                foundUser.loginSuccess('test', 'test').save();
+                                foundUser.loginSuccess('127.0.0.1', 'test').save();
                                 done();
                             });
                     }).catch((err) => {
@@ -190,7 +190,7 @@ describe('Session', () => {
                         Users.findOne({email: 'one@first.com'})
                             .then((foundUser) => {
                                 expect(foundUser.session.length).to.equal(0);
-                                foundUser.loginSuccess('test', 'test').save();
+                                foundUser.loginSuccess('127.0.0.1', 'test').save();
                                 done();
                             });
                     }).catch((err) => {

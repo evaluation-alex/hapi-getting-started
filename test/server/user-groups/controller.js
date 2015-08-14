@@ -207,6 +207,8 @@ describe('UserGroups', () => {
                 url: '/user-groups/54c894fe1d1d4ab4032ed94e',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
                 }
             };
             server.injectThen(request).then((response) => {
@@ -802,6 +804,8 @@ describe('UserGroups', () => {
                 url: '/user-groups/54c894fe1d1d4ab4032ed94e/approve',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
                 }
             };
             server.injectThen(request).then((response) => {
@@ -997,6 +1001,8 @@ describe('UserGroups', () => {
                 url: '/user-groups/54c894fe1d1d4ab4032ed94e/reject',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
                 }
             };
             server.injectThen(request).then((response) => {

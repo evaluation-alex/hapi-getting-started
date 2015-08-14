@@ -195,6 +195,8 @@ describe('Notifications', () => {
                 url: '/notifications/54c894fe1d1d4ab4032ed94e',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
                 }
             };
             server.injectThen(request).then((response) => {

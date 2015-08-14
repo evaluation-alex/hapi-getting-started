@@ -1,7 +1,6 @@
 'use strict';
 let logger = require('./../../config').logger;
 import * as errors from './../errors';
-import cookie from 'cookie';
 import Users from './../../users/model';
 import Roles from './../../users/roles/model';
 export let register = function register(server, options, next) {
@@ -31,16 +30,6 @@ export let register = function register(server, options, next) {
                     });
             }
         });
-    });
-    server.ext('onPreAuth', (request, reply) => {
-        if (!request.headers.authorization && request.headers.cookie) {
-            let ckie = cookie.parse(request.headers.cookie);
-            if (ckie.site) {
-                let o = JSON.parse(ckie.site);
-                request.headers.authorization = o.authorization;
-            }
-        }
-        return reply.continue();
     });
     return next();
 };

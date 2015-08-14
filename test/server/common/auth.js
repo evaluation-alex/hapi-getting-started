@@ -1,7 +1,6 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let Cookie = require('cookie');
 let Users = require('./../../../server/users/model');
 let Bluebird = require('bluebird');
 let moment = require('moment');
@@ -126,7 +125,7 @@ describe('Auth', () => {
         });
         Users.findOne({email: email})
             .then((user) => {
-                return user.logout('test', 'test').save();
+                return user.logout('127.0.0.1', 'test').save();
             })
             .then(() => {
                 let request = {
@@ -158,7 +157,7 @@ describe('Auth', () => {
         });
         Users.findOne({email: email})
             .then((user) => {
-                user.loginSuccess('test', 'test');
+                user.loginSuccess('127.0.0.1', 'test');
                 user.session[0].expires = moment().subtract(15, 'days').toDate();
                 return user.save();
             })
@@ -208,77 +207,6 @@ describe('Auth', () => {
             Users.findBySessionCredentials = prev;
             done(err);
         });
-    });
-    it('handles cookie-auth mixed scheme', (done) => {
-        tu.findAndLogin(email)
-            .then((u) => {
-                let cookie = Cookie.serialize('site', JSON.stringify({
-                    _id: u.user._id,
-                    authorization: u.authheader,
-                    email: u.user.email
-                }));
-                let request = {
-                    method: 'GET',
-                    url: '/7test',
-                    headers: {
-                        cookie: cookie
-                    }
-                };
-                server.route({
-                    method: 'GET',
-                    path: '/7test',
-                    config: {
-                        auth: {
-                            strategy: 'simple'
-                        }
-                    },
-                    handler: (rquest, reply) => {
-                        expect(rquest.auth.credentials).to.exist;
-                        reply('ok');
-                    }
-                });
-                server.injectThen(request).then(() => {
-                    done();
-                }).catch((err) => {
-                    done(err);
-                });
-            });
-    });
-    it('handles cookie-auth mixed scheme for all cases', (done) => {
-        tu.findAndLogin(email)
-            .then((u) => {
-                let cookie = Cookie.serialize('site2', JSON.stringify({
-                    _id: u.user._id,
-                    authorization: u.authheader,
-                    email: u.user.email
-                }));
-                let request = {
-                    method: 'GET',
-                    url: '/7test2',
-                    headers: {
-                        cookie: cookie
-                    }
-                };
-                server.route({
-                    method: 'GET',
-                    path: '/7test2',
-                    config: {
-                        auth: {
-                            strategy: 'simple'
-                        }
-                    },
-                    handler: (rquest, reply) => {
-                        expect(rquest.auth.credentials).to.not.exist;
-                        reply('ok');
-                    }
-                });
-                server.injectThen(request).then((r) => {
-                    expect(r.statusCode).to.equal(401);
-                    done();
-                }).catch((err) => {
-                    done(err);
-                });
-            });
     });
     after((done) => {
         return tu.cleanup({users: [email]}, done);

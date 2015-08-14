@@ -109,7 +109,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                     'includeTags': true,
                     'joinTags': ','
                 },
-                'hapi-require-https': {},
+                'inert': {},
                 'hapi-auth-basic': {},
                 './server/common/plugins/connections': {
                     'mongo': {

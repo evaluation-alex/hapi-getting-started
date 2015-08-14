@@ -2,8 +2,8 @@
 /*eslint-disable no-unused-expressions*/
 /*eslint-disable no-var*/
 /*jshint -W079*/
-let tu = require('./../../../../../testutils');
-let Model = require('./../../../../../../../server/common/dao');
+let tu = require('./../../../../testutils');
+let Model = require('./../../../../../../server/common/dao');
 let expect = require('chai').expect;
 describe('DAO', () => {
     it('should disconnect when the server stops', (done) => {

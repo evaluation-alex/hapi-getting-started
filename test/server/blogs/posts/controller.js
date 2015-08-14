@@ -367,6 +367,8 @@ describe('Posts', () => {
                 url: '/blogs/54d4430eed61ad701cc7a721/posts/54d4430eed61ad701cc7a721',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
                 }
             };
             server.injectThen(request).then((response) => {
@@ -382,6 +384,8 @@ describe('Posts', () => {
                 url: '/posts/54d4430eed61ad701cc7a721',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
                 }
             };
             server.injectThen(request).then((response) => {

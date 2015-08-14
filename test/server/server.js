@@ -1,19 +1,40 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 let Bluebird = require('bluebird');
+let Hapi = require('hapi');
 let path = require('path');
-let Glue = require('glue');
-let injectThen = require('inject-then');
 let config = require('./../../server/config');
+let manifest = config.manifest;
 module.exports = function () {
-    config.manifest.plugins['./server/common/plugins/app-routes'].prependRoute = '';
+    manifest.plugins['./server/common/plugins/app-routes'].prependRoute = '';
     return new Bluebird((resolve, reject) => {
-        Glue.compose(config.manifest, {relativeTo: path.join(__dirname, './../../')}, (err, server1) => {
-            if (err) {
-                reject(err);
-            } else {
-                server1.register({
-                    register: require('./../../server/common/plugins/dbindexes'),
+        let server = new Hapi.Server(manifest.server);
+        manifest.connections.forEach((connection) => {
+            server.connection(connection);
+        });
+        Bluebird.all(Object.keys(manifest.plugins).map((plugin) => {
+            let options = manifest.plugins[plugin];
+            let module = plugin[0] === '.' ? path.join(__dirname, '/../../', plugin) : plugin;
+            let register = require(module);
+            return new Bluebird((resolve1, reject1) => {
+                server.register({register: register, options: options}, (err) => {
+                    err ? reject1(err) : resolve1();
+                });
+            });
+        }))
+            .then(() => {
+                function injectThen(options) {
+                    let self = this;
+                    return new Bluebird((resolve) => {
+                        self.inject(options, resolve);
+                    });
+                }
+
+                if (!server.injectThen) {
+                    server.decorate('server', 'injectThen', injectThen);
+                }
+                server.register({
+                    register: require('../../server/common/plugins/dbindexes'),
                     options: {
                         'modules': [
                             'users',
@@ -26,19 +47,9 @@ module.exports = function () {
                             'audit'
                         ]
                     }
-                }, (err1) => {
-                    if (err1) {
-                        reject(err1);
-                    }
-                    server1.register(injectThen, (err2) => {
-                        if (err2) {
-                            reject(err2);
-                        } else {
-                            resolve(server1);
-                        }
-                    });
+                }, (err) => {
+                    err ? reject(err) : resolve(server);
                 });
-            }
-        });
+            });
     });
 };

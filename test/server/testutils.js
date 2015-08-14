@@ -53,7 +53,7 @@ module.exports.setupRolesAndUsers =  function setupRolesAndUsers() {
 module.exports.findAndLogin = function findAndLogin(user, roles) {
     return Users.findOne({email: user})
         .then((foundUser) => roles ? foundUser.setRoles(roles, 'test') : foundUser)
-        .then((foundUser) => foundUser.loginSuccess('test', 'test').save())
+        .then((foundUser) => foundUser.loginSuccess('127.0.0.1', 'test').save())
         .then((loggedin) => {
             return {user: loggedin, authheader: module.exports.authorizationHeader(loggedin)};
         });

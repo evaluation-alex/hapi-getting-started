@@ -20,7 +20,7 @@ describe('Users', () => {
                 return Users.create('test.users@test.api', 'silver lining', 'password123', 'en');
             })
             .then((newUser) => {
-                newUser.loginSuccess('test', 'test').save();
+                newUser.loginSuccess('127.0.0.1', 'test').save();
                 done();
             })
             .catch((err) => {
@@ -35,7 +35,7 @@ describe('Users', () => {
         tu.findAndLogin('test.users@test.api')
             .then((u) => {
                 authheader = u.authheader;
-                return u.user.logout('test', 'test').save();
+                return u.user.logout('127.0.0.1', 'test').save();
             })
             .then(() => {
                 let request = {
@@ -103,7 +103,7 @@ describe('Users', () => {
                     return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
                 })
                 .then((newUser) => {
-                    return newUser.loginSuccess('test', 'test').save();
+                    return newUser.loginSuccess('127.0.0.1', 'test').save();
                 })
                 .then((newUser) => {
                     newUser.deactivate('test').save();
@@ -266,7 +266,7 @@ describe('Users', () => {
                     return Users.create('test.users3@test.api', 'silver lining', 'password123', 'en');
                 })
                 .then((newUser) => {
-                    newUser.loginSuccess('test', 'test').save();
+                    newUser.loginSuccess('127.0.0.1', 'test').save();
                     id = newUser._id.toString();
                     done();
                 });

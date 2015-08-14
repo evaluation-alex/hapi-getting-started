@@ -55,11 +55,13 @@ describe('Auth', () => {
                 });
             }
         });
-        server.injectThen(request).then(() => {
-            done();
-        }).catch((err) => {
-            done(err);
-        });
+        server.injectThen(request)
+            .then(() => {
+                done();
+            })
+            .catch((err) => {
+                done(err);
+            });
     });
     it('returns an error when the session is not found', (done) => {
         let request = {
@@ -80,11 +82,13 @@ describe('Auth', () => {
                 });
             }
         });
-        server.injectThen(request).then(() => {
-            done();
-        }).catch((err) => {
-            done(err);
-        });
+        server.injectThen(request)
+            .then(() => {
+                done();
+            })
+            .catch((err) => {
+                done(err);
+            });
     });
     it('returns an error when the user is not found', (done) => {
         let request = {
@@ -105,11 +109,13 @@ describe('Auth', () => {
                 });
             }
         });
-        server.injectThen(request).then(() => {
-            done();
-        }).catch((err) => {
-            done(err);
-        });
+        server.injectThen(request)
+            .then(() => {
+                done();
+            })
+            .catch((err) => {
+                done(err);
+            });
     });
     it('returns an error when user has already logged out', (done) => {
         server.route({
@@ -135,13 +141,14 @@ describe('Auth', () => {
                         Authorization: authheader
                     }
                 };
-                server.injectThen(request).then(() => {
-                    done();
-                }).catch((err) => {
-                    done(err);
-                });
+                return server.injectThen(request);
             })
-            .done();
+            .then(() => {
+                done();
+            })
+            .catch((err) => {
+                done(err);
+            });
     });
     it('returns a session expired when the session has expired', (done) => {
         server.route({
@@ -169,13 +176,13 @@ describe('Auth', () => {
                         Authorization: authheader
                     }
                 };
-                server.injectThen(request).then(() => {
-                    done();
-                }).catch((err) => {
-                    done(err);
-                });
+                return server.injectThen(request);
             })
-            .done();
+            .then(() => {
+                done();
+            }).catch((err) => {
+                done(err);
+            });
     });
     it('does adequate error handling and logging when errors occur', (done) => {
         let request = {
@@ -200,16 +207,17 @@ describe('Auth', () => {
         Users.findBySessionCredentials = () => {
             return Bluebird.reject(new Error('test'));
         };
-        server.injectThen(request).then(() => {
-            Users.findBySessionCredentials = prev;
-            done();
-        }).catch((err) => {
-            Users.findBySessionCredentials = prev;
-            done(err);
-        });
+        server.injectThen(request)
+            .then(() => {
+                Users.findBySessionCredentials = prev;
+                done();
+            })
+            .catch((err) => {
+                Users.findBySessionCredentials = prev;
+                done(err);
+            });
     });
     after((done) => {
         return tu.cleanup({users: [email]}, done);
     });
 });
-

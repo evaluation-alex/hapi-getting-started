@@ -12,29 +12,35 @@ class Notifications {
             enumerable: false
         });
     }
+    static createOne (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
+        let document = {
+            email,
+            organisation,
+            objectType,
+            objectId,
+            title,
+            state,
+            action,
+            priority,
+            content,
+            isActive: true,
+            createdBy: by,
+            createdOn: new Date(),
+            updatedBy: by,
+            updatedOn: new Date()
+        };
+        return Notifications.upsert(document);
+    }
+    static createMany(email, organisation, objectType, objectId, title, state, action, priority, content, by) {
+        return Bluebird.all(_.unique(_.flatten(email)).map((e) =>
+                Notifications.createOne(e, organisation, objectType, objectId, title, state, action, priority, content, by))
+        );
+    }
     static create(email, organisation, objectType, objectId, title, state, action, priority, content, by) {
         if (_.isArray(email)) {
-            return Bluebird.all(_.unique(_.flatten(email)).map((e) =>
-                Notifications.create(e, organisation, objectType, objectId, title, state, action, priority, content, by))
-            );
+            return Notifications.createMany(email, organisation, objectType, objectId, title, state, action, priority, content, by);
         } else {
-            let document = {
-                email,
-                organisation,
-                objectType,
-                objectId,
-                title,
-                state,
-                action,
-                priority,
-                content,
-                isActive: true,
-                createdBy: by,
-                createdOn: new Date(),
-                updatedBy: by,
-                updatedOn: new Date()
-            };
-            return Notifications.upsert(document);
+            return Notifications.createOne(email, organisation, objectType, objectId, title, state, action, priority, content, by);
         }
     }
 }

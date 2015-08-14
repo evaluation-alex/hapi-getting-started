@@ -46,13 +46,14 @@ describe('Session', () => {
                             password: 'password123'
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(429);
-                        tu.cleanupAuthAttempts();
-                        done();
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                }).then((response) => {
+                    expect(response.statusCode).to.equal(429);
+                    tu.cleanupAuthAttempts();
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
         it('returns an error when you pass incorrect credentials', (done) => {
@@ -66,19 +67,20 @@ describe('Session', () => {
             };
             server.injectThen(request).then((response) => {
                 expect(response.statusCode).to.equal(401);
-                AuthAttempts.find({email: 'test.users@test.api'})
-                    .then((aa) => {
-                        expect(aa).to.exist;
-                        expect(aa.length).to.equal(1);
-                        return Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login fail'});
-                    })
-                    .then((foundAudit) => {
-                        expect(foundAudit).to.exist;
-                        done();
-                    });
-            }).catch((err) => {
-                done(err);
-            });
+                return AuthAttempts.find({email: 'test.users@test.api'});
+            })
+                .then((aa) => {
+                    expect(aa).to.exist;
+                    expect(aa.length).to.equal(1);
+                    return Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login fail'});
+                })
+                .then((foundAudit) => {
+                    expect(foundAudit).to.exist;
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('returns an error when you pass non existent user', (done) => {
             let request = {
@@ -89,12 +91,14 @@ describe('Session', () => {
                     password: 'bogus'
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(404);
-                done();
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('returns a session successfully', (done) => {
             let request = {
@@ -105,18 +109,20 @@ describe('Session', () => {
                     password: 'password123'
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.exist;
-                expect(response.payload).to.contain('test.users@test.api');
-                Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login success'})
-                    .then((foundAudit) => {
-                        expect(foundAudit).to.exist;
-                        done();
-                    });
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist;
+                    expect(response.payload).to.contain('test.users@test.api');
+                    return Audit.findAudit('users', 'test.users@test.api', {'change.action': 'login success'});
+                })
+                .then((foundAudit) => {
+                    expect(foundAudit).to.exist;
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
     });
     describe('DELETE /session', () => {
@@ -125,12 +131,14 @@ describe('Session', () => {
                 method: 'DELETE',
                 url: '/session'
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(401);
-                done();
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(401);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('returns a not found when user does not exist', (done) => {
             let request = {
@@ -140,39 +148,41 @@ describe('Session', () => {
                     Authorization: tu.authorizationHeader2('test.not.created@logout.api', '123')
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(404);
-                emails.push('test.not.created@logout.api');
-                done();
-            }).catch((err) => {
-                emails.push('test.not.created@logout.api');
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(404);
+                    emails.push('test.not.created@logout.api');
+                    done();
+                })
+                .catch((err) => {
+                    emails.push('test.not.created@logout.api');
+                    done(err);
+                });
         });
         it('returns a not found when user has already logged out', (done) => {
-            let request = null;
             tu.findAndLogin('one@first.com')
                 .then((u) => {
-                    request = {
+                    return u.user.logout('127.0.0.1', 'test').save();
+                })
+                .then((u) => {
+                    let request = {
                         method: 'DELETE',
                         url: '/session',
                         headers: {
                             Authorization: u.authheader
                         }
                     };
-                    return u.user.logout('127.0.0.1', 'test').save();
+                    return server.injectThen(request);
+                }).then((response) => {
+                    expect(response.statusCode).to.equal(401);
+                    return Users.findOne({email: 'one@first.com'});
                 })
-                .then(() => {
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(401);
-                        Users.findOne({email: 'one@first.com'})
-                            .then((foundUser) => {
-                                foundUser.loginSuccess('127.0.0.1', 'test').save();
-                                done();
-                            });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                .then((foundUser) => {
+                    foundUser.loginSuccess('127.0.0.1', 'test').save();
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
         it('removes the authenticated user session successfully', (done) => {
@@ -185,17 +195,19 @@ describe('Session', () => {
                             Authorization: u.authheader
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Users.findOne({email: 'one@first.com'})
-                            .then((foundUser) => {
-                                expect(foundUser.session.length).to.equal(0);
-                                foundUser.loginSuccess('127.0.0.1', 'test').save();
-                                done();
-                            });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Users.findOne({email: 'one@first.com'});
+                })
+                .then((foundUser) => {
+                    expect(foundUser.session.length).to.equal(0);
+                    foundUser.loginSuccess('127.0.0.1', 'test').save();
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
     });
@@ -203,4 +215,3 @@ describe('Session', () => {
         return tu.cleanup({users: emails}, done);
     });
 });
-

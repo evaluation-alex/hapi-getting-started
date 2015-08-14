@@ -72,16 +72,18 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                let p = JSON.parse(response.payload);
-                _.forEach(p.data, (d) => {
-                    expect(d.isActive).to.be.true;
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    let p = JSON.parse(response.payload);
+                    _.forEach(p.data, (d) => {
+                        expect(d.isActive).to.be.true;
+                    });
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
-                done();
-            }).catch((err) => {
-                done(err);
-            });
         });
         it('should give inactive posts when isactive = false is sent', (done) => {
             let request = {
@@ -91,16 +93,18 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                let p = JSON.parse(response.payload);
-                _.forEach(p.data, (d) => {
-                    expect(d.isActive).to.be.false;
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    let p = JSON.parse(response.payload);
+                    _.forEach(p.data, (d) => {
+                        expect(d.isActive).to.be.false;
+                    });
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
-                done();
-            }).catch((err) => {
-                done(err);
-            });
         });
         it('should give the posts where the title matches or partially matches the query', (done) => {
             let request = {
@@ -110,19 +114,21 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                let p = JSON.parse(response.payload);
-                let patt = /search/i;
-                _.forEach(p.data, (d) => {
-                    let match = false;
-                    match = match || patt.test(d.title);
-                    expect(match).to.be.true;
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    let p = JSON.parse(response.payload);
+                    let patt = /search/i;
+                    _.forEach(p.data, (d) => {
+                        let match = false;
+                        match = match || patt.test(d.title);
+                        expect(match).to.be.true;
+                    });
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
-                done();
-            }).catch((err) => {
-                done(err);
-            });
         });
         it('should give the posts where any tag in the post matches or partially matches the query', (done) => {
             let request = {
@@ -132,21 +138,23 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                let p = JSON.parse(response.payload);
-                let patt = /controller/i;
-                _.forEach(p.data, (d) => {
-                    let match = false;
-                    _.forEach(d.tags, (t) => {
-                        match = match || patt.test(t);
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    let p = JSON.parse(response.payload);
+                    let patt = /controller/i;
+                    _.forEach(p.data, (d) => {
+                        let match = false;
+                        _.forEach(d.tags, (t) => {
+                            match = match || patt.test(t);
+                        });
+                        expect(match).to.be.true;
                     });
-                    expect(match).to.be.true;
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
-                done();
-            }).catch((err) => {
-                done(err);
-            });
         });
         it('should give all posts for a given blog', (done) => {
             let request = {
@@ -156,16 +164,18 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                let p = JSON.parse(response.payload);
-                _.forEach(p.data, (d) => {
-                    expect(d.blogId.toString()).to.equal(blogId.toString());
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    let p = JSON.parse(response.payload);
+                    _.forEach(p.data, (d) => {
+                        expect(d.blogId.toString()).to.equal(blogId.toString());
+                    });
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
-                done();
-            }).catch((err) => {
-                done(err);
-            });
         });
         it('should give all posts for a given blog2', (done) => {
             let request = {
@@ -175,16 +185,18 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                let p = JSON.parse(response.payload);
-                _.forEach(p.data, (d) => {
-                    expect(d.blogId.toString()).to.equal(blogId.toString());
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    let p = JSON.parse(response.payload);
+                    _.forEach(p.data, (d) => {
+                        expect(d.blogId.toString()).to.equal(blogId.toString());
+                    });
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
-                done();
-            }).catch((err) => {
-                done(err);
-            });
         });
         it('should give all posts for a given blog3', (done) => {
             let request = {
@@ -194,19 +206,21 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                let p = JSON.parse(response.payload);
-                let patt = /.*GET.*/i;
-                let match = true;
-                _.forEach(p.data, (d) => {
-                    match = match && patt.test(d.blog.title);
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    let p = JSON.parse(response.payload);
+                    let patt = /.*GET.*/i;
+                    let match = true;
+                    _.forEach(p.data, (d) => {
+                        match = match && patt.test(d.blog.title);
+                    });
+                    expect(match).to.be.true;
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
-                expect(match).to.be.true;
-                done();
-            }).catch((err) => {
-                done(err);
-            });
         });
         it('should give all posts in a given time period', (done) => {
             let request = {
@@ -216,16 +230,18 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                let p = JSON.parse(response.payload);
-                _.forEach(p.data, (d) => {
-                    expect(moment(d.publishedOn).format('YYYYMMDD')).to.equal('20150214');
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    let p = JSON.parse(response.payload);
+                    _.forEach(p.data, (d) => {
+                        expect(moment(d.publishedOn).format('YYYYMMDD')).to.equal('20150214');
+                    });
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
-                done();
-            }).catch((err) => {
-                done(err);
-            });
         });
         it('should give all posts in a given time period2', (done) => {
             let request = {
@@ -235,16 +251,18 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                let p = JSON.parse(response.payload);
-                _.forEach(p.data, (d) => {
-                    expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true;
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    let p = JSON.parse(response.payload);
+                    _.forEach(p.data, (d) => {
+                        expect(moment(d.publishedOn).isAfter('2015-02-13')).to.be.true;
+                    });
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
-                done();
-            }).catch((err) => {
-                done(err);
-            });
         });
         after((done) => {
             blogsToClear.push('test GET /posts1');
@@ -281,14 +299,16 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.contain(id);
-                expect(response.payload).to.contain('something to say, something to listen');
-                done();
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.contain(id);
+                    expect(response.payload).to.contain('something to say, something to listen');
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('should only send back post with the id, blogId in params', (done) => {
             let request = {
@@ -298,14 +318,16 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                expect(response.payload).to.contain(id);
-                expect(response.payload).to.contain('something to say, something to listen');
-                done();
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.contain(id);
+                    expect(response.payload).to.contain('something to say, something to listen');
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('should send back not found when the post with the id in params is not found', (done) => {
             let request = {
@@ -315,12 +337,14 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(404);
-                done();
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('should send back not found when the post with the blogId, id in params is not found', (done) => {
             let request = {
@@ -330,12 +354,14 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(404);
-                done();
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         after((done) => {
             blogsToClear.push('test GET /blogs/{blogId}/posts/{id}');
@@ -368,15 +394,16 @@ describe('Posts', () => {
                 headers: {
                     Authorization: rootAuthHeader
                 },
-                payload: {
-                }
+                payload: {}
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(404);
-                done();
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('should send back not found error when you try to modify non existent posts2', (done) => {
             let request = {
@@ -385,23 +412,22 @@ describe('Posts', () => {
                 headers: {
                     Authorization: rootAuthHeader
                 },
-                payload: {
-                }
+                payload: {}
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(404);
-                done();
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('should send back forbidden error when you try to modify a post of a blog you are not an owner of', (done) => {
-            let request = {};
-            let authHeader = '';
             tu.findAndLogin('one@first.com', ['root'])
                 .then((u) => {
-                    authHeader = u.authheader;
-                    request = {
+                    let authHeader = u.authheader;
+                    let request = {
                         method: 'PUT',
                         url: '/blogs/' + blogId + '/posts/' + postId,
                         headers: {
@@ -411,12 +437,14 @@ describe('Posts', () => {
                             title: '    test PUT /posts/{id}'
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(401);
-                        done();
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(401);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
         it('should activate posts and have changes audited', (done) => {
@@ -430,25 +458,27 @@ describe('Posts', () => {
                     isActive: false
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                Posts.find({_id: Posts.ObjectID(postId)})
-                    .then((found) => {
-                        expect(found[0].isActive).to.be.false;
-                        return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
-                    })
-                    .then((foundAudit) => {
-                        expect(foundAudit).to.exist;
-                        expect(foundAudit.length).to.equal(1);
-                        expect(foundAudit[0].change[0].action).to.match(/isActive/);
-                    })
-                    .then(() => {
-                        tu.cleanupAudit();
-                        done();
-                    });
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].isActive).to.be.false;
+                    return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
+                })
+                .then((foundAudit) => {
+                    expect(foundAudit).to.exist;
+                    expect(foundAudit.length).to.equal(1);
+                    expect(foundAudit[0].change[0].action).to.match(/isActive/);
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('should deactivate posts and have changes audited', (done) => {
             let request = {
@@ -461,25 +491,27 @@ describe('Posts', () => {
                     isActive: true
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                Posts.find({_id: Posts.ObjectID(postId)})
-                    .then((found) => {
-                        expect(found[0].isActive).to.be.true;
-                        return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
-                    })
-                    .then((foundAudit) => {
-                        expect(foundAudit).to.exist;
-                        expect(foundAudit.length).to.equal(1);
-                        expect(foundAudit[0].change[0].action).to.match(/isActive/);
-                    })
-                    .then(() => {
-                        tu.cleanupAudit();
-                        done();
-                    });
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].isActive).to.be.true;
+                    return Audit.findAudit('posts', found[0]._id, {'change.action': 'isActive'});
+                })
+                .then((foundAudit) => {
+                    expect(foundAudit).to.exist;
+                    expect(foundAudit.length).to.equal(1);
+                    expect(foundAudit[0].change[0].action).to.match(/isActive/);
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('should add add/remove tags and have changes audited', (done) => {
             let request = {
@@ -493,26 +525,28 @@ describe('Posts', () => {
                     removedTags: ['testing']
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                Posts.find({_id: Posts.ObjectID(postId)})
-                    .then((found) => {
-                        expect(found[0].tags[0]).to.equal('add some');
-                        return Audit.findAudit('posts', found[0]._id, {'change.action': {$regex: /tag/}});
-                    })
-                    .then((foundAudit) => {
-                        expect(foundAudit).to.exist;
-                        expect(foundAudit.length).to.equal(1);
-                        expect(foundAudit[0].change[0].action).to.match(/remove/);
-                        expect(foundAudit[0].change[1].action).to.match(/add/);
-                    })
-                    .then(() => {
-                        tu.cleanupAudit();
-                        done();
-                    });
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].tags[0]).to.equal('add some');
+                    return Audit.findAudit('posts', found[0]._id, {'change.action': {$regex: /tag/}});
+                })
+                .then((foundAudit) => {
+                    expect(foundAudit).to.exist;
+                    expect(foundAudit.length).to.equal(1);
+                    expect(foundAudit[0].change[0].action).to.match(/remove/);
+                    expect(foundAudit[0].change[1].action).to.match(/add/);
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('should update content and have changes persisted on disk', (done) => {
             let request = {
@@ -525,25 +559,27 @@ describe('Posts', () => {
                     content: 'updated'
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                Posts.find({_id: Posts.ObjectID(postId)})
-                    .then((found) => {
-                        expect(found[0].content).to.equal('updated');
-                        return Audit.findAudit('posts', found[0]._id, {by: 'root'});
-                    })
-                    .then((foundAudit) => {
-                        expect(foundAudit).to.exist;
-                        expect(foundAudit.length).to.equal(1);
-                        expect(foundAudit[0].change[0].action).to.match(/content/);
-                    })
-                    .then(() => {
-                        tu.cleanupAudit();
-                        done();
-                    });
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].content).to.equal('updated');
+                    return Audit.findAudit('posts', found[0]._id, {by: 'root'});
+                })
+                .then((foundAudit) => {
+                    expect(foundAudit).to.exist;
+                    expect(foundAudit.length).to.equal(1);
+                    expect(foundAudit[0].change[0].action).to.match(/content/);
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('should update access, allowComments, needsReview and have changes audited', (done) => {
             let request = {
@@ -558,29 +594,30 @@ describe('Posts', () => {
                     needsReview: false
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(200);
-                Posts.find({_id: Posts.ObjectID(postId)})
-                    .then((found) => {
-                        expect(found[0].access).to.equal('restricted');
-                        expect(found[0].allowComments).to.equal(false);
-                        expect(found[0].needsReview).to.equal(false);
-                        return Audit.findAudit('posts', found[0]._id, {by: 'root'});
-                    })
-                    .then((foundAudit) => {
-                        expect(foundAudit).to.exist;
-                        expect(foundAudit.length).to.equal(1);
-                        expect(foundAudit[0].change[0].action).to.match(/access/);
-                        expect(foundAudit[0].change[1].action).to.match(/allowComments/);
-                        expect(foundAudit[0].change[2].action).to.match(/needsReview/);
-                    })
-                    .then(() => {
-                        tu.cleanupAudit();
-                        done();
-                    });
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].access).to.equal('restricted');
+                    expect(found[0].allowComments).to.equal(false);
+                    expect(found[0].needsReview).to.equal(false);
+                    return Audit.findAudit('posts', found[0]._id, {by: 'root'});
+                })
+                .then((foundAudit) => {
+                    expect(foundAudit).to.exist;
+                    expect(foundAudit.length).to.equal(1);
+                    expect(foundAudit[0].change[0].action).to.match(/access/);
+                    expect(foundAudit[0].change[1].action).to.match(/allowComments/);
+                    expect(foundAudit[0].change[2].action).to.match(/needsReview/);
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    done();
+                }).catch((err) => {
+                    done(err);
+                });
         });
         it('should give an error if you try to update archived posts', (done) => {
             Posts.findOne({_id: Posts.ObjectID(postId)})
@@ -599,12 +636,12 @@ describe('Posts', () => {
                             content: 'if its archived, its done'
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(409);
-                        done();
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                }).then((response) => {
+                    expect(response.statusCode).to.equal(409);
+                    done();
+                }).catch((err) => {
+                    done(err);
                 });
         });
         after((done) => {
@@ -645,48 +682,48 @@ describe('Posts', () => {
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {
-                        }
+                        payload: {}
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Posts.find({_id: Posts.ObjectID(postId)})
-                            .then((found) => {
-                                expect(found[0].state).to.equal('published');
-                                return Audit.findAudit('posts', found[0]._id, {by: 'one@first.com'});
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].state).to.equal('published');
+                    return Audit.findAudit('posts', found[0]._id, {by: 'one@first.com'});
+                })
+                .then((foundAudit) => {
+                    expect(foundAudit).to.exist;
+                    expect(foundAudit.length).to.equal(1);
+                    expect(foundAudit[0].change[0].action).to.equal('state');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                })
+                .then(() => {
+                    //because the events from the controller may not be complete
+                    var ct = setTimeout(() => {
+                        Notifications.find({
+                            objectType: 'posts',
+                            objectId: Posts.ObjectID(postId)
+                        })
+                            .then((notifications) => {
+                                expect(notifications.length).to.equal(3);
+                                return Notifications.remove({
+                                    objectType: 'posts',
+                                    objectId: Posts.ObjectID(postId)
+                                });
                             })
-                            .then((foundAudit) => {
-                                expect(foundAudit).to.exist;
-                                expect(foundAudit.length).to.equal(1);
-                                expect(foundAudit[0].change[0].action).to.equal('state');
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                            })
-                            .then(() => {
-                                //because the events from the controller may not be complete
-                                var ct = setTimeout(() => {
-                                    Notifications.find({
-                                        objectType: 'posts',
-                                        objectId: Posts.ObjectID(postId)
-                                    })
-                                        .then((notifications) => {
-                                            expect(notifications.length).to.equal(3);
-                                            return Notifications.remove({
-                                                objectType: 'posts',
-                                                objectId: Posts.ObjectID(postId)
-                                            });
-                                        })
-                                        .then((count) => {
-                                            expect(count).to.equal(3);
-                                            done();
-                                            clearTimeout(ct);
-                                        });
-                                }, 2000);
+                            .then((count) => {
+                                expect(count).to.equal(3);
+                                done();
+                                clearTimeout(ct);
                             });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    }, 2000);
+                }).catch((err) => {
+                    done(err);
                 });
         });
         it('should allow root to publish draft / pending review posts', (done) => {
@@ -703,48 +740,48 @@ describe('Posts', () => {
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {
-                        }
+                        payload: {}
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Posts.find({_id: Posts.ObjectID(postId)})
-                            .then((found) => {
-                                expect(found[0].state).to.equal('published');
-                                return Audit.findAudit('posts', found[0]._id, {by: 'root'});
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].state).to.equal('published');
+                    return Audit.findAudit('posts', found[0]._id, {by: 'root'});
+                })
+                .then((foundAudit) => {
+                    expect(foundAudit).to.exist;
+                    expect(foundAudit.length).to.equal(1);
+                    expect(foundAudit[0].change[0].action).to.equal('state');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                })
+                .then(() => {
+                    //because the events from the controller may not be complete
+                    var ct = setTimeout(() => {
+                        Notifications.find({
+                            objectType: 'posts',
+                            objectId: Posts.ObjectID(postId)
+                        })
+                            .then((notifications) => {
+                                expect(notifications.length).to.equal(3);
+                                return Notifications.remove({
+                                    objectType: 'posts',
+                                    objectId: Posts.ObjectID(postId)
+                                });
                             })
-                            .then((foundAudit) => {
-                                expect(foundAudit).to.exist;
-                                expect(foundAudit.length).to.equal(1);
-                                expect(foundAudit[0].change[0].action).to.equal('state');
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                            })
-                            .then(() => {
-                                //because the events from the controller may not be complete
-                                var ct = setTimeout(() => {
-                                    Notifications.find({
-                                        objectType: 'posts',
-                                        objectId: Posts.ObjectID(postId)
-                                    })
-                                        .then((notifications) => {
-                                            expect(notifications.length).to.equal(3);
-                                            return Notifications.remove({
-                                                objectType: 'posts',
-                                                objectId: Posts.ObjectID(postId)
-                                            });
-                                        })
-                                        .then((count) => {
-                                            expect(count).to.equal(3);
-                                            done();
-                                            clearTimeout(ct);
-                                        });
-                                }, 2000);
+                            .then((count) => {
+                                expect(count).to.equal(3);
+                                done();
+                                clearTimeout(ct);
                             });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    }, 2000);
+                }).catch((err) => {
+                    done(err);
                 });
         });
         it('should fail to publish draft / pending review posts if user is not an owner/contributor of the blog', (done) => {
@@ -766,22 +803,23 @@ describe('Posts', () => {
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {
-                        }
+                        payload: {}
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(401);
-                        Posts.find({_id: Posts.ObjectID(postId)})
-                            .then((found) => {
-                                expect(found[0].state).to.equal('draft');
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                                done();
-                            });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(401);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].state).to.equal('draft');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
         it('should move draft to pending review posts if user is contributor, but not owner of the blog', (done) => {
@@ -803,42 +841,42 @@ describe('Posts', () => {
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {
-                        }
+                        payload: {}
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Posts.find({_id: Posts.ObjectID(postId)})
-                            .then((found) => {
-                                expect(found[0].state).to.equal('pending review');
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].state).to.equal('pending review');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                })
+                .then(() => {
+                    //because the events from the controller may not be complete
+                    var ct = setTimeout(() => {
+                        Notifications.find({
+                            objectType: 'posts',
+                            objectId: Posts.ObjectID(postId)
+                        })
+                            .then((notifications) => {
+                                expect(notifications.length).to.equal(1);
+                                return Notifications.remove({
+                                    objectType: 'posts',
+                                    objectId: Posts.ObjectID(postId)
+                                });
                             })
-                            .then(() => {
-                                tu.cleanupAudit();
-                            })
-                            .then(() => {
-                                //because the events from the controller may not be complete
-                                var ct = setTimeout(() => {
-                                    Notifications.find({
-                                        objectType: 'posts',
-                                        objectId: Posts.ObjectID(postId)
-                                    })
-                                        .then((notifications) => {
-                                            expect(notifications.length).to.equal(1);
-                                            return Notifications.remove({
-                                                objectType: 'posts',
-                                                objectId: Posts.ObjectID(postId)
-                                            });
-                                        })
-                                        .then((count) => {
-                                            expect(count).to.equal(1);
-                                            done();
-                                            clearTimeout(ct);
-                                        });
-                                }, 2000);
+                            .then((count) => {
+                                expect(count).to.equal(1);
+                                done();
+                                clearTimeout(ct);
                             });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    }, 2000);
+                }).catch((err) => {
+                    done(err);
                 });
         });
         it('should move draft to published posts if user is contributor, and needsReview is false', (done) => {
@@ -860,42 +898,42 @@ describe('Posts', () => {
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {
-                        }
+                        payload: {}
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Posts.find({_id: Posts.ObjectID(postId)})
-                            .then((found) => {
-                                expect(found[0].state).to.equal('published');
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].state).to.equal('published');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                })
+                .then(() => {
+                    //because the events from the controller may not be complete
+                    var ct = setTimeout(() => {
+                        Notifications.find({
+                            objectType: 'posts',
+                            objectId: Posts.ObjectID(postId)
+                        })
+                            .then((notifications) => {
+                                expect(notifications.length).to.equal(3);
+                                return Notifications.remove({
+                                    objectType: 'posts',
+                                    objectId: Posts.ObjectID(postId)
+                                });
                             })
-                            .then(() => {
-                                tu.cleanupAudit();
-                            })
-                            .then(() => {
-                                //because the events from the controller may not be complete
-                                var ct = setTimeout(() => {
-                                    Notifications.find({
-                                        objectType: 'posts',
-                                        objectId: Posts.ObjectID(postId)
-                                    })
-                                        .then((notifications) => {
-                                            expect(notifications.length).to.equal(3);
-                                            return Notifications.remove({
-                                                objectType: 'posts',
-                                                objectId: Posts.ObjectID(postId)
-                                            });
-                                        })
-                                        .then((count) => {
-                                            expect(count).to.equal(3);
-                                            done();
-                                            clearTimeout(ct);
-                                        });
-                                }, 2000);
+                            .then((count) => {
+                                expect(count).to.equal(3);
+                                done();
+                                clearTimeout(ct);
                             });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    }, 2000);
+                }).catch((err) => {
+                    done(err);
                 });
         });
         it('should do nothing if the post is already published / archived', (done) => {
@@ -917,22 +955,22 @@ describe('Posts', () => {
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {
-                        }
+                        payload: {}
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Posts.find({_id: Posts.ObjectID(postId)})
-                            .then((found) => {
-                                expect(found[0].state).to.equal('archived');
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                                done();
-                            });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].state).to.equal('archived');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    done();
+                }).catch((err) => {
+                    done(err);
                 });
         });
         after((done) => {
@@ -979,42 +1017,42 @@ describe('Posts', () => {
                         headers: {
                             Authorization: authHeader
                         },
-                        payload: {
-                        }
+                        payload: {}
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Posts.find({_id: Posts.ObjectID(postId)})
-                            .then((found) => {
-                                expect(found[0].state).to.equal('do not publish');
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].state).to.equal('do not publish');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                })
+                .then(() => {
+                    var ct = setTimeout(() => {
+                        Notifications.find({
+                            objectType: 'posts',
+                            objectId: Posts.ObjectID(postId),
+                            state: 'cancelled'
+                        })
+                            .then((notifications) => {
+                                expect(notifications.length).to.equal(3);
+                                return Notifications.remove({
+                                    objectType: 'posts',
+                                    objectId: Posts.ObjectID(postId)
+                                });
                             })
-                            .then(() => {
-                                tu.cleanupAudit();
-                            })
-                            .then(() => {
-                                var ct = setTimeout(() => {
-                                    Notifications.find({
-                                        objectType: 'posts',
-                                        objectId: Posts.ObjectID(postId),
-                                        state: 'cancelled'
-                                    })
-                                        .then((notifications) => {
-                                            expect(notifications.length).to.equal(3);
-                                            return Notifications.remove({
-                                                objectType: 'posts',
-                                                objectId: Posts.ObjectID(postId)
-                                            });
-                                        })
-                                        .then((count) => {
-                                            expect(count).to.equal(4);//because there is one notification to the author for the rejection as well
-                                            done();
-                                            clearTimeout(ct);
-                                        });
-                                }, 2000);
+                            .then((count) => {
+                                expect(count).to.equal(4);//because there is one notification to the author for the rejection as well
+                                done();
+                                clearTimeout(ct);
                             });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    }, 2000);
+                }).catch((err) => {
+                    done(err);
                 });
         });
         it('should fail reject draft / pending review posts if user is not an owner of the blog', (done) => {
@@ -1036,22 +1074,23 @@ describe('Posts', () => {
                         headers: {
                             Authorization: authHeader
                         },
-                        payload: {
-                        }
+                        payload: {}
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(401);
-                        Posts.find({_id: Posts.ObjectID(postId)})
-                            .then((found) => {
-                                expect(found[0].state).to.equal('draft');
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                                done();
-                            });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(401);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].state).to.equal('draft');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
         it('should do nothing if the post is already published / archived', (done) => {
@@ -1077,22 +1116,23 @@ describe('Posts', () => {
                         headers: {
                             Authorization: authHeader
                         },
-                        payload: {
-                        }
+                        payload: {}
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Posts.find({_id: Posts.ObjectID(postId)})
-                            .then((found) => {
-                                expect(found[0].state).to.equal('published');
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                                done();
-                            });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((found) => {
+                    expect(found[0].state).to.equal('published');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
         after((done) => {
@@ -1133,14 +1173,16 @@ describe('Posts', () => {
                             attachments: []
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(409);
-                        postsToClear.push('test POST unique');
-                        done();
-                    }).catch((err) => {
-                        postsToClear.push('test POST unique');
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(409);
+                    postsToClear.push('test POST unique');
+                    done();
+                })
+                .catch((err) => {
+                    postsToClear.push('test POST unique');
+                    done(err);
                 });
         });
         it('should not allow you to create a post if you are not an owner / contributor to the blog', (done) => {
@@ -1166,18 +1208,19 @@ describe('Posts', () => {
                             attachments: []
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(401);
-                        Posts.find({title: 'test POST blog owner'})
-                            .then((found) => {
-                                expect(found.length).to.equal(0);
-                                postsToClear.push('test POST blog owner');
-                                done();
-                            });
-                    }).catch((err) => {
-                        postsToClear.push('test POST blog owner');
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(401);
+                    return Posts.find({title: 'test POST blog owner'});
+                })
+                .then((found) => {
+                    expect(found.length).to.equal(0);
+                    postsToClear.push('test POST blog owner');
+                    done();
+                }).catch((err) => {
+                    postsToClear.push('test POST blog owner');
+                    done(err);
                 });
         });
         it('should create post successfully, and publish if blog doesnt have needsReview set', (done) => {
@@ -1204,23 +1247,24 @@ describe('Posts', () => {
                             needsReview: false
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(201);
-                        Posts.find({title: 'test POST needsReview and publish'})
-                            .then((found) => {
-                                expect(found.length).to.equal(1);
-                                expect(found[0].state).to.equal('published');
-                                expect(found[0].content).to.equal('something. anything will do.');
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                                done();
-                                postsToClear.push('test POST needsReview and publish');
-                            });
-                    }).catch((err) => {
-                        postsToClear.push('test POST needsReview and publish');
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(201);
+                    return Posts.find({title: 'test POST needsReview and publish'});
+                })
+                .then((found) => {
+                    expect(found.length).to.equal(1);
+                    expect(found[0].state).to.equal('published');
+                    expect(found[0].content).to.equal('something. anything will do.');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    done();
+                    postsToClear.push('test POST needsReview and publish');
+                }).catch((err) => {
+                    postsToClear.push('test POST needsReview and publish');
+                    done(err);
                 });
         });
         it('should create post successfully, and mark it as pending review if blog has needsReview set', (done) => {
@@ -1247,23 +1291,24 @@ describe('Posts', () => {
                             needsReview: true
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(201);
-                        Posts.find({title: 'test POST needsReview and pending review'})
-                            .then((found) => {
-                                expect(found.length).to.equal(1);
-                                expect(found[0].content).to.equal('something. anything will do.');
-                                expect(found[0].state).to.equal('pending review');
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                                postsToClear.push('test POST needsReview and pending review');
-                                done();
-                            });
-                    }).catch((err) => {
-                        postsToClear.push('test POST needsReview and pending review');
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(201);
+                    return Posts.find({title: 'test POST needsReview and pending review'});
+                })
+                .then((found) => {
+                    expect(found.length).to.equal(1);
+                    expect(found[0].content).to.equal('something. anything will do.');
+                    expect(found[0].state).to.equal('pending review');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    postsToClear.push('test POST needsReview and pending review');
+                    done();
+                }).catch((err) => {
+                    postsToClear.push('test POST needsReview and pending review');
+                    done(err);
                 });
         });
         it('should create post successfully, and mark it as draft if user has marked it as draft irrespective of whether user is owner / needsReview setting', (done) => {
@@ -1290,23 +1335,24 @@ describe('Posts', () => {
                             needsReview: true
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(201);
-                        Posts.find({title: 'test POST draft'})
-                            .then((found) => {
-                                expect(found.length).to.equal(1);
-                                expect(found[0].content).to.equal('something. anything will do.');
-                                expect(found[0].state).to.equal('draft');
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                                postsToClear.push('test POST draft');
-                                done();
-                            });
-                    }).catch((err) => {
-                        postsToClear.push('test POST draft');
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(201);
+                    return Posts.find({title: 'test POST draft'});
+                })
+                .then((found) => {
+                    expect(found.length).to.equal(1);
+                    expect(found[0].content).to.equal('something. anything will do.');
+                    expect(found[0].state).to.equal('draft');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    postsToClear.push('test POST draft');
+                    done();
+                }).catch((err) => {
+                    postsToClear.push('test POST draft');
+                    done(err);
                 });
         });
         it('should create post successfully, and mark it as published if creator is an owner of the blog', (done) => {
@@ -1335,23 +1381,24 @@ describe('Posts', () => {
                             allowComments: false
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(201);
-                        Posts.find({title: 'test POST needsReview, owner and published'})
-                            .then((found) => {
-                                expect(found.length).to.equal(1);
-                                expect(found[0].content).to.equal('something. anything will do.');
-                                expect(found[0].state).to.equal('published');
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                                postsToClear.push('test POST needsReview, owner and published');
-                                done();
-                            });
-                    }).catch((err) => {
-                        postsToClear.push('test POST needsReview, owner and published');
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(201);
+                    return Posts.find({title: 'test POST needsReview, owner and published'});
+                })
+                .then((found) => {
+                    expect(found.length).to.equal(1);
+                    expect(found[0].content).to.equal('something. anything will do.');
+                    expect(found[0].state).to.equal('published');
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    postsToClear.push('test POST needsReview, owner and published');
+                    done();
+                }).catch((err) => {
+                    postsToClear.push('test POST needsReview, owner and published');
+                    done(err);
                 });
         });
         it('should create post successfully, inherit needsReview, allowComments, access from blog if not passed', (done) => {
@@ -1377,24 +1424,25 @@ describe('Posts', () => {
                             attachments: []
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(201);
-                        Posts.find({title: 'test POST needsReview, access, allowComments'})
-                            .then((found) => {
-                                expect(found.length).to.equal(1);
-                                expect(found[0].needsReview).to.equal(true);
-                                expect(found[0].access).to.equal('restricted');
-                                expect(found[0].allowComments).to.equal(false);
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                                postsToClear.push('test POST needsReview, access, allowComments');
-                                done();
-                            });
-                    }).catch((err) => {
-                        postsToClear.push('test POST needsReview, access, allowComments');
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(201);
+                    return Posts.find({title: 'test POST needsReview, access, allowComments'});
+                })
+                .then((found) => {
+                    expect(found.length).to.equal(1);
+                    expect(found[0].needsReview).to.equal(true);
+                    expect(found[0].access).to.equal('restricted');
+                    expect(found[0].allowComments).to.equal(false);
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    postsToClear.push('test POST needsReview, access, allowComments');
+                    done();
+                }).catch((err) => {
+                    postsToClear.push('test POST needsReview, access, allowComments');
+                    done(err);
                 });
         });
         after((done) => {
@@ -1411,15 +1459,16 @@ describe('Posts', () => {
                     Authorization: rootAuthHeader
                 }
             };
-            server.injectThen(request).then((response) => {
-                expect(response.statusCode).to.equal(404);
-                done();
-            }).catch((err) => {
-                done(err);
-            });
+            server.injectThen(request)
+                .then((response) => {
+                    expect(response.statusCode).to.equal(404);
+                    done();
+                })
+                .catch((err) => {
+                    done(err);
+                });
         });
         it('should send back forbidden error when you try to delete a post from a blog you are not an owner of', (done) => {
-            let request = {};
             let blogId = '';
             let postId = '';
             Blogs.create('testDelPostNotOwner', 'silver lining', 'test DELETE /posts', [], [], [], [], false, 'public', true, 'test')
@@ -1434,23 +1483,25 @@ describe('Posts', () => {
                 })
                 .then((u) => {
                     let authHeader = u.authheader;
-                    request = {
+                    let request = {
                         method: 'DELETE',
                         url: '/blogs/' + blogId + '/posts/' + postId,
                         headers: {
                             Authorization: authHeader
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(401);
-                        blogsToClear.push('testDelPostNotOwner');
-                        postsToClear.push('DELETE /blogs/{blogId}/posts/{id}');
-                        done();
-                    }).catch((err) => {
-                        blogsToClear.push('testDelPostNotOwner');
-                        postsToClear.push('DELETE /blogs/{blogId}/posts/{id}');
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(401);
+                    blogsToClear.push('testDelPostNotOwner');
+                    postsToClear.push('DELETE /blogs/{blogId}/posts/{id}');
+                    done();
+                })
+                .catch((err) => {
+                    blogsToClear.push('testDelPostNotOwner');
+                    postsToClear.push('DELETE /blogs/{blogId}/posts/{id}');
+                    done(err);
                 });
         });
         it('should deactivate blog and have changes audited', (done) => {
@@ -1475,28 +1526,30 @@ describe('Posts', () => {
                             Authorization: authHeader
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Posts.find({_id: Posts.ObjectID(postId)})
-                            .then((p) => {
-                                expect(p[0].isActive).to.be.false;
-                                return Audit.findAudit('posts', p[0]._id, {by: 'one@first.com'});
-                            })
-                            .then((a) => {
-                                expect(a).to.exist;
-                                expect(a[0].change[0].action).to.match(/isActive/);
-                            })
-                            .then(() => {
-                                tu.cleanupAudit();
-                                blogsToClear.push('testDelPost');
-                                postsToClear.push('success DELETE /blogs/{blogId}/posts/{id}');
-                                done();
-                            });
-                    }).catch((err) => {
-                        blogsToClear.push('testDelPost');
-                        postsToClear.push('success DELETE /blogs/{blogId}/posts/{id}');
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Posts.find({_id: Posts.ObjectID(postId)});
+                })
+                .then((p) => {
+                    expect(p[0].isActive).to.be.false;
+                    return Audit.findAudit('posts', p[0]._id, {by: 'one@first.com'});
+                })
+                .then((a) => {
+                    expect(a).to.exist;
+                    expect(a[0].change[0].action).to.match(/isActive/);
+                })
+                .then(() => {
+                    tu.cleanupAudit();
+                    blogsToClear.push('testDelPost');
+                    postsToClear.push('success DELETE /blogs/{blogId}/posts/{id}');
+                    done();
+                })
+                .catch((err) => {
+                    blogsToClear.push('testDelPost');
+                    postsToClear.push('success DELETE /blogs/{blogId}/posts/{id}');
+                    done(err);
                 });
         });
     });

@@ -22,7 +22,7 @@ gulp.task('server:jshint', () => {
         .pipe($.jshint.reporter('unix'));
 });
 gulp.task('server:clean', (cb) => {
-    $.del(['server/**/*.js.map', 'server/**/*.js', 'test/server/artifacts/**/*.*'], cb);
+    $.del(['server/**/*.js.map', 'server/**/*.js', 'test/server/artifacts/**/*.*']).then(() =>  cb());
 });
 gulp.task('server:build', ['server:eslint', 'server:jscs', 'server:jshint'], () => {
     return gulp.src('server/**/*.esn')

@@ -15,7 +15,7 @@
         "server:climate": "cat ./test/artifacts/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
         "server:coverage": "npm run server:coveralls && npm run server:climate",
         "lint": "npm run server:lint",
-        "test": "node --harmony ./node_modules/gulp/bin/gulp test && npm run lint && npm run server:coverage",
+        "test": "node --harmony ./node_modules/gulp/bin/gulp test && npm run server:coverage",
         "dev": "node --harmony ./node_modules/gulp/bin/gulp",
         "start": "node --harmony ./server/index.js"
     },

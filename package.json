@@ -30,7 +30,7 @@
         "hapi-auth-basic": "3.0.x",
         "hapi-bunyan": "0.6.x",
         "i18n": "0.5.x",
-        "inert": "3.0.1",
+        "inert": "3.x.x",
         "joi": "6.x.x",
         "lodash": "3.10.x",
         "moment": "2.10.x",

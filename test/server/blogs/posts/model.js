@@ -45,46 +45,6 @@ describe('Posts DAO', () => {
                 });
         });
     });
-    describe('Posts.areValid', () => {
-        it('should return empty array when nothing is sent', (done) => {
-            let error = null;
-            Posts.areValid([], 'silver lining')
-                .then((result) => {
-                    expect(result).to.be.empty;
-                })
-                .catch((err) => {
-                    expect(err).to.not.exist;
-                    error = err;
-                })
-                .finally(() => {
-                    tu.testComplete(done, error);
-                });
-        });
-        it('should return an object with as many entries as ids sent, appropriately populated', (done) => {
-            let error = null;
-            let postId = '';
-            let bogus = '';
-            Posts.create(blogId, 'silver lining', 'test Posts.areValid', 'draft', 'public', true, true, 'testing', ['testing', 'unit testing', 'activate'], [], 'post', null, 'test')
-                .then((p) => {
-                    postId = p._id.toString();
-                    bogus = Posts.ObjectID().toString();
-                    return Posts.areValid([postId, bogus], 'silver lining');
-                })
-                .then((result) => {
-                    expect(result).to.exist;
-                    expect(result[postId]).to.be.true;
-                    expect(result[bogus]).to.be.false;
-                })
-                .catch((err) => {
-                    expect(err).to.not.exist;
-                    error = err;
-                })
-                .finally(() => {
-                    postsToClear.push('test Posts.areValid');
-                    tu.testComplete(done, error);
-                });
-        });
-    });
     describe('Posts.this.activate/deactivate', () => {
         let activated = null;
         let deactivated = null;

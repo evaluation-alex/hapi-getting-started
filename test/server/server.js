@@ -9,9 +9,7 @@ module.exports = function () {
     manifest.plugins['./server/common/plugins/app-routes'].prependRoute = '';
     return new Bluebird((resolve, reject) => {
         let server = new Hapi.Server(manifest.server);
-        manifest.connections.forEach((connection) => {
-            server.connection(connection);
-        });
+        server.connection(manifest.connections[0]);
         Bluebird.all(Object.keys(manifest.plugins).map((plugin) => {
             let options = manifest.plugins[plugin];
             let module = plugin[0] === '.' ? path.join(__dirname, '/../../', plugin) : plugin;

@@ -1,6 +1,11 @@
 'use strict';
 import Joi from 'joi';
 export default {
+    connection: 'app',
+    collection: 'user-groups',
+    indexes: [
+        [{name: 1, organisation: 1}, {unique: true}]
+    ],
     model: {
         _id: Joi.object(),
         name: Joi.string().required(),
@@ -16,9 +21,24 @@ export default {
         updatedBy: Joi.string(),
         updatedOn: Joi.date()
     },
-    indexes: [
-        [{name: 1, organisation: 1}, {unique: true}]
-    ],
+    updateMethod: {
+        method: 'update',
+        props: [
+            'isActive',
+            'description',
+            'access'
+        ],
+        arrProps: [
+            'owners',
+            'members',
+            'needsApproval'
+        ]
+    },
+    saveAudit: true,
+    joinApproveRejectLeave: {
+        affectedRole: 'members',
+        needsApproval: 'needsApproval'
+    },
     create: {
         payload: {
             name: Joi.string().required(),

@@ -19,19 +19,25 @@ export function errback(err) {
         logger.error({error: err, stack: err.stack});
     }
 }
+export function toStatsD2(bucket, query, start, err) {
+    statsd.timing(bucket, Date.now() - start);
+    if (query) {
+        statsd.increment(bucket + '.' + _.sortBy(_.keys(query), String).join(','), 1);
+    }
+    if (err) {
+        statsd.increment(bucket + '.err', 1);
+    }
+}
 export function defaultcb(bucket, resolve, reject, query) {
     const start = Date.now();
     return (err, res) => {
         if (err) {
             logger.error({error: err, stack: err.stack});
             reject(err);
-            statsd.increment(bucket + '.err', 1);
+            toStatsD2(bucket, query, start, err);
         } else {
             resolve(res);
-        }
-        statsd.timing(bucket, Date.now() - start);
-        if (query) {
-            statsd.increment(bucket + '.' + _.sortBy(_.keys(query), String).join(','), 1);
+            toStatsD2(bucket, query, start);
         }
     };
 }

@@ -1,5 +1,4 @@
 'use strict';
-import buildModel from './../../common/model-builder';
 import * as DAO from './../../common/dao';
 import Blogs from './../model';
 import UserGroups from './../../user-groups/model';
@@ -130,20 +129,5 @@ class Posts {
             });
     }
 }
-DAO.makeDao(Posts, 'app', 'posts', schemas.indexes, schemas.model, '_id');
-buildModel(Posts)
-    .decorateWithUpdates([
-        'isActive',
-        'state',
-        'category',
-        'title',
-        'access',
-        'allowComments',
-        'needsReview',
-        'content'
-    ], [
-        'tags',
-        'attachments'
-    ], 'updatePost')
-    .doneConfiguring();
+DAO.build(Posts, schemas);
 export default Posts;

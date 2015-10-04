@@ -1,5 +1,4 @@
 'use strict';
-import buildModel from './../common/model-builder';
 import * as DAO from './../common/dao';
 import schemas from './schemas';
 import _ from 'lodash';
@@ -44,22 +43,5 @@ class Blogs {
         return Blogs.insertAndAudit(document, by);
     }
 }
-DAO.makeDao(Blogs, 'app', 'blogs', schemas.indexes, schemas.model);
-buildModel(Blogs)
-    .decorateWithUpdates([
-        'isActive',
-        'description',
-        'needsReview',
-        'access',
-        'allowComments',
-        'title'
-    ], [
-        'owners',
-        'contributors',
-        'subscribers',
-        'subscriberGroups',
-        'needsApproval'
-    ], 'update')
-    .decorateWithApproveRejectJoinLeave('subscribers', 'needsApproval')
-    .doneConfiguring();
+DAO.build(Blogs, schemas);
 export default Blogs;

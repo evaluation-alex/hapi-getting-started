@@ -10,8 +10,7 @@ export let register = function register(server, options, next) {
             next();
         }, (err) => {
             next(err);
-        })
-        .done();
+        });
 };
 register.attributes = {
     name: 'MongoIndexes'

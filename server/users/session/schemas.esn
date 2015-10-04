@@ -1,6 +1,7 @@
 'use strict';
 import Joi from 'joi';
 export default {
+    isVirtualModel: true,
     model: Joi.array().items(Joi.object().keys({
         ipaddress: Joi.string(),
         key: Joi.object(),

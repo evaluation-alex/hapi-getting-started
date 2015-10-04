@@ -18,7 +18,6 @@ export default function (model, cancelAction, cancelNotificationsCb) {
             .then((notifications) => Bluebird.settle(
                 notifications.map((notification) => cancelNotificationsHook(target, request, notification))
             )
-        ).catch(utils.errback)
-            .done();
+        ).catch(utils.errback);
     };
 }

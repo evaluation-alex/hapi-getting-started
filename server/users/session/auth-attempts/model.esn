@@ -29,5 +29,5 @@ class AuthAttempts {
             });
     }
 }
-DAO.makeDao(AuthAttempts, 'app', 'auth-attempts', schemas.indexes, schemas.model);
+DAO.build(AuthAttempts, schemas);
 export default AuthAttempts;

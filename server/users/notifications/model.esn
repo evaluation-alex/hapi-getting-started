@@ -1,5 +1,4 @@
 'use strict';
-import buildModel from './../../common/model-builder';
 import * as DAO from './../../common/dao';
 import schemas from './schemas';
 import _ from 'lodash';
@@ -44,12 +43,5 @@ class Notifications {
         }
     }
 }
-DAO.makeDao(Notifications, 'app', 'notifications', schemas.indexes, schemas.model);
-buildModel(Notifications)
-    .decorateWithUpdates([
-        'state',
-        'isActive'
-    ])
-    .decorateWithI18N(['title', 'content'])
-    .doneConfiguring();
+DAO.build(Notifications, schemas);
 export default Notifications;

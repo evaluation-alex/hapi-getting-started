@@ -1,6 +1,12 @@
 'use strict';
 import Joi from 'joi';
 export default {
+    connection: 'app',
+    collection: 'notifications',
+    indexes: [
+        [{objectType: 1, objectId: 1, state: 1, action: 1}],
+        [{email: 1, objectType: 1, objectId: 1, createdOn: 1}]
+    ],
     model: {
         _id: Joi.object(),
         email: Joi.string().email().required(),
@@ -18,10 +24,16 @@ export default {
         updatedBy: Joi.string(),
         updatedOn: Joi.date()
     },
-    indexes: [
-        [{objectType: 1, objectId: 1, state: 1, action: 1}],
-        [{email: 1, objectType: 1, objectId: 1, createdOn: 1}]
-    ],
+    updateMethod: {
+        method: 'update',
+        props: [
+            'state',
+            'isActive'
+        ],
+        arrProps: []
+    },
+    saveAudit: true,
+    i18n: ['title', 'content'],
     find: {
         query: {
             title: Joi.string(),

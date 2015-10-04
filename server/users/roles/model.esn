@@ -20,5 +20,5 @@ class Roles {
         return Roles.upsert(document);
     }
 }
-DAO.makeDao(Roles, 'app', 'roles', schemas.indexes, schemas.model);
+DAO.build(Roles, schemas);
 export default Roles;

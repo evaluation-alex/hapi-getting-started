@@ -1,5 +1,4 @@
 'use strict';
-import buildModel from './../common/model-builder';
 import * as DAO from './../common/dao';
 import schemas from './schemas';
 import Uuid from 'node-uuid';
@@ -53,17 +52,6 @@ class Users {
         };
     }
 
-    afterLogin(ipaddress) {
-        let session = _.find(this.session, (sesion) => sesion.ipaddress === ipaddress);
-        return {
-            _id: this._id,
-            user: this.email,
-            session: session,
-            authHeader: 'Basic ' + new Buffer(this.email + ':' + session.key).toString('base64'),
-            preferences: this.preferences
-        };
-    }
-
     static create(email, organisation, password, locale) {
         let document = {
             email,
@@ -113,14 +101,5 @@ class Users {
             });
     }
 }
-DAO.makeDao(Users, 'app', 'users', schemas.indexes, schemas.model, 'email', 'email');
-buildModel(Users, 'email')
-    .extendVirtualModel(Session)
-    .extendVirtualModel(Preferences)
-    .extendVirtualModel(Profile)
-    .decorateWithUpdates([
-        'isActive',
-        'roles'
-    ], [], 'updateUser')
-    .doneConfiguring();
+DAO.build(Users, schemas, [Session, Preferences, Profile], 'email');
 export default Users;

@@ -8,6 +8,7 @@ let Audit = require('./../../../../server/audit/model');
 let moment = require('moment');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
+let _ = require('lodash');
 describe('Session DAO', () => {
     let firstEmail = 'test.create@session.module';
     let secondEmail = 'test.search@session.module';
@@ -31,8 +32,8 @@ describe('Session DAO', () => {
                     return user.loginSuccess('test', 'test').save();
                 })
                 .then((user) => {
-                    let a = user.afterLogin('test');
-                    return Users.findBySessionCredentials(secondEmail, a.session.key);
+                    let session = _.find(user.session, (sesion) => sesion.ipaddress === 'test');
+                    return Users.findBySessionCredentials(secondEmail, session.key);
                 })
                 .then((foundUser2) => {
                     expect(foundUser2.email).to.equal(secondEmail);

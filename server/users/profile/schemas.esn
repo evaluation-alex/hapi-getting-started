@@ -24,6 +24,7 @@ let employmentHistorySchema = Joi.object().keys({
     to: Joi.date()
 });
 export default {
+    isVirtualModel: true,
     model: {
         firstName: Joi.string(),
         lastName: Joi.string(),
@@ -35,6 +36,18 @@ export default {
         currentAddress: addressSchema,
         educationalQualification: Joi.array().items(educationalQualifactionSchema),
         employmentHistory: Joi.array().items(employmentHistorySchema)
+    },
+    updateMethod: {
+        method: 'updateProfile',
+        props: [
+            'profile.firstName',
+            'profile.lastName',
+            'profile.preferredName',
+            'profile.facebook',
+            'profile.google',
+            'profile.twitter'
+        ],
+        arrProps: []
     },
     update: {
         payload: {

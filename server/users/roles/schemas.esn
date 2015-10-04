@@ -1,6 +1,11 @@
 'use strict';
 import Joi from 'joi';
 export default {
+    connection: 'app',
+    collection: 'roles',
+    indexes: [
+        [{name: 1, organisation: 1}, {unique: true}]
+    ],
     model: {
         _id: Joi.object(),
         name: Joi.string().required(),
@@ -10,7 +15,6 @@ export default {
             object: Joi.string().required()
         })).unique()
     },
-    indexes: [
-        [{name: 1, organisation: 1}, {unique: true}]
-    ]
+    saveAudit: false,
+    isReadonly: true
 };

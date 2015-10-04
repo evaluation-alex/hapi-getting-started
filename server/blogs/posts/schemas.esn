@@ -1,6 +1,13 @@
 'use strict';
 import Joi from 'joi';
 export default {
+    connection: 'app',
+    collection: 'posts',
+    indexes: [
+        [{organisation: 1, title: 1, blogId: 1, publishedOn: 1}],
+        [{tags: 1}],
+        [{state: 1, publishedOn: 1}]
+    ],
     model: {
         _id: Joi.object(),
         blogId: Joi.object().required(),
@@ -25,11 +32,24 @@ export default {
         updatedBy: Joi.string(),
         updatedOn: Joi.date()
     },
-    indexes: [
-        [{organisation: 1, title: 1, blogId: 1, publishedOn: 1}],
-        [{tags: 1}],
-        [{state: 1, publishedOn: 1}]
-    ],
+    updateMethod: {
+        method: 'updatePost',
+        props: [
+            'isActive',
+            'state',
+            'category',
+            'title',
+            'access',
+            'allowComments',
+            'needsReview',
+            'content'
+        ],
+        arrProps: [
+            'tags',
+            'attachments'
+        ]
+    },
+    saveAudit: true,
     create: {
         payload: {
             blogId: Joi.string(),

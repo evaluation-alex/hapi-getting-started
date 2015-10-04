@@ -1,6 +1,36 @@
 'use strict';
 import Joi from 'joi';
 export default {
+    connection: 'app',
+    collection: 'blogs',
+    idForAudit: undefined,
+    indexes: [
+        [{title: 1, organisation: 1}, {unique: true}],
+        [{description: 1}]
+    ],
+    updateMethod: {
+        method: 'update',
+        props: [
+            'isActive',
+            'description',
+            'needsReview',
+            'access',
+            'allowComments',
+            'title'
+        ],
+        arrProps: [
+            'owners',
+            'contributors',
+            'subscribers',
+            'subscriberGroups',
+            'needsApproval'
+        ]
+    },
+    joinApproveRejectLeave: {
+        affectedRole: 'subscribers',
+        needsApproval: 'needsApproval'
+    },
+    saveAudit: true,
     model: {
         _id: Joi.object(),
         title: Joi.string().required(),
@@ -20,10 +50,6 @@ export default {
         updatedBy: Joi.string(),
         updatedOn: Joi.date()
     },
-    indexes: [
-        [{title: 1, organisation: 1}, {unique: true}],
-        [{description: 1}]
-    ],
     create: {
         payload: {
             title: Joi.string(),

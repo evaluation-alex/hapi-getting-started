@@ -4,6 +4,7 @@ import * as utils from './utils';
 import * as errors from './errors';
 import Bluebird from 'bluebird';
 import _ from 'lodash';
+import config from './../config';
 let connections = {};
 export function connect(name, config) {
     return new Bluebird((resolve, reject) => {
@@ -30,66 +31,167 @@ export function disconnect(name) {
         utils.errback(err);
     });
 }
-export function makeDao(ToDecorate, connection, collection, indexes, schema, areValidProperty = undefined, idForAudit = '_id') {
-    return _.extend(ToDecorate, {
+function withSchemaProperties(Dao, schema) {
+    let {connection, collection, indexes} = schema;
+    return _.extend(Dao, {
         ObjectID: Mongodb.ObjectID,
         ObjectId: Mongodb.ObjectID,
-        schema,
         collection,
         indexes,
         connection,
+        modelSchema: schema.model
+    });
+}
+function withSetupMethods(Dao) {
+    return _.extend(Dao, {
         ensureIndexes() {
-            return Bluebird.all(indexes.map((index) => {
+            return Bluebird.all(Dao.indexes.map((index) => {
                 return new Bluebird((resolve, reject) => {
-                    db(connection).ensureIndex(collection,
+                    db(Dao.connection).ensureIndex(Dao.collection,
                         index[0],
                         index[1] || {},
-                        utils.defaultcb(collection + '.ensureIndex', resolve, reject)
+                        utils.defaultcb(Dao.collection + '.ensureIndex', resolve, reject)
                     );
                 });
             }));
-        },
+        }
+    });
+}
+function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit) {
+    _.extend(Dao, {
+        upsert(obj) {
+            return new Bluebird((resolve, reject) => {
+                obj._id = obj._id || Dao.ObjectID();
+                db(Dao.connection).collection(Dao.collection).findOneAndReplace({_id: obj._id},
+                    obj,
+                    {upsert: true, returnOriginal: false},
+                    utils.defaultcb(Dao.collection + '.upsert', (doc) => resolve(new Dao(doc.value)), reject)
+                );
+            });
+        }
+    });
+    if (!isReadonly) {
+        _.extend(Dao, {
+            remove(query) {
+                return new Bluebird((resolve, reject) => {
+                    db(Dao.connection).collection(Dao.collection).deleteMany(query,
+                        utils.defaultcb(Dao.collection + '.remove', (doc) => resolve(doc.deletedCount), reject, query)
+                    );
+                });
+            },
+            saveChangeHistory(audit) {
+                return new Bluebird((resolve, reject) => {
+                    if (audit && saveAudit) {
+                        db(Dao.connection).collection('audit').insertOne(audit, utils.defaultcb('audit.insert', resolve, reject));
+                    } else {
+                        resolve(true);
+                    }
+                });
+            },
+            insertAndAudit(doc, by) {
+                let now = new Date();
+                _.merge(doc, {
+                    isActive: true,
+                    createdBy: by,
+                    createdOn: now,
+                    updatedBy: by,
+                    updatedOn: now
+                });
+                return Dao.upsert(doc)
+                    .then((obj) => {
+                        /*istanbul ignore if: too lazy to write this test case*/
+                        if (!obj) {
+                            return Bluebird.reject(new errors.ObjectNotCreatedError({collection: Dao.collection}));
+                        } else {
+                            return Dao.saveChangeHistory({
+                                objectChangedType: Dao.collection,
+                                objectChangedId: obj[idForAudit],
+                                organisation: obj.organisation,
+                                by: by,
+                                on: now,
+                                change: [{
+                                    action: 'create',
+                                    newValues: doc
+                                }]
+                            })
+                                .then(() => obj);
+                        }
+                    });
+            }
+        });
+    }
+    if (process.env.NODE_ENV !== 'production') {
+        _.extend(Dao, {
+            remove(query) {
+                return new Bluebird((resolve, reject) => {
+                    db(Dao.connection).collection(Dao.collection).deleteMany(query,
+                        utils.defaultcb(Dao.collection + '.remove', (doc) => resolve(doc.deletedCount), reject, query)
+                    );
+                });
+            }
+        });
+    }
+    return Dao;
+}
+function withFindMethods(Dao, areValidProperty) {
+    _.extend(Dao, {
         count(query) {
             return new Bluebird((resolve, reject) => {
-                db(connection).collection(collection).count(query,
-                    utils.defaultcb(collection + '.count',
-                        resolve,
-                        reject,
-                        query));
+                db(Dao.connection).collection(Dao.collection).count(query, utils.defaultcb(Dao.collection + '.count', resolve, reject, query));
             });
         },
         find(query, fields, sort, limit, skip) {
             return new Bluebird((resolve, reject) => {
-                db(connection).collection(collection).find(query,
+                let start = Date.now();
+                let bucket = Dao.collection + '.find';
+                let cursor = db(Dao.connection).collection(Dao.collection).find(query,
                     {fields: fields, sort: sort, limit: limit, skip: skip}
-                ).toArray(utils.defaultcb(collection + '.find',
-                        (docs) => {
-                            if (utils.hasItems(docs)) {
-                                resolve(docs.map((doc) => new ToDecorate(doc)));
-                            } else {
-                                resolve([]);
-                            }
-                        },
-                        reject,
-                        query)
                 );
+                let results = [];
+
+                function handleError(err) {
+                    utils.errback(err);
+                    utils.toStatsD2(bucket, query, start, err);
+                    reject(err);
+                }
+
+                function next(err, doc) {
+                    if (err) {
+                        handleError(err);
+                    } else {
+                        results.push(new Dao(doc));
+                        cursor.hasNext(hasNext);
+                    }
+                }
+
+                function hasNext(err, hasMore) {
+                    if (err) {
+                        handleError(err);
+                    } else {
+                        if (hasMore) {
+                            cursor.next(next);
+                        } else {
+                            resolve(results);
+                            utils.toStatsD2(bucket, query, start, err);
+                        }
+                    }
+                }
+
+                cursor.hasNext(hasNext);
             });
         },
         findOne(query) {
             return new Bluebird((resolve, reject) => {
-                db(connection).collection(collection).findOne(query,
+                db(Dao.connection).collection(Dao.collection).findOne(query,
                     {},
-                    utils.defaultcb(collection + '.findOne',
-                        (doc) => resolve(doc ? new ToDecorate(doc) : undefined),
-                        reject,
-                        query)
+                    utils.defaultcb(Dao.collection + '.findOne', (doc) => resolve(doc ? new Dao(doc) : undefined), reject, query)
                 );
             });
         },
         pagedFind(query, fields, sort, limit, page) {
             return Bluebird.join(
-                ToDecorate.find(query, fields, sort, limit, (page - 1) * limit),
-                ToDecorate.count(query),
+                Dao.find(query, fields, sort, limit, (page - 1) * limit),
+                Dao.count(query),
                 (results, count) => {
                     return {
                         data: results,
@@ -109,88 +211,238 @@ export function makeDao(ToDecorate, connection, collection, indexes, schema, are
                         }
                     };
                 });
-        },
-        upsert(obj) {
-            return new Bluebird((resolve, reject) => {
-                obj._id = obj._id || ToDecorate.ObjectID();
-                db(connection).collection(collection).findOneAndReplace({_id: obj._id},
-                    obj,
-                    {upsert: true, returnOriginal: false},
-                    utils.defaultcb(collection + '.upsert',
-                        (doc) => resolve(new ToDecorate(doc.value)),
-                        reject)
-                );
-            });
-        },
-        remove(query) {
-            return new Bluebird((resolve, reject) => {
-                db(connection).collection(collection).deleteMany(query,
-                    utils.defaultcb(collection + '.remove',
-                        (doc) => resolve(doc.deletedCount),
-                        reject,
-                        query)
-                );
-            });
-        },
-        saveChangeHistory(audit) {
-            return new Bluebird((resolve, reject) => {
-                if (audit) {
-                    db(connection).collection('audit').insert(audit, utils.defaultcb('audit.insert', resolve, reject));
-                } else {
-                    resolve(true);
-                }
-            });
-        },
-        insertAndAudit(doc, by) {
-            let now = new Date();
-            _.merge(doc, {
-                isActive: true,
-                createdBy: by,
-                createdOn: now,
-                updatedBy: by,
-                updatedOn: now
-            });
-            return ToDecorate.upsert(doc)
-                .then((obj) => {
-                    /*istanbul ignore if: too lazy to write this test case*/
-                    if (!obj) {
-                        return Bluebird.reject(new errors.ObjectNotCreatedError({collection}));
-                    } else {
-                        return ToDecorate.saveChangeHistory({
-                            objectChangedType: collection,
-                            objectChangedId: obj[idForAudit],
-                            organisation: obj.organisation,
-                            by: by,
-                            on: now,
-                            change: [{
-                                action: 'create',
-                                newValues: doc
-                            }]
-                        })
-                            .then(() => obj);
-                    }
-                });
-        },
-        areValid(toCheck, organisation) {
-            if (!utils.hasItems(toCheck) || !areValidProperty) {
-                return Bluebird.resolve({});
-            } else {
-                let conditions = {
-                    isActive: true,
-                    organisation: organisation
-                };
-                if (areValidProperty === '_id') {
-                    toCheck = toCheck.map((id) => ToDecorate.ObjectID(id));
-                }
-                conditions[areValidProperty] = {$in: toCheck};
-                return ToDecorate.find(conditions)
-                    .then((docs) => {
-                        let results = {};
-                        docs.forEach((doc) => results[doc[areValidProperty]] = true);
-                        toCheck.forEach((e) => results[e] = !!results[e]);
-                        return results;
-                    });
-            }
         }
     });
+    if (areValidProperty) {
+        _.extend(Dao, {
+            areValid(toCheck, organisation) {
+                if (!utils.hasItems(toCheck) || !areValidProperty) {
+                    return Bluebird.resolve({});
+                } else {
+                    let conditions = {
+                        isActive: true,
+                        organisation: organisation
+                    };
+                    if (areValidProperty === '_id') {
+                        toCheck = toCheck.map((id) => Dao.ObjectID(id));
+                    }
+                    conditions[areValidProperty] = {$in: toCheck};
+                    return Dao.find(conditions)
+                        .then((docs) => {
+                            let results = {};
+                            docs.forEach((doc) => results[doc[areValidProperty]] = true);
+                            toCheck.forEach((e) => results[e] = !!results[e]);
+                            return results;
+                        });
+                }
+            }
+        });
+    }
+    return Dao;
+}
+function propDescriptors(properties = []) {
+    return properties.map((p) => {
+        return {
+            name: p,
+            path: p.split('.'),
+            method: 'set' + p.split('.').map(_.capitalize).join('')
+        };
+    });
+}
+function arrDescriptors(lists = []) {
+    return lists.map((l) => {
+        let methodSuffix = l.split('.').map(_.capitalize).join('');
+        let pathadd = l.split('.');
+        pathadd[pathadd.length - 1] = 'added' + _.capitalize(pathadd[pathadd.length - 1]);
+        let pathrem = l.split('.');
+        pathrem[pathrem.length - 1] = 'removed' + _.capitalize(pathrem[pathrem.length - 1]);
+        return {
+            name: l,
+            path: l.split('.'),
+            methodSuffix: methodSuffix,
+            added: pathadd,
+            addMethod: 'add' + methodSuffix,
+            removed: pathrem,
+            removeMethod: 'remove' + methodSuffix,
+            isPresentIn: 'isPresentIn' + methodSuffix
+        };
+    });
+}
+function withSetMethods(model, properties) {
+    properties.forEach((p) => {
+        let {method, path, name} = p;
+        _.extend(model.prototype, {
+            [method](newValue, by) {
+                let origval = _.get(this, path);
+                if (!_.isUndefined(newValue) && !_.isEqual(origval, newValue)) {
+                    this.trackChanges(name, origval, newValue, by);
+                    _.set(this, path, newValue);
+                }
+                return this;
+            }
+        });
+    });
+    return model;
+}
+function withArrMethods(model, lists) {
+    lists.forEach((role) => {
+        let {path, name, isPresentIn, addMethod, removeMethod} = role;
+        _.extend(model.prototype, {
+            [isPresentIn](toCheck) {
+                return !!_.find(_.get(this, path), (item) => _.isEqual(item, toCheck));
+            },
+            [addMethod](toAdd, by) {
+                let list = _.get(this, path);
+                toAdd.forEach((memberToAdd) => {
+                    let found = _.find(list, (item) => _.isEqual(item, memberToAdd));
+                    if (!found) {
+                        list.push(memberToAdd);
+                        this.trackChanges('add ' + name, null, memberToAdd, by);
+                    }
+                }, this);
+                return this;
+            },
+            [removeMethod](toRemove, by) {
+                let list = _.get(this, path);
+                toRemove.forEach((memberToRemove) => {
+                    let removed = _.remove(list, (item) => _.isEqual(item, memberToRemove));
+                    if (utils.hasItems(removed)) {
+                        this.trackChanges('remove ' + name, memberToRemove, null, by);
+                    }
+                }, this);
+                return this;
+            }
+        });
+    });
+    return model;
+}
+function withUpdate(model, props, arrs, updateMethod) {
+    _.extend(model.prototype, {
+        [updateMethod](doc, by) {
+            props.forEach((p) => {
+                let u = _.get(doc.payload, p.path);
+                if (!_.isUndefined(u)) {
+                    this[p.method](u, by);
+                }
+            }, this);
+            arrs.forEach((arr) => {
+                let r = _.get(doc.payload, arr.removed);
+                if (!_.isUndefined(r) && utils.hasItems(r)) {
+                    this[arr.removeMethod](r, by);
+                }
+                let a = _.get(doc.payload, arr.added);
+                if (!_.isUndefined(a) && utils.hasItems(a)) {
+                    this[arr.addMethod](a, by);
+                }
+            }, this);
+            return this;
+        }
+    });
+    return model;
+}
+function withApproveRejectJoinLeave(model, affectedRole, needsApproval) {
+    let needsApprovalMethodSuffix = needsApproval.split('.').map(_.capitalize).join('');
+    let affectedRoleMethodSuffix = affectedRole.split('.').map(_.capitalize).join('');
+    let toAdd = affectedRole.split('.');
+    toAdd[toAdd.length - 1] = 'added' + _.capitalize(toAdd[toAdd.length - 1]);
+    _.extend(model.prototype, {
+        join(doc, by) {
+            let method = this.access === 'public' ? affectedRoleMethodSuffix : needsApprovalMethodSuffix;
+            return this['add' + method]([by], by);
+        },
+        approve(doc, by) {
+            this['add' + affectedRoleMethodSuffix](_.get(doc.payload, toAdd), by);
+            this['remove' + needsApprovalMethodSuffix](_.get(doc.payload, toAdd), by);
+            return this;
+        },
+        reject(doc, by) {
+            return this['remove' + needsApprovalMethodSuffix](_.get(doc.payload, toAdd), by);
+        },
+        leave(doc, by) {
+            return this['remove' + affectedRoleMethodSuffix]([by], by);
+        }
+    });
+    return model;
+}
+function withI18n(model, fields) {
+    _.extend(model.prototype, {
+        i18n(locale) {
+            fields.forEach((field) => {
+                if (_.isArray(this[field]) && this[field].length === 2) {
+                    this[field] = config.i18n.__({phrase: this[field][0], locale}, this[field][1]);
+                }
+            }, this);
+            return this;
+        }
+    });
+}
+function withSave(model, saveAudit, idForAudit = '_id') {
+    _.extend(model.prototype, {
+        save() {
+            return model.saveChangeHistory(this.audit)
+                .then(() => {
+                    this.audit = undefined;
+                    return model.upsert(this);
+                });
+        },
+        del(doc, by) {
+            return this.deactivate(by);
+        },
+        deactivate(by) {
+            return this.setIsActive(false, by);
+        },
+        reactivate(by) {
+            return this.setIsActive(true, by);
+        },
+        trackChanges(action, origValues, newValues, by) {
+            let now = new Date();
+            if (saveAudit) {
+                this.audit = this.audit || {
+                        objectChangedType: model.collection,
+                        objectChangedId: this[idForAudit],
+                        organisation: this.organisation,
+                        change: []
+                    };
+                this.audit.change.push({action, origValues, newValues});
+                this.audit.by = by;
+                this.audit.on = now;
+            }
+            this.updatedBy = by;
+            this.updatedOn = now;
+            return this;
+        }
+    });
+    return model;
+}
+export function build(toBuild, schema, extendModels, areValidProperty = undefined) {
+    if (!schema.isVirtualModel) {
+        withSchemaProperties(toBuild, schema);
+        withSetupMethods(toBuild);
+        withModifyMethods(toBuild, schema.isReadonly, schema.saveAudit, schema.idForAudit || '_id');
+        withFindMethods(toBuild, areValidProperty);
+    }
+    if (schema.updateMethod) {
+        let props = propDescriptors(schema.updateMethod.props);
+        let arrs = arrDescriptors(schema.updateMethod.arrProps);
+        withSetMethods(toBuild, props);
+        withArrMethods(toBuild, arrs);
+        withUpdate(toBuild, props, arrs, schema.updateMethod.method);
+    }
+    if (schema.joinApproveRejectLeave) {
+        let {affectedRole, needsApproval} = schema.joinApproveRejectLeave;
+        withApproveRejectJoinLeave(toBuild, affectedRole, needsApproval);
+    }
+    if (!schema.isVirtualModel && !schema.isReadonly) {
+        withSave(toBuild, schema.saveAudit, schema.idForAudit);
+    }
+    if (utils.hasItems(schema.i18n)) {
+        withI18n(toBuild, schema.i18n);
+    }
+    if (utils.hasItems(extendModels)) {
+        extendModels.forEach((fromVirtualModel) => {
+            _.extend(toBuild, _.omit(fromVirtualModel, ['schema', 'create']));
+            _.extend(toBuild.prototype, fromVirtualModel.prototype);
+        });
+    }
+    return toBuild;
 }

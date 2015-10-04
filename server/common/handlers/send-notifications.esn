@@ -21,7 +21,6 @@ export default function(model, notifyCb) {
                 }
                 return undefined;
             })
-            .catch(utils.errback)
-            .done();
+            .catch(utils.errback);
     };
 }

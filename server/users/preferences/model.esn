@@ -1,5 +1,6 @@
 'use strict';
-import { buildVirtualModel } from './../../common/model-builder';
+import * as DAO from './../../common/dao';
+import schemas from './schemas';
 class Preferences {
     static create() {
         return {
@@ -46,25 +47,5 @@ class Preferences {
         return this;
     }
 }
-buildVirtualModel(Preferences)
-    .decorateWithUpdates([
-        'preferences.notifications.blogs.inapp.frequency',
-        'preferences.notifications.blogs.inapp.lastSent',
-        'preferences.notifications.blogs.email.frequency',
-        'preferences.notifications.blogs.email.lastSent',
-        'preferences.notifications.posts.inapp.frequency',
-        'preferences.notifications.posts.inapp.lastSent',
-        'preferences.notifications.blogs.email.frequency',
-        'preferences.notifications.blogs.email.lastSent',
-        'preferences.notifications.userGroups.inapp.frequency',
-        'preferences.notifications.userGroups.inapp.lastSent',
-        'preferences.notifications.userGroups.email.frequency',
-        'preferences.notifications.userGroups.email.lastSent',
-        'preferences.locale'
-    ], [
-        'preferences.notifications.blogs.blocked',
-        'preferences.notifications.posts.blocked',
-        'preferences.notifications.userGroups.blocked'
-    ], 'updatePreferences')
-    .doneConfiguring();
+DAO.build(Preferences, schemas);
 export default Preferences;

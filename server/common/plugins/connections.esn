@@ -1,23 +1,22 @@
 'use strict';
-import * as Model from './../dao';
+import {connect, disconnect} from './../dao';
 import _ from 'lodash';
 import Bluebird from 'bluebird';
 export let register = function register(server, options, next) {
     let dbconnections = [];
     _.forIn(options.mongo, (connectionargs, name) => {
-        dbconnections.push(Model.connect(name, connectionargs)
+        dbconnections.push(connect(name, connectionargs)
             .then((db) => {
                 server.expose('MongoDB' + name, db);
                 server.on('stop', () => {
-                    Model.disconnect(name);
+                    disconnect(name);
                 });
                 return db;
             }));
     });
     Bluebird.all(dbconnections)
         .then(() => undefined)
-        .then(next, next)
-        .done();
+        .then(next, next);
 };
 register.attributes = {
     name: 'MongoConnections'

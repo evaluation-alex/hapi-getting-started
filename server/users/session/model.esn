@@ -34,6 +34,17 @@ class Session {
         return this;
     }
 
+    afterLogin(ipaddress) {
+        let session = _.find(this.session, (sesion) => sesion.ipaddress === ipaddress);
+        return {
+            _id: this._id,
+            user: this.email,
+            session: _.omit(session, 'key'),
+            authHeader: 'Basic ' + new Buffer(this.email + ':' + session.key).toString('base64'),
+            preferences: this.preferences
+        };
+    }
+
     loginFail(ipaddress, by) {
         return this.trackChanges('login fail', null, ipaddress, by);
     }

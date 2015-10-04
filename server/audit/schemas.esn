@@ -1,6 +1,13 @@
 'use strict';
 import Joi from 'joi';
 export default {
+    connection: 'app',
+    collection: 'audit',
+    indexes: [
+        [{organisation: 1, objectChangedType: 1}],
+        [{by: 1, on: 1}],
+        [{on: 1}]
+    ],
     model: {
         _id: Joi.object(),
         objectChangedType: Joi.string().required(),
@@ -14,11 +21,8 @@ export default {
             newValues: Joi.object()
         }))
     },
-    indexes: [
-        [{organisation: 1, objectChangedType: 1}],
-        [{by: 1, on: 1}],
-        [{on: 1}]
-    ],
+    saveAudit: false,
+    isReadonly: true,
     find: {
         query: {
             by: Joi.string(),

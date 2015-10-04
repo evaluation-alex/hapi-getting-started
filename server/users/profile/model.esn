@@ -1,5 +1,6 @@
 'use strict';
-import { buildVirtualModel } from './../../common/model-builder';
+import * as DAO from './../../common/dao';
+import schemas from './schemas';
 class Profile {
     resetProfile() {
         this.profile = Profile.create();
@@ -32,40 +33,5 @@ class Profile {
         };
     }
 }
-buildVirtualModel(Profile)
-    .decorateWithUpdates([
-        'profile.firstName',
-        'profile.lastName',
-        'profile.preferredName',
-        'profile.title',
-        'profile.dateOfBirth',
-        'profile.firstName',
-        'profile.lastName',
-        'profile.preferredName',
-        'profile.title',
-        'profile.dateOfBirth',
-        'profile.permanentAddress.apartment',
-        'profile.permanentAddress.floorHouseNo',
-        'profile.permanentAddress.street',
-        'profile.permanentAddress.landmark',
-        'profile.permanentAddress.area',
-        'profile.permanentAddress.city',
-        'profile.permanentAddress.pincode',
-        'profile.permanentAddress.state',
-        'profile.permanentAddress.country',
-        'profile.currentAddress.apartment',
-        'profile.currentAddress.floorHouseNo',
-        'profile.currentAddress.street',
-        'profile.currentAddress.landmark',
-        'profile.currentAddress.area',
-        'profile.currentAddress.city',
-        'profile.currentAddress.pincode',
-        'profile.currentAddress.state',
-        'profile.currentAddress.country'
-    ], [
-        'profile.phone',
-        'profile.educationalQualifications',
-        'profile.employmentHistory'
-    ], 'updateProfile')
-    .doneConfiguring();
+DAO.build(Profile, schemas);
 export default Profile;

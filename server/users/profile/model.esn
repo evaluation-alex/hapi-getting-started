@@ -2,11 +2,6 @@
 import * as DAO from './../../common/dao';
 import schemas from './schemas';
 class Profile {
-    resetProfile() {
-        this.profile = Profile.create();
-        return this;
-    }
-
     static create() {
         let emptyAddress = {
             apartment: '',
@@ -32,6 +27,10 @@ class Profile {
             employmentHistory: []
         };
     }
+    resetProfile() {
+        this.profile = Profile.create();
+        return this;
+    }
 }
-DAO.build(Profile, schemas);
+DAO.build(Profile, schemas.dao, schemas.model);
 export default Profile;

@@ -43,5 +43,5 @@ class Notifications {
         }
     }
 }
-DAO.build(Notifications, schemas);
+DAO.build(Notifications, schemas.dao, schemas.model);
 export default Notifications;

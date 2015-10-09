@@ -4,13 +4,24 @@ let session = require('./session/schemas').model;
 let preferences = require('./preferences/schemas').model;
 let profile = require('./profile/schemas').model;
 export default {
-    connection: 'app',
-    collection: 'users',
-    idForAudit: 'email',
-    indexes: [
-        [{email: 1}, {unique: true}],
-        [{email: 1, organisation: 1}, {unique: true}]
-    ],
+    dao: {
+        connection: 'app',
+        collection: 'users',
+        idForAudit: 'email',
+        indexes: [
+            [{email: 1}, {unique: true}],
+            [{email: 1, organisation: 1}, {unique: true}]
+        ],
+        updateMethod: {
+            method: 'updateUser',
+            props: [
+                'isActive',
+                'roles'
+            ],
+            arrProps: []
+        },
+        saveAudit: true
+    },
     model: {
         _id: Joi.object(),
         email: Joi.string().required(),
@@ -30,46 +41,39 @@ export default {
         updatedBy: Joi.string(),
         updatedOn: Joi.date()
     },
-    updateMethod: {
-        method: 'updateUser',
-        props: [
-            'isActive',
-            'roles'
-        ],
-        arrProps: []
-    },
-    saveAudit: true,
-    signup: {
-        payload: {
-            email: Joi.string().required(),
-            organisation: Joi.string().required(),
-            locale: Joi.string().only(['en', 'hi']).default('en'),
-            password: Joi.string().required()
-        }
-    },
-    find: {
-        query: {
-            email: Joi.string(),
-            isActive: Joi.string()
-        }
-    },
-    update: {
-        payload: {
-            isActive: Joi.boolean(),
-            roles: Joi.array().items(Joi.string()),
-            password: Joi.string()
-        }
-    },
-    loginForgot: {
-        payload: {
-            email: Joi.string().required()
-        }
-    },
-    loginReset: {
-        payload: {
-            key: Joi.string().required(),
-            email: Joi.string().required(),
-            password: Joi.string().required()
+    controller: {
+        signup: {
+            payload: {
+                email: Joi.string().required(),
+                organisation: Joi.string().required(),
+                locale: Joi.string().only(['en', 'hi']).default('en'),
+                password: Joi.string().required()
+            }
+        },
+        find: {
+            query: {
+                email: Joi.string(),
+                isActive: Joi.string()
+            }
+        },
+        update: {
+            payload: {
+                isActive: Joi.boolean(),
+                roles: Joi.array().items(Joi.string()),
+                password: Joi.string()
+            }
+        },
+        loginForgot: {
+            payload: {
+                email: Joi.string().required()
+            }
+        },
+        loginReset: {
+            payload: {
+                key: Joi.string().required(),
+                email: Joi.string().required(),
+                password: Joi.string().required()
+            }
         }
     }
 };

@@ -1,14 +1,21 @@
 'use strict';
+import {buildQueryForPartialMatch, buildQueryForDateRange, buildQueryForExactMatch} from './../common/utils';
+import {canView, findValidator} from './../common/prereqs';
+import {buildFindHandler} from './../common/handlers';
 import schemas from './schemas';
 import Audit from './model';
-import ControllerFactory from './../common/controller-factory';
-import * as utils from './../common/utils';
-let Controller = new ControllerFactory(Audit)
-    .findController(schemas.find, (request) => {
-        let query = utils.buildQueryForPartialMatch({}, request, [['by', 'by']]);
-        query = utils.buildQueryForDateRange(query, request, 'on');
-        query = utils.buildQueryForExactMatch(query, request, [['objectType', 'objectChangedType'], ['objectChangedId', 'objectChangedId']]);
-        return query;
-    })
-    .doneConfiguring();
-export default Controller;
+
+export default {
+    find: {
+        validate: findValidator(schemas.controller.find),
+        pre: [
+            canView(Audit.collection)
+        ],
+        handler: buildFindHandler(Audit, (request) => {
+            let query = buildQueryForPartialMatch({}, request, [['by', 'by']]);
+            query = buildQueryForDateRange(query, request, 'on');
+            query = buildQueryForExactMatch(query, request, [['objectType', 'objectChangedType'], ['objectChangedId', 'objectChangedId']]);
+            return query;
+        })
+    }
+};

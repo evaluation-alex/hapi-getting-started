@@ -11,7 +11,10 @@ export default class RouteFactory {
         this.current = this.current + 1;
         this.routes.push({
             config: {
-                pre: []
+                pre: [],
+                ext: {
+                    onPostHandler: []
+                }
             }
         });
         return this;
@@ -34,9 +37,15 @@ export default class RouteFactory {
         this.routes[this.current].config.validate = validator;
         return this;
     }
-    preProcessWith(preProcess) {
-        preProcess.forEach((pre) => {
+    preProcessWith(preProcess = []) {
+        preProcess.forEach(pre => {
             this.routes[this.current].config.pre.push(pre);
+        }, this);
+        return this;
+    }
+    postProcessWith(postProcess = []) {
+        postProcess.forEach(post => {
+            this.routes[this.current].config.ext.onPostHandler.push(post);
         }, this);
         return this;
     }
@@ -53,6 +62,7 @@ export default class RouteFactory {
             this.withValidation(controller.validate);
         }
         this.preProcessWith(controller.pre);
+        this.postProcessWith(controller.post);
         return this;
     }
     _defaultRoute(method, pth, controller) {

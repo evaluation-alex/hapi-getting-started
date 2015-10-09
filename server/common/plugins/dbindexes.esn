@@ -6,11 +6,7 @@ export let register = function register(server, options, next) {
         return require(Path.join(process.cwd(), '/server/', module, '/model')).ensureIndexes();
     }))
         .then(() => undefined)
-        .then(() => {
-            next();
-        }, (err) => {
-            next(err);
-        });
+        .then(next, next);
 };
 register.attributes = {
     name: 'MongoIndexes'

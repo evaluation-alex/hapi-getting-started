@@ -1,89 +1,113 @@
 'use strict';
-import schemas from './schemas';
 import path from 'path';
-import Config from './../config';
-import Users from './model';
-import * as Mailer from './../common/plugins/mailer';
-import ControllerFactory from './../common/controller-factory';
-import * as utils from './../common/utils';
-import * as errors from './../common/errors';
 import Bluebird from 'bluebird';
-import onlyOwnerAllowed from './../common/prereqs/only-owner';
-let Controller = new ControllerFactory(Users)
-    .customNewController('signup', schemas.signup, (request) => {
-        return {
-            email: request.payload.email,
-            organisation: request.payload.organisation
-        };
-    }, (request) => {
-        let email = request.payload.email;
-        let password = request.payload.password;
-        let organisation = request.payload.organisation;
-        let locale = request.payload.locale;
-        let ip = utils.ip(request);
-        return Users.create(email, organisation, password, locale)
-            .then((user) => user.loginSuccess(ip, user.email).save())
-            .then((user) => {
-                let options = {
-                    subject: 'Your ' + Config.projectName + ' account',
-                    to: {
-                        name: request.payload.email,
-                        address: email
-                    }
+import {sendEmail} from './../common/plugins/mailer';
+import {PasswordResetError} from './../common/errors';
+import {ip, buildQueryForPartialMatch, logAndBoom} from './../common/utils';
+import {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} from './../common/prereqs';
+import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
+import Config from './../config';
+import schemas from './schemas';
+import Users from './model';
+
+export default {
+    signup: {
+        validate: schemas.controller.signup,
+        pre: [
+            uniqueCheck(Users, (request) => {
+                return {
+                    email: request.payload.email,
+                    organisation: request.payload.organisation
                 };
-                /*jshint unused:false*/
-                /*eslint-disable no-unused-vars*/
-                return Bluebird.join(user.afterLogin(ip),
-                    Mailer.sendEmail(options, path.join(__dirname, '/templates/welcome.hbs.md'), request.payload),
-                    (user1, m) => user1
-                );
-                /*eslint-enable no-unused-vars*/
-                /*jshint unused:true*/
-            });
-    })
-    .findController(schemas.find, (request) => utils.buildQueryForPartialMatch({}, request, [['email', 'email']]),
-    (output) => {
-        output.data = output.data.map((user) => user.stripPrivateData());
-        return output;
-    })
-    .findOneController([
-        onlyOwnerAllowed(Users, 'email')
-    ])
-    .updateController(schemas.update, [
-        onlyOwnerAllowed(Users, 'email')
-    ],
-    'update',
-    (user, request, by) => user._invalidateSession(utils.ip(request), by).updateUser(request, by))
-    .forMethod('loginForgot')
-    .withValidation(schemas.loginForgot)
-    .handleUsing((request, reply) => {
-        Users.findOne({email: request.payload.email})
-            .then((user) => user ? user.resetPasswordSent(user.email).save() : user)
-            .then((user) => {
-                if (user) {
+            })
+        ],
+        handler: buildCreateHandler(Users, (request) => {
+            let {email, password, organisation, locale} = request.payload;
+            let ipadrs = ip(request);
+            return Users.create(email, organisation, password, locale)
+                .then(user => user.loginSuccess(ipadrs, user.email).save())
+                .then(user => {
                     let options = {
-                        subject: 'Reset your ' + Config.projectName + ' password',
-                        to: request.payload.email
+                        subject: 'Your ' + Config.projectName + ' account',
+                        to: {
+                            name: request.payload.email,
+                            address: email
+                        }
                     };
-                    return Mailer.sendEmail(options, path.join(__dirname, '/templates/forgot-password.hbs.md'), {key: user.resetPwd.token});
-                }
-                return undefined;
+                    /*jshint unused:false*/
+                    /*eslint-disable no-unused-vars*/
+                    return Bluebird.join(user.afterLogin(ipadrs),
+                        sendEmail(options, path.join(__dirname, '/templates/welcome.hbs.md'), request.payload),
+                        (user1, m) => user1
+                    );
+                    /*eslint-enable no-unused-vars*/
+                    /*jshint unused:true*/
+                });
+        })
+    },
+    find: {
+        validate: findValidator(schemas.controller.find),
+        pre: [
+            canView(Users.collection)
+        ],
+        handler: buildFindHandler(Users, (request) => buildQueryForPartialMatch({}, request, [['email', 'email']]),
+            (output) => {
+                output.data = output.data.map((user) => user.stripPrivateData());
+                return output;
             })
-            .then(() => reply({message: 'Success.'}))
-            .catch((err) => utils.logAndBoom(err, reply));
-    })
-    .forMethod('loginReset')
-    .withValidation(schemas.loginReset)
-    .handleUsing((request, reply) => {
-        Users.findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
-            .then((user) => {
-                if (!user || (request.payload.key !== user.resetPwd.token)) {
-                    return Bluebird.reject(new errors.PasswordResetError());
-                }
-                return user._invalidateSession(utils.ip(request), user.email).setPassword(request.payload.password, user.email).save();
-            })
-            .then(() => reply({message: 'Success.'}))
-            .catch((err) => utils.logAndBoom(err, reply));
-    })
-    .doneConfiguring();
-export default Controller;
+    },
+    findOne: {
+        pre: [
+            canView(Users.collection),
+            prePopulate(Users, 'id'),
+            onlyOwner(Users)
+        ],
+        handler: buildFindOneHandler(Users)
+    },
+    update: {
+        validate: schemas.controller.update,
+        pre: [
+            canUpdate(Users.collection),
+            prePopulate(Users, 'id'),
+            onlyOwner(Users)
+        ],
+        handler: buildUpdateHandler(Users, (usr, request, e) => usr._invalidateSession(ip(request), e).updateUser(request, e))
+    },
+    loginForgot: {
+        validate: schemas.controller.loginForgot,
+        handler: (request, reply) => {
+            Users.findOne({email: request.payload.email})
+                .then(user => user ? user.resetPasswordSent(user.email).save() : user)
+                .then(user => {
+                    if (user) {
+                        let options = {
+                            subject: 'Reset your ' + Config.projectName + ' password',
+                            to: request.payload.email
+                        };
+                        return sendEmail(options, path.join(__dirname, '/templates/forgot-password.hbs.md'), {key: user.resetPwd.token});
+                    }
+                    return undefined;
+                })
+                .then(() => reply({message: 'Success.'}))
+                .catch(err => {
+                    logAndBoom(err, reply);
+                });
+        }
+    },
+    loginReset: {
+        validate: schemas.controller.loginReset,
+        handler: (request, reply) => {
+            Users.findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
+                .then(user => {
+                    if (!user || (request.payload.key !== user.resetPwd.token)) {
+                        return Bluebird.reject(new PasswordResetError());
+                    }
+                    return user._invalidateSession(ip(request), user.email).setPassword(request.payload.password, user.email).save();
+                })
+                .then(() => reply({message: 'Success.'}))
+                .catch(err => {
+                    logAndBoom(err, reply);
+                });
+        }
+    }
+};

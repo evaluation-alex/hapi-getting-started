@@ -101,5 +101,5 @@ class Users {
             });
     }
 }
-DAO.build(Users, schemas, [Session, Preferences, Profile], 'email');
+DAO.build(Users, schemas.dao, schemas.model, [Session, Preferences, Profile], 'email');
 export default Users;

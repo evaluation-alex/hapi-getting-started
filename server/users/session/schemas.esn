@@ -1,16 +1,20 @@
 'use strict';
 import Joi from 'joi';
 export default {
-    isVirtualModel: true,
+    dao: {
+        isVirtualModel: true
+    },
     model: Joi.array().items(Joi.object().keys({
         ipaddress: Joi.string(),
         key: Joi.object(),
         expires: Joi.date()
     })),
-    login: {
-        payload: {
-            email: Joi.string().required(),
-            password: Joi.string().required()
+    controller: {
+        login: {
+            payload: {
+                email: Joi.string().required(),
+                password: Joi.string().required()
+            }
         }
     }
 };

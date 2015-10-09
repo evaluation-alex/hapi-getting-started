@@ -1,13 +1,17 @@
 'use strict';
 import Joi from 'joi';
 export default {
-    connection: 'app',
-    collection: 'audit',
-    indexes: [
-        [{organisation: 1, objectChangedType: 1}],
-        [{by: 1, on: 1}],
-        [{on: 1}]
-    ],
+    dao: {
+        connection: 'app',
+        collection: 'audit',
+        indexes: [
+            [{organisation: 1, objectChangedType: 1}],
+            [{by: 1, on: 1}],
+            [{on: 1}]
+        ],
+        saveAudit: false,
+        isReadonly: true
+    },
     model: {
         _id: Joi.object(),
         objectChangedType: Joi.string().required(),
@@ -21,15 +25,15 @@ export default {
             newValues: Joi.object()
         }))
     },
-    saveAudit: false,
-    isReadonly: true,
-    find: {
-        query: {
-            by: Joi.string(),
-            objectType: Joi.string(),
-            objectChangedId: Joi.string(),
-            onBefore: Joi.date().format('YYYY-MM-DD'),
-            onAfter: Joi.date().format('YYYY-MM-DD')
+    controller: {
+        find: {
+            query: {
+                by: Joi.string(),
+                objectType: Joi.string(),
+                objectChangedId: Joi.string(),
+                onBefore: Joi.date().format('YYYY-MM-DD'),
+                onAfter: Joi.date().format('YYYY-MM-DD')
+            }
         }
     }
 };

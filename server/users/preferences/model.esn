@@ -47,5 +47,5 @@ class Preferences {
         return this;
     }
 }
-DAO.build(Preferences, schemas);
+DAO.build(Preferences, schemas.dao, schemas.model);
 export default Preferences;

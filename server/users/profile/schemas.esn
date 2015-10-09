@@ -24,7 +24,21 @@ let employmentHistorySchema = Joi.object().keys({
     to: Joi.date()
 });
 export default {
-    isVirtualModel: true,
+    dao: {
+        isVirtualModel: true,
+        updateMethod: {
+            method: 'updateProfile',
+            props: [
+                'profile.firstName',
+                'profile.lastName',
+                'profile.preferredName',
+                'profile.facebook',
+                'profile.google',
+                'profile.twitter'
+            ],
+            arrProps: []
+        }
+    },
     model: {
         firstName: Joi.string(),
         lastName: Joi.string(),
@@ -37,34 +51,24 @@ export default {
         educationalQualification: Joi.array().items(educationalQualifactionSchema),
         employmentHistory: Joi.array().items(employmentHistorySchema)
     },
-    updateMethod: {
-        method: 'updateProfile',
-        props: [
-            'profile.firstName',
-            'profile.lastName',
-            'profile.preferredName',
-            'profile.facebook',
-            'profile.google',
-            'profile.twitter'
-        ],
-        arrProps: []
-    },
-    update: {
-        payload: {
-            profile: {
-                firstName: Joi.string(),
-                lastName: Joi.string(),
-                preferredName: Joi.string(),
-                title: Joi.string().valid(['Dr', 'Mr', 'Mrs', 'Ms']),
-                dateOfBirth: Joi.date().format('YYYY-MM-DD'),
-                addedPhone: Joi.array().items(Joi.string()),
-                removedPhone: Joi.array().items(Joi.string()),
-                residentialAddress: addressSchema,
-                currentAddress: addressSchema,
-                addedEducationalQualification: Joi.array().items(educationalQualifactionSchema),
-                removedEducationalQualification: Joi.array().items(educationalQualifactionSchema),
-                addedEmploymentHistory: Joi.array().items(employmentHistorySchema),
-                removedEmploymentHistory: Joi.array().items(employmentHistorySchema)
+    controller: {
+        update: {
+            payload: {
+                profile: {
+                    firstName: Joi.string(),
+                    lastName: Joi.string(),
+                    preferredName: Joi.string(),
+                    title: Joi.string().valid(['Dr', 'Mr', 'Mrs', 'Ms']),
+                    dateOfBirth: Joi.date().format('YYYY-MM-DD'),
+                    addedPhone: Joi.array().items(Joi.string()),
+                    removedPhone: Joi.array().items(Joi.string()),
+                    residentialAddress: addressSchema,
+                    currentAddress: addressSchema,
+                    addedEducationalQualification: Joi.array().items(educationalQualifactionSchema),
+                    removedEducationalQualification: Joi.array().items(educationalQualifactionSchema),
+                    addedEmploymentHistory: Joi.array().items(employmentHistorySchema),
+                    removedEmploymentHistory: Joi.array().items(employmentHistorySchema)
+                }
             }
         }
     }

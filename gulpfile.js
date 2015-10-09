@@ -22,12 +22,16 @@ gulp.task('server:jshint', () => {
         .pipe($.jshint.reporter('unix'));
 });
 gulp.task('server:clean', (cb) => {
-    $.del(['server/**/*.js.map', 'server/**/*.js', 'test/server/artifacts/**/*.*']).then(() =>  cb());
+    $.del(['server/**/*.js.map', 'server/**/*.js', 'test/server/artifacts/**/*.*']).then(() => cb());
 });
 gulp.task('server:build', ['server:eslint', 'server:jscs', 'server:jshint'], () => {
     return gulp.src('server/**/*.esn')
         .pipe($.sourcemaps.init())
-        .pipe($.babel())
+        .pipe($.babel({
+            optional: ['validation.undeclaredVariableCheck', 'runtime'],
+            loose: ['all'],
+            blacklist: ['es6.blockScoping', 'es6.arrowFunctions', 'es6.properties.shorthand', 'es6.properties.computed']
+        }))
         .pipe($.replace(/function _interopRequireWildcard(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _interopRequireWildcard$1\n//jscs:enable'))
         .pipe($.replace(/function _classCallCheck(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _classCallCheck$1\n//jscs:enable'))
         .pipe($.replace(/function _interopRequireDefault(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _interopRequireDefault$1\n//jscs:enable'))
@@ -70,7 +74,7 @@ gulp.task('server:test:cov', ['server:clean', 'server:build'], (cb) => {
                 .pipe($.istanbul.enforceThresholds({thresholds: {global: 95}}))
                 .on('error', $.gutil.log)
                 .on('end', cb);
-});
+        });
 });
 gulp.task('server:test:watch', () => {
     return gulp.watch(['test/server/**/*.js', 'server/**/*.js'], ['server:test:nocov']);
@@ -80,10 +84,10 @@ gulp.task('server:dev', ['server:clean', 'server:build'], () => {
     $.nodemon({
         exec: 'node --harmony ',
         script: './server/index.js',
-        watch: ['server/**/*.js'],
+        watch: ['server/index.js'],
         ignore: ['**/node_modules/**/*', 'public/**/*.*', 'dist/**/*.*', 'test/**/*.*', '.git/**/*.*'],
         tasks: ['server:build'],
-        delay: '5000ms'
+        delay: '20000ms'
     })
 });
 console.log('running for ' + process.env.NODE_ENV);

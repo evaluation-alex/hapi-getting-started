@@ -31,7 +31,7 @@ export function disconnect(name) {
         utils.errback(err);
     });
 }
-function withSchemaProperties(Dao, schema) {
+function withSchemaProperties(Dao, schema, model) {
     let {connection, collection, indexes} = schema;
     return _.extend(Dao, {
         ObjectID: Mongodb.ObjectID,
@@ -39,7 +39,7 @@ function withSchemaProperties(Dao, schema) {
         collection,
         indexes,
         connection,
-        modelSchema: schema.model
+        modelSchema: model
     });
 }
 function withSetupMethods(Dao) {
@@ -73,6 +73,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit) {
     if (!isReadonly) {
         _.extend(Dao, {
             remove(query) {
+                /*istanbul ignore next*/
                 return new Bluebird((resolve, reject) => {
                     db(Dao.connection).collection(Dao.collection).deleteMany(query,
                         utils.defaultcb(Dao.collection + '.remove', (doc) => resolve(doc.deletedCount), reject, query)
@@ -148,7 +149,7 @@ function withFindMethods(Dao, areValidProperty) {
                     {fields: fields, sort: sort, limit: limit, skip: skip}
                 );
                 let results = [];
-
+                /*istanbul ignore next*/
                 function handleError(err) {
                     utils.errback(err);
                     utils.toStatsD2(bucket, query, start, err);
@@ -156,6 +157,7 @@ function withFindMethods(Dao, areValidProperty) {
                 }
 
                 function next(err, doc) {
+                    /*istanbul ignore if*/
                     if (err) {
                         handleError(err);
                     } else {
@@ -165,6 +167,7 @@ function withFindMethods(Dao, areValidProperty) {
                 }
 
                 function hasNext(err, hasMore) {
+                    /*istanbul ignore if*/
                     if (err) {
                         handleError(err);
                     } else {
@@ -223,6 +226,7 @@ function withFindMethods(Dao, areValidProperty) {
                         isActive: true,
                         organisation: organisation
                     };
+                    /*istanbul ignore if*/
                     if (areValidProperty === '_id') {
                         toCheck = toCheck.map((id) => Dao.ObjectID(id));
                     }
@@ -414,9 +418,9 @@ function withSave(model, saveAudit, idForAudit = '_id') {
     });
     return model;
 }
-export function build(toBuild, schema, extendModels, areValidProperty = undefined) {
+export function build(toBuild, schema, model, extendModels, areValidProperty = undefined) {
     if (!schema.isVirtualModel) {
-        withSchemaProperties(toBuild, schema);
+        withSchemaProperties(toBuild, schema, model);
         withSetupMethods(toBuild);
         withModifyMethods(toBuild, schema.isReadonly, schema.saveAudit, schema.idForAudit || '_id');
         withFindMethods(toBuild, areValidProperty);

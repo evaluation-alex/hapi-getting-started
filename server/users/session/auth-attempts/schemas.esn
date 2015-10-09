@@ -1,12 +1,16 @@
 'use strict';
 import Joi from 'joi';
 export default {
-    connection: 'app',
-    collection: 'auth-attempts',
-    indexes: [
-        [{ip: 1, email: 1}],
-        [{email: 1}]
-    ],
+    dao: {
+        connection: 'app',
+        collection: 'auth-attempts',
+        indexes: [
+            [{ip: 1, email: 1}],
+            [{email: 1}]
+        ],
+        saveAudit: false,
+        isReadonly: true
+    },
     model: {
         _id: Joi.object(),
         email: Joi.string().required(),
@@ -14,12 +18,12 @@ export default {
         ip: Joi.string().required(),
         time: Joi.date().required()
     },
-    saveAudit: false,
-    isReadonly: true,
-    find: {
-        query: {
-            ip: Joi.string(),
-            email: Joi.string()
+    controller: {
+        find: {
+            query: {
+                ip: Joi.string(),
+                email: Joi.string()
+            }
         }
     }
 };

@@ -1,44 +1,34 @@
 'use strict';
-import schemas from './schemas';
+import {ip, logAndBoom} from './../../common/utils';
+import {abuseDetected} from './../../common/prereqs';
 import Users from './../model';
 import AuthAttempts from './auth-attempts/model';
-import ControllerFactory from './../../common/controller-factory';
-import * as utils from './../../common/utils';
-import * as errors from './../../common/errors';
-import Bluebird from 'bluebird';
-let abuseDetected = (request, reply) => {
-    AuthAttempts.abuseDetected(utils.ip(request), request.payload.email)
-        .then((detected) => {
-            if (detected) {
-                return Bluebird.reject(new errors.AbusiveLoginAttemptsError());
-            }
-            reply(false);
-        })
-        .catch((err) => utils.logAndBoom(err, reply));
+import schemas from './schemas';
+export default {
+    login: {
+        validate: schemas.controller.login,
+        pre: [
+            abuseDetected()
+        ],
+        handler: (request, reply) => {
+            let {email, password} = request.payload;
+            let ipadrs = ip(request);
+            Users.findByCredentials(email, password)
+                .then(user => user.loginSuccess(ipadrs, user.email).save())
+                .then(user => reply(user.afterLogin(ipadrs)))
+                .catch(err => {
+                    AuthAttempts.create(ipadrs, email)
+                        .then(() => {
+                            logAndBoom(err, reply);
+                        });
+                });
+        }
+    },
+    logout: {
+        handler: (request, reply) => {
+            let user = request.auth.credentials.user;
+            user.logout(ip(request), user.email).save()
+                .then(() => reply({message: 'Success.'}));
+        }
+    }
 };
-let Controller = new ControllerFactory()
-    .forMethod('login')
-    .withValidation(schemas.login)
-    .preProcessWith([
-        {assign: 'abuseDetected', method: abuseDetected}
-    ])
-    .handleUsing((request, reply) => {
-        let email = request.payload.email;
-        let password = request.payload.password;
-        let ip = utils.ip(request);
-        Users.findByCredentials(email, password)
-            .then((user) => user.loginSuccess(ip, user.email).save())
-            .then((user) => reply(user.afterLogin(ip)))
-            .catch((err) => {
-                AuthAttempts.create(ip, email)
-                .then(() => utils.logAndBoom(err, reply));
-            });
-    })
-    .forMethod('logout')
-    .handleUsing((request, reply) => {
-        let user = request.auth.credentials.user;
-        user.logout(utils.ip(request), user.email).save()
-            .then(() => reply({message: 'Success.'}));
-    })
-    .doneConfiguring();
-export default Controller;

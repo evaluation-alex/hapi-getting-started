@@ -1,14 +1,14 @@
 'use strict';
-import schemas from './schemas';
 import Bluebird from 'bluebird';
 import moment from 'moment';
-import Posts from './model';
-import Blogs from './../model';
+import {lookupParamsOrPayloadOrQuery, org, buildQueryForPartialMatch, buildQueryForDateRange, buildQueryForIDMatch} from './../../common/utils';
+import {canView, canUpdate, prePopulate, isMemberOf, uniqueCheck, findValidator} from './../../common/prereqs';
+import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../../common/handlers';
+import {sendNotifications, cancelNotifications} from './../../common/posthandlers';
 import UserGroups from './../../user-groups/model';
-import ControllerFactory from './../../common/controller-factory';
-import isMemberOf from './../../common/prereqs/is-member-of';
-import prePopulate from './../../common/prereqs/pre-populate';
-import * as utils from './../../common/utils';
+import Blogs from './../model';
+import schemas from './schemas';
+import Posts from './model';
 /*jshint unused:false*/
 /*eslint-disable no-unused-vars*/
 let sendNotificationsWhen = {
@@ -61,66 +61,107 @@ let sendNotificationsWhen = {
 };
 /*jshint unused:true*/
 /*eslint-enable no-unused-vars*/
-let Controller = new ControllerFactory(Posts)
-    .enableNotifications()
-    .newController(schemas.create, [
-        prePopulate(Blogs, 'blogId'),
-        isMemberOf(Blogs, ['contributors', 'owners'])
-    ], (request) => {
-        return {
-            blogId: utils.lookupParamsOrPayloadOrQuery(request, 'blogId'),
-            organisation: utils.org(request),
-            title: request.payload.title,
-            createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
-        };
-    })
-    .sendNotifications((post, request) => sendNotificationsWhen[post.state](post, request))
-    .findController(schemas.find, (request) => {
-        let query = utils.buildQueryForPartialMatch({}, request, [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]);
-        query = utils.buildQueryForDateRange(query, request, 'publishedOn');
-        query = utils.buildQueryForIDMatch(query, request, [['blogId', 'blogId']]);
-        if (utils.lookupParamsOrPayloadOrQuery(request, 'blogTitle')) {
-            let blogQuery = utils.buildQueryForPartialMatch({}, request, [['blogTitle', 'title']]);
-            return Blogs.find(blogQuery)
-                .then((blogs) => {
-                    request.query.blogId = blogs.map((blog) => blog._id);
-                    query = utils.buildQueryForIDMatch(query, request, [['blogId, blogId']]);
-                    return query;
+export default {
+    new: {
+        validate: schemas.controller.create,
+        pre: [
+            canUpdate(Posts.collection),
+            uniqueCheck(Posts, (request) => {
+                return {
+                    blogId: lookupParamsOrPayloadOrQuery(request, 'blogId'),
+                    organisation: org(request),
+                    title: request.payload.title,
+                    createdOn: {$gte: moment().subtract(300, 'seconds').toDate()}
+                };
+            }),
+            prePopulate(Blogs, 'blogId'),
+            isMemberOf(Blogs, ['contributors', 'owners'])
+        ],
+        handler: buildCreateHandler(Posts),
+        post: [
+            sendNotifications(Posts, (post, request) => sendNotificationsWhen[post.state](post, request))
+        ]
+    },
+    find: {
+        validate: findValidator(schemas.controller.find),
+        pre: [
+            canView(Posts.collection)
+        ],
+        handler: buildFindHandler(Posts, (request) => {
+            let query = buildQueryForPartialMatch({}, request, [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]);
+            query = buildQueryForDateRange(query, request, 'publishedOn');
+            query = buildQueryForIDMatch(query, request, [['blogId', 'blogId']]);
+            if (lookupParamsOrPayloadOrQuery(request, 'blogTitle')) {
+                let blogQuery = buildQueryForPartialMatch({}, request, [['blogTitle', 'title']]);
+                return Blogs.find(blogQuery)
+                    .then(blogs => {
+                        request.query.blogId = blogs.map(blog => blog._id);
+                        query = buildQueryForIDMatch(query, request, [['blogId, blogId']]);
+                        return query;
+                    });
+            } else {
+                return query;
+            }
+        }, (output, user) => {
+            return Bluebird.all(output.data.map(post => post.populate(user)))
+                .then(op => {
+                    output.data = op;
+                    return output;
                 });
-        } else {
-            return query;
-        }
-    }, (output, user) => {
-        return Bluebird.all(output.data.map((post) => post.populate(user)))
-            .then((op) => output.data = op)
-            .then(() => output);
-    })
-    .findOneController([], (post, user) => post.populate(user))
-    .updateController(schemas.update, [
-        prePopulate(Blogs, 'blogId'),
-        isMemberOf(Blogs, ['contributors', 'owners'])
-    ],
-    'update',
-    'update')
-    .updateController(schemas.publish, [
-        prePopulate(Blogs, 'blogId'),
-        isMemberOf(Blogs, ['owners', 'contributors'])
-    ],
-    'publish',
-    'publish')
-    .sendNotifications((post, request) => sendNotificationsWhen[post.state](post, request))
-    .cancelNotifications('review')
-    .updateController(schemas.reject, [
-        prePopulate(Blogs, 'blogId'),
-        isMemberOf(Blogs, ['owners', 'contributors'])
-    ],
-    'reject',
-    'reject')
-    .sendNotifications((post, request) => sendNotificationsWhen[post.state](post, request))
-    .cancelNotifications('review')
-    .deleteController([
-        prePopulate(Blogs, 'blogId'),
-        isMemberOf(Blogs, ['owners'])
-    ])
-    .doneConfiguring();
-export default Controller;
+        })
+    },
+    findOne: {
+        pre: [
+            canView(Posts.collection),
+            prePopulate(Posts, 'id')
+        ],
+        handler: buildFindOneHandler(Posts, (post, user) => post.populate(user))
+    },
+    update: {
+        validate: schemas.controller.update,
+        pre: [
+            canUpdate(Posts.collection),
+            prePopulate(Posts, 'id'),
+            prePopulate(Blogs, 'blogId'),
+            isMemberOf(Blogs, ['contributors', 'owners'])
+        ],
+        handler: buildUpdateHandler(Posts, 'update')
+    },
+    publish: {
+        validate: schemas.controller.publish,
+        pre: [
+            canUpdate(Posts.collection),
+            prePopulate(Posts, 'id'),
+            prePopulate(Blogs, 'blogId'),
+            isMemberOf(Blogs, ['contributors', 'owners'])
+        ],
+        handler: buildUpdateHandler(Posts, 'publish'),
+        post: [
+            sendNotifications(Posts, (post, request) => sendNotificationsWhen[post.state](post, request)),
+            cancelNotifications(Posts, 'review')
+        ]
+    },
+    reject: {
+        validate: schemas.controller.reject,
+        pre: [
+            canUpdate(Posts.collection),
+            prePopulate(Posts, 'id'),
+            prePopulate(Blogs, 'blogId'),
+            isMemberOf(Blogs, ['contributors', 'owners'])
+        ],
+        handler: buildUpdateHandler(Posts, 'reject'),
+        post: [
+            sendNotifications(Posts, (post, request) => sendNotificationsWhen[post.state](post, request)),
+            cancelNotifications(Posts, 'review')
+        ]
+    },
+    delete: {
+        pre: [
+            canUpdate(Posts.collection),
+            prePopulate(Posts, 'id'),
+            prePopulate(Blogs, 'blogId'),
+            isMemberOf(Blogs, ['owners'])
+        ],
+        handler: buildUpdateHandler(Posts, 'del')
+    }
+};

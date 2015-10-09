@@ -2,9 +2,9 @@
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
 let Model = require('./../../../server/common/dao');
-let createHandler = require('./../../../server/common/handlers/create');
-let findHandler = require('./../../../server/common/handlers/find');
-let findOneHandler = require('./../../../server/common/handlers/find-one');
+let createHandler = require('./../../../server/common/handlers').buildCreateHandler;
+let findHandler = require('./../../../server/common/handlers').buildFindHandler;
+let findOneHandler = require('./../../../server/common/handlers').buildFindOneHandler;
 let Bluebird = require('bluebird');
 let expect = require('chai').expect;
 describe('Handlers and Mixins', () => {

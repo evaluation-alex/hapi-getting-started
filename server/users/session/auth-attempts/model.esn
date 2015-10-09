@@ -29,5 +29,5 @@ class AuthAttempts {
             });
     }
 }
-DAO.build(AuthAttempts, schemas);
+DAO.build(AuthAttempts, schemas.dao, schemas.model);
 export default AuthAttempts;

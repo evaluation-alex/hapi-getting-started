@@ -43,5 +43,5 @@ class Blogs {
         return Blogs.insertAndAudit(document, by);
     }
 }
-DAO.build(Blogs, schemas);
+DAO.build(Blogs, schemas.dao, schemas.model);
 export default Blogs;

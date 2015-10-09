@@ -129,5 +129,5 @@ class Posts {
             });
     }
 }
-DAO.build(Posts, schemas);
+DAO.build(Posts, schemas.dao, schemas.model);
 export default Posts;

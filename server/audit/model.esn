@@ -12,5 +12,5 @@ class Audit {
         return Audit.find(conditions);
     }
 }
-DAO.build(Audit, schemas);
+DAO.build(Audit, schemas.dao, schemas.model);
 export default Audit;

@@ -1,11 +1,15 @@
 'use strict';
 import Joi from 'joi';
 export default {
-    connection: 'app',
-    collection: 'roles',
-    indexes: [
-        [{name: 1, organisation: 1}, {unique: true}]
-    ],
+    dao: {
+        connection: 'app',
+        collection: 'roles',
+        indexes: [
+            [{name: 1, organisation: 1}, {unique: true}]
+        ],
+        saveAudit: false,
+        isReadonly: true
+    },
     model: {
         _id: Joi.object(),
         name: Joi.string().required(),
@@ -14,7 +18,5 @@ export default {
             action: Joi.string().only('view', 'update').required(),
             object: Joi.string().required()
         })).unique()
-    },
-    saveAudit: false,
-    isReadonly: true
+    }
 };

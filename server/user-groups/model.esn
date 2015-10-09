@@ -37,5 +37,5 @@ class UserGroups {
         return UserGroups.insertAndAudit(document, owner);
     }
 }
-DAO.build(UserGroups, schemas, [], 'name');
+DAO.build(UserGroups, schemas.dao, schemas.model, [], 'name');
 export default UserGroups;

@@ -473,29 +473,28 @@ describe('Blogs', () => {
                     expect(foundAudit[0].change[3].action).to.match(/add|remove/);
                 })
                 .then(() => {
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'blogs',
-                            objectId: Blogs.ObjectID(id)
-                        })
-                            .then((notifications) => {
-                                expect(notifications.length).to.equal(1);
-                                expect(notifications[0].content.owners.added.length).to.equal(1);
-                                expect(notifications[0].content.owners.removed.length).to.equal(1);
-                                expect(notifications[0].content.subscribers.added.length).to.equal(1);
-                                expect(notifications[0].content.subscribers.removed.length).to.equal(1);
-                                return Notifications.remove({
-                                    objectType: 'blogs',
-                                    objectId: Blogs.ObjectID(id)
-                                });
-                            }).then((count) => {
-                                blogsToClear.push('test PUT /blogs add remove subscribers and owners');
-                                expect(count).to.equal(1);
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
-                }).catch((err) => {
+                    return Notifications.find({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id)
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(1);
+                    expect(notifications[0].content.owners.added.length).to.equal(1);
+                    expect(notifications[0].content.owners.removed.length).to.equal(1);
+                    expect(notifications[0].content.subscribers.added.length).to.equal(1);
+                    expect(notifications[0].content.subscribers.removed.length).to.equal(1);
+                    return Notifications.remove({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id)
+                    });
+                })
+                .then((count) => {
+                    blogsToClear.push('test PUT /blogs add remove subscribers and owners');
+                    expect(count).to.equal(1);
+                    done();
+                })
+                .catch((err) => {
                     blogsToClear.push('test PUT /blogs add remove subscribers and owners');
                     done(err);
                 });
@@ -605,7 +604,8 @@ describe('Blogs', () => {
                     expect(foundAudit[0].change[0].action).to.match(/needsReview/);
                     blogsToClear.push('test PUT /blogs needsReview');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('test PUT /blogs needsReview');
                     done(err);
                 });
@@ -700,26 +700,25 @@ describe('Blogs', () => {
                     expect(foundAudit[0].change[0].action).to.match(/add needsApproval/);
                 })
                 .then(() => {
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'blogs',
-                            objectId: Blogs.ObjectID(id),
-                            action: 'approve'
-                        })
-                            .then((notifications) => {
-                                expect(notifications.length).to.equal(3);
-                                return Notifications.remove({
-                                    objectType: 'blogs',
-                                    objectId: Blogs.ObjectID(id)
-                                });
-                            }).then((count) => {
-                                blogsToClear.push('testPutSubscribeGroupAddUser');
-                                expect(count).to.equal(3);
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
-                }).catch((err) => {
+                    return Notifications.find({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id),
+                        action: 'approve'
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(3);
+                    return Notifications.remove({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id)
+                    });
+                })
+                .then((count) => {
+                    blogsToClear.push('testPutSubscribeGroupAddUser');
+                    expect(count).to.equal(3);
+                    done();
+                })
+                .catch((err) => {
                     blogsToClear.push('testPutSubscribeGroupAddUser');
                     done(err);
                 });
@@ -757,26 +756,23 @@ describe('Blogs', () => {
                     expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
                 })
                 .then(() => {
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'blogs',
-                            objectId: Blogs.ObjectID(id),
-                            action: 'fyi'
-                        })
-                            .then((notifications) => {
-                                expect(notifications.length).to.equal(3);
-                                return Notifications.remove({
-                                    objectType: 'blogs',
-                                    objectId: Blogs.ObjectID(id)
-                                });
-                            })
-                            .then((count) => {
-                                blogsToClear.push('testPutSubscribePublicGroupAddUser');
-                                expect(count).to.equal(3);
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
+                    return Notifications.find({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id),
+                        action: 'fyi'
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(3);
+                    return Notifications.remove({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id)
+                    });
+                })
+                .then((count) => {
+                    blogsToClear.push('testPutSubscribePublicGroupAddUser');
+                    expect(count).to.equal(3);
+                    done();
                 })
                 .catch((err) => {
                     blogsToClear.push('testPutSubscribePublicGroupAddUser');
@@ -866,26 +862,25 @@ describe('Blogs', () => {
                     expect(foundAudit[0].change[0].action).to.match(/remove subscriber/);
                 })
                 .then(() => {
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'blogs',
-                            objectId: Blogs.ObjectID(id),
-                            action: 'fyi'
-                        })
-                            .then((notifications) => {
-                                expect(notifications.length).to.equal(3);
-                                return Notifications.remove({
-                                    objectType: 'blogs',
-                                    objectId: Blogs.ObjectID(id)
-                                });
-                            }).then((count) => {
-                                blogsToClear.push('testPutUnSubscribeGroupAddUser');
-                                expect(count).to.equal(3);
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
-                }).catch((err) => {
+                    return Notifications.find({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id),
+                        action: 'fyi'
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(3);
+                    return Notifications.remove({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id)
+                    });
+                })
+                .then((count) => {
+                    blogsToClear.push('testPutUnSubscribeGroupAddUser');
+                    expect(count).to.equal(3);
+                    done();
+                })
+                .catch((err) => {
                     blogsToClear.push('testPutUnSubscribeGroupAddUser');
                     done(err);
                 });
@@ -983,28 +978,27 @@ describe('Blogs', () => {
                     expect(foundAudit[0].change[0].action).to.match(/add subscriber/);
                 })
                 .then(() => {
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'blogs',
-                            objectId: Blogs.ObjectID(id),
-                            state: 'cancelled',
-                            action: 'approve'
-                        }).then((notifications) => {
-                            expect(notifications.length).to.equal(3);
-                            return Notifications.remove({
-                                objectType: 'blogs',
-                                objectId: Blogs.ObjectID(id)
-                            });
-                        })
-                            .then((count) => {
-                                blogsToClear.push('testBlogPutApproveAddUser');
-                                //3 cancellations and 3 just approved and 3 pending approval
-                                expect(count).to.equal(9);
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
-                }).catch((err) => {
+                    return Notifications.find({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id),
+                        state: 'cancelled',
+                        action: 'approve'
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(3);
+                    return Notifications.remove({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id)
+                    });
+                })
+                .then((count) => {
+                    blogsToClear.push('testBlogPutApproveAddUser');
+                    //3 cancellations and 3 just approved and 3 pending approval
+                    expect(count).to.equal(9);
+                    done();
+                })
+                .catch((err) => {
                     blogsToClear.push('testBlogPutApproveAddUser');
                     done(err);
                 });
@@ -1183,29 +1177,27 @@ describe('Blogs', () => {
                     expect(foundAudit[0].change[0].action).to.match(/remove needsApproval/);
                 })
                 .then(() => {
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'blogs',
-                            objectId: Blogs.ObjectID(id),
-                            state: 'cancelled',
-                            action: 'approve'
-                        })
-                            .then((notifications) => {
-                                expect(notifications.length).to.equal(3);
-                                return Notifications.remove({
-                                    objectType: 'blogs',
-                                    objectId: Blogs.ObjectID(id)
-                                });
-                            })
-                            .then((count) => {
-                                blogsToClear.push('testPutRejectBlogAddUser');
-                                //3 cancellations and 1 to the user rejected
-                                expect(count).to.equal(4);
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
-                }).catch((err) => {
+                    return Notifications.find({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id),
+                        state: 'cancelled',
+                        action: 'approve'
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(3);
+                    return Notifications.remove({
+                        objectType: 'blogs',
+                        objectId: Blogs.ObjectID(id)
+                    });
+                })
+                .then((count) => {
+                    blogsToClear.push('testPutRejectBlogAddUser');
+                    //3 cancellations and 1 to the user rejected
+                    expect(count).to.equal(4);
+                    done();
+                })
+                .catch((err) => {
                     blogsToClear.push('testPutRejectBlogAddUser');
                     done(err);
                 });

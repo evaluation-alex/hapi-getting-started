@@ -704,25 +704,23 @@ describe('Posts', () => {
                 })
                 .then(() => {
                     //because the events from the controller may not be complete
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'posts',
-                            objectId: Posts.ObjectID(postId)
-                        })
-                            .then((notifications) => {
-                                expect(notifications.length).to.equal(3);
-                                return Notifications.remove({
-                                    objectType: 'posts',
-                                    objectId: Posts.ObjectID(postId)
-                                });
-                            })
-                            .then((count) => {
-                                expect(count).to.equal(3);
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
-                }).catch((err) => {
+                    return Notifications.find({
+                        objectType: 'posts',
+                        objectId: Posts.ObjectID(postId)
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(3);
+                    return Notifications.remove({
+                        objectType: 'posts',
+                        objectId: Posts.ObjectID(postId)
+                    });
+                })
+                .then((count) => {
+                    expect(count).to.equal(3);
+                    done();
+                })
+                .catch((err) => {
                     done(err);
                 });
         });
@@ -762,25 +760,23 @@ describe('Posts', () => {
                 })
                 .then(() => {
                     //because the events from the controller may not be complete
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'posts',
-                            objectId: Posts.ObjectID(postId)
-                        })
-                            .then((notifications) => {
-                                expect(notifications.length).to.equal(3);
-                                return Notifications.remove({
-                                    objectType: 'posts',
-                                    objectId: Posts.ObjectID(postId)
-                                });
-                            })
-                            .then((count) => {
-                                expect(count).to.equal(3);
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
-                }).catch((err) => {
+                    return Notifications.find({
+                        objectType: 'posts',
+                        objectId: Posts.ObjectID(postId)
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(3);
+                    return Notifications.remove({
+                        objectType: 'posts',
+                        objectId: Posts.ObjectID(postId)
+                    });
+                })
+                .then((count) => {
+                    expect(count).to.equal(3);
+                    done();
+                })
+                .catch((err) => {
                     done(err);
                 });
         });
@@ -857,25 +853,23 @@ describe('Posts', () => {
                 })
                 .then(() => {
                     //because the events from the controller may not be complete
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'posts',
-                            objectId: Posts.ObjectID(postId)
-                        })
-                            .then((notifications) => {
-                                expect(notifications.length).to.equal(1);
-                                return Notifications.remove({
-                                    objectType: 'posts',
-                                    objectId: Posts.ObjectID(postId)
-                                });
-                            })
-                            .then((count) => {
-                                expect(count).to.equal(1);
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
-                }).catch((err) => {
+                    return Notifications.find({
+                        objectType: 'posts',
+                        objectId: Posts.ObjectID(postId)
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(1);
+                    return Notifications.remove({
+                        objectType: 'posts',
+                        objectId: Posts.ObjectID(postId)
+                    });
+                })
+                .then((count) => {
+                    expect(count).to.equal(1);
+                    done();
+                })
+                .catch((err) => {
                     done(err);
                 });
         });
@@ -914,25 +908,23 @@ describe('Posts', () => {
                 })
                 .then(() => {
                     //because the events from the controller may not be complete
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'posts',
-                            objectId: Posts.ObjectID(postId)
-                        })
-                            .then((notifications) => {
-                                expect(notifications.length).to.equal(3);
-                                return Notifications.remove({
-                                    objectType: 'posts',
-                                    objectId: Posts.ObjectID(postId)
-                                });
-                            })
-                            .then((count) => {
-                                expect(count).to.equal(3);
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
-                }).catch((err) => {
+                    return Notifications.find({
+                        objectType: 'posts',
+                        objectId: Posts.ObjectID(postId)
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(3);
+                    return Notifications.remove({
+                        objectType: 'posts',
+                        objectId: Posts.ObjectID(postId)
+                    });
+                })
+                .then((count) => {
+                    expect(count).to.equal(3);
+                    done();
+                })
+                .catch((err) => {
                     done(err);
                 });
         });
@@ -1032,26 +1024,24 @@ describe('Posts', () => {
                     tu.cleanupAudit();
                 })
                 .then(() => {
-                    var ct = setTimeout(() => {
-                        Notifications.find({
-                            objectType: 'posts',
-                            objectId: Posts.ObjectID(postId),
-                            state: 'cancelled'
-                        })
-                            .then((notifications) => {
-                                expect(notifications.length).to.equal(3);
-                                return Notifications.remove({
-                                    objectType: 'posts',
-                                    objectId: Posts.ObjectID(postId)
-                                });
-                            })
-                            .then((count) => {
-                                expect(count).to.equal(4);//because there is one notification to the author for the rejection as well
-                                done();
-                                clearTimeout(ct);
-                            });
-                    }, 2000);
-                }).catch((err) => {
+                    return Notifications.find({
+                        objectType: 'posts',
+                        objectId: Posts.ObjectID(postId),
+                        state: 'cancelled'
+                    });
+                })
+                .then((notifications) => {
+                    expect(notifications.length).to.equal(3);
+                    return Notifications.remove({
+                        objectType: 'posts',
+                        objectId: Posts.ObjectID(postId)
+                    });
+                })
+                .then((count) => {
+                    expect(count).to.equal(4);//because there is one notification to the author for the rejection as well
+                    done();
+                })
+                .catch((err) => {
                     done(err);
                 });
         });

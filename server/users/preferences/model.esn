@@ -1,5 +1,5 @@
 'use strict';
-import * as DAO from './../../common/dao';
+import {build} from './../../common/dao';
 import schemas from './schemas';
 class Preferences {
     static create() {
@@ -47,5 +47,5 @@ class Preferences {
         return this;
     }
 }
-DAO.build(Preferences, schemas.dao, schemas.model);
+build(Preferences, schemas.dao, schemas.model);
 export default Preferences;

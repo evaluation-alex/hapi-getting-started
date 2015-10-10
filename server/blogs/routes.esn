@@ -1,8 +1,9 @@
 'use strict';
-import RouteFactory from './../common/route-factory';
+import {flatten} from 'lodash';
+import {buildRESTRoutes, buildJoinApproveRejectLeaveRoutes} from './../common/routes';
 import Controller from './controller';
-let routes = (new RouteFactory())
-    .discoverDefaultRoutes('blogs', Controller)
-    .joinApproveRejectLeaveRoutes('blogs', Controller)
-    .doneConfiguring();
+let routes = flatten([
+    buildRESTRoutes('blogs', Controller),
+    buildJoinApproveRejectLeaveRoutes('blogs', Controller)
+]);
 export default routes;

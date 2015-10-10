@@ -1,9 +1,9 @@
 'use strict';
-import Path from 'path';
+import path from 'path';
 export let register = function register(server, options, next) {
-    options.modules.forEach((module) => {
-        let routes = require(Path.join(process.cwd(), '/server/' + module, '/routes'));
-        routes.forEach((route) => {
+    options.modules.forEach(module => {
+        let routes = require(path.join(process.cwd(), '/server/' + module, '/routes'));
+        routes.forEach(route => {
             route.path = options.prependRoute + route.path;
             server.route(route);
         });

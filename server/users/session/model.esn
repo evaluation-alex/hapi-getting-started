@@ -1,11 +1,11 @@
 'use strict';
-import _ from 'lodash';
+import {remove, find, omit} from 'lodash';
 import Uuid from 'node-uuid';
 import moment from 'moment';
-import * as utils from './../../common/utils';
+import {secureHash} from './../../common/utils';
 class Session {
     _invalidateSession(ipaddress, by) {
-        let removed = _.remove(this.session, (session) => session.ipaddress === ipaddress);
+        let removed = remove(this.session, session => session.ipaddress === ipaddress);
         this.trackChanges('user.session', removed, null, by);
         return this;
     }
@@ -13,7 +13,7 @@ class Session {
     _newSession(ipaddress, by) {
         let session = {
             ipaddress,
-            key: utils.secureHash(Uuid.v4().toString()),
+            key: secureHash(Uuid.v4().toString()),
             expires: moment().add(1, 'month').toDate()
         };
         this.session.push(session);
@@ -22,7 +22,7 @@ class Session {
     }
 
     loginSuccess(ipaddress, by) {
-        let found = _.find(this.session, (session) => session.ipaddress === ipaddress);
+        let found = find(this.session, session => session.ipaddress === ipaddress);
         if (!found) {
             this._newSession(ipaddress, by);
         } else {
@@ -35,11 +35,11 @@ class Session {
     }
 
     afterLogin(ipaddress) {
-        let session = _.find(this.session, (sesion) => sesion.ipaddress === ipaddress);
+        let session = find(this.session, sesion => sesion.ipaddress === ipaddress);
         return {
             _id: this._id,
             user: this.email,
-            session: _.omit(session, 'key'),
+            session: omit(session, 'key'),
             authHeader: 'Basic ' + new Buffer(this.email + ':' + session.key).toString('base64'),
             preferences: this.preferences
         };

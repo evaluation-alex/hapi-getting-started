@@ -1,10 +1,10 @@
 'use strict';
-import _ from 'lodash';
+import {assign} from 'lodash';
+import {build} from './../common/dao';
 import schemas from './schemas';
-import * as DAO from './../common/dao';
 class Audit {
     constructor(attrs) {
-        _.assign(this, attrs);
+        assign(this, attrs);
     }
     static findAudit(type, id, conditions) {
         conditions.objectChangedType = type;
@@ -12,5 +12,5 @@ class Audit {
         return Audit.find(conditions);
     }
 }
-DAO.build(Audit, schemas.dao, schemas.model);
+build(Audit, schemas.dao, schemas.model);
 export default Audit;

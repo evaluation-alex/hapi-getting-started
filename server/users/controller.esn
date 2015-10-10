@@ -1,12 +1,12 @@
 'use strict';
 import path from 'path';
 import Bluebird from 'bluebird';
+import config from './../config';
 import {sendEmail} from './../common/plugins/mailer';
 import {PasswordResetError} from './../common/errors';
 import {ip, buildQueryForPartialMatch, logAndBoom} from './../common/utils';
 import {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} from './../common/prereqs';
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
-import Config from './../config';
 import schemas from './schemas';
 import Users from './model';
 
@@ -28,7 +28,7 @@ export default {
                 .then(user => user.loginSuccess(ipadrs, user.email).save())
                 .then(user => {
                     let options = {
-                        subject: 'Your ' + Config.projectName + ' account',
+                        subject: 'Your ' + config.projectName + ' account',
                         to: {
                             name: request.payload.email,
                             address: email
@@ -75,13 +75,13 @@ export default {
     },
     loginForgot: {
         validate: schemas.controller.loginForgot,
-        handler: (request, reply) => {
+        handler(request, reply) {
             Users.findOne({email: request.payload.email})
                 .then(user => user ? user.resetPasswordSent(user.email).save() : user)
                 .then(user => {
                     if (user) {
                         let options = {
-                            subject: 'Reset your ' + Config.projectName + ' password',
+                            subject: 'Reset your ' + config.projectName + ' password',
                             to: request.payload.email
                         };
                         return sendEmail(options, path.join(__dirname, '/templates/forgot-password.hbs.md'), {key: user.resetPwd.token});
@@ -96,7 +96,7 @@ export default {
     },
     loginReset: {
         validate: schemas.controller.loginReset,
-        handler: (request, reply) => {
+        handler(request, reply) {
             Users.findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
                 .then(user => {
                     if (!user || (request.payload.key !== user.resetPwd.token)) {

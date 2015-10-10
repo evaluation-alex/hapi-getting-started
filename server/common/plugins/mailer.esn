@@ -1,31 +1,34 @@
 'use strict';
-import _ from 'lodash';
-import Fs from 'fs';
-import Handlebars from 'handlebars';
-import Nodemailer from 'nodemailer';
-let markdown = require('nodemailer-markdown').markdown;
-import Config from './../../config';
+import fs from 'fs';
+import {clone, merge} from 'lodash';
 import Bluebird from 'bluebird';
-let transport = Bluebird.promisifyAll(Nodemailer.createTransport(_.clone(Config.nodemailer)));
+import hbs from 'handlebars';
+import Nodemailer from 'nodemailer';
+import {markdown} from 'nodemailer-markdown';
+import config from './../../config';
+
+let transport = Bluebird.promisifyAll(Nodemailer.createTransport(clone(config.nodemailer)));
 transport.use('compile', markdown({useEmbeddedImages: true}));
-let readFile = Bluebird.promisify(Fs.readFile);
+let readFile = Bluebird.promisify(fs.readFile);
+
 let templateCache = {};
+
 let renderTemplate = Bluebird.method((template, context) => {
-    context.projectName = Config.projectName;
+    context.projectName = config.projectName;
     if (templateCache[template]) {
         return templateCache[template](context);
     } else {
         return readFile(template, {encoding: 'utf-8'})
-            .then((source) => {
-                templateCache[template] = Handlebars.compile(source);
+            .then(source => {
+                templateCache[template] = hbs.compile(source);
                 return templateCache[template](context);
             });
     }
 });
 export function sendEmail (options, template, context) {
     return renderTemplate(template, context)
-        .then((content) => {
-            options = _.merge(options, {from: Config.system.fromAddress, markdown: content});
+        .then(content => {
+            options = merge(options, {from: config.system.fromAddress, markdown: content});
             return transport.sendMailAsync(options);
         });
 }

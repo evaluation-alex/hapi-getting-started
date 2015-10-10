@@ -1,11 +1,11 @@
 'use strict';
-import * as DAO from './../../common/dao';
-import schemas from './schemas';
-import _ from 'lodash';
+import {assign, unique, flatten, isArray} from 'lodash';
 import Bluebird from 'bluebird';
+import {build} from './../../common/dao';
+import schemas from './schemas';
 class Notifications {
     constructor(attrs) {
-        _.assign(this, attrs);
+        assign(this, attrs);
         Object.defineProperty(this, 'audit', {
             writable: true,
             enumerable: false
@@ -31,17 +31,17 @@ class Notifications {
         return Notifications.upsert(document);
     }
     static createMany(email, organisation, objectType, objectId, title, state, action, priority, content, by) {
-        return Bluebird.all(_.unique(_.flatten(email)).map((e) =>
+        return Bluebird.all(unique(flatten(email)).map(e =>
                 Notifications.createOne(e, organisation, objectType, objectId, title, state, action, priority, content, by))
         );
     }
     static create(email, organisation, objectType, objectId, title, state, action, priority, content, by) {
-        if (_.isArray(email)) {
+        if (isArray(email)) {
             return Notifications.createMany(email, organisation, objectType, objectId, title, state, action, priority, content, by);
         } else {
             return Notifications.createOne(email, organisation, objectType, objectId, title, state, action, priority, content, by);
         }
     }
 }
-DAO.build(Notifications, schemas.dao, schemas.model);
+build(Notifications, schemas.dao, schemas.model);
 export default Notifications;

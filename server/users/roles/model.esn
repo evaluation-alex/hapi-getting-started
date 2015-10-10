@@ -1,14 +1,14 @@
 'use strict';
-import * as DAO from './../../common/dao';
+import {assign, find} from 'lodash';
+import {build} from './../../common/dao';
 import schemas from './schemas';
-import _ from 'lodash';
 class Roles {
     constructor(attrs) {
-        _.assign(this, attrs);
+        assign(this, attrs);
     }
     hasPermissionsTo(performAction, onObject) {
-        return !!_.find(this.permissions,
-            (p) => ((p.object === onObject || p.object === '*') && (p.action === performAction || p.action === 'update'))
+        return !!find(this.permissions,
+            p => ((p.object === onObject || p.object === '*') && (p.action === performAction || p.action === 'update'))
         );
     }
     static create(name, organisation, permissions) {
@@ -20,5 +20,5 @@ class Roles {
         return Roles.upsert(document);
     }
 }
-DAO.build(Roles, schemas.dao, schemas.model);
+build(Roles, schemas.dao, schemas.model);
 export default Roles;

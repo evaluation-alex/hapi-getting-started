@@ -11,7 +11,7 @@ export default {
         pre: [
             canView(Audit.collection)
         ],
-        handler: buildFindHandler(Audit, (request) => {
+        handler: buildFindHandler(Audit, request => {
             let query = buildQueryForPartialMatch({}, request, [['by', 'by']]);
             query = buildQueryForDateRange(query, request, 'on');
             query = buildQueryForExactMatch(query, request, [['objectType', 'objectChangedType'], ['objectChangedId', 'objectChangedId']]);

@@ -1,15 +1,15 @@
 'use strict';
-import * as DAO from './../../common/dao';
-import Blogs from './../model';
-import UserGroups from './../../user-groups/model';
-import schemas from './schemas';
-import _ from 'lodash';
-import * as errors from './../../common/errors';
+import {assign, merge, pick} from 'lodash';
 import Bluebird from 'bluebird';
-import * as utils from './../../common/utils';
+import {ArchivedPostUpdateError} from './../../common/errors';
+import {org} from './../../common/utils';
+import {build} from './../../common/dao';
+import UserGroups from './../../user-groups/model';
+import Blogs from './../model';
+import schemas from './schemas';
 class Posts {
     constructor(attrs) {
-        _.assign(this, attrs);
+        assign(this, attrs);
         Object.defineProperty(this, 'audit', {
             writable: true,
             enumerable: false
@@ -18,14 +18,14 @@ class Posts {
 
     static newObject(doc, by) {
         let blog = doc.pre.blogs;
-        _.merge(doc.payload, _.pick(blog, ['access', 'allowComments', 'needsReview']));
+        merge(doc.payload, pick(blog, ['access', 'allowComments', 'needsReview']));
         if (doc.payload.state === 'published') {
             if (doc.payload.needsReview && !(blog.isPresentInOwners(by) || by === 'root')) {
                 doc.payload.state = 'pending review';
             }
         }
         return Posts.create(blog._id,
-            utils.org(doc),
+            org(doc),
             doc.payload.title,
             doc.payload.state,
             doc.payload.access,
@@ -70,7 +70,7 @@ class Posts {
         if (this.state !== 'archived') {
             return this.updatePost(doc, by);
         } else {
-            return Bluebird.reject(new errors.ArchivedPostUpdateError());
+            return Bluebird.reject(new ArchivedPostUpdateError());
         }
     }
 
@@ -99,12 +99,12 @@ class Posts {
 
     populate(user) {
         return Blogs.findOne({_id: Blogs.ObjectID(this.blogId)})
-            .then((blog) => {
+            .then(blog => {
                 this.blog = blog;
                 return {canSee: this.access === 'public', blog: this.blog};
             })
-            .then((res) => res.canSee ? res : res.blog)
-            .then((blog) =>
+            .then(res => res.canSee ? res : res.blog)
+            .then(blog =>
                 blog.canSee ?
                     blog : {
                     canSee: blog.access === 'public' ||
@@ -113,15 +113,15 @@ class Posts {
                     blog.isPresentInSubscribers(user.email),
                     blog: blog
                 })
-            .then((res) =>
+            .then(res =>
                 res.canSee ?
                     res.canSee :
                     UserGroups.count({
                         members: user.email,
                         organisation: user.organisation,
                         name: {$in: res.blog.subscriberGroups}
-                    }).then((count) => count > 0))
-            .then((canSee) => {
+                    }).then(count => count > 0))
+            .then(canSee => {
                 if (!canSee) {
                     this.content = 'restricted because you are not an owner, contributor or subscriber to this blog and it is not a public post';
                 }
@@ -129,5 +129,5 @@ class Posts {
             });
     }
 }
-DAO.build(Posts, schemas.dao, schemas.model);
+build(Posts, schemas.dao, schemas.model);
 export default Posts;

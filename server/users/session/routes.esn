@@ -1,15 +1,8 @@
 'use strict';
-import RouteFactory from './../../common/route-factory';
+import {buildRoute} from './../../common/routes';
 import Controller from './controller';
-let routes = (new RouteFactory())
-    .newRoute()
-    .forMethod('POST')
-    .onPath('/session')
-    .withController(Controller.login)
-    .newRoute()
-    .forMethod('DELETE')
-    .onPath('/session')
-    .usingAuthStrategy('simple')
-    .withController(Controller.logout)
-    .doneConfiguring();
+let routes = [
+    buildRoute('POST', '/session', Controller.login, false),
+    buildRoute('DELETE', '/session', Controller.logout)
+];
 export default routes;

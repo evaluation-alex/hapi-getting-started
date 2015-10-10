@@ -1,5 +1,5 @@
 'use strict';
-import * as DAO from './../../common/dao';
+import {build} from './../../common/dao';
 import schemas from './schemas';
 class Profile {
     static create() {
@@ -32,5 +32,5 @@ class Profile {
         return this;
     }
 }
-DAO.build(Profile, schemas.dao, schemas.model);
+build(Profile, schemas.dao, schemas.model);
 export default Profile;

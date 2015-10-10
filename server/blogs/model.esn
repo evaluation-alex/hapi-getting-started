@@ -1,11 +1,11 @@
 'use strict';
-import * as DAO from './../common/dao';
+import {assign} from 'lodash';
+import {org, hasItems} from './../common/utils';
+import {build} from './../common/dao';
 import schemas from './schemas';
-import _ from 'lodash';
-import * as utils from './../common/utils';
 class Blogs {
     constructor(attrs) {
-        _.assign(this, attrs);
+        assign(this, attrs);
         Object.defineProperty(this, 'audit', {
             writable: true,
             enumerable: false
@@ -14,7 +14,7 @@ class Blogs {
 
     static newObject(doc, by) {
         return Blogs.create(doc.payload.title,
-            utils.org(doc),
+            org(doc),
             doc.payload.description,
             doc.payload.owners,
             doc.payload.contributors,
@@ -31,10 +31,10 @@ class Blogs {
             title,
             organisation,
             description,
-            owners: utils.hasItems(owners) ? owners : [by],
-            contributors: utils.hasItems(contributors) ? contributors : [by],
-            subscribers: utils.hasItems(subscribers) ? subscribers : [by],
-            subscriberGroups: utils.hasItems(subscriberGroups) ? subscriberGroups : [],
+            owners: hasItems(owners) ? owners : [by],
+            contributors: hasItems(contributors) ? contributors : [by],
+            subscribers: hasItems(subscribers) ? subscribers : [by],
+            subscriberGroups: hasItems(subscriberGroups) ? subscriberGroups : [],
             needsApproval: [],
             needsReview,
             access,
@@ -43,5 +43,5 @@ class Blogs {
         return Blogs.insertAndAudit(document, by);
     }
 }
-DAO.build(Blogs, schemas.dao, schemas.model);
+build(Blogs, schemas.dao, schemas.model);
 export default Blogs;

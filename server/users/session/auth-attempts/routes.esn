@@ -1,7 +1,5 @@
 'use strict';
-import RouteFactory from './../../../common/route-factory';
+import {buildRESTRoutes} from './../../../common/routes';
 import Controller from './controller';
-let routes = (new RouteFactory())
-    .discoverDefaultRoutes('auth-attempts', Controller)
-    .doneConfiguring();
+let routes = buildRESTRoutes('auth-attempts', Controller);
 export default routes;

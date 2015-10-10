@@ -1,30 +1,30 @@
 'use strict';
-let logger = require('./../../config').logger;
-import * as errors from './../errors';
+import {UserNotFoundError, UserNotLoggedInError, SessionExpiredError, SessionCredentialsNotMatchingError} from './../errors';
+import {logger} from './../../config';
 import Users from './../../users/model';
 import Roles from './../../users/roles/model';
 export let register = function register(server, options, next) {
     // this is being done to prevent users and roles fom creating indexes before mongo connections have been established
-    server.connections.forEach((connection) => {
+    server.connections.forEach(connection => {
         connection.auth.strategy('simple', 'basic', {
             validateFunc(request, email, sessionkey, callback) {
                 Users.findBySessionCredentials(email, sessionkey)
-                    .then((user) => {
+                    .then(user => {
                         logger.info(['auth'], {user: email, success: true});
                         Roles.find({name: {$in: user.roles}, organisation: user.organisation})
-                            .then((roles) => {
+                            .then(roles => {
                                 user._roles = roles;
-                                callback(null, true, {user: user});
+                                callback(null, true, {user});
                             });
                     })
-                    .catch(errors.UserNotFoundError,
-                    errors.UserNotLoggedInError,
-                    errors.SessionExpiredError,
-                    errors.SessionCredentialsNotMatchingError,
-                    (err) => {
+                    .catch(UserNotFoundError,
+                    UserNotLoggedInError,
+                    SessionExpiredError,
+                    SessionCredentialsNotMatchingError,
+                    err => {
                         callback(err.i18nError('en'), false);
                     })
-                    .catch((err) => {
+                    .catch(err => {
                         logger.info(['auth', 'error'], {user: email, success: false, error: JSON.stringify(err)});
                         callback(null, false);
                     });

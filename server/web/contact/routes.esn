@@ -1,10 +1,7 @@
 'use strict';
-import RouteFactory from './../../common/route-factory';
+import {buildRoute} from './../../common/routes';
 import Controller from './controller';
-let routes = (new RouteFactory())
-    .newRoute()
-    .forMethod('POST')
-    .onPath('/contact')
-    .withController(Controller.contact)
-    .doneConfiguring();
+let routes = [
+    buildRoute('POST', '/contact', Controller.contact, false)
+];
 export default routes;

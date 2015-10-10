@@ -1,8 +1,8 @@
 'use strict';
 import Joi from 'joi';
-let session = require('./session/schemas').model;
-let preferences = require('./preferences/schemas').model;
-let profile = require('./profile/schemas').model;
+import {model as session} from './session/schemas';
+import {model as preferences} from './preferences/schemas';
+import {model as profile} from './profile/schemas';
 export default {
     dao: {
         connection: 'app',

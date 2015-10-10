@@ -1,12 +1,12 @@
 'use strict';
-import {connect, disconnect} from './../dao';
-import _ from 'lodash';
+import {forIn} from 'lodash';
 import Bluebird from 'bluebird';
+import {connect, disconnect} from './../dao';
 export let register = function register(server, options, next) {
     let dbconnections = [];
-    _.forIn(options.mongo, (connectionargs, name) => {
+    forIn(options.mongo, (connectionargs, name) => {
         dbconnections.push(connect(name, connectionargs)
-            .then((db) => {
+            .then(db => {
                 server.expose('MongoDB' + name, db);
                 server.on('stop', () => {
                     disconnect(name);

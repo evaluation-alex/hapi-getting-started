@@ -1,14 +1,13 @@
 'use strict';
-import Boom from 'boom';
-let objectID = require('mongodb').ObjectID;
-let logger = require('./../config').logger;
-let statsd = require('./../config').statsd;
-import _ from 'lodash';
+import {sortBy, keys, get, isArray} from 'lodash';
 import moment from 'moment';
-import Bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
+import boom from 'boom';
+import {logger, statsd} from './../config';
+import {ObjectID as objectID} from 'mongodb';
 export function logAndBoom(err, reply) {
     logger.error({error: err, stack: err.stack});
-    reply(err.canMakeBoomError ? err : Boom.badImplementation(err));
+    reply(err.canMakeBoomError ? err : boom.badImplementation(err));
 }
 export function toStatsD(route, statusCode, user, device, browser, start, finish) {
     statsd.increment([device, browser, route, route + statusCode, user], 1);
@@ -22,7 +21,7 @@ export function errback(err) {
 export function toStatsD2(bucket, query, start, err) {
     statsd.timing(bucket, Date.now() - start);
     if (query) {
-        statsd.increment(bucket + '.' + _.sortBy(_.keys(query), String).join(','), 1);
+        statsd.increment(bucket + '.' + sortBy(keys(query), String).join(','), 1);
     }
     if (err) {
         statsd.increment(bucket + '.err', 1);
@@ -54,7 +53,7 @@ export function user(request) {
     return request.auth.credentials ? request.auth.credentials.user : undefined;
 }
 export function locale(request) {
-    return _.get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
+    return get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
 }
 // TODO: if not found in user prefs, figure out from request headers - tbd
 export function lookupParamsOrPayloadOrQuery(request, field) {
@@ -70,30 +69,30 @@ export function hasItems(arr) {
     return arr && arr.length > 0;
 }
 let queryBuilderForArray = {
-    objectId: (p) => {
+    objectId: p => {
         return {$in: p.map((op) => objectID(op))};
     },
-    exact: (p) => {
+    exact: p => {
         return {$in: p};
     },
-    partial: (p) => {
+    partial: p => {
         return {$in: p.map((op) => new RegExp('^.*?' + op + '.*$', 'i'))};
     }
 };
 let queryBuilderForOne = {
-    objectId: (p) => objectID(p),
-    exact: (p) => p,
-    partial: (p) => {
+    objectId: p => objectID(p),
+    exact: p => p,
+    partial: p => {
         return {$regex: new RegExp('^.*?' + p + '.*$', 'i')};
     }
 };
 export function buildQueryFor(type, query, request, fields) {
     let builder = queryBuilderForOne[type];
     let arrBuilder = queryBuilderForArray[type];
-    fields.forEach((pair) => {
+    fields.forEach(pair => {
         let p = lookupParamsOrPayloadOrQuery(request, pair[0]);
         if (p) {
-            query[pair[1]] = _.isArray(p) ? arrBuilder(p) : builder(p);
+            query[pair[1]] = isArray(p) ? arrBuilder(p) : builder(p);
         }
     });
     return query;
@@ -122,8 +121,8 @@ export function buildQueryForDateRange(query, request, field) {
     return query;
 }
 export function secureHash(password) {
-    return Bcrypt.hashSync(password, 10);
+    return bcrypt.hashSync(password, 10);
 }
 export function secureCompare(password, hash) {
-    return Bcrypt.compareSync(password, hash) || password === hash;
+    return bcrypt.compareSync(password, hash) || password === hash;
 }

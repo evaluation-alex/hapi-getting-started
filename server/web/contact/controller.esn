@@ -1,17 +1,17 @@
 'use strict';
 import path from 'path';
-import Config from './../../config';
-import schemas from './schemas';
+import config from './../../config';
 import {logAndBoom} from './../../common/utils';
 import {sendEmail} from './../../common/plugins/mailer';
+import schemas from './schemas';
 
 export default {
     contact: {
         validate: schemas.controller.contact,
-        handler: (request, reply) => {
+        handler(request, reply) {
             let options = {
-                subject: Config.projectName + ' contact form',
-                to: Config.system.toAddress,
+                subject: config.projectName + ' contact form',
+                to: config.system.toAddress,
                 replyTo: {
                     name: request.payload.name,
                     address: request.payload.email

@@ -1,5 +1,5 @@
 'use strict';
-import _ from 'lodash';
+import {capitalize} from 'lodash';
 import {by, org, buildQueryForPartialMatch, hasItems} from './../common/utils';
 import {findValidator, canUpdate, canView, areValidUsers, isMemberOf, uniqueCheck, prePopulate} from './../common/prereqs';
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
@@ -67,7 +67,7 @@ export default {
                 let shouldNotify = false;
                 ['owners', 'members'].forEach((toInspect) => {
                     ['added', 'removed'].forEach((t) => {
-                        const p = t + _.capitalize(toInspect);
+                        const p = t + capitalize(toInspect);
                         if (hasItems(request.payload[p])) {
                             shouldNotify = true;
                             description[toInspect] = description[toInspect] || {};

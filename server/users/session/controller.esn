@@ -10,7 +10,7 @@ export default {
         pre: [
             abuseDetected()
         ],
-        handler: (request, reply) => {
+        handler(request, reply) {
             let {email, password} = request.payload;
             let ipadrs = ip(request);
             Users.findByCredentials(email, password)
@@ -25,7 +25,7 @@ export default {
         }
     },
     logout: {
-        handler: (request, reply) => {
+        handler(request, reply) {
             let user = request.auth.credentials.user;
             user.logout(ip(request), user.email).save()
                 .then(() => reply({message: 'Success.'}));

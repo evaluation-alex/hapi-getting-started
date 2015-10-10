@@ -1,5 +1,5 @@
 'use strict';
-import _ from 'lodash';
+import {capitalize} from 'lodash';
 import {by, org, buildQueryForPartialMatch, hasItems} from './../common/utils';
 import {findValidator, canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate} from './../common/prereqs';
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
@@ -12,7 +12,7 @@ export default {
         validate: schemas.controller.create,
         pre: [
             canUpdate(Blogs.collection),
-            uniqueCheck(Blogs, (request) => {
+            uniqueCheck(Blogs, request => {
                 return {
                     title: request.payload.title,
                     organisation: org(request)
@@ -42,7 +42,7 @@ export default {
         pre: [
             canView(Blogs.collection)
         ],
-        handler: buildFindHandler(Blogs, (request) => {
+        handler: buildFindHandler(Blogs, request => {
             return buildQueryForPartialMatch({}, request,
                 [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
                     ['subGroup', 'subscriberGroups']
@@ -70,9 +70,9 @@ export default {
             sendNotifications(Blogs, (blog, request) => {
                 let description = {};
                 let shouldNotify = false;
-                ['owners', 'contributors', 'subscribers', 'subscriberGroups'].forEach((toInspect) => {
-                    ['added', 'removed'].forEach((t) => {
-                        const p = t + _.capitalize(toInspect);
+                ['owners', 'contributors', 'subscribers', 'subscriberGroups'].forEach(toInspect => {
+                    ['added', 'removed'].forEach(t => {
+                        const p = t + capitalize(toInspect);
                         if (hasItems(request.payload[p])) {
                             shouldNotify = true;
                             description[toInspect] = description[toInspect] || {};
@@ -174,7 +174,7 @@ export default {
             cancelNotifications(Blogs, 'approve', (blog, request, notification) => {
                 let modified = false;
                 let updatedBy = by(request);
-                request.payload.addedSubscribers.forEach((a) => {
+                request.payload.addedSubscribers.forEach(a => {
                     if (notification.content.join === a) {
                         modified = true;
                         notification.setState('cancelled', updatedBy);
@@ -207,7 +207,7 @@ export default {
             cancelNotifications(Blogs, 'approve', (blog, request, notification) => {
                 let modified = false;
                 let updatedBy = by(request);
-                request.payload.addedSubscribers.forEach((a) => {
+                request.payload.addedSubscribers.forEach(a => {
                     if (notification.content.join === a) {
                         modified = true;
                         notification.setState('cancelled', updatedBy);

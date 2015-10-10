@@ -1,5 +1,5 @@
 'use strict';
-import _ from 'lodash';
+import {get, flatten, capitalize, find} from 'lodash';
 import Bluebird from 'bluebird';
 import Joi from 'joi';
 import {hasItems, org, logAndBoom, user, by, lookupParamsOrPayloadOrQuery, ip} from './utils';
@@ -11,18 +11,18 @@ import UserGroups from './../user-groups/model';
 function buildAreValid(Model, pldPropToLookup) {
     return function areValid(request, reply) {
         let toLookup = [];
-        pldPropToLookup.forEach((pldProp) => {
-            let arrInReq = _.get(request.payload, pldProp.split('.'));
+        pldPropToLookup.forEach(pldProp => {
+            let arrInReq = get(request.payload, pldProp.split('.'));
             if (hasItems(arrInReq)) {
                 toLookup.push(arrInReq);
             }
         });
-        toLookup = _.flatten(toLookup);
+        toLookup = flatten(toLookup);
         if (hasItems(toLookup)) {
             Model.areValid(toLookup, org(request))
                 .then(validated => {
                     let msg = '';
-                    toLookup.forEach((a) => {
+                    toLookup.forEach(a => {
                         if (!validated[a]) {
                             msg += a.toString() + ',';
                         }
@@ -52,13 +52,13 @@ export function areValidGroups(payloadPropertiesToLookup) {
         method: buildAreValid(UserGroups, payloadPropertiesToLookup)
     };
 }
-function ensurePermissions(forAction, onObject) {
+function ensurePermissions(action, object) {
     return {
         assign: 'ensurePermissions',
         method(request, reply) {
             reply(
-                !user(request).hasPermissionsTo(forAction, onObject) ?
-                    new NoPermissionsForActionError({action: forAction, object: onObject, user: by(request)}) :
+                !user(request).hasPermissionsTo(action, object) ?
+                    new NoPermissionsForActionError({action, object, user: by(request)}) :
                     true
             );
         }
@@ -72,11 +72,11 @@ export function canUpdate(object) {
 }
 export function isMemberOf(Model, groups) {
     return {
-        assign: 'isMemberOf' + _.capitalize(Model.collection) + '(' + groups.join(',') + ')',
+        assign: 'isMemberOf' + capitalize(Model.collection) + '(' + groups.join(',') + ')',
         method(request, reply) {
             let obj = request.pre[Model.collection];
             let user = by(request);
-            if (user === 'root' || !!_.find(groups, (role) => obj['isPresentIn' + role.split('.').map(_.capitalize).join('')](user))) {
+            if (user === 'root' || !!find(groups, role => obj['isPresentIn' + role.split('.').map(capitalize).join('')](user))) {
                 reply(true);
             } else {
                 reply(new NotAMemberOfValidGroupError({owners: JSON.stringify(groups)}));
@@ -124,7 +124,7 @@ export function prePopulate(Model, idToUse) {
                 .then(obj => {
                     if (!obj) {
                         return Bluebird.reject(new ObjectNotFoundError({
-                            type: _.capitalize(Model.collection),
+                            type: capitalize(Model.collection),
                             idstr: id.toString()
                         }));
                     }
@@ -141,7 +141,7 @@ export function abuseDetected() {
         assign: 'abuseDetected',
         method(request, reply) {
             AuthAttempts.abuseDetected(ip(request), request.payload.email)
-                .then((detected) => {
+                .then(detected => {
                     if (detected) {
                         return Bluebird.reject(new AbusiveLoginAttemptsError());
                     }

@@ -1,6 +1,6 @@
 'use strict';
 import UserAgent from 'useragent';
-import * as utils from './../utils';
+import {by, toStatsD} from './../utils';
 function normalizePath(request) {
     const specials = request.connection._router.specials;
     if (request._route === specials.notFound.route) {
@@ -12,17 +12,17 @@ function normalizePath(request) {
     }
 }
 export let register = function register(server, options, next) {
-    server.on('tail', (request) => {
+    server.on('tail', request => {
         let ua = UserAgent.lookup(request.headers['user-agent']);
         const path = normalizePath(request) + '.' + request.method.toUpperCase();
         const statusCode = '.' + request.response.statusCode;
-        const user = utils.by(request);
+        const user = by(request);
         const device = ua.device.toString();
         const browser = ua.toString();
         const start = request.info.received;
         const end = request.info.responded;
         process.nextTick(() => {
-            utils.toStatsD(path,
+            toStatsD(path,
                 statusCode,
                 user,
                 device,

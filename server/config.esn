@@ -24,7 +24,7 @@ if (!args.sendemails) {
     nodemailer = {
         name: 'minimal',
         version: '0.1.0',
-        send: (mail, cb) => {
+        send(mail, cb) {
             let input = mail.message.createReadStream();
             input.pipe(devnull());
             input.on('end', function () {

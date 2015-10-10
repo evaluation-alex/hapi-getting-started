@@ -1,5 +1,5 @@
 'use strict';
-import _ from 'lodash';
+import {flatten} from 'lodash';
 import {buildQueryForPartialMatch, buildQueryForDateRange, by, user, hasItems} from './../../common/utils';
 import {findValidator, canView, canUpdate, prePopulate, onlyOwner} from './../../common/prereqs';
 import {buildFindHandler, buildUpdateHandler} from './../../common/handlers';
@@ -18,7 +18,7 @@ export default {
             query = buildQueryForDateRange(query, request, 'createdOn');
             query.email = by(request);
             let prefs = user(request).preferences;
-            let blocked = _.flatten([
+            let blocked = flatten([
                 prefs.notifications.blogs.blocked,
                 prefs.notifications.posts.blocked,
                 prefs.notifications.userGroups.blocked

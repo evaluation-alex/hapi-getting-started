@@ -1,11 +1,11 @@
 'use strict';
-import * as DAO from './../common/dao';
+import {assign} from 'lodash';
+import {org} from './../common/utils';
+import {build} from './../common/dao';
 import schemas from './schemas';
-import * as utils from './../common/utils';
-import _ from 'lodash';
 class UserGroups {
     constructor(attrs) {
-        _.assign(this, attrs);
+        assign(this, attrs);
         Object.defineProperty(this, 'audit', {
             writable: true,
             enumerable: false
@@ -13,7 +13,7 @@ class UserGroups {
     }
     static newObject(doc, by) {
         return UserGroups.create(doc.payload.name,
-            utils.org(doc),
+            org(doc),
             doc.payload.description,
             by)
             .then((userGroup) => {
@@ -37,5 +37,5 @@ class UserGroups {
         return UserGroups.insertAndAudit(document, owner);
     }
 }
-DAO.build(UserGroups, schemas.dao, schemas.model, [], 'name');
+build(UserGroups, schemas.dao, schemas.model, [], 'name');
 export default UserGroups;

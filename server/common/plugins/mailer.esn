@@ -9,11 +9,11 @@ import config from './../../config';
 
 let transport = Bluebird.promisifyAll(Nodemailer.createTransport(clone(config.nodemailer)));
 transport.use('compile', markdown({useEmbeddedImages: true}));
-let readFile = Bluebird.promisify(fs.readFile);
+const readFile = Bluebird.promisify(fs.readFile);
 
 let templateCache = {};
 
-let renderTemplate = Bluebird.method((template, context) => {
+const renderTemplate = Bluebird.method((template, context) => {
     context.projectName = config.projectName;
     if (templateCache[template]) {
         return templateCache[template](context);

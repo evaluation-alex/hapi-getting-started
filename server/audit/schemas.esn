@@ -5,9 +5,9 @@ export default {
         connection: 'app',
         collection: 'audit',
         indexes: [
-            [{organisation: 1, objectChangedType: 1}],
-            [{by: 1, on: 1}],
-            [{on: 1}]
+            {fields: {organisation: 1, objectChangedType: 1}},
+            {fields: {by: 1, on: 1}},
+            {fields: {on: 1}}
         ],
         saveAudit: false,
         isReadonly: true

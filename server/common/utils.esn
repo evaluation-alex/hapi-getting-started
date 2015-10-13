@@ -68,18 +68,18 @@ export function lookupParamsOrPayloadOrQuery(request, field) {
 export function hasItems(arr) {
     return arr && arr.length > 0;
 }
-let queryBuilderForArray = {
+const queryBuilderForArray = {
     objectId: p => {
-        return {$in: p.map((op) => objectID(op))};
+        return {$in: p.map(objectID)};
     },
     exact: p => {
         return {$in: p};
     },
     partial: p => {
-        return {$in: p.map((op) => new RegExp('^.*?' + op + '.*$', 'i'))};
+        return {$in: p.map(op => new RegExp('^.*?' + op + '.*$', 'i'))};
     }
 };
-let queryBuilderForOne = {
+const queryBuilderForOne = {
     objectId: p => objectID(p),
     exact: p => p,
     partial: p => {
@@ -87,10 +87,10 @@ let queryBuilderForOne = {
     }
 };
 export function buildQueryFor(type, query, request, fields) {
-    let builder = queryBuilderForOne[type];
-    let arrBuilder = queryBuilderForArray[type];
+    const builder = queryBuilderForOne[type];
+    const arrBuilder = queryBuilderForArray[type];
     fields.forEach(pair => {
-        let p = lookupParamsOrPayloadOrQuery(request, pair[0]);
+        const p = lookupParamsOrPayloadOrQuery(request, pair[0]);
         if (p) {
             query[pair[1]] = isArray(p) ? arrBuilder(p) : builder(p);
         }
@@ -107,13 +107,13 @@ export function buildQueryForPartialMatch(query, request, fields) {
     return buildQueryFor('partial', query, request, fields);
 }
 export function buildQueryForDateRange(query, request, field) {
-    let pb4 = lookupParamsOrPayloadOrQuery(request, field + 'Before');
+    const pb4 = lookupParamsOrPayloadOrQuery(request, field + 'Before');
     if (pb4) {
         query[field] = {
             $lte: moment(pb4).toDate()
         };
     }
-    let paf = lookupParamsOrPayloadOrQuery(request, field + 'After');
+    const paf = lookupParamsOrPayloadOrQuery(request, field + 'After');
     if (paf) {
         query[field] = query[field] || {};
         query[field].$gte = moment(paf).toDate();

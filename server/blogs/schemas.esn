@@ -6,8 +6,8 @@ export default {
         collection: 'blogs',
         idForAudit: undefined,
         indexes: [
-            [{title: 1, organisation: 1}, {unique: true}],
-            [{description: 1}]
+            {fields: {title: 1, organisation: 1}, options: {unique: true}},
+            {fields: {description: 1}}
         ],
         updateMethod: {
             method: 'update',

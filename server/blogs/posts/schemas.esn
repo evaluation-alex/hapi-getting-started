@@ -5,9 +5,9 @@ export default {
         connection: 'app',
         collection: 'posts',
         indexes: [
-            [{organisation: 1, title: 1, blogId: 1, publishedOn: 1}],
-            [{tags: 1}],
-            [{state: 1, publishedOn: 1}]
+            {fields: {organisation: 1, title: 1, blogId: 1, publishedOn: 1}},
+            {fields: {tags: 1}},
+            {fields: {state: 1, publishedOn: 1}}
         ],
         updateMethod: {
             method: 'updatePost',

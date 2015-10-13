@@ -1,6 +1,6 @@
 'use strict';
 import Joi from 'joi';
-let addressSchema = Joi.object().keys({
+const addressSchema = Joi.object().keys({
     apartment: Joi.string(),
     floorHouseNo: Joi.string(),
     street: Joi.string(),
@@ -11,13 +11,13 @@ let addressSchema = Joi.object().keys({
     state: Joi.string(),
     country: Joi.string()
 });
-let educationalQualifactionSchema = Joi.object().keys({
+const educationalQualifactionSchema = Joi.object().keys({
     school: Joi.string(),
     started: Joi.date(),
     completed: Joi.date(),
     qualification: Joi.string()
 });
-let employmentHistorySchema = Joi.object().keys({
+const employmentHistorySchema = Joi.object().keys({
     company: Joi.string(),
     designation: Joi.string(),
     from: Joi.date(),

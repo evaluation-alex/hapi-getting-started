@@ -17,7 +17,7 @@ class Posts {
     }
 
     static newObject(doc, by) {
-        let blog = doc.pre.blogs;
+        const blog = doc.pre.blogs;
         merge(doc.payload, pick(blog, ['access', 'allowComments', 'needsReview']));
         if (doc.payload.state === 'published') {
             if (doc.payload.needsReview && !(blog.isPresentInOwners(by) || by === 'root')) {
@@ -37,14 +37,14 @@ class Posts {
             doc.payload.contentType || 'post',
             doc.payload.content,
             by)
-            .then((post) => {
+            .then(post => {
                 post.blog = blog;
                 return post;
             });
     }
 
     static create(blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, contentType, content, by) {
-        let now = new Date();
+        const now = new Date();
         let document = {
             blogId,
             organisation,
@@ -76,7 +76,7 @@ class Posts {
 
     publish(doc, by) {
         if (['draft', 'pending review'].indexOf(this.state) !== -1) {
-            let blog = doc.pre.blogs;
+            const blog = doc.pre.blogs;
             if (this.needsReview && !(by === 'root' || blog.isPresentInOwners(by))) {
                 this.setState('pending review', by);
             } else {

@@ -4,7 +4,6 @@ import {logger} from './../../config';
 import Users from './../../users/model';
 import Roles from './../../users/roles/model';
 export let register = function register(server, options, next) {
-    // this is being done to prevent users and roles fom creating indexes before mongo connections have been established
     server.connections.forEach(connection => {
         connection.auth.strategy('simple', 'basic', {
             validateFunc(request, email, sessionkey, callback) {
@@ -17,11 +16,8 @@ export let register = function register(server, options, next) {
                                 callback(null, true, {user});
                             });
                     })
-                    .catch(UserNotFoundError,
-                    UserNotLoggedInError,
-                    SessionExpiredError,
-                    SessionCredentialsNotMatchingError,
-                    err => {
+                    .catch(UserNotFoundError, UserNotLoggedInError, SessionExpiredError, SessionCredentialsNotMatchingError,
+                        err => {
                         callback(err.i18nError('en'), false);
                     })
                     .catch(err => {

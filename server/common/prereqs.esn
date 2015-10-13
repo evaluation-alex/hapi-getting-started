@@ -12,7 +12,7 @@ function buildAreValid(Model, pldPropToLookup) {
     return function areValid(request, reply) {
         let toLookup = [];
         pldPropToLookup.forEach(pldProp => {
-            let arrInReq = get(request.payload, pldProp.split('.'));
+            const arrInReq = get(request.payload, pldProp.split('.'));
             if (hasItems(arrInReq)) {
                 toLookup.push(arrInReq);
             }
@@ -74,8 +74,8 @@ export function isMemberOf(Model, groups) {
     return {
         assign: 'isMemberOf' + capitalize(Model.collection) + '(' + groups.join(',') + ')',
         method(request, reply) {
-            let obj = request.pre[Model.collection];
-            let user = by(request);
+            const obj = request.pre[Model.collection];
+            const user = by(request);
             if (user === 'root' || !!find(groups, role => obj['isPresentIn' + role.split('.').map(capitalize).join('')](user))) {
                 reply(true);
             } else {
@@ -106,7 +106,7 @@ export function onlyOwner(Model, fieldToVerifyAgainst = 'email') {
     return {
         assign: 'allowedToViewOrEditPersonalInfo',
         method(request, reply) {
-            let u = by(request);
+            const u = by(request);
             if ((request.pre[Model.collection][fieldToVerifyAgainst] === u) || (u === 'root')) {
                 reply(true);
             } else {
@@ -119,7 +119,7 @@ export function prePopulate(Model, idToUse) {
     return {
         assign: Model.collection,
         method(request, reply) {
-            let id = lookupParamsOrPayloadOrQuery(request, idToUse);
+            const id = lookupParamsOrPayloadOrQuery(request, idToUse);
             Model.findOne({_id: Model.ObjectID(id)})
                 .then(obj => {
                     if (!obj) {

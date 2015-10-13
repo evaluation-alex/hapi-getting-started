@@ -14,20 +14,20 @@ export default {
     signup: {
         validate: schemas.controller.signup,
         pre: [
-            uniqueCheck(Users, (request) => {
+            uniqueCheck(Users, request => {
                 return {
                     email: request.payload.email,
                     organisation: request.payload.organisation
                 };
             })
         ],
-        handler: buildCreateHandler(Users, (request) => {
-            let {email, password, organisation, locale} = request.payload;
-            let ipadrs = ip(request);
+        handler: buildCreateHandler(Users, request => {
+            const {email, password, organisation, locale} = request.payload;
+            const ipadrs = ip(request);
             return Users.create(email, organisation, password, locale)
                 .then(user => user.loginSuccess(ipadrs, user.email).save())
                 .then(user => {
-                    let options = {
+                    const options = {
                         subject: 'Your ' + config.projectName + ' account',
                         to: {
                             name: request.payload.email,
@@ -50,9 +50,9 @@ export default {
         pre: [
             canView(Users.collection)
         ],
-        handler: buildFindHandler(Users, (request) => buildQueryForPartialMatch({}, request, [['email', 'email']]),
-            (output) => {
-                output.data = output.data.map((user) => user.stripPrivateData());
+        handler: buildFindHandler(Users, request => buildQueryForPartialMatch({}, request, [['email', 'email']]),
+            output => {
+                output.data = output.data.map(user => user.stripPrivateData());
                 return output;
             })
     },
@@ -73,14 +73,14 @@ export default {
         ],
         handler: buildUpdateHandler(Users, (usr, request, e) => usr._invalidateSession(ip(request), e).updateUser(request, e))
     },
-    loginForgot: {
-        validate: schemas.controller.loginForgot,
+    forgot: {
+        validate: schemas.controller.forgot,
         handler(request, reply) {
             Users.findOne({email: request.payload.email})
                 .then(user => user ? user.resetPasswordSent(user.email).save() : user)
                 .then(user => {
                     if (user) {
-                        let options = {
+                        const options = {
                             subject: 'Reset your ' + config.projectName + ' password',
                             to: request.payload.email
                         };
@@ -94,8 +94,8 @@ export default {
                 });
         }
     },
-    loginReset: {
-        validate: schemas.controller.loginReset,
+    reset: {
+        validate: schemas.controller.reset,
         handler(request, reply) {
             Users.findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
                 .then(user => {

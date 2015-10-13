@@ -24,8 +24,8 @@ export default {
         handler: buildCreateHandler(Blogs),
         post: [
             sendNotifications(Blogs, (blog, request) => {
-                let title = blog.title;
-                let createdBy = by(request);
+                const title = blog.title;
+                const createdBy = by(request);
                 return {
                     to: blog.owners,
                     title: ['Blog {{title}} created.', {title}],
@@ -80,8 +80,8 @@ export default {
                         }
                     });
                 });
-                let title = blog.title;
-                let updatedBy = by(request);
+                const title = blog.title;
+                const updatedBy = by(request);
                 return {
                     to: shouldNotify ? blog.owners : [],
                     title: ['Blog {{title}} updated by {{updatedBy}}', {title, updatedBy}],
@@ -99,8 +99,8 @@ export default {
         handler: buildUpdateHandler(Blogs, 'del'),
         post: [
             sendNotifications(Blogs, (blog, request) => {
-                let title = blog.title;
-                let createdBy = by(request);
+                const title = blog.title;
+                const createdBy = by(request);
                 return {
                     to: blog.owners,
                     title: ['Blog {{title}} deleted.', {title}],
@@ -117,9 +117,9 @@ export default {
         handler: buildUpdateHandler(Blogs, 'join'),
         post: [
             sendNotifications(Blogs, (blog, request) => {
-                let title = blog.title;
-                let email = by(request);
-                let btitle = blog.access === 'public' ? '{{email}} has joined {{title}}' : '{{email}} has joined {{title}} and needs your approval';
+                const title = blog.title;
+                const email = by(request);
+                const btitle = blog.access === 'public' ? '{{email}} has joined {{title}}' : '{{email}} has joined {{title}} and needs your approval';
                 return {
                     to: blog.owners,
                     description: {join: email},
@@ -139,8 +139,8 @@ export default {
         handler: buildUpdateHandler(Blogs, 'leave'),
         post: [
             sendNotifications(Blogs, (blog, request) => {
-                let title = blog.title;
-                let email = by(request);
+                const title = blog.title;
+                const email = by(request);
                 return {
                     to: blog.owners,
                     description: {leave: email},
@@ -162,8 +162,8 @@ export default {
         handler: buildUpdateHandler(Blogs, 'approve'),
         post: [
             sendNotifications(Blogs, (blog, request) => {
-                let title = blog.title;
-                let hasAddedSubscribers = hasItems(request.payload.addedSubscribers);
+                const title = blog.title;
+                const hasAddedSubscribers = hasItems(request.payload.addedSubscribers);
                 return {
                     to: hasAddedSubscribers ? blog.owners : [],
                     title: ['{{title}} has new approved subscribers', {title}],
@@ -173,7 +173,7 @@ export default {
             }),
             cancelNotifications(Blogs, 'approve', (blog, request, notification) => {
                 let modified = false;
-                let updatedBy = by(request);
+                const updatedBy = by(request);
                 request.payload.addedSubscribers.forEach(a => {
                     if (notification.content.join === a) {
                         modified = true;
@@ -195,9 +195,9 @@ export default {
         handler: buildUpdateHandler(Blogs, 'reject'),
         post: [
             sendNotifications(Blogs, (blog, request) => {
-                let title = blog.title;
-                let updatedBy = by(request);
-                let hasAddedSubscribers = hasItems(request.payload.addedSubscribers);
+                const title = blog.title;
+                const updatedBy = by(request);
+                const hasAddedSubscribers = hasItems(request.payload.addedSubscribers);
                 return {
                     to: hasAddedSubscribers ? request.payload.addedSubscribers : [],
                     title: ['Your request to follow {{title}} was denied', {title}],
@@ -206,7 +206,7 @@ export default {
             }),
             cancelNotifications(Blogs, 'approve', (blog, request, notification) => {
                 let modified = false;
-                let updatedBy = by(request);
+                const updatedBy = by(request);
                 request.payload.addedSubscribers.forEach(a => {
                     if (notification.content.join === a) {
                         modified = true;

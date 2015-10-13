@@ -6,13 +6,13 @@ import config from './../config';
 import {defaultcb, errback, toStatsD2, hasItems} from './utils';
 import {ObjectNotCreatedError} from './errors';
 let connections = {};
-export function connect(name, config) {
+export function connect(name, cfg) {
     return new Bluebird((resolve, reject) => {
         if (connections[name]) {
             resolve(connections[name]);
         } else {
-            Mongodb.MongoClient.connect(config.url,
-                config.options,
+            Mongodb.MongoClient.connect(cfg.url,
+                cfg.options,
                 defaultcb('connect',
                     db => {
                         connections[name] = db;
@@ -31,8 +31,7 @@ export function disconnect(name) {
         errback(err);
     });
 }
-function withSchemaProperties(Dao, schema, modelSchema) {
-    let {connection, collection, indexes} = schema;
+function withSchemaProperties(Dao, connection, collection, indexes, modelSchema) {
     return extend(Dao, {
         ObjectID: Mongodb.ObjectID,
         ObjectId: Mongodb.ObjectID,
@@ -44,13 +43,11 @@ function withSchemaProperties(Dao, schema, modelSchema) {
 }
 function withSetupMethods(Dao) {
     return extend(Dao, {
-        ensureIndexes() {
+        createIndexes() {
             return Bluebird.all(Dao.indexes.map(index => {
                 return new Bluebird((resolve, reject) => {
-                    db(Dao.connection).ensureIndex(Dao.collection,
-                        index[0],
-                        index[1] || {},
-                        defaultcb(Dao.collection + '.ensureIndex', resolve, reject)
+                    db(Dao.connection).collection(Dao.collection).createIndex(index.fields, index.options || {},
+                        defaultcb(Dao.collection + '.createIndex', resolve, reject)
                     );
                 });
             }));
@@ -70,10 +67,21 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit) {
             });
         }
     });
+    /*istanbul ignore if*/
+    if (process.env.NODE_ENV !== 'production') {
+        extend(Dao, {
+            remove(query) {
+                return new Bluebird((resolve, reject) => {
+                    db(Dao.connection).collection(Dao.collection).deleteMany(query,
+                        defaultcb(Dao.collection + '.remove', doc => resolve(doc.deletedCount), reject, query)
+                    );
+                });
+            }
+        });
+    }
     if (!isReadonly) {
         extend(Dao, {
             remove(query) {
-                /*istanbul ignore next*/
                 return new Bluebird((resolve, reject) => {
                     db(Dao.connection).collection(Dao.collection).deleteMany(query,
                         defaultcb(Dao.collection + '.remove', doc => resolve(doc.deletedCount), reject, query)
@@ -90,7 +98,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit) {
                 });
             },
             insertAndAudit(doc, by) {
-                let now = new Date();
+                const now = new Date();
                 merge(doc, {
                     isActive: true,
                     createdBy: by,
@@ -121,17 +129,6 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit) {
             }
         });
     }
-    if (process.env.NODE_ENV !== 'production') {
-        extend(Dao, {
-            remove(query) {
-                return new Bluebird((resolve, reject) => {
-                    db(Dao.connection).collection(Dao.collection).deleteMany(query,
-                        defaultcb(Dao.collection + '.remove', doc => resolve(doc.deletedCount), reject, query)
-                    );
-                });
-            }
-        });
-    }
     return Dao;
 }
 function withFindMethods(Dao, areValidProperty) {
@@ -143,8 +140,8 @@ function withFindMethods(Dao, areValidProperty) {
         },
         find(query, fields, sort, limit, skip) {
             return new Bluebird((resolve, reject) => {
-                let start = Date.now();
-                let bucket = Dao.collection + '.find';
+                const start = Date.now();
+                const bucket = Dao.collection + '.find';
                 let cursor = db(Dao.connection).collection(Dao.collection).find(query,
                     {fields: fields, sort: sort, limit: limit, skip: skip}
                 );
@@ -255,7 +252,7 @@ function propDescriptors(properties = []) {
 }
 function arrDescriptors(lists = []) {
     return lists.map(l => {
-        let methodSuffix = l.split('.').map(capitalize).join('');
+        const methodSuffix = l.split('.').map(capitalize).join('');
         let pathadd = l.split('.');
         pathadd[pathadd.length - 1] = 'added' + capitalize(pathadd[pathadd.length - 1]);
         let pathrem = l.split('.');
@@ -274,10 +271,10 @@ function arrDescriptors(lists = []) {
 }
 function withSetMethods(model, properties) {
     properties.forEach(p => {
-        let {method, path, name} = p;
+        const {method, path, name} = p;
         extend(model.prototype, {
             [method](newValue, by) {
-                let origval = get(this, path);
+                const origval = get(this, path);
                 if (!isUndefined(newValue) && !isEqual(origval, newValue)) {
                     this.trackChanges(name, origval, newValue, by);
                     set(this, path, newValue);
@@ -290,15 +287,15 @@ function withSetMethods(model, properties) {
 }
 function withArrMethods(model, lists) {
     lists.forEach(role => {
-        let {path, name, isPresentIn, addMethod, removeMethod} = role;
+        const {path, name, isPresentIn, addMethod, removeMethod} = role;
         extend(model.prototype, {
             [isPresentIn](toCheck) {
                 return !!find(get(this, path), item => isEqual(item, toCheck));
             },
             [addMethod](toAdd, by) {
-                let list = get(this, path);
+                const list = get(this, path);
                 toAdd.forEach(memberToAdd => {
-                    let found = find(list, item => isEqual(item, memberToAdd));
+                    const found = find(list, item => isEqual(item, memberToAdd));
                     if (!found) {
                         list.push(memberToAdd);
                         this.trackChanges('add ' + name, null, memberToAdd, by);
@@ -307,9 +304,9 @@ function withArrMethods(model, lists) {
                 return this;
             },
             [removeMethod](toRemove, by) {
-                let list = get(this, path);
+                const list = get(this, path);
                 toRemove.forEach(memberToRemove => {
-                    let removed = remove(list, item => isEqual(item, memberToRemove));
+                    const removed = remove(list, item => isEqual(item, memberToRemove));
                     if (hasItems(removed)) {
                         this.trackChanges('remove ' + name, memberToRemove, null, by);
                     }
@@ -324,17 +321,17 @@ function withUpdate(model, props, arrs, updateMethod) {
     extend(model.prototype, {
         [updateMethod](doc, by) {
             props.forEach(p => {
-                let u = get(doc.payload, p.path);
+                const u = get(doc.payload, p.path);
                 if (!isUndefined(u)) {
                     this[p.method](u, by);
                 }
             }, this);
             arrs.forEach(arr => {
-                let r = get(doc.payload, arr.removed);
+                const r = get(doc.payload, arr.removed);
                 if (!isUndefined(r) && hasItems(r)) {
                     this[arr.removeMethod](r, by);
                 }
-                let a = get(doc.payload, arr.added);
+                const a = get(doc.payload, arr.added);
                 if (!isUndefined(a) && hasItems(a)) {
                     this[arr.addMethod](a, by);
                 }
@@ -345,13 +342,13 @@ function withUpdate(model, props, arrs, updateMethod) {
     return model;
 }
 function withApproveRejectJoinLeave(model, affectedRole, needsApproval) {
-    let needsApprovalMethodSuffix = needsApproval.split('.').map(capitalize).join('');
-    let affectedRoleMethodSuffix = affectedRole.split('.').map(capitalize).join('');
+    const needsApprovalMethodSuffix = needsApproval.split('.').map(capitalize).join('');
+    const affectedRoleMethodSuffix = affectedRole.split('.').map(capitalize).join('');
     let toAdd = affectedRole.split('.');
     toAdd[toAdd.length - 1] = 'added' + capitalize(toAdd[toAdd.length - 1]);
     extend(model.prototype, {
         join(doc, by) {
-            let method = this.access === 'public' ? affectedRoleMethodSuffix : needsApprovalMethodSuffix;
+            const method = this.access === 'public' ? affectedRoleMethodSuffix : needsApprovalMethodSuffix;
             return this['add' + method]([by], by);
         },
         approve(doc, by) {
@@ -399,7 +396,7 @@ function withSave(model, saveAudit, idForAudit = '_id') {
             return this.setIsActive(true, by);
         },
         trackChanges(action, origValues, newValues, by) {
-            let now = new Date();
+            const now = new Date();
             if (saveAudit) {
                 this.audit = this.audit || {
                         objectChangedType: model.collection,
@@ -420,20 +417,20 @@ function withSave(model, saveAudit, idForAudit = '_id') {
 }
 export function build(toBuild, schema, model, extendModels, areValidProperty = undefined) {
     if (!schema.isVirtualModel) {
-        withSchemaProperties(toBuild, schema, model);
+        withSchemaProperties(toBuild, schema.connection, schema.collection, schema.indexes, model);
         withSetupMethods(toBuild);
         withModifyMethods(toBuild, schema.isReadonly, schema.saveAudit, schema.idForAudit || '_id');
         withFindMethods(toBuild, areValidProperty);
     }
     if (schema.updateMethod) {
-        let props = propDescriptors(schema.updateMethod.props);
-        let arrs = arrDescriptors(schema.updateMethod.arrProps);
+        const props = propDescriptors(schema.updateMethod.props);
+        const arrs = arrDescriptors(schema.updateMethod.arrProps);
         withSetMethods(toBuild, props);
         withArrMethods(toBuild, arrs);
         withUpdate(toBuild, props, arrs, schema.updateMethod.method);
     }
     if (schema.joinApproveRejectLeave) {
-        let {affectedRole, needsApproval} = schema.joinApproveRejectLeave;
+        const {affectedRole, needsApproval} = schema.joinApproveRejectLeave;
         withApproveRejectJoinLeave(toBuild, affectedRole, needsApproval);
     }
     if (!schema.isVirtualModel && !schema.isReadonly) {

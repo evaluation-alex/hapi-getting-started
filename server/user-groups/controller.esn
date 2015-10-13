@@ -12,7 +12,7 @@ export default {
         validate: schemas.controller.create,
         pre: [
             canUpdate(UserGroups.collection),
-            uniqueCheck(UserGroups, (request) => {
+            uniqueCheck(UserGroups, request => {
                 return {
                     name: request.payload.name,
                     organisation: org(request)
@@ -23,8 +23,8 @@ export default {
         handler: buildCreateHandler(UserGroups),
         post: [
             sendNotifications(UserGroups, (ug, request) => {
-                let title = ug.name;
-                let createdBy = by(request);
+                const title = ug.name;
+                const createdBy = by(request);
                 return {
                     to: ug.owners,
                     title: ['UserGroup {{title}} created.', {title}],
@@ -65,8 +65,8 @@ export default {
             sendNotifications(UserGroups, (ug, request) => {
                 let description = {};
                 let shouldNotify = false;
-                ['owners', 'members'].forEach((toInspect) => {
-                    ['added', 'removed'].forEach((t) => {
+                ['owners', 'members'].forEach(toInspect => {
+                    ['added', 'removed'].forEach(t => {
                         const p = t + capitalize(toInspect);
                         if (hasItems(request.payload[p])) {
                             shouldNotify = true;
@@ -75,8 +75,8 @@ export default {
                         }
                     });
                 });
-                let title = ug.name;
-                let updatedBy = by(request);
+                const title = ug.name;
+                const updatedBy = by(request);
                 return {
                     to: shouldNotify ? ug.owners : [],
                     title: ['UserGroup {{title}} updated by {{updatedBy}}', {title, updatedBy}],
@@ -94,8 +94,8 @@ export default {
         handler: buildUpdateHandler(UserGroups, 'del'),
         post: [
             sendNotifications(UserGroups, (ug, request) => {
-                let title = ug.name;
-                let createdBy = by(request);
+                const title = ug.name;
+                const createdBy = by(request);
                 return {
                     to: ug.owners,
                     title: ['UserGroup {{title}} deleted.', {title}],
@@ -112,9 +112,9 @@ export default {
         handler: buildUpdateHandler(UserGroups, 'join'),
         post: [
             sendNotifications(UserGroups, (ug, request) => {
-                let title = ug.name;
-                let email = by(request);
-                let utitle = ug.access === 'public' ? '{{email}} has joined {{title}}' : '{{email}} has joined {{title}} and needs your approval';
+                const title = ug.name;
+                const email = by(request);
+                const utitle = ug.access === 'public' ? '{{email}} has joined {{title}}' : '{{email}} has joined {{title}} and needs your approval';
                 return {
                     to: ug.owners,
                     description: {join: email},
@@ -134,8 +134,8 @@ export default {
         handler: buildUpdateHandler(UserGroups, 'leave'),
         post: [
             sendNotifications(UserGroups, (ug, request) => {
-                let title = ug.name;
-                let email = by(request);
+                const title = ug.name;
+                const email = by(request);
                 return {
                     to: ug.owners,
                     description: {leave: email},
@@ -157,8 +157,8 @@ export default {
         handler: buildUpdateHandler(UserGroups, 'approve'),
         post: [
             sendNotifications(UserGroups, (ug, request) => {
-                let title = ug.name;
-                let hasAddedMembers = hasItems(request.payload.addedMembers);
+                const title = ug.name;
+                const hasAddedMembers = hasItems(request.payload.addedMembers);
                 return {
                     to: hasAddedMembers ? ug.owners : [],
                     title: ['{{title}} has new approved members', {title}],
@@ -168,8 +168,8 @@ export default {
             }),
             cancelNotifications(UserGroups, 'approve', (ug, request, notification) => {
                 let modified = false;
-                let updatedBy = by(request);
-                request.payload.addedMembers.forEach((a) => {
+                const updatedBy = by(request);
+                request.payload.addedMembers.forEach(a => {
                     if (notification.content.join === a) {
                         modified = true;
                         notification.setState('cancelled', updatedBy);
@@ -190,9 +190,9 @@ export default {
         handler: buildUpdateHandler(UserGroups, 'reject'),
         post: [
             sendNotifications(UserGroups, (ug, request) => {
-                let title = ug.name;
-                let updatedBy = by(request);
-                let hasAddedMembers = hasItems(request.payload.addedMembers);
+                const title = ug.name;
+                const updatedBy = by(request);
+                const hasAddedMembers = hasItems(request.payload.addedMembers);
                 return {
                     to: hasAddedMembers ? request.payload.addedMembers : [],
                     title: ['Your request to join {{title}} was denied', {title}],
@@ -201,8 +201,8 @@ export default {
             }),
             cancelNotifications(UserGroups, 'approve', (ug, request, notification) => {
                 let modified = false;
-                let updatedBy = by(request);
-                request.payload.addedMembers.forEach((a) => {
+                const updatedBy = by(request);
+                request.payload.addedMembers.forEach(a => {
                     if (notification.content.join === a) {
                         modified = true;
                         notification.setState('cancelled', updatedBy);

@@ -13,7 +13,7 @@ function normalizePath(request) {
 }
 export let register = function register(server, options, next) {
     server.on('tail', request => {
-        let ua = UserAgent.lookup(request.headers['user-agent']);
+        const ua = UserAgent.lookup(request.headers['user-agent']);
         const path = normalizePath(request) + '.' + request.method.toUpperCase();
         const statusCode = '.' + request.response.statusCode;
         const user = by(request);

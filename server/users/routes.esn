@@ -4,8 +4,8 @@ import {buildRESTRoutes, buildRoute} from './../common/routes';
 import Controller from './controller';
 let routes = flatten([
     buildRESTRoutes('users', Controller),
-    buildRoute('POST', '/signup', Controller.signup, false),
-    buildRoute('POST', '/login/forgot', Controller.loginForgot, false),
-    buildRoute('POST', '/login/reset', Controller.loginReset, false)
+    buildRoute('POST', '/users/signup', Controller.signup, false),
+    buildRoute('PUT', '/users/forgot', Controller.forgot, false),
+    buildRoute('PUT', '/users/reset', Controller.reset, false)
 ]);
 export default routes;

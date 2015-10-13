@@ -5,13 +5,13 @@ import moment from 'moment';
 import {secureHash} from './../../common/utils';
 class Session {
     _invalidateSession(ipaddress, by) {
-        let removed = remove(this.session, session => session.ipaddress === ipaddress);
+        const removed = remove(this.session, session => session.ipaddress === ipaddress);
         this.trackChanges('user.session', removed, null, by);
         return this;
     }
 
     _newSession(ipaddress, by) {
-        let session = {
+        const session = {
             ipaddress,
             key: secureHash(Uuid.v4().toString()),
             expires: moment().add(1, 'month').toDate()
@@ -22,7 +22,7 @@ class Session {
     }
 
     loginSuccess(ipaddress, by) {
-        let found = find(this.session, session => session.ipaddress === ipaddress);
+        const found = find(this.session, session => session.ipaddress === ipaddress);
         if (!found) {
             this._newSession(ipaddress, by);
         } else {
@@ -35,7 +35,7 @@ class Session {
     }
 
     afterLogin(ipaddress) {
-        let session = find(this.session, sesion => sesion.ipaddress === ipaddress);
+        const session = find(this.session, sesion => sesion.ipaddress === ipaddress);
         return {
             _id: this._id,
             user: this.email,

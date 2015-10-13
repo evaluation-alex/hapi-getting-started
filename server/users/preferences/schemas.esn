@@ -1,18 +1,18 @@
 'use strict';
 import Joi from 'joi';
-let channelSchema = Joi.object().keys({
+const channelSchema = Joi.object().keys({
     frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
     lastSent: Joi.date()
 });
-let notificationPrefSchema = Joi.object().keys({
+const notificationPrefSchema = Joi.object().keys({
     inapp: channelSchema,
     email: channelSchema,
     blocked: Joi.array().items(Joi.object())
 });
-let updateChannelSchema = Joi.object().keys({
+const updateChannelSchema = Joi.object().keys({
     frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly')
 });
-let notificationUpdatePrefSchema = Joi.object().keys({
+const notificationUpdatePrefSchema = Joi.object().keys({
     inapp: updateChannelSchema,
     email: updateChannelSchema,
     addedBlocked: Joi.array().items(Joi.object()),

@@ -13,12 +13,12 @@ export default {
         pre: [
             canView(Notifications.collection)
         ],
-        handler: buildFindHandler(Notifications, (request) => {
+        handler: buildFindHandler(Notifications, request => {
             let query = buildQueryForPartialMatch({}, request, [['state', 'state'], ['objectType', 'objectType']]);
             query = buildQueryForDateRange(query, request, 'createdOn');
             query.email = by(request);
-            let prefs = user(request).preferences;
-            let blocked = flatten([
+            const prefs = user(request).preferences;
+            const blocked = flatten([
                 prefs.notifications.blogs.blocked,
                 prefs.notifications.posts.blocked,
                 prefs.notifications.userGroups.blocked

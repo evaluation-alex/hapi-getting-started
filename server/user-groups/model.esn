@@ -16,7 +16,7 @@ class UserGroups {
             org(doc),
             doc.payload.description,
             by)
-            .then((userGroup) => {
+            .then(userGroup => {
                 return userGroup
                     .addMembers(doc.payload.members, by)
                     .addOwners(doc.payload.owners, by)

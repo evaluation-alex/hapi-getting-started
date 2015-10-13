@@ -9,7 +9,7 @@ export default {
     contact: {
         validate: schemas.controller.contact,
         handler(request, reply) {
-            let options = {
+            const options = {
                 subject: config.projectName + ' contact form',
                 to: config.system.toAddress,
                 replyTo: {

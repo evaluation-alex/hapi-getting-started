@@ -9,8 +9,8 @@ export default {
         collection: 'users',
         idForAudit: 'email',
         indexes: [
-            [{email: 1}, {unique: true}],
-            [{email: 1, organisation: 1}, {unique: true}]
+            {fields: {email: 1}, options: {unique: true}},
+            {fields: {email: 1, organisation: 1}, options: {unique: true}}
         ],
         updateMethod: {
             method: 'updateUser',
@@ -63,12 +63,12 @@ export default {
                 password: Joi.string()
             }
         },
-        loginForgot: {
+        forgot: {
             payload: {
                 email: Joi.string().required()
             }
         },
-        loginReset: {
+        reset: {
             payload: {
                 key: Joi.string().required(),
                 email: Joi.string().required(),

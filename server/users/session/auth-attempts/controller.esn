@@ -11,7 +11,7 @@ export default {
         pre: [
             canView(AuthAttempts.collection)
         ],
-        handler: buildFindHandler(AuthAttempts, (request) => {
+        handler: buildFindHandler(AuthAttempts, request => {
             let query = buildQueryForPartialMatch({}, request, [['ip', 'ip'], ['email', 'email']]);
             query.organisation = '*';
             return query;

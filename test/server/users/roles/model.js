@@ -37,7 +37,7 @@ describe('Roles DAO', () => {
         });
         it('should not allow two objects with the same name', (done) => {
             let error = null;
-            Roles.ensureIndexes()
+            Roles.createIndexes()
                 .then(() => Roles.create('newRole', 'silver lining', [{
                     action: 'view',
                     object: 'self'

@@ -5,8 +5,8 @@ export default {
         connection: 'app',
         collection: 'auth-attempts',
         indexes: [
-            [{ip: 1, email: 1}],
-            [{email: 1}]
+            {fields: {ip: 1, email: 1}},
+            {fields: {email: 1}}
         ],
         saveAudit: false,
         isReadonly: true

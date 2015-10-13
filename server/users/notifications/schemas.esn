@@ -5,8 +5,8 @@ export default {
         connection: 'app',
         collection: 'notifications',
         indexes: [
-            [{objectType: 1, objectId: 1, state: 1, action: 1}],
-            [{email: 1, objectType: 1, objectId: 1, createdOn: 1}]
+            {fields: {objectType: 1, objectId: 1, state: 1, action: 1}},
+            {fields: {email: 1, objectType: 1, objectId: 1, createdOn: 1}}
         ],
         updateMethod: {
             method: 'update',

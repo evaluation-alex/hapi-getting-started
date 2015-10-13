@@ -5,7 +5,7 @@ export default {
         connection: 'app',
         collection: 'user-groups',
         indexes: [
-            [{name: 1, organisation: 1}, {unique: true}]
+            {fields: {name: 1, organisation: 1}, options: {unique: true}}
         ],
         updateMethod: {
             method: 'update',

@@ -11,8 +11,8 @@ export default {
             abuseDetected()
         ],
         handler(request, reply) {
-            let {email, password} = request.payload;
-            let ipadrs = ip(request);
+            const {email, password} = request.payload;
+            const ipadrs = ip(request);
             Users.findByCredentials(email, password)
                 .then(user => user.loginSuccess(ipadrs, user.email).save())
                 .then(user => reply(user.afterLogin(ipadrs)))

@@ -11,12 +11,12 @@ import schemas from './schemas';
 import Posts from './model';
 /*jshint unused:false*/
 /*eslint-disable no-unused-vars*/
-let sendNotificationsWhen = {
+const sendNotificationsWhen = {
     'published'(post, request) {
-        let blog = request.pre.blogs;
+        const blog = request.pre.blogs;
         return UserGroups.find({name: {$in: blog.subscriberGroups}, organisation: post.organisation})
             .then(groups => {
-                let to = [blog.owners, blog.subscribers];
+                const to = [blog.owners, blog.subscribers];
                 groups.forEach(group => {
                     to.push(group.members);
                 });
@@ -29,7 +29,7 @@ let sendNotificationsWhen = {
             });
     },
     'pending review'(post, request) {
-        let blog = request.pre.blogs;
+        const blog = request.pre.blogs;
         return {
             to: blog.owners,
             title: ['New Post {{postTitle}} needs your approval to be published.', {postTitle: post.title}],
@@ -40,7 +40,7 @@ let sendNotificationsWhen = {
         };
     },
     'do not publish'(post, request) {
-        let blog = request.pre.blogs;
+        const blog = request.pre.blogs;
         return {
             to: post.publishedBy,
             title: ['Post {{postTitle}} not approved for publication.', {postTitle: post.title}],
@@ -92,7 +92,7 @@ export default {
             query = buildQueryForDateRange(query, request, 'publishedOn');
             query = buildQueryForIDMatch(query, request, [['blogId', 'blogId']]);
             if (lookupParamsOrPayloadOrQuery(request, 'blogTitle')) {
-                let blogQuery = buildQueryForPartialMatch({}, request, [['blogTitle', 'title']]);
+                const blogQuery = buildQueryForPartialMatch({}, request, [['blogTitle', 'title']]);
                 return Blogs.find(blogQuery)
                     .then(blogs => {
                         request.query.blogId = blogs.map(blog => blog._id);

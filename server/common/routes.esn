@@ -1,11 +1,11 @@
 'use strict';
 import {filter} from 'lodash';
-let path = (pathPrefix, component) => ((pathPrefix ? pathPrefix : '') + '/' + component);
-let pathWithId = (pathPrefix, component) => ((pathPrefix ? pathPrefix : '') + '/' + component + '/{id}');
+const path = (pathPrefix, component) => ((pathPrefix ? pathPrefix : '') + '/' + component);
+const pathWithId = (pathPrefix, component) => ((pathPrefix ? pathPrefix : '') + '/' + component + '/{id}');
 
 export function buildRoute(method, path, controller, strategy = 'simple') {
-    let {handler, validate, pre, post} = controller;
-    let auth = strategy ? {strategy} : !!strategy;
+    const {handler, validate, pre, post} = controller;
+    const auth = strategy ? {strategy} : !!strategy;
     let route = {
         method,
         path,

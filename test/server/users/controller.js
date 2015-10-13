@@ -457,7 +457,7 @@ describe('Users', () => {
         it('returns a conflict when you try to signup with user that already exists', (done) => {
             let request = {
                 method: 'POST',
-                url: '/signup',
+                url: '/users/signup',
                 payload: {
                     email: 'one@first.com',
                     organisation: 'silver lining',
@@ -476,7 +476,7 @@ describe('Users', () => {
         it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records and default preferences are setup', (done) => {
             let request = {
                 method: 'POST',
-                url: '/signup',
+                url: '/users/signup',
                 payload: {
                     email: 'test.signup2@signup.api',
                     organisation: 'silver lining',
@@ -509,11 +509,11 @@ describe('Users', () => {
                 });
         });
     });
-    describe('POST /login/forgot', () => {
+    describe('PUT /users/forgot', () => {
         it('returns an error when user does not exist', (done) => {
             let request = {
-                method: 'POST',
-                url: '/login/forgot',
+                method: 'PUT',
+                url: '/users/forgot',
                 payload: {
                     email: 'test.unknown@test.api'
                 }
@@ -530,8 +530,8 @@ describe('Users', () => {
         });
         it('successfully sends a reset password request', (done) => {
             let request = {
-                method: 'POST',
-                url: '/login/forgot',
+                method: 'PUT',
+                url: '/users/forgot',
                 payload: {
                     email: 'test.users@test.api'
                 }
@@ -560,8 +560,8 @@ describe('Users', () => {
                 return Bluebird.reject(new Error('test'));
             };
             let request = {
-                method: 'POST',
-                url: '/login/forgot',
+                method: 'PUT',
+                url: '/users/forgot',
                 payload: {
                     email: 'test.users@test.api'
                 }
@@ -578,11 +578,11 @@ describe('Users', () => {
                 });
         });
     });
-    describe('POST /login/reset', () => {
+    describe('PUT /users/reset', () => {
         it('returns an error when user does not exist', (done) => {
             let request = {
-                method: 'POST',
-                url: '/login/reset',
+                method: 'PUT',
+                url: '/users/reset',
                 payload: {
                     key: 'abcdefgh-ijkl-mnop-qrst-uvwxyz123456',
                     email: 'test.unkown@test.api',
@@ -605,8 +605,8 @@ describe('Users', () => {
                 })
                 .then(() => {
                     let request = {
-                        method: 'POST',
-                        url: '/login/reset',
+                        method: 'PUT',
+                        url: '/users/reset',
                         payload: {
                             key: 'abcdefgh-ijkl-mnop-qrst-uvwxyz123456',
                             email: 'test.users@test.api',
@@ -634,8 +634,8 @@ describe('Users', () => {
                 })
                 .then(() => {
                     let request = {
-                        method: 'POST',
-                        url: '/login/reset',
+                        method: 'PUT',
+                        url: '/users/reset',
                         payload: {
                             key: key,
                             email: 'test.users@test.api',

@@ -63,7 +63,7 @@ let config = {
     }
 };
 
-manifest.connections.forEach((connection) => {
+manifest.connections.forEach(connection => {
     if (connection.tls &&
         connection.tls.key &&
         connection.tls.key.length > 0 &&

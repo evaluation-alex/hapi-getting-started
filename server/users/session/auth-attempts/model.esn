@@ -1,10 +1,9 @@
 'use strict';
 import {assign} from 'lodash';
 import Bluebird from 'bluebird';
-import config from './../../../config';
+import {authAttempts as limits} from './../../../config';
 import {build} from './../../../common/dao';
 import schemas from './schemas';
-let limits = config.authAttempts;
 class AuthAttempts {
     constructor(attrs) {
         assign(this, attrs);

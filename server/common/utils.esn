@@ -29,7 +29,7 @@ export function toStatsD2(bucket, query, start, err) {
 }
 export function defaultcb(bucket, resolve, reject, query) {
     const start = Date.now();
-    return (err, res) => {
+    return function cb(err, res) {
         if (err) {
             logger.error({error: err, stack: err.stack});
             reject(err);

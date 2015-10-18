@@ -5,7 +5,7 @@ import path from 'path';
 import {manifest} from './config';
 function start(server) {
     server.start(() => {
-        console.log('engage' + JSON.stringify(server.info));
+        console.log('engage' + JSON.stringify(server.connections.map(c => c.info)));
     });
 }
 let server = new Hapi.Server(manifest.server);

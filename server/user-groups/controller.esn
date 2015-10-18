@@ -41,7 +41,7 @@ export default {
         pre: [
             canView(UserGroups.collection)
         ],
-        handler: buildFindHandler(UserGroups, (request) => {
+        handler: buildFindHandler(UserGroups, request => {
             return buildQueryForPartialMatch({}, request, [['email', 'members'], ['groupName', 'name']]);
         })
     },

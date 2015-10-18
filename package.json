@@ -26,7 +26,7 @@
         "bunyan": "1.5.x",
         "dev-null": "0.1.x",
         "handlebars": "4.0.x",
-        "hapi": "10.x.x",
+        "hapi": "11.x.x",
         "hapi-auth-basic": "3.0.x",
         "hapi-bunyan": "0.6.x",
         "i18n": "0.5.x",
@@ -47,6 +47,7 @@
         "babel-core": "5.x.x",
         "babel-eslint": "4.x.x",
         "babel-jscs": "2.x.x",
+        "babel-loader": "5.x.x",
         "babel-runtime": "5.x.x",
         "chai": "3.x.x",
         "codeclimate-test-reporter": "0.1.x",
@@ -60,7 +61,7 @@
         "gulp-istanbul": "0.x.x",
         "gulp-jscs": "3.x.x",
         "gulp-jshint": "1.x.x",
-        "gulp-load-plugins": "0.x.x",
+        "gulp-load-plugins": "1.x.x",
         "gulp-mocha": "2.x.x",
         "gulp-nodemon": "2.x.x",
         "gulp-replace": "0.x.x",
@@ -133,9 +134,7 @@
             "spaced-line-comment": 0,
             "no-underscore-dangle": 0,
             "no-var": 1,
-            "quotes": [
-                2, "single"
-            ],
+            "quotes": [2, "single"],
             "new-cap": 0
         },
         "plugins": []
@@ -143,12 +142,8 @@
     "jscsConfig": {
         "esprima": "babel-jscs",
         "esnext": true,
-        "requireCurlyBraces": [
-            "else", "for", "while", "do", "try", "catch", "case", "default"
-        ],
-        "requireSpaceAfterKeywords": [
-            "if", "else", "for", "while", "do", "switch", "return", "try", "catch"
-        ],
+        "requireCurlyBraces": ["else", "for", "while", "do", "try", "catch", "case", "default"],
+        "requireSpaceAfterKeywords": ["if", "else", "for", "while", "do", "switch", "return", "try", "catch"],
         "requireParenthesesAroundIIFE": true,
         "requireSpacesInConditionalExpression": true,
         "requireSpacesInFunctionExpression": {

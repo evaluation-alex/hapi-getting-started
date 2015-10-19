@@ -2,13 +2,13 @@
     "scripts": {
         "updatedeps": "rm -rf ./node_modules && npm i",
         "server:jshint": "node --harmony ./node_modules/jshint/bin/jshint --exclude-path ./.gitignore --verbose --reporter unix .",
-        "server:eslint": "node --harmony ./node_modules/eslint/bin/eslint --ignore-path ./.gitignore ./server ./test",
-        "server:jscs": "node --harmony ./node_modules/jscs/bin/jscs --esnext --reporter console ./server ./test",
+        "server:eslint": "node --harmony ./node_modules/eslint/bin/eslint --ignore-path ./.gitignore ./build ./test",
+        "server:jscs": "node --harmony ./node_modules/jscs/bin/jscs --esnext --reporter console ./build ./test",
         "server:lint": "npm run server:eslint && npm run server:jscs",
         "server:build": "node --harmony ./node_modules/gulp/bin/gulp server:build",
         "server:build:clean": "node --harmony ./node_modules/gulp/bin/gulp server:clean server:build",
         "server:build:watch": "node --harmony ./node_modules/gulp/bin/gulp server:watch",
-        "server:setup": "node --harmony ./server/setup.js",
+        "server:setup": "node --harmony ./build/setup.js",
         "server:test:cov": "node --harmony ./node_modules/gulp/bin/gulp server:test:cov",
         "server:test:nocov": "node --harmony ./node_modules/gulp/bin/gulp server:test:nocov",
         "server:coveralls": "cat ./test/artifacts/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
@@ -17,7 +17,7 @@
         "lint": "npm run server:lint",
         "test": "node --harmony ./node_modules/gulp/bin/gulp test && npm run server:coverage",
         "dev": "node --harmony ./node_modules/gulp/bin/gulp",
-        "start": "node --harmony ./server/index.js"
+        "start": "node --harmony ./build/index.js"
     },
     "dependencies": {
         "bcrypt": "0.8.x",

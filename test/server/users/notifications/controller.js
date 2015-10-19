@@ -1,7 +1,7 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let relativeToServer = './../../../../server/';
+let relativeToServer = './../../../../build/';
 let _ = require('lodash');
 let moment = require('moment');
 let Notifications = require(relativeToServer + 'users/notifications/model');

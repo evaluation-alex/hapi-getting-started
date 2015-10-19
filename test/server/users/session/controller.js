@@ -2,10 +2,10 @@
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
 let Bluebird = require('bluebird');
-let Config = require('./../../../../server/config');
-let Users = require('./../../../../server/users/model');
-let Audit = require('./../../../../server/audit/model');
-let AuthAttempts = require('./../../../../server/users/session/auth-attempts/model');
+let Config = require('./../../../../build/config');
+let Users = require('./../../../../build/users/model');
+let Audit = require('./../../../../build/audit/model');
+let AuthAttempts = require('./../../../../build/users/session/auth-attempts/model');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
 describe('Session', () => {

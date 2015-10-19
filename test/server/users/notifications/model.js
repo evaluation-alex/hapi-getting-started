@@ -2,8 +2,8 @@
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
 let Bluebird = require('bluebird');
-let Notifications = require('./../../../../server/users/notifications/model');
-let Audit = require('./../../../../server/audit/model');
+let Notifications = require('./../../../../build/users/notifications/model');
+let Audit = require('./../../../../build/audit/model');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
 describe('Notifications DAO', () => {

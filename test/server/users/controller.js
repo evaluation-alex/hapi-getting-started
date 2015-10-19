@@ -1,9 +1,9 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let Users = require('./../../../server/users/model');
-let Audit = require('./../../../server/audit/model');
-let Mailer = require('./../../../server/common/plugins/mailer');
+let Users = require('./../../../build/users/model');
+let Audit = require('./../../../build/audit/model');
+let Mailer = require('./../../../build/common/plugins/mailer');
 let Bluebird = require('bluebird');
 let tu = require('./../testutils');
 let expect = require('chai').expect;

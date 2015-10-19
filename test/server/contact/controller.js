@@ -20,7 +20,7 @@ describe('Contact', () => {
             .done();
     });
     it('returns an error when send email fails', (done) => {
-        Fs.renameSync('./server/web/contact/contact.hbs.md', './server/web/contact/contact2.hbs.md');
+        Fs.renameSync('./build/web/contact/contact.hbs.md', './build/web/contact/contact2.hbs.md');
         let request = {
             method: 'POST',
             url: '/contact',
@@ -31,7 +31,7 @@ describe('Contact', () => {
             }
         };
         server.injectThen(request).then((response) => {
-            Fs.renameSync('./server/web/contact/contact2.hbs.md', './server/web/contact/contact.hbs.md');
+            Fs.renameSync('./build/web/contact/contact2.hbs.md', './build/web/contact/contact.hbs.md');
             expect(response.statusCode).to.equal(500);
             done();
         }).catch((err) => {

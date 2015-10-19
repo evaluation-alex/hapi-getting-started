@@ -3,10 +3,10 @@
 let Bluebird = require('bluebird');
 let Hapi = require('hapi');
 let path = require('path');
-let config = require('./../../server/config');
+let config = require('./../../build/config');
 let manifest = config.manifest;
 module.exports = function () {
-    manifest.plugins['./server/common/plugins/app-routes'].prependRoute = '';
+    manifest.plugins['./build/common/plugins/app-routes'].prependRoute = '';
     return new Bluebird((resolve, reject) => {
         let server = new Hapi.Server(manifest.server);
         server.connection(manifest.connections[0]);
@@ -32,7 +32,7 @@ module.exports = function () {
                     server.decorate('server', 'injectThen', injectThen);
                 }
                 server.register({
-                    register: require('../../server/common/plugins/dbindexes'),
+                    register: require('../../build/common/plugins/dbindexes'),
                     options: {
                         'modules': [
                             'users',

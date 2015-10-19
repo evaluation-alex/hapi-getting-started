@@ -1,8 +1,8 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let Users = require('./../../../../server/users/model');
-let Audit = require('./../../../../server/audit/model');
+let Users = require('./../../../../build/users/model');
+let Audit = require('./../../../../build/audit/model');
 let moment = require('moment');
 let _ = require('lodash');
 let tu = require('./../../testutils');

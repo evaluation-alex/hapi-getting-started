@@ -1,10 +1,10 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let Posts = require('./../../../../server/blogs/posts/model');
-let Blogs = require('./../../../../server/blogs/model');
-let UserGroups = require('./../../../../server/user-groups/model');
-let Audit = require('./../../../../server/audit/model');
+let Posts = require('./../../../../build/blogs/posts/model');
+let Blogs = require('./../../../../build/blogs/model');
+let UserGroups = require('./../../../../build/user-groups/model');
+let Audit = require('./../../../../build/audit/model');
 let _ = require('lodash');
 let tu = require('./../../testutils');
 let Bluebird = require('bluebird');

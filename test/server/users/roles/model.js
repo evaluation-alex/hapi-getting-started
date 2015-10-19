@@ -1,7 +1,7 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let Roles = require('./../../../../server/users/roles/model');
+let Roles = require('./../../../../build/users/roles/model');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;
 describe('Roles DAO', () => {

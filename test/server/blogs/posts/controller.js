@@ -2,11 +2,11 @@
 /*eslint-disable no-unused-expressions*/
 /*eslint-disable no-var*/
 /*jshint -W079*/
-let UserGroups = require('./../../../../server/user-groups/model');
-let Notifications = require('./../../../../server/users/notifications/model');
-let Blogs = require('./../../../../server/blogs/model');
-let Posts = require('./../../../../server/blogs/posts/model');
-let Audit = require('./../../../../server/audit/model');
+let UserGroups = require('./../../../../build/user-groups/model');
+let Notifications = require('./../../../../build/users/notifications/model');
+let Blogs = require('./../../../../build/blogs/model');
+let Posts = require('./../../../../build/blogs/posts/model');
+let Audit = require('./../../../../build/audit/model');
 let _ = require('lodash');
 let moment = require('moment');
 let Bluebird = require('bluebird');

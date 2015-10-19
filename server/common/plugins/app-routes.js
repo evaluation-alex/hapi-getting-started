@@ -26,8 +26,8 @@ function describeModel(model) {
 
 export let register = function register(server, options, next) {
     options.modules.forEach(module => {
-        describeModel(path.join(process.cwd(), '/server/' + module, '/model'));
-        let routes = require(path.join(process.cwd(), '/server/' + module, '/routes'));
+        describeModel(path.join(process.cwd(), '/build/', module, '/model'));
+        let routes = require(path.join(process.cwd(), '/build/', module, '/routes'));
         routes.forEach(route => {
             route.path = options.prependRoute + route.path;
             server.route(route);

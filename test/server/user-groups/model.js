@@ -1,8 +1,8 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let UserGroups = require('./../../../server/user-groups/model');
-let Audit = require('./../../../server/audit/model');
+let UserGroups = require('./../../../build/user-groups/model');
+let Audit = require('./../../../build/audit/model');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
 describe('UserGroups DAO', () => {

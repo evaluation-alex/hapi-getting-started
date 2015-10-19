@@ -1,8 +1,8 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let Config = require('./../../../server/config');
-let Mailer = require('./../../../server/common/plugins/mailer');
+let Config = require('./../../../build/config');
+let Mailer = require('./../../../build/common/plugins/mailer');
 let expect = require('chai').expect;
 describe('Mailer', () => {
     it('returns error when read file fails', (done) => {

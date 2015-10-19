@@ -2,10 +2,10 @@
 /*eslint-disable no-unused-expressions*/
 /*eslint-disable no-var*/
 /*jshint -W079*/
-let Blogs = require('./../../../server/blogs/model');
-let UserGroups = require('./../../../server/user-groups/model');
-let Audit = require('./../../../server/audit/model');
-let Notifications = require('./../../../server/users/notifications/model');
+let Blogs = require('./../../../build/blogs/model');
+let UserGroups = require('./../../../build/user-groups/model');
+let Audit = require('./../../../build/audit/model');
+let Notifications = require('./../../../build/users/notifications/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
 let expect = require('chai').expect;

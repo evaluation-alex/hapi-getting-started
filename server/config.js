@@ -6,18 +6,18 @@ import Bunyan from 'bunyan';
 import StatsD from 'node-statsd';
 import i18n from 'i18n';
 /* istanbul ignore if  */
-if (!fs.existsSync('./server/.opts')) {
+if (!fs.existsSync('./build/.opts')) {
     console.log('.opts file missing. will exit');
     process.exit(1);
 }
 /* istanbul ignore if  */
-if (!fs.existsSync('./server/manifest.json')) {
+if (!fs.existsSync('./build/manifest.json')) {
     console.log('manifest.json file missing. will exit');
     process.exit(1);
 }
 /*eslint-enable no-process-exit*/
-let args = JSON.parse(fs.readFileSync('./server/.opts'));
-let manifest = JSON.parse(fs.readFileSync('./server/manifest.json'));
+let args = JSON.parse(fs.readFileSync('./build/.opts'));
+let manifest = JSON.parse(fs.readFileSync('./build/manifest.json'));
 let nodemailer = {};
 /* istanbul ignore else  */
 if (!args.sendemails) {

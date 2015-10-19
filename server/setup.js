@@ -111,17 +111,17 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 },
                 'inert': {},
                 'hapi-auth-basic': {},
-                './server/common/plugins/connections': {
+                './build/common/plugins/connections': {
                     'mongo': {
                         'app': {
                             'url': results.mongodbUrl
                         }
                     }
                 },
-                './server/common/plugins/auth': {},
-                './server/common/plugins/err-handler': {},
-                './server/common/plugins/metrics': {},
-                './server/common/plugins/app-routes': {
+                './build/common/plugins/auth': {},
+                './build/common/plugins/err-handler': {},
+                './build/common/plugins/metrics': {},
+                './build/common/plugins/app-routes': {
                     'prependRoute': '/api',
                     'modules': [
                         'web/contact',

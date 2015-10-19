@@ -1,7 +1,7 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let AuthAttempts = require('./../../../../../server/users/session/auth-attempts/model');
+let AuthAttempts = require('./../../../../../build/users/session/auth-attempts/model');
 let Bluebird = require('bluebird');
 let tu = require('./../../../testutils');
 let expect = require('chai').expect;

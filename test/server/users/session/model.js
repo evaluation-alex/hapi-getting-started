@@ -1,10 +1,10 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let Users = require('./../../../../server/users/model');
-let utils = require('./../../../../server/common/utils');
+let Users = require('./../../../../build/users/model');
+let utils = require('./../../../../build/common/utils');
 let Uuid = require('node-uuid');
-let Audit = require('./../../../../server/audit/model');
+let Audit = require('./../../../../build/audit/model');
 let moment = require('moment');
 let tu = require('./../../testutils');
 let expect = require('chai').expect;

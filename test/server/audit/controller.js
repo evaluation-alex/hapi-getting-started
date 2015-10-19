@@ -2,7 +2,7 @@
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
 let tu = require('./../testutils');
-let Users = require('./../../../server/users/model');
+let Users = require('./../../../build/users/model');
 let expect = require('chai').expect;
 describe('Audit', () => {
     let authheader = '';

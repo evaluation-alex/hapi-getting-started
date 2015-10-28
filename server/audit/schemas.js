@@ -10,7 +10,8 @@ export default {
             {fields: {on: 1}}
         ],
         saveAudit: false,
-        isReadonly: true
+        isReadonly: true,
+        nonEnumerables: []
     },
     model: {
         _id: Joi.object(),

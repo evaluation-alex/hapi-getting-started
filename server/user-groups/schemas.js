@@ -24,7 +24,8 @@ export default {
         joinApproveRejectLeave: {
             affectedRole: 'members',
             needsApproval: 'needsApproval'
-        }
+        },
+        nonEnumerables: ['audit']
     },
     model: {
         _id: Joi.object(),

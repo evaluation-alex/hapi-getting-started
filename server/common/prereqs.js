@@ -8,6 +8,7 @@ import {NotValidUsersOrGroupsError, NoPermissionsForActionError, NotAMemberOfVal
 import Users from './../users/model';
 import AuthAttempts from './../users/session/auth-attempts/model';
 import UserGroups from './../user-groups/model';
+import Posts from './../blogs/posts/model';
 function buildAreValid(Model, pldPropToLookup) {
     return function areValid(request, reply) {
         let toLookup = [];
@@ -19,7 +20,8 @@ function buildAreValid(Model, pldPropToLookup) {
         });
         toLookup = flatten(toLookup);
         if (hasItems(toLookup)) {
-            Model.areValid(toLookup, org(request))
+            reply(
+                Model.areValid(toLookup, org(request))
                 .then(validated => {
                     let msg = '';
                     toLookup.forEach(a => {
@@ -27,14 +29,10 @@ function buildAreValid(Model, pldPropToLookup) {
                             msg += a.toString() + ',';
                         }
                     });
-                    if (msg.indexOf(',') > -1) {
-                        return Bluebird.reject(new NotValidUsersOrGroupsError({msg: msg}));
-                    }
-                    reply(true);
+                    return (msg.indexOf(',') > -1) ? Bluebird.reject(new NotValidUsersOrGroupsError({msg})) : true;
                 })
-                .catch(err => {
-                    logAndBoom(err, reply);
-                });
+                .catch(logAndBoom)
+            );
         } else {
             reply(true);
         }
@@ -50,6 +48,12 @@ export function areValidGroups(payloadPropertiesToLookup) {
     return {
         assign: 'validUserGroups',
         method: buildAreValid(UserGroups, payloadPropertiesToLookup)
+    };
+}
+export function areValidPosts(payloadPropertiesToLookup) {
+    return {
+        assign: 'validPosts',
+        method: buildAreValid(Posts, payloadPropertiesToLookup)
     };
 }
 function ensurePermissions(action, object) {
@@ -89,16 +93,11 @@ export function uniqueCheck(Model, queryBuilder) {
     return {
         assign: 'uniqueCheck',
         method(request, reply) {
-            Model.findOne(queryBuilder(request))
-                .then(f => {
-                    if (f) {
-                        return Bluebird.reject(new ObjectAlreadyExistsError());
-                    }
-                    reply(true);
-                })
-                .catch(err => {
-                    logAndBoom(err, reply);
-                });
+            reply(
+                Model.findOne(queryBuilder(request))
+                .then(f => f ? Bluebird.reject(new ObjectAlreadyExistsError()): true)
+                .catch(logAndBoom)
+            );
         }
     };
 }
@@ -120,19 +119,13 @@ export function prePopulate(Model, idToUse) {
         assign: Model.collection,
         method(request, reply) {
             const id = lookupParamsOrPayloadOrQuery(request, idToUse);
-            Model.findOne({_id: Model.ObjectID(id)})
-                .then(obj => {
-                    if (!obj) {
-                        return Bluebird.reject(new ObjectNotFoundError({
-                            type: capitalize(Model.collection),
-                            idstr: id.toString()
-                        }));
-                    }
-                    reply(obj);
-                })
-                .catch(err => {
-                    logAndBoom(err, reply);
-                });
+            reply(
+                Model.findOne({_id: Model.ObjectID(id)})
+                .then(obj => !obj ?
+                    Bluebird.reject(new ObjectNotFoundError({type: capitalize(Model.collection), idstr: id.toString()})) :
+                    obj)
+                .catch(logAndBoom)
+            );
         }
     };
 }
@@ -140,16 +133,11 @@ export function abuseDetected() {
     return {
         assign: 'abuseDetected',
         method(request, reply) {
-            AuthAttempts.abuseDetected(ip(request), request.payload.email)
-                .then(detected => {
-                    if (detected) {
-                        return Bluebird.reject(new AbusiveLoginAttemptsError());
-                    }
-                    reply(false);
-                })
-                .catch(err => {
-                    logAndBoom(err, reply);
-                });
+            reply(
+                AuthAttempts.abuseDetected(ip(request), request.payload.email)
+                .then(detected => detected ? Bluebird.reject(new AbusiveLoginAttemptsError()) : false)
+                .catch(logAndBoom)
+            );
         }
     };
 }

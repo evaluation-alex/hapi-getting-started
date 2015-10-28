@@ -1,12 +1,15 @@
 'use strict';
-import {flatten} from 'lodash';
-import {buildQueryForPartialMatch, buildQueryForDateRange, by, user, hasItems} from './../../common/utils';
+import {flatten, merge} from 'lodash';
+import {buildQuery, by, user, hasItems} from './../../common/utils';
 import {findValidator, canView, canUpdate, prePopulate, onlyOwner} from './../../common/prereqs';
 import {buildFindHandler, buildUpdateHandler} from './../../common/handlers';
 import {i18n} from './../../common/posthandlers';
 import schemas from './schemas';
 import Notifications from './model';
-
+const queryOptions = {
+    forPartial: [['state', 'state'], ['objectType', 'objectType']],
+    forDateRange: 'createdOn'
+};
 export default {
     find: {
         validate: findValidator(schemas.controller.find),
@@ -14,9 +17,10 @@ export default {
             canView(Notifications.collection)
         ],
         handler: buildFindHandler(Notifications, request => {
-            let query = buildQueryForPartialMatch({}, request, [['state', 'state'], ['objectType', 'objectType']]);
-            query = buildQueryForDateRange(query, request, 'createdOn');
-            query.email = by(request);
+            let query = merge(
+                {email: by(request)},
+                buildQuery(request, queryOptions)
+            );
             const prefs = user(request).preferences;
             const blocked = flatten([
                 prefs.notifications.blogs.blocked,

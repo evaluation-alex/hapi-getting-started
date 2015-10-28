@@ -1,17 +1,43 @@
 'use strict';
-import {extend, capitalize, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge} from 'lodash';
+import {extend, capitalize, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, sortBy, keys, assign} from 'lodash';
 import Bluebird from 'bluebird';
-import Mongodb from 'mongodb';
-import config from './../config';
-import {defaultcb, errback, toStatsD2, hasItems} from './utils';
+import {MongoClient, ObjectID} from 'mongodb';
+import {i18n, logger, statsd} from './../config';
+import {errback, hasItems, timing} from './utils';
 import {ObjectNotCreatedError} from './errors';
 let connections = {};
+function toStatsD(bucket, query, start, err) {
+    const elapsed = Date.now() - start;
+    process.nextTick(() => {
+        statsd.timing(bucket, elapsed);
+        if (query) {
+            statsd.increment(bucket + '.' + sortBy(keys(query), String).join(','), 1);
+            timing(bucket, elapsed);
+        }
+        if (err) {
+            statsd.increment(bucket + '.err', 1);
+        }
+    });
+}
+function defaultcb(bucket, resolve, reject, query) {
+    const start = Date.now();
+    return function cb(err, res) {
+        if (err) {
+            logger.error({error: err, stack: err.stack});
+            reject(err);
+            toStatsD(bucket, query, start, err);
+        } else {
+            resolve(res);
+            toStatsD(bucket, query, start);
+        }
+    };
+}
 export function connect(name, cfg) {
     return new Bluebird((resolve, reject) => {
         if (connections[name]) {
             resolve(connections[name]);
         } else {
-            Mongodb.MongoClient.connect(cfg.url,
+            MongoClient.connect(cfg.url,
                 cfg.options,
                 defaultcb('connect',
                     db => {
@@ -32,21 +58,25 @@ export function disconnect(name) {
     });
 }
 function withSchemaProperties(Dao, connection, collection, indexes, modelSchema) {
-    return extend(Dao, {
-        ObjectID: Mongodb.ObjectID,
-        ObjectId: Mongodb.ObjectID,
-        collection,
-        indexes,
-        connection,
-        modelSchema
-    });
+    return extend(Dao, { ObjectID, collection, indexes, connection, modelSchema });
 }
-function withSetupMethods(Dao) {
+function withSetupMethods(Dao, nonEnumerables = []) {
+    extend(Dao.prototype, {
+        init(attrs) {
+            assign(this, attrs);
+            nonEnumerables.forEach(ne => {
+                Object.defineProperty(this, ne, {writable: true, enumerable: false});
+            });
+        }
+    });
     return extend(Dao, {
+        clctn() {
+            return db(Dao.connection).collection(Dao.collection);
+        },
         createIndexes() {
             return Bluebird.all(Dao.indexes.map(index => {
                 return new Bluebird((resolve, reject) => {
-                    db(Dao.connection).collection(Dao.collection).createIndex(index.fields, index.options || {},
+                    Dao.clctn().createIndex(index.fields, index.options || {},
                         defaultcb(Dao.collection + '.createIndex', resolve, reject)
                     );
                 });
@@ -59,7 +89,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit) {
         upsert(obj) {
             return new Bluebird((resolve, reject) => {
                 obj._id = obj._id || Dao.ObjectID();
-                db(Dao.connection).collection(Dao.collection).findOneAndReplace({_id: obj._id},
+                Dao.clctn().findOneAndReplace({_id: obj._id},
                     obj,
                     {upsert: true, returnOriginal: false},
                     defaultcb(Dao.collection + '.upsert', doc => resolve(new Dao(doc.value)), reject)
@@ -72,7 +102,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit) {
         extend(Dao, {
             remove(query) {
                 return new Bluebird((resolve, reject) => {
-                    db(Dao.connection).collection(Dao.collection).deleteMany(query,
+                    Dao.clctn().deleteMany(query,
                         defaultcb(Dao.collection + '.remove', doc => resolve(doc.deletedCount), reject, query)
                     );
                 });
@@ -83,7 +113,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit) {
         extend(Dao, {
             remove(query) {
                 return new Bluebird((resolve, reject) => {
-                    db(Dao.connection).collection(Dao.collection).deleteMany(query,
+                    Dao.clctn().deleteMany(query,
                         defaultcb(Dao.collection + '.remove', doc => resolve(doc.deletedCount), reject, query)
                     );
                 });
@@ -135,21 +165,21 @@ function withFindMethods(Dao, areValidProperty) {
     extend(Dao, {
         count(query) {
             return new Bluebird((resolve, reject) => {
-                db(Dao.connection).collection(Dao.collection).count(query, defaultcb(Dao.collection + '.count', resolve, reject, query));
+                Dao.clctn().count(query, defaultcb(Dao.collection + '.count', resolve, reject, query));
             });
         },
         find(query, fields, sort, limit, skip) {
             return new Bluebird((resolve, reject) => {
                 const start = Date.now();
                 const bucket = Dao.collection + '.find';
-                let cursor = db(Dao.connection).collection(Dao.collection).find(query,
+                let cursor = Dao.clctn().find(query,
                     {fields: fields, sort: sort, limit: limit, skip: skip}
                 );
                 let results = [];
                 /*istanbul ignore next*/
                 function handleError(err) {
                     errback(err);
-                    toStatsD2(bucket, query, start, err);
+                    toStatsD(bucket, query, start, err);
                     reject(err);
                 }
 
@@ -172,7 +202,7 @@ function withFindMethods(Dao, areValidProperty) {
                             cursor.next(next);
                         } else {
                             resolve(results);
-                            toStatsD2(bucket, query, start, err);
+                            toStatsD(bucket, query, start, err);
                         }
                     }
                 }
@@ -182,7 +212,7 @@ function withFindMethods(Dao, areValidProperty) {
         },
         findOne(query) {
             return new Bluebird((resolve, reject) => {
-                db(Dao.connection).collection(Dao.collection).findOne(query,
+                Dao.clctn().findOne(query,
                     {},
                     defaultcb(Dao.collection + '.findOne', doc => resolve(doc ? new Dao(doc) : undefined), reject, query)
                 );
@@ -370,7 +400,7 @@ function withI18n(model, fields) {
         i18n(locale) {
             fields.forEach(field => {
                 if (isArray(this[field]) && this[field].length === 2) {
-                    this[field] = config.i18n.__({phrase: this[field][0], locale}, this[field][1]);
+                    this[field] = i18n.__({phrase: this[field][0], locale}, this[field][1]);
                 }
             }, this);
             return this;
@@ -418,7 +448,7 @@ function withSave(model, saveAudit, idForAudit = '_id') {
 export function build(toBuild, schema, model, extendModels, areValidProperty = undefined) {
     if (!schema.isVirtualModel) {
         withSchemaProperties(toBuild, schema.connection, schema.collection, schema.indexes, model);
-        withSetupMethods(toBuild);
+        withSetupMethods(toBuild, schema.nonEnumerables);
         withModifyMethods(toBuild, schema.isReadonly, schema.saveAudit, schema.idForAudit || '_id');
         withFindMethods(toBuild, areValidProperty);
     }

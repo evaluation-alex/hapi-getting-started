@@ -1,12 +1,11 @@
 'use strict';
-import {assign} from 'lodash';
 import Bluebird from 'bluebird';
 import {authAttempts as limits} from './../../../config';
 import {build} from './../../../common/dao';
 import schemas from './schemas';
 class AuthAttempts {
     constructor(attrs) {
-        assign(this, attrs);
+        this.init(attrs);
     }
 
     static create(ip, email) {

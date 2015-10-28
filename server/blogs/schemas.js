@@ -31,7 +31,8 @@ export default {
             affectedRole: 'subscribers',
             needsApproval: 'needsApproval'
         },
-        saveAudit: true
+        saveAudit: true,
+        nonEnumerables: ['audit']
     },
     model: {
         _id: Joi.object(),

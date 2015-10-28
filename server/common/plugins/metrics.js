@@ -1,6 +1,15 @@
 'use strict';
 import UserAgent from 'useragent';
-import {by, toStatsD} from './../utils';
+import {by, timing} from './../utils';
+import {statsd} from './../../config';
+function toStatsD(route, statusCode, user, device, browser, start, finish) {
+    let elapsed = finish - start;
+    process.nextTick(() => {
+        statsd.increment([device, browser, route, route + statusCode, user], 1);
+        statsd.timing([route, user], elapsed);
+        timing(route, elapsed);
+    });
+}
 function normalizePath(request) {
     const specials = request.connection._router.specials;
     if (request._route === specials.notFound.route) {
@@ -21,15 +30,7 @@ export let register = function register(server, options, next) {
         const browser = ua.toString();
         const start = request.info.received;
         const end = request.info.responded;
-        process.nextTick(() => {
-            toStatsD(path,
-                statusCode,
-                user,
-                device,
-                browser,
-                start,
-                end);
-        });
+        toStatsD(path, statusCode, user, device, browser, start, end);
     });
     return next();
 };

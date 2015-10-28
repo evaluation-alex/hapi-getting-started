@@ -1,28 +1,17 @@
 'use strict';
-import {UserNotFoundError, UserNotLoggedInError, SessionExpiredError, SessionCredentialsNotMatchingError} from './../errors';
 import {logger} from './../../config';
 import Users from './../../users/model';
-import Roles from './../../users/roles/model';
 export let register = function register(server, options, next) {
     server.connections.forEach(connection => {
         connection.auth.strategy('simple', 'basic', {
             validateFunc(request, email, sessionkey, callback) {
                 Users.findBySessionCredentials(email, sessionkey)
                     .then(user => {
-                        logger.info(['auth'], {user: email, success: true});
-                        Roles.find({name: {$in: user.roles}, organisation: user.organisation})
-                            .then(roles => {
-                                user._roles = roles;
-                                callback(null, true, {user});
-                            });
-                    })
-                    .catch(UserNotFoundError, UserNotLoggedInError, SessionExpiredError, SessionCredentialsNotMatchingError,
-                        err => {
-                        callback(err.i18nError('en'), false);
+                        callback(null, true, {user});
                     })
                     .catch(err => {
                         logger.info(['auth', 'error'], {user: email, success: false, error: JSON.stringify(err)});
-                        callback(null, false);
+                        callback(err.i18nError ? err.i18nError('en') : null, false);
                     });
             }
         });

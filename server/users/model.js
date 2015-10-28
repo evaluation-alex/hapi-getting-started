@@ -1,27 +1,20 @@
 'use strict';
-import {assign, find} from 'lodash';
+import {find} from 'lodash';
 import Bluebird from 'bluebird';
 import moment from 'moment';
 import Uuid from 'node-uuid';
 import {UserNotFoundError, IncorrectPasswordError, UserNotLoggedInError,
     SessionCredentialsNotMatchingError, SessionExpiredError} from './../common/errors';
-import {secureHash, secureCompare, hasItems} from './../common/utils';
+import {ip, secureHash, secureCompare, hasItems} from './../common/utils';
 import {build} from './../common/dao';
 import schemas from './schemas';
 import Session from './session/model';
 import Preferences from './preferences/model';
 import Profile from './profile/model';
+import Roles from './roles/model';
 class Users {
     constructor(attrs) {
-        assign(this, attrs);
-        Object.defineProperty(this, '_roles', {
-            writable: true,
-            enumerable: false
-        });
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
+        this.init(attrs);
     }
 
     hasPermissionsTo(performAction, onObject) {
@@ -51,6 +44,22 @@ class Users {
         return {
             email: this.email
         };
+    }
+
+    _populate() {
+        return Roles.find({name: {$in: this.roles}, organisation: this.organisation})
+            .then(roles => {
+                this._roles = roles;
+                return this;
+            });
+    }
+
+    static newObject(doc) {
+        const {email, password, organisation, locale} = doc.payload;
+        const ipadrs = ip(doc);
+        return Users.create(email, organisation, password, locale)
+            .then(user => user.loginSuccess(ipadrs, user.email).save())
+            .then(user => user.afterLogin(ipadrs));
     }
 
     static create(email, organisation, password, locale) {
@@ -96,7 +105,7 @@ class Users {
                 if (moment().isAfter(matchingSession.expires)) {
                     return Bluebird.reject(new SessionExpiredError({email}));
                 }
-                return user;
+                return user._populate();
             });
     }
 }

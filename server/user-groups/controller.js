@@ -1,12 +1,14 @@
 'use strict';
 import {capitalize} from 'lodash';
-import {by, org, buildQueryForPartialMatch, hasItems} from './../common/utils';
+import {by, org, buildQuery, hasItems} from './../common/utils';
 import {findValidator, canUpdate, canView, areValidUsers, isMemberOf, uniqueCheck, prePopulate} from './../common/prereqs';
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
 import {sendNotifications, cancelNotifications} from './../common/posthandlers';
 import schemas from './schemas';
 import UserGroups from './model';
-
+const queryOptions = {
+    forPartial: [['email', 'members'], ['groupName', 'name']]
+};
 export default {
     new: {
         validate: schemas.controller.create,
@@ -41,9 +43,7 @@ export default {
         pre: [
             canView(UserGroups.collection)
         ],
-        handler: buildFindHandler(UserGroups, request => {
-            return buildQueryForPartialMatch({}, request, [['email', 'members'], ['groupName', 'name']]);
-        })
+        handler: buildFindHandler(UserGroups, request => buildQuery(request, queryOptions))
     },
     findOne: {
         pre: [

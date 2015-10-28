@@ -1,5 +1,5 @@
 'use strict';
-import {assign, merge, pick} from 'lodash';
+import {merge, pick} from 'lodash';
 import Bluebird from 'bluebird';
 import {ArchivedPostUpdateError} from './../../common/errors';
 import {org} from './../../common/utils';
@@ -9,11 +9,7 @@ import Blogs from './../model';
 import schemas from './schemas';
 class Posts {
     constructor(attrs) {
-        assign(this, attrs);
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
+        this.init(attrs);
     }
 
     static newObject(doc, by) {
@@ -129,5 +125,5 @@ class Posts {
             });
     }
 }
-build(Posts, schemas.dao, schemas.model);
+build(Posts, schemas.dao, schemas.model, [], '_id');
 export default Posts;

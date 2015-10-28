@@ -1,56 +1,31 @@
 'use strict';
-import {sortBy, keys, get, isArray} from 'lodash';
+import {get, isArray, isNumber, pluck} from 'lodash';
 import moment from 'moment';
 import bcrypt from 'bcrypt';
 import boom from 'boom';
-import {logger, statsd} from './../config';
 import {ObjectID as objectID} from 'mongodb';
-export function logAndBoom(err, reply) {
+import stats from 'simple-statistics';
+import {logger} from './../config';
+export function logAndBoom(err) {
     logger.error({error: err, stack: err.stack});
-    reply(err.canMakeBoomError ? err : boom.badImplementation(err));
-}
-export function toStatsD(route, statusCode, user, device, browser, start, finish) {
-    statsd.increment([device, browser, route, route + statusCode, user], 1);
-    statsd.timing([route, user], finish - start);
+    return err.canMakeBoomError ? err : boom.badImplementation(err);
 }
 export function errback(err) {
     if (err) {
         logger.error({error: err, stack: err.stack});
     }
 }
-export function toStatsD2(bucket, query, start, err) {
-    statsd.timing(bucket, Date.now() - start);
-    if (query) {
-        statsd.increment(bucket + '.' + sortBy(keys(query), String).join(','), 1);
-    }
-    if (err) {
-        statsd.increment(bucket + '.err', 1);
-    }
-}
-export function defaultcb(bucket, resolve, reject, query) {
-    const start = Date.now();
-    return function cb(err, res) {
-        if (err) {
-            logger.error({error: err, stack: err.stack});
-            reject(err);
-            toStatsD2(bucket, query, start, err);
-        } else {
-            resolve(res);
-            toStatsD2(bucket, query, start);
-        }
-    };
-}
 export function ip(request) {
-    return request.info.remoteAddress === '' ? 'test' : request.info.remoteAddress;
+    return get(request, ['info', 'remoteAddress'], 'test');
 }
 export function by(request) {
-    return request.auth.credentials ? request.auth.credentials.user.email : 'notloggedin';
+    return get(request, ['auth', 'credentials', 'user', 'email'], 'notloggedin');
 }
 export function org(request) {
-    return request.auth.credentials ? request.auth.credentials.user.organisation : '';
+    return get(request, ['auth', 'credentials', 'user', 'organisation'], '');
 }
 export function user(request) {
-    return request.auth.credentials ? request.auth.credentials.user : undefined;
+    return get(request, ['auth', 'credentials', 'user'], undefined);
 }
 export function locale(request) {
     return get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
@@ -86,7 +61,7 @@ const queryBuilderForOne = {
         return {$regex: new RegExp('^.*?' + p + '.*$', 'i')};
     }
 };
-export function buildQueryFor(type, query, request, fields) {
+function buildQueryFor(type, query, request, fields) {
     const builder = queryBuilderForOne[type];
     const arrBuilder = queryBuilderForArray[type];
     fields.forEach(pair => {
@@ -97,16 +72,7 @@ export function buildQueryFor(type, query, request, fields) {
     });
     return query;
 }
-export function buildQueryForIDMatch(query, request, fields) {
-    return buildQueryFor('objectId', query, request, fields);
-}
-export function buildQueryForExactMatch(query, request, fields) {
-    return buildQueryFor('exact', query, request, fields);
-}
-export function buildQueryForPartialMatch(query, request, fields) {
-    return buildQueryFor('partial', query, request, fields);
-}
-export function buildQueryForDateRange(query, request, field) {
+function buildQueryForDateRange(query, request, field) {
     const pb4 = lookupParamsOrPayloadOrQuery(request, field + 'Before');
     if (pb4) {
         query[field] = {
@@ -120,9 +86,84 @@ export function buildQueryForDateRange(query, request, field) {
     }
     return query;
 }
+export function buildQuery(request, options) {
+    let {forPartial, forExact, forDateRange, forID} = options;
+    let query = {};
+    if (hasItems(forPartial)) {
+        buildQueryFor('partial', query, request, forPartial);
+    }
+    if (hasItems(forExact)) {
+        buildQueryFor('exact', query, request, forExact);
+    }
+    if (hasItems(forID)) {
+        buildQueryFor('objectId', query, request, forID);
+    }
+    if (forDateRange) {
+        buildQueryForDateRange(query, request, forDateRange);
+    }
+    return query;
+}
 export function secureHash(password) {
     return bcrypt.hashSync(password, 10);
 }
 export function secureCompare(password, hash) {
     return bcrypt.compareSync(password, hash) || password === hash;
+}
+class FixedLengthArray extends Array {
+    constructor(maxLength) {
+        super([]);
+        this.maxLength = maxLength;
+    }
+    push(values) {
+        super.push(values);
+        super.splice(0, this.length - this.maxLength);
+    }
+    //static get [Symbol.species]() { return Array; }
+}
+class ListValueMap extends Map {
+    constructor(maxLength){
+        super([]);
+        this.maxLength = maxLength;
+    }
+    set(key, value) {
+        if (!super.has(key)) {
+            super.set(key, new FixedLengthArray(this.maxLength));
+        }
+        return super.set(super.get(key).push({ts: Date.now(), v: value}));
+    }
+    stats(key) {
+        if (super.has(key)) {
+            const value = super.get(key);
+            const v = pluck(value, 'v');
+            return {
+                key: key,
+                count: v.length,
+                median: stats.median(v),
+                mode: stats.mode(v),
+                variance: stats.variance(v),
+                stdDev: stats.standardDeviation(v),
+                _0: stats.quantile(v, 0),
+                _10: stats.quantile(v, 0.1),
+                _25: stats.quantile(v, 0.25),
+                _50: stats.quantile(v, 0.5),
+                _75: stats.quantile(v, 0.75),
+                _90: stats.quantile(v, 0.90),
+                _100: stats.quantile(v, 1),
+            };
+        }
+    }
+    //static get [Symbol.species]() { return Map; }
+}
+let timings = new ListValueMap(10000);
+export function timing(key, elapsed) {
+    timings.set(key, elapsed);
+}
+export function dumpTimings() {
+    console.log('dbcall,count,median,mode,variance,stddev,min,10,25,avg,75,90,max');
+    timings.forEach((value, key)  => {
+        if (key && !isNumber(key)) {
+            const stats = timings.stats(key);
+            console.log(`${stats.key},${stats.count},${stats.median},${stats.mode},${stats.variance},${stats.stdDev},${stats._0},${stats._10},${stats._25},${stats._50},${stats._75},${stats._90},${stats._100}`);
+        }
+    });
 }

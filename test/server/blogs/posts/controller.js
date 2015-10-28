@@ -1240,7 +1240,7 @@ describe('Posts', () => {
                     return server.injectThen(request);
                 })
                 .then((response) => {
-                    expect(response.statusCode).to.equal(201);
+                    expect(response.statusCode).to.equal(200);
                     return Posts.find({title: 'test POST needsReview and publish'});
                 })
                 .then((found) => {
@@ -1284,7 +1284,7 @@ describe('Posts', () => {
                     return server.injectThen(request);
                 })
                 .then((response) => {
-                    expect(response.statusCode).to.equal(201);
+                    expect(response.statusCode).to.equal(200);
                     return Posts.find({title: 'test POST needsReview and pending review'});
                 })
                 .then((found) => {
@@ -1328,7 +1328,7 @@ describe('Posts', () => {
                     return server.injectThen(request);
                 })
                 .then((response) => {
-                    expect(response.statusCode).to.equal(201);
+                    expect(response.statusCode).to.equal(200);
                     return Posts.find({title: 'test POST draft'});
                 })
                 .then((found) => {
@@ -1374,7 +1374,7 @@ describe('Posts', () => {
                     return server.injectThen(request);
                 })
                 .then((response) => {
-                    expect(response.statusCode).to.equal(201);
+                    expect(response.statusCode).to.equal(200);
                     return Posts.find({title: 'test POST needsReview, owner and published'});
                 })
                 .then((found) => {
@@ -1417,7 +1417,7 @@ describe('Posts', () => {
                     return server.injectThen(request);
                 })
                 .then((response) => {
-                    expect(response.statusCode).to.equal(201);
+                    expect(response.statusCode).to.equal(200);
                     return Posts.find({title: 'test POST needsReview, access, allowComments'});
                 })
                 .then((found) => {

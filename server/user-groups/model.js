@@ -1,15 +1,10 @@
 'use strict';
-import {assign} from 'lodash';
 import {org} from './../common/utils';
 import {build} from './../common/dao';
 import schemas from './schemas';
 class UserGroups {
     constructor(attrs) {
-        assign(this, attrs);
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
+        this.init(attrs);
     }
     static newObject(doc, by) {
         return UserGroups.create(doc.payload.name,

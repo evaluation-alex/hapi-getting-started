@@ -1,10 +1,10 @@
 'use strict';
-import {assign, find} from 'lodash';
+import {find} from 'lodash';
 import {build} from './../../common/dao';
 import schemas from './schemas';
 class Roles {
     constructor(attrs) {
-        assign(this, attrs);
+        this.init(attrs);
     }
     hasPermissionsTo(performAction, onObject) {
         return !!find(this.permissions,

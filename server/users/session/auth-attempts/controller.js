@@ -1,20 +1,19 @@
 'use strict';
-import {buildQueryForPartialMatch} from './../../../common/utils';
+import {merge} from 'lodash';
+import {buildQuery} from './../../../common/utils';
 import {canView, findValidator} from './../../../common/prereqs';
 import {buildFindHandler} from './../../../common/handlers';
 import schemas from './schemas';
 import AuthAttempts from './model';
-
+const queryOptions = {
+    forPartialMatch: [['ip', 'ip'], ['email', 'email']]
+};
 export default {
     find: {
         validate: findValidator(schemas.controller.find),
         pre: [
             canView(AuthAttempts.collection)
         ],
-        handler: buildFindHandler(AuthAttempts, request => {
-            let query = buildQueryForPartialMatch({}, request, [['ip', 'ip'], ['email', 'email']]);
-            query.organisation = '*';
-            return query;
-        })
+        handler: buildFindHandler(AuthAttempts, request => merge({organisation: '*'}, buildQuery(request, queryOptions)))
     }
 };

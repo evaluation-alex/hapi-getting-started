@@ -1391,7 +1391,7 @@ describe('Blogs', () => {
                     return server.injectThen(request);
                 })
                 .then((response) => {
-                    expect(response.statusCode).to.equal(201);
+                    expect(response.statusCode).to.equal(200);
                     return Blogs.find({title: 'test post /blogs success'});
                 })
                 .then((found) => {

@@ -17,11 +17,13 @@ export default {
                     address: request.payload.email
                 }
             };
-            sendEmail(options, path.join(__dirname, '/contact.hbs.md'), request.payload)
-                .then(() => reply({message: 'Success.'}))
-                .catch(err => {
-                    logAndBoom(err, reply);
-                });
+            reply(
+                sendEmail(options, path.join(__dirname, '/contact.hbs.md'), request.payload)
+                .then(() => {
+                    return {message: 'Success.'};
+                })
+                .catch(logAndBoom)
+            );
         }
     }
 };

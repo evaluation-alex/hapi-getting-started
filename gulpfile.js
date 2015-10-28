@@ -5,13 +5,13 @@ let path = require('path');
 let _ = require('lodash');
 let pkg = require('./package.json');
 gulp.task('server:eslint', () => {
-    return gulp.src('server/**/*.esn')
+    return gulp.src('server/**/*.js')
         .pipe($.eslint(pkg.eslintConfig))
         .pipe($.eslint.format())
         .pipe($.eslint.failOnError());
 });
 gulp.task('server:jscs', () => {
-    return gulp.src('server/**/*.esn')
+    return gulp.src('server/**/*.js')
         .pipe($.jscs(pkg.jscsConfig));
 });
 gulp.task('server:jshint', () => {
@@ -30,17 +30,14 @@ gulp.task('server:build', ['server:eslint', 'server:jscs', 'server:jshint'], () 
             .pipe($.sourcemaps.init())
             .pipe($.babel({
                 optional: ['validation.undeclaredVariableCheck', 'runtime'],
-                loose: ['all'],
-                blacklist: ['es6.blockScoping', 'es6.arrowFunctions', 'es6.properties.shorthand', 'es6.properties.computed']
+                loose: ['es6.classes', 'es6.modules'],
+                blacklist: ['es6.blockScoping', 'es6.arrowFunctions', 'es6.properties.shorthand', 'es6.properties.computed', 'es6.constants', 'es6.templateLiterals']
             }))
-            .pipe($.replace(/function _interopRequireWildcard(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _interopRequireWildcard$1\n//jscs:enable'))
-            .pipe($.replace(/function _classCallCheck(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _classCallCheck$1\n//jscs:enable'))
-            .pipe($.replace(/function _interopRequireDefault(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _interopRequireDefault$1\n//jscs:enable'))
-            .pipe($.replace(/function _inherits(.*)/, '//jscs:disable\n/*istanbul ignore next: dont mess up my coverage*/\nfunction _inherits$1\n//jscs:enable'))
-            .pipe($.replace(/(\s+)_classCallCheck\(this/, '/*istanbul ignore next: dont mess up my coverage*/\n$1_classCallCheck(this'))
             .pipe($.sourcemaps.write('.', {
                 includeContent: false,
-                sourceRoot: ''
+                sourceRoot(file) {
+                    return path.relative(file.path, __dirname);
+                }
             })) //http://stackoverflow.com/questions/29440811/debug-compiled-es6-nodejs-app-in-webstorm
             .pipe(gulp.dest('build')),
         gulp.src('server/.opts')

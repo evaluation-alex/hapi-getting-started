@@ -20,7 +20,8 @@ export default {
             ],
             arrProps: []
         },
-        saveAudit: true
+        saveAudit: true,
+        nonEnumerables: ['audit', '_roles']
     },
     model: {
         _id: Joi.object(),

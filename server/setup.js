@@ -31,13 +31,9 @@ function fromStdIn(results, property, message, opts) {
                 if (err) {
                     reject(err);
                 } else {
-                    if (out) {
-                        results[property] = out;
-                    } else {
-                        results[property] = opts.default;
-                    }
+                    results[property] = out || opts.default;
+                    resolve(results);
                 }
-                resolve(results);
             });
         }
     });

@@ -1,15 +1,10 @@
 'use strict';
-import {assign} from 'lodash';
 import {org, hasItems} from './../common/utils';
 import {build} from './../common/dao';
 import schemas from './schemas';
 class Blogs {
     constructor(attrs) {
-        assign(this, attrs);
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
+        this.init(attrs);
     }
 
     static newObject(doc, by) {

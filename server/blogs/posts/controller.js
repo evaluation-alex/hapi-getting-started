@@ -1,8 +1,7 @@
 'use strict';
-import Bluebird from 'bluebird';
 import moment from 'moment';
-import {lookupParamsOrPayloadOrQuery, org, buildQueryForPartialMatch, buildQueryForDateRange, buildQueryForIDMatch} from './../../common/utils';
-import {canView, canUpdate, prePopulate, isMemberOf, uniqueCheck, findValidator} from './../../common/prereqs';
+import {lookupParamsOrPayloadOrQuery, org, buildQuery} from './../../common/utils';
+import {canView, canUpdate, prePopulate, isMemberOf, areValidPosts, uniqueCheck, findValidator} from './../../common/prereqs';
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../../common/handlers';
 import {sendNotifications, cancelNotifications} from './../../common/posthandlers';
 import UserGroups from './../../user-groups/model';
@@ -61,6 +60,11 @@ const sendNotificationsWhen = {
 };
 /*jshint unused:true*/
 /*eslint-enable no-unused-vars*/
+const queryOptions = {
+    forPartial: [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']],
+    forDateRange: 'publishedOn',
+    forID: [['blogId', 'blogId']]
+};
 export default {
     new: {
         validate: schemas.controller.create,
@@ -75,7 +79,8 @@ export default {
                 };
             }),
             prePopulate(Blogs, 'blogId'),
-            isMemberOf(Blogs, ['contributors', 'owners'])
+            isMemberOf(Blogs, ['contributors', 'owners']),
+            areValidPosts(['content.recipes'])
         ],
         handler: buildCreateHandler(Posts),
         post: [
@@ -88,26 +93,15 @@ export default {
             canView(Posts.collection)
         ],
         handler: buildFindHandler(Posts, request => {
-            let query = buildQueryForPartialMatch({}, request, [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']]);
-            query = buildQueryForDateRange(query, request, 'publishedOn');
-            query = buildQueryForIDMatch(query, request, [['blogId', 'blogId']]);
             if (lookupParamsOrPayloadOrQuery(request, 'blogTitle')) {
-                const blogQuery = buildQueryForPartialMatch({}, request, [['blogTitle', 'title']]);
-                return Blogs.find(blogQuery)
+                return Blogs.find(buildQuery(request, {forPartial: [['blogTitle', 'title']]}))
                     .then(blogs => {
                         request.query.blogId = blogs.map(blog => blog._id);
-                        query = buildQueryForIDMatch(query, request, [['blogId, blogId']]);
-                        return query;
+                        return buildQuery(request, queryOptions);
                     });
             } else {
-                return query;
+                return buildQuery(request, queryOptions);
             }
-        }, (output, user) => {
-            return Bluebird.all(output.data.map(post => post.populate(user)))
-                .then(op => {
-                    output.data = op;
-                    return output;
-                });
         })
     },
     findOne: {
@@ -115,7 +109,7 @@ export default {
             canView(Posts.collection),
             prePopulate(Posts, 'id')
         ],
-        handler: buildFindOneHandler(Posts, (post, user) => post.populate(user))
+        handler: buildFindOneHandler(Posts)
     },
     update: {
         validate: schemas.controller.update,

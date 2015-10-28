@@ -485,7 +485,7 @@ describe('Users', () => {
             };
             server.injectThen(request)
                 .then((response) => {
-                    expect(response.statusCode).to.equal(201);
+                    expect(response.statusCode).to.equal(200);
                     return Users.findOne({email: 'test.signup2@signup.api'});
                 })
                 .then((foundUser) => {

@@ -4,6 +4,7 @@
 /*jshint -W079*/
 let tu = require('./../../../../testutils');
 let Model = require('./../../../../../../build/common/dao');
+let utils = require('./../../../../../../build/common/utils');
 let expect = require('chai').expect;
 describe('DAO', () => {
     it('should disconnect when the server stops', (done) => {
@@ -13,6 +14,7 @@ describe('DAO', () => {
                 server.start(() => server.stop(() => {
                     var ct = setTimeout(() => {
                         expect(Model.db('app')).to.be.undefined;
+                        utils.dumpTimings();
                         clearTimeout(ct);
                         done();
                     }, 1000);

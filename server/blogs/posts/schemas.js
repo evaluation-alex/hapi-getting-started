@@ -26,7 +26,8 @@ export default {
                 'attachments'
             ]
         },
-        saveAudit: true
+        saveAudit: true,
+        nonEnumerables: ['audit']
     },
     model: {
         _id: Joi.object(),

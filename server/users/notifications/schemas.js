@@ -17,7 +17,8 @@ export default {
             arrProps: []
         },
         saveAudit: true,
-        i18n: ['title', 'content']
+        i18n: ['title', 'content'],
+        nonEnumerables: []
     },
     model: {
         _id: Joi.object(),

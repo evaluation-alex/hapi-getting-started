@@ -1,12 +1,15 @@
 'use strict';
 import {capitalize} from 'lodash';
-import {by, org, buildQueryForPartialMatch, hasItems} from './../common/utils';
+import {by, org, buildQuery, hasItems} from './../common/utils';
 import {findValidator, canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate} from './../common/prereqs';
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
 import {sendNotifications, cancelNotifications} from './../common/posthandlers';
 import schemas from './schemas';
 import Blogs from './model';
-
+const queryOptions = {
+    forPartial: [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
+    ['subGroup', 'subscriberGroups']]
+};
 export default {
     new: {
         validate: schemas.controller.create,
@@ -42,12 +45,7 @@ export default {
         pre: [
             canView(Blogs.collection)
         ],
-        handler: buildFindHandler(Blogs, request => {
-            return buildQueryForPartialMatch({}, request,
-                [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
-                    ['subGroup', 'subscriberGroups']
-                ]);
-        })
+        handler: buildFindHandler(Blogs, request => buildQuery(request, queryOptions))
     },
     findOne: {
         pre: [

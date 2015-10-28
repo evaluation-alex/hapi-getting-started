@@ -10,7 +10,9 @@ let expect = require('chai').expect;
 describe('Handlers and Mixins', () => {
     it('create handler should log and boom errors when it encounters exceptions', (done) => {
         let reply = (args) => {
-            expect(args).to.be.an.instanceof(Error);
+            args.then((arg) => {
+                expect(arg).to.be.an.instanceof(Error);
+            });
         };
         let request = {
             auth: {
@@ -53,7 +55,9 @@ describe('Handlers and Mixins', () => {
             };
         };
         let reply = (args) => {
-            expect(args).to.be.an.instanceof(Error);
+            args.then((arg) => {
+                expect(arg).to.be.an.instanceof(Error);
+            });
         };
         let handler = findHandler(Mdel, queryBuilder, undefined);
         handler(request, reply);
@@ -65,7 +69,11 @@ describe('Handlers and Mixins', () => {
         };
         let request = {
             pre: {
-                test: 'something'
+                test: {
+                    populate: (user) => {
+                        return Bluebird.reject(new Error(user));
+                    }
+                }
             },
             auth: {
                 credentials: {
@@ -76,13 +84,11 @@ describe('Handlers and Mixins', () => {
             }
         };
         let reply = (args) => {
-            expect(args).to.be.an.instanceof(Error);
+            args.then((arg) => {
+                expect(arg).to.be.an.instanceof(Error);
+            });
         };
-        let findOneCb = (obj) => {
-            expect(obj).to.equal('test');
-            return Bluebird.reject(new Error('test'));
-        };
-        let handler = findOneHandler(Mdel, findOneCb);
+        let handler = findOneHandler(Mdel);
         handler(request, reply);
         done();
     });

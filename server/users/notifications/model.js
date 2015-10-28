@@ -1,15 +1,11 @@
 'use strict';
-import {assign, unique, flatten, isArray} from 'lodash';
+import {unique, flatten, isArray} from 'lodash';
 import Bluebird from 'bluebird';
 import {build} from './../../common/dao';
 import schemas from './schemas';
 class Notifications {
     constructor(attrs) {
-        assign(this, attrs);
-        Object.defineProperty(this, 'audit', {
-            writable: true,
-            enumerable: false
-        });
+        this.init(attrs);
     }
     static createOne (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
         let document = {

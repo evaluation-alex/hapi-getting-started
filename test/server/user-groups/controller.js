@@ -1287,7 +1287,7 @@ describe('UserGroups', () => {
             };
             server.injectThen(request)
                 .then((response) => {
-                    expect(response.statusCode).to.equal(201);
+                    expect(response.statusCode).to.equal(200);
                     return UserGroups.findOne({name: 'testUserGroupCreate', organisation: 'silver lining'});
                 })
                 .then((ug) => {

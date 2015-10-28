@@ -79,17 +79,17 @@ describe('Utils', () => {
                 id: ['54c894fe1d1d4ab4032ed94e', '54c894fe1d1d4ab4032ed94e']
             }
         };
-        let query = utils.buildQueryForPartialMatch({}, request, fields);
+        let query = utils.buildQuery(request, {forPartial: fields});
         expect(query.a.$regex).to.exist;
         expect(query.b.$in).to.exist;
         expect(query.b.$in.length).to.equal(2);
         expect(query.b.$in[0]).to.be.an.instanceof(RegExp);
         expect(query.b.$in[1]).to.be.an.instanceof(RegExp);
-        let query2 = utils.buildQueryForExactMatch({}, request, fields);
+        let query2 = utils.buildQuery(request, {forExact:fields});
         expect(query2.a).to.exist;
         expect(query2.b.$in).to.exist;
         expect(query2.b.$in.length).to.equal(2);
-        let query3 = utils.buildQueryForIDMatch({}, request, [['id', 'id']]);
+        let query3 = utils.buildQuery(request, {forID: [['id', 'id']]});
         expect(query3.id).to.exist;
         expect(query3.id.$in).to.exist;
         expect(query3.id.$in.length).to.equal(2);

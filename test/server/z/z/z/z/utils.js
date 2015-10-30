@@ -2,7 +2,7 @@
 /*eslint-disable no-unused-expressions*/
 /*eslint-disable no-var*/
 /*jshint -W079*/
-let Bluebird = require('Bluebird');
+let Bluebird = require('bluebird');
 let tu = require('./../../../../testutils');
 let Model = require('./../../../../../../build/common/dao');
 let utils = require('./../../../../../../build/common/utils');

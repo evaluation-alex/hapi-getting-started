@@ -114,44 +114,47 @@ class FixedLengthArray extends Array {
         super([]);
         this.maxLength = maxLength;
     }
+
     push(values) {
         super.push(values);
         super.splice(0, this.length - this.maxLength);
     }
+
     //static get [Symbol.species]() { return Array; }
 }
 class ListValueMap extends Map {
-    constructor(maxLength){
+    constructor(maxLength) {
         super([]);
         this.maxLength = maxLength;
     }
+
     set(key, value) {
         if (!super.has(key)) {
             super.set(key, new FixedLengthArray(this.maxLength));
         }
         return super.set(super.get(key).push({ts: Date.now(), v: value}));
     }
+
     stats(key) {
-        if (super.has(key)) {
-            const value = super.get(key);
-            const v = pluck(value, 'v');
-            return {
-                key: key,
-                count: v.length,
-                median: stats.median(v),
-                mode: stats.mode(v),
-                variance: stats.variance(v),
-                stdDev: stats.standardDeviation(v),
-                _0: stats.quantile(v, 0),
-                _10: stats.quantile(v, 0.1),
-                _25: stats.quantile(v, 0.25),
-                _50: stats.quantile(v, 0.5),
-                _75: stats.quantile(v, 0.75),
-                _90: stats.quantile(v, 0.90),
-                _100: stats.quantile(v, 1),
-            };
-        }
+        const value = super.get(key);
+        const v = pluck(value, 'v');
+        return {
+            key: key,
+            count: v.length,
+            median: stats.median(v),
+            mode: stats.mode(v),
+            variance: stats.variance(v),
+            stdDev: stats.standardDeviation(v),
+            _0: stats.quantile(v, 0),
+            _10: stats.quantile(v, 0.1),
+            _25: stats.quantile(v, 0.25),
+            _50: stats.quantile(v, 0.5),
+            _75: stats.quantile(v, 0.75),
+            _90: stats.quantile(v, 0.90),
+            _100: stats.quantile(v, 1),
+        };
     }
+
     //static get [Symbol.species]() { return Map; }
 }
 let timings = new ListValueMap(10000);

@@ -39,8 +39,9 @@ describe('Preferences', () => {
                 })
                 .then((u) => {
                     id = u._id.toString();
+                    return id;
                 })
-                .then(() => {
+                .then((id) => {
                     let request = {
                         method: 'PUT',
                         url: '/preferences/' + id,
@@ -53,12 +54,14 @@ describe('Preferences', () => {
                             }
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(401);
-                        done();
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(401);
+                    done();
+                    return null;
+                }).catch((err) => {
+                    done(err);
                 });
         });
         it('should return not found if the preferences are not found', (done) => {
@@ -87,6 +90,7 @@ describe('Preferences', () => {
                     p.preferences.notifications.blogs.blocked.push({id: 'something'});
                     p.preferences.notifications.posts.blocked.push({id: 'none of them'});
                     id = p._id.toString();
+                    p.__isModified = true;
                     return p.save();
                 })
                 .then(() => {
@@ -122,27 +126,30 @@ describe('Preferences', () => {
                             }
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Users.findOne({email: 'root'})
-                            .then((p) => {
-                                expect(p.preferences.locale).to.equal('hi');
-                                expect(p.preferences.notifications.blogs.email.frequency).to.equal('daily');
-                                expect(p.preferences.notifications.userGroups.email.frequency).to.equal('weekly');
-                                expect(p.preferences.notifications.posts.inapp.frequency).to.equal('daily');
-                                expect(p.preferences.notifications.blogs.blocked[0]).to.deep.equal({id: 'something'});
-                                expect(p.preferences.notifications.userGroups.blocked[0]).to.deep.equal({id: 'all of them'});
-                                expect(p.preferences.notifications.posts.blocked.length).to.equal(0);
-                                return Audit.findAudit('users', 'root', {'change.action': 'preferences.locale'});
-                            })
-                            .then((audit) => {
-                                expect(audit).to.exist;
-                                expect(audit.length).to.equal(1);
-                                done();
-                            });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Users.findOne({email: 'root'});
+                })
+                .then((p) => {
+                    expect(p.preferences.locale).to.equal('hi');
+                    expect(p.preferences.notifications.blogs.email.frequency).to.equal('daily');
+                    expect(p.preferences.notifications.userGroups.email.frequency).to.equal('weekly');
+                    expect(p.preferences.notifications.posts.inapp.frequency).to.equal('daily');
+                    expect(p.preferences.notifications.blogs.blocked[0]).to.deep.equal({id: 'something'});
+                    expect(p.preferences.notifications.userGroups.blocked[0]).to.deep.equal({id: 'all of them'});
+                    expect(p.preferences.notifications.posts.blocked.length).to.equal(0);
+                    return Audit.findAudit('users', 'root', {'change.action': 'preferences.locale'});
+                })
+                .then((audit) => {
+                    expect(audit).to.exist;
+                    expect(audit.length).to.equal(1);
+                    done();
+                    return null;
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
     });

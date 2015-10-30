@@ -39,8 +39,9 @@ describe('Profile', () => {
                 })
                 .then((u) => {
                     id = u._id.toString();
+                    return id;
                 })
-                .then(() => {
+                .then((id) => {
                     let request = {
                         method: 'PUT',
                         url: '/profile/' + id,
@@ -53,12 +54,15 @@ describe('Profile', () => {
                             }
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(401);
-                        done();
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(401);
+                    done();
+                    return null;
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
         it('should return not found if the profile is not found', (done) => {
@@ -97,21 +101,24 @@ describe('Profile', () => {
                             }
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        Users.findOne({email: 'root'})
-                            .then((p1) => {
-                                expect(p1.profile.preferredName).to.equal('mr. me');
-                                return Audit.findAudit('users', 'root', {'change.action': 'profile.preferredName'});
-                            })
-                            .then((audit) => {
-                                expect(audit).to.exist;
-                                expect(audit.length).to.equal(1);
-                                done();
-                            });
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    return Users.findOne({email: 'root'});
+                })
+                .then((p1) => {
+                    expect(p1.profile.preferredName).to.equal('mr. me');
+                    return Audit.findAudit('users', 'root', {'change.action': 'profile.preferredName'});
+                })
+                .then((audit) => {
+                    expect(audit).to.exist;
+                    expect(audit.length).to.equal(1);
+                    done();
+                    return null;
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
     });

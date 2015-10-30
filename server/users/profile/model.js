@@ -3,28 +3,13 @@ import {build} from './../../common/dao';
 import schemas from './schemas';
 class Profile {
     static create() {
-        let emptyAddress = {
-            apartment: '',
-            floorHouseNo: '',
-            street: '',
-            landmark: '',
-            area: '',
-            city: '',
-            pincode: '',
-            state: '',
-            country: ''
-        };
         return {
             firstName: '',
             lastName: '',
             preferredName: '',
-            title: '',
-            dateOfBirth: new Date(1900, 1, 1),
-            phone: [],
-            permanentAddress: emptyAddress,
-            currentAddress: emptyAddress,
-            educationalQualification: [],
-            employmentHistory: []
+            facebook: {},
+            google: {},
+            twitter: {}
         };
     }
     resetProfile() {

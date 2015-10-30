@@ -9,8 +9,7 @@ export default {
             {fields: {email: 1}}
         ],
         saveAudit: false,
-        isReadonly: true,
-        nonEnumerables: []
+        isReadonly: true
     },
     model: {
         _id: Joi.object(),
@@ -25,6 +24,9 @@ export default {
                 ip: Joi.string(),
                 email: Joi.string()
             }
+        },
+        findOptions: {
+            forPartialMatch: [['ip', 'ip'], ['email', 'email']]
         }
     }
 };

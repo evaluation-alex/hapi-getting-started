@@ -10,9 +10,7 @@ let expect = require('chai').expect;
 describe('Handlers and Mixins', () => {
     it('create handler should log and boom errors when it encounters exceptions', (done) => {
         let reply = (args) => {
-            args.then((arg) => {
-                expect(arg).to.be.an.instanceof(Error);
-            });
+            expect(args).to.be.an.instanceof(Error);
         };
         let request = {
             auth: {
@@ -55,9 +53,7 @@ describe('Handlers and Mixins', () => {
             };
         };
         let reply = (args) => {
-            args.then((arg) => {
-                expect(arg).to.be.an.instanceof(Error);
-            });
+            expect(args).to.be.an.instanceof(Error);
         };
         let handler = findHandler(Mdel, queryBuilder, undefined);
         handler(request, reply);
@@ -84,9 +80,7 @@ describe('Handlers and Mixins', () => {
             }
         };
         let reply = (args) => {
-            args.then((arg) => {
-                expect(arg).to.be.an.instanceof(Error);
-            });
+            expect(args).to.be.an.instanceof(Error);
         };
         let handler = findOneHandler(Mdel);
         handler(request, reply);

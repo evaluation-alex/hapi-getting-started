@@ -20,8 +20,7 @@ function buildAreValid(Model, pldPropToLookup) {
         });
         toLookup = flatten(toLookup);
         if (hasItems(toLookup)) {
-            reply(
-                Model.areValid(toLookup, org(request))
+            Model.areValid(toLookup, org(request))
                 .then(validated => {
                     let msg = '';
                     toLookup.forEach(a => {
@@ -32,7 +31,7 @@ function buildAreValid(Model, pldPropToLookup) {
                     return (msg.indexOf(',') > -1) ? Bluebird.reject(new NotValidUsersOrGroupsError({msg})) : true;
                 })
                 .catch(logAndBoom)
-            );
+                .then(reply);
         } else {
             reply(true);
         }
@@ -93,20 +92,19 @@ export function uniqueCheck(Model, queryBuilder) {
     return {
         assign: 'uniqueCheck',
         method(request, reply) {
-            reply(
-                Model.findOne(queryBuilder(request))
-                .then(f => f ? Bluebird.reject(new ObjectAlreadyExistsError()): true)
+            Model.findOne(queryBuilder(request))
+                .then(f => f ? Bluebird.reject(new ObjectAlreadyExistsError()) : true)
                 .catch(logAndBoom)
-            );
+                .then(reply);
         }
     };
 }
-export function onlyOwner(Model, fieldToVerifyAgainst = 'email') {
+export function onlyOwner(Model) {
     return {
         assign: 'allowedToViewOrEditPersonalInfo',
         method(request, reply) {
             const u = by(request);
-            if ((request.pre[Model.collection][fieldToVerifyAgainst] === u) || (u === 'root')) {
+            if ((request.pre[Model.collection].email === u) || (u === 'root')) {
                 reply(true);
             } else {
                 reply(new NotObjectOwnerError({email: u}));
@@ -119,13 +117,11 @@ export function prePopulate(Model, idToUse) {
         assign: Model.collection,
         method(request, reply) {
             const id = lookupParamsOrPayloadOrQuery(request, idToUse);
-            reply(
-                Model.findOne({_id: Model.ObjectID(id)})
+            Model.findOne({_id: Model.ObjectID(id)})
                 .then(obj => !obj ?
-                    Bluebird.reject(new ObjectNotFoundError({type: capitalize(Model.collection), idstr: id.toString()})) :
-                    obj)
+                    Bluebird.reject(new ObjectNotFoundError({type: capitalize(Model.collection), idstr: id.toString()})) : obj)
                 .catch(logAndBoom)
-            );
+                .then(reply);
         }
     };
 }
@@ -133,11 +129,10 @@ export function abuseDetected() {
     return {
         assign: 'abuseDetected',
         method(request, reply) {
-            reply(
-                AuthAttempts.abuseDetected(ip(request), request.payload.email)
+            AuthAttempts.abuseDetected(ip(request), request.payload.email)
                 .then(detected => detected ? Bluebird.reject(new AbusiveLoginAttemptsError()) : false)
                 .catch(logAndBoom)
-            );
+                .then(reply);
         }
     };
 }

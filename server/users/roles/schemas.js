@@ -8,8 +8,7 @@ export default {
             {fields: {name: 1, organisation: 1}, options: {unique: true}}
         ],
         saveAudit: false,
-        isReadonly: true,
-        nonEnumerables: []
+        isReadonly: true
     },
     model: {
         _id: Joi.object(),

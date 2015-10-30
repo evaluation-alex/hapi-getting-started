@@ -60,11 +60,6 @@ const sendNotificationsWhen = {
 };
 /*jshint unused:true*/
 /*eslint-enable no-unused-vars*/
-const queryOptions = {
-    forPartial: [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']],
-    forDateRange: 'publishedOn',
-    forID: [['blogId', 'blogId']]
-};
 export default {
     new: {
         validate: schemas.controller.create,
@@ -97,10 +92,10 @@ export default {
                 return Blogs.find(buildQuery(request, {forPartial: [['blogTitle', 'title']]}))
                     .then(blogs => {
                         request.query.blogId = blogs.map(blog => blog._id);
-                        return buildQuery(request, queryOptions);
+                        return buildQuery(request, schemas.controller.findOptions);
                     });
             } else {
-                return buildQuery(request, queryOptions);
+                return buildQuery(request, schemas.controller.findOptions);
             }
         })
     },

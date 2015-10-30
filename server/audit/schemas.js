@@ -10,8 +10,7 @@ export default {
             {fields: {on: 1}}
         ],
         saveAudit: false,
-        isReadonly: true,
-        nonEnumerables: []
+        isReadonly: true
     },
     model: {
         _id: Joi.object(),
@@ -35,6 +34,11 @@ export default {
                 onBefore: Joi.date().format('YYYY-MM-DD'),
                 onAfter: Joi.date().format('YYYY-MM-DD')
             }
+        },
+        findOptions: {
+            forPartial: [['by', 'by']],
+            forDate: 'on',
+            forExact: [['objectType', 'objectChangedType'], ['objectChangedId', 'objectChangedId']]
         }
     }
 };

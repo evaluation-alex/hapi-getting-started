@@ -21,7 +21,7 @@
     },
     "dependencies": {
         "bcrypt": "0.8.x",
-        "bluebird": "2.10.x",
+        "bluebird": "3.0.x",
         "boom": "2.10.x",
         "bunyan": "1.5.x",
         "dev-null": "0.1.x",

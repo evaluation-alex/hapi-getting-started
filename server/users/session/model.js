@@ -3,6 +3,8 @@ import {remove, find, omit} from 'lodash';
 import Uuid from 'node-uuid';
 import moment from 'moment';
 import {secureHash} from './../../common/utils';
+import {build} from './../../common/dao';
+import schemas from './schemas';
 class Session {
     _invalidateSession(ipaddress, by) {
         const removed = remove(this.session, session => session.ipaddress === ipaddress);
@@ -54,4 +56,5 @@ class Session {
         return this;
     }
 }
+build(Session, schemas.dao, schemas.model);
 export default Session;

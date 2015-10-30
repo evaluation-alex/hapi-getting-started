@@ -17,8 +17,7 @@ export default {
             props: [
                 'isActive',
                 'roles'
-            ],
-            arrProps: []
+            ]
         },
         saveAudit: true,
         nonEnumerables: ['audit', '_roles']
@@ -56,6 +55,9 @@ export default {
                 email: Joi.string(),
                 isActive: Joi.string()
             }
+        },
+        findOptions: {
+            forPartial: [['email', 'email']]
         },
         update: {
             payload: {

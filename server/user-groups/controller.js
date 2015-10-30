@@ -6,9 +6,6 @@ import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHa
 import {sendNotifications, cancelNotifications} from './../common/posthandlers';
 import schemas from './schemas';
 import UserGroups from './model';
-const queryOptions = {
-    forPartial: [['email', 'members'], ['groupName', 'name']]
-};
 export default {
     new: {
         validate: schemas.controller.create,
@@ -43,7 +40,7 @@ export default {
         pre: [
             canView(UserGroups.collection)
         ],
-        handler: buildFindHandler(UserGroups, request => buildQuery(request, queryOptions))
+        handler: buildFindHandler(UserGroups, request => buildQuery(request, schemas.controller.findOptions))
     },
     findOne: {
         pre: [
@@ -203,12 +200,13 @@ export default {
                 let modified = false;
                 const updatedBy = by(request);
                 request.payload.addedMembers.forEach(a => {
+                    /*istanbul ignore else*/
                     if (notification.content.join === a) {
                         modified = true;
                         notification.setState('cancelled', updatedBy);
                     }
                 });
-                return modified ? notification.save() : notification;
+                return notification.save();
             })
 
         ]

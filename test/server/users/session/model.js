@@ -79,6 +79,7 @@ describe('Session DAO', () => {
             Users.findOne({email: secondEmail})
                 .then((user) => {
                     user.session[0].expires = moment().subtract(5, 'days').toDate();
+                    user.__isModified = true;
                     return user.save();
                 })
                 .then((user) => {
@@ -126,6 +127,7 @@ describe('Session DAO', () => {
                         key: utils.secureHash(Uuid.v4().toString()),
                         expires: moment().add(1, 'month').toDate()
                     });
+                    user.__isModified = true;
                     return user.save();
                 }).then((user) => {
                     return user.loginSuccess('test', 'test').save();
@@ -155,6 +157,7 @@ describe('Session DAO', () => {
                         key: utils.secureHash(Uuid.v4().toString()),
                         expires: moment().subtract(1, 'minute').toDate()
                     });
+                    user.__isModified = true;
                     return user.save();
                 }).then((user) => {
                     return user.loginSuccess('test', 'test').save();
@@ -183,6 +186,7 @@ describe('Session DAO', () => {
                 })
                 .then((user) => {
                     user.session = [];
+                    user.__isModified = true;
                     return user.save();
                 })
                 .then((user) => {
@@ -215,6 +219,7 @@ describe('Session DAO', () => {
                         key: utils.secureHash(Uuid.v4()),
                         expires: moment().add(1, 'month').toDate()
                     }];
+                    user.__isModified = true;
                     return user.save();
                 })
                 .then((user) => {
@@ -249,6 +254,7 @@ describe('Session DAO', () => {
                         key: utils.secureHash(Uuid.v4()),
                         expires: moment().add(1, 'month').toDate()
                     }];
+                    user.__isModified = true;
                     return user.save();
                 })
                 .then((user) => {

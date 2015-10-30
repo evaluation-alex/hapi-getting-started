@@ -22,7 +22,7 @@ gulp.task('server:jshint', () => {
         .pipe($.jshint.reporter('unix'));
 });
 gulp.task('server:clean', (cb) => {
-    $.del(['build/.opts', 'build/**/*', 'test/server/artifacts/**/*.*']).then(() => cb());
+    $.del(['build/.opts', 'build/**/*', 'test/artifacts/**/*.*']).then(() => cb());
 });
 gulp.task('server:build', ['server:eslint', 'server:jscs', 'server:jshint'], () => {
     return $.mergeStream(
@@ -33,6 +33,7 @@ gulp.task('server:build', ['server:eslint', 'server:jscs', 'server:jshint'], () 
                 loose: ['es6.classes', 'es6.modules'],
                 blacklist: ['es6.blockScoping', 'es6.arrowFunctions', 'es6.properties.shorthand', 'es6.properties.computed', 'es6.constants', 'es6.templateLiterals']
             }))
+            .pipe($.replace(/(\s+)_classCallCheck\(this/, '/*istanbul ignore next: dont mess up my coverage*/\n$1_classCallCheck(this'))
             .pipe($.sourcemaps.write('.', {
                 includeContent: false,
                 sourceRoot(file) {

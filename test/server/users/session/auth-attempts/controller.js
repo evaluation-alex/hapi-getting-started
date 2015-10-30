@@ -33,16 +33,20 @@ describe('AuthAttempts', () => {
                             Authorization: authheader
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        expect(response.payload).to.exist;
-                        expect(response.payload).to.contain('test.abuse.find');
-                        expect(response.payload).to.contain('127.0.0.2');
-                        done();
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist;
+                    expect(response.payload).to.contain('test.abuse.find');
+                    expect(response.payload).to.contain('127.0.0.2');
+                    done();
+                    return null;
+                })
+                .catch((err) => {
+                    done(err);
                 });
+
         });
         it('should give all auth-attempts if nothing is passed', (done) => {
             let authSpam = [];
@@ -59,15 +63,18 @@ describe('AuthAttempts', () => {
                             Authorization: authheader
                         }
                     };
-                    server.injectThen(request).then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        expect(response.payload).to.exist;
-                        expect(response.payload).to.match(/test.abuse/);
-                        expect(response.payload).to.contain('127.0.0.2');
-                        done();
-                    }).catch((err) => {
-                        done(err);
-                    });
+                    return server.injectThen(request);
+                })
+                .then((response) => {
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.payload).to.exist;
+                    expect(response.payload).to.match(/test.abuse/);
+                    expect(response.payload).to.contain('127.0.0.2');
+                    done();
+                    return null;
+                })
+                .catch((err) => {
+                    done(err);
                 });
         });
     });

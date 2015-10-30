@@ -59,6 +59,9 @@ export default {
                 isActive: Joi.string()
             }
         },
+        findOptions: {
+            forPartial: [['email', 'members'], ['groupName', 'name']]
+        },
         update: {
             payload: {
                 isActive: Joi.boolean(),

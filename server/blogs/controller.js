@@ -6,10 +6,6 @@ import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHa
 import {sendNotifications, cancelNotifications} from './../common/posthandlers';
 import schemas from './schemas';
 import Blogs from './model';
-const queryOptions = {
-    forPartial: [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
-    ['subGroup', 'subscriberGroups']]
-};
 export default {
     new: {
         validate: schemas.controller.create,
@@ -32,10 +28,9 @@ export default {
                 return {
                     to: blog.owners,
                     title: ['Blog {{title}} created.', {title}],
-                    description: ['Blog {{title}} created and you have been designated owner by {{createdBy}}', {
-                        title,
-                        createdBy
-                    }]
+                    description: [
+                        'Blog {{title}} created and you have been designated owner by {{createdBy}}', {title, createdBy}
+                    ]
                 };
             })
         ]
@@ -45,7 +40,7 @@ export default {
         pre: [
             canView(Blogs.collection)
         ],
-        handler: buildFindHandler(Blogs, request => buildQuery(request, queryOptions))
+        handler: buildFindHandler(Blogs, request => buildQuery(request, schemas.controller.findOptions))
     },
     findOne: {
         pre: [
@@ -206,12 +201,13 @@ export default {
                 let modified = false;
                 const updatedBy = by(request);
                 request.payload.addedSubscribers.forEach(a => {
+                    /*istanbul ignore else*/
                     if (notification.content.join === a) {
                         modified = true;
                         notification.setState('cancelled', updatedBy);
                     }
                 });
-                return modified ? notification.save() : notification;
+                return notification.save();
             })
 
         ]

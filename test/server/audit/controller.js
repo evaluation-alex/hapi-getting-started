@@ -34,11 +34,13 @@ describe('Audit', () => {
                     })
                     .then((newUser2) => {
                         return newUser2.loginSuccess('test', 'test').save();
-                    }).then((newUser2) => {
+                    })
+                    .then((newUser2) => {
                         newUser2.deactivate('test').save();
                         emails.push('test.users2@test.api');
                         emails.push('test.users@test.api');
                         done();
+                        return null;
                     })
                     .catch((err) => {
                         emails.push('test.users2@test.api');

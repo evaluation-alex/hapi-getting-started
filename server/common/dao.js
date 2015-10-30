@@ -60,13 +60,14 @@ export function disconnect(name) {
 function withSchemaProperties(Dao, connection, collection, indexes, modelSchema) {
     return extend(Dao, { ObjectID, collection, indexes, connection, modelSchema });
 }
-function withSetupMethods(Dao, nonEnumerables = []) {
+function withSetupMethods(Dao, nonEnumerables) {
     extend(Dao.prototype, {
         init(attrs) {
             assign(this, attrs);
             nonEnumerables.forEach(ne => {
                 Object.defineProperty(this, ne, {writable: true, enumerable: false});
             });
+            Object.defineProperty(this, '__isModified', {writable: true, enumerable: false});
         }
     });
     return extend(Dao, {
@@ -84,7 +85,7 @@ function withSetupMethods(Dao, nonEnumerables = []) {
         }
     });
 }
-function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit) {
+function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
     extend(Dao, {
         upsert(obj) {
             return new Bluebird((resolve, reject) => {
@@ -97,7 +98,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit) {
             });
         }
     });
-    /*istanbul ignore if*/
+    /*istanbul ignore if*//*istanbul ignore else*/
     if (process.env.NODE_ENV !== 'production') {
         extend(Dao, {
             remove(query) {
@@ -271,7 +272,7 @@ function withFindMethods(Dao, areValidProperty) {
     }
     return Dao;
 }
-function propDescriptors(properties = []) {
+function propDescriptors(properties) {
     return properties.map(p => {
         return {
             name: p,
@@ -280,7 +281,7 @@ function propDescriptors(properties = []) {
         };
     });
 }
-function arrDescriptors(lists = []) {
+function arrDescriptors(lists) {
     return lists.map(l => {
         const methodSuffix = l.split('.').map(capitalize).join('');
         let pathadd = l.split('.');
@@ -410,11 +411,16 @@ function withI18n(model, fields) {
 function withSave(model, saveAudit, idForAudit = '_id') {
     extend(model.prototype, {
         save() {
-            return model.saveChangeHistory(this.audit)
-                .then(() => {
-                    this.audit = undefined;
-                    return model.upsert(this);
-                });
+            if (this.__isModified) {
+                this.__isModified = false;
+                return model.saveChangeHistory(this.audit)
+                    .then(() => {
+                        this.audit = undefined;
+                        return model.upsert(this);
+                    });
+            } else {
+                return Bluebird.resolve(this);
+            }
         },
         del(doc, by) {
             return this.deactivate(by);
@@ -427,6 +433,7 @@ function withSave(model, saveAudit, idForAudit = '_id') {
         },
         trackChanges(action, origValues, newValues, by) {
             const now = new Date();
+            /*istanbul ignore else*/
             if (saveAudit) {
                 this.audit = this.audit || {
                         objectChangedType: model.collection,
@@ -438,6 +445,7 @@ function withSave(model, saveAudit, idForAudit = '_id') {
                 this.audit.by = by;
                 this.audit.on = now;
             }
+            this.__isModified = true;
             this.updatedBy = by;
             this.updatedOn = now;
             return this;
@@ -448,13 +456,13 @@ function withSave(model, saveAudit, idForAudit = '_id') {
 export function build(toBuild, schema, model, extendModels, areValidProperty = undefined) {
     if (!schema.isVirtualModel) {
         withSchemaProperties(toBuild, schema.connection, schema.collection, schema.indexes, model);
-        withSetupMethods(toBuild, schema.nonEnumerables);
-        withModifyMethods(toBuild, schema.isReadonly, schema.saveAudit, schema.idForAudit || '_id');
+        withSetupMethods(toBuild, schema.nonEnumerables || []);
+        withModifyMethods(toBuild, schema.isReadonly, schema.saveAudit, schema.idForAudit);
         withFindMethods(toBuild, areValidProperty);
     }
     if (schema.updateMethod) {
         const props = propDescriptors(schema.updateMethod.props);
-        const arrs = arrDescriptors(schema.updateMethod.arrProps);
+        const arrs = arrDescriptors(schema.updateMethod.arrProps || []);
         withSetMethods(toBuild, props);
         withArrMethods(toBuild, arrs);
         withUpdate(toBuild, props, arrs, schema.updateMethod.method);

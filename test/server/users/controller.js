@@ -5,6 +5,7 @@ let Users = require('./../../../build/users/model');
 let Audit = require('./../../../build/audit/model');
 let Mailer = require('./../../../build/common/plugins/mailer');
 let Bluebird = require('bluebird');
+let Fs = require('fs');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
 describe('Users', () => {
@@ -22,6 +23,7 @@ describe('Users', () => {
             .then((newUser) => {
                 newUser.loginSuccess('127.0.0.1', 'test').save();
                 done();
+                return null;
             })
             .catch((err) => {
                 if (err) {
@@ -112,6 +114,7 @@ describe('Users', () => {
                 .then((newUser) => {
                     newUser.deactivate('test').save();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -287,6 +290,7 @@ describe('Users', () => {
                     newUser.loginSuccess('127.0.0.1', 'test').save();
                     id = newUser._id.toString();
                     done();
+                    return null;
                 });
         });
         it('should update is active, session should be deactivated and changes audited', (done) => {
@@ -313,6 +317,7 @@ describe('Users', () => {
                 .then((foundAudit) => {
                     expect(foundAudit).to.exist;
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -343,6 +348,7 @@ describe('Users', () => {
                 .then((foundAudit) => {
                     expect(foundAudit).to.exist;
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -371,6 +377,7 @@ describe('Users', () => {
                 .then((foundAudit) => {
                     expect(foundAudit).to.exist;
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -399,6 +406,7 @@ describe('Users', () => {
                     expect(foundUser.roles).to.include('readonly');
                     expect(foundUser.isActive).to.be.true;
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -425,6 +433,7 @@ describe('Users', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(401);
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -447,6 +456,7 @@ describe('Users', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(404);
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -468,8 +478,33 @@ describe('Users', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(409);
                     done();
+                    return null;
                 })
                 .catch((err)=> {
+                    done(err);
+                });
+        });
+        it('returns a error when unable to send an email', (done) => {
+            Fs.renameSync('./build/users/templates/welcome.hbs.md', './build/users/templates/welcome2.hbs.md');
+            let request = {
+                method: 'POST',
+                url: '/users/signup',
+                payload: {
+                    email: 'two@second.com',
+                    organisation: 'silver lining',
+                    password: 'try becoming the first'
+                }
+            };
+            server.injectThen(request)
+                .then((response) => {
+                    Fs.renameSync('./build/users/templates/welcome2.hbs.md', './build/users/templates/welcome.hbs.md');
+                    expect(response.statusCode).to.equal(500);
+                    emails.push(request.payload.email);
+                    done();
+                    return null;
+                })
+                .catch((err)=> {
+                    emails.push(request.payload.email);
                     done(err);
                 });
         });
@@ -502,6 +537,7 @@ describe('Users', () => {
                     expect(foundLogin).to.exist;
                     emails.push(request.payload.email);
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     emails.push(request.payload.email);
@@ -523,6 +559,7 @@ describe('Users', () => {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.contain('Success');
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -549,6 +586,7 @@ describe('Users', () => {
                 .then((foundUser) => {
                     expect(foundUser.resetPwd).to.exist;
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -571,6 +609,7 @@ describe('Users', () => {
                     expect(response.statusCode).to.equal(500);
                     Mailer.sendEmail = prev;
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     Mailer.sendEmail = prev;
@@ -593,6 +632,7 @@ describe('Users', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(400);
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -618,6 +658,7 @@ describe('Users', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(400);
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -656,6 +697,7 @@ describe('Users', () => {
                 .then((foundUser) => {
                     expect(foundUser.resetPwd).to.not.exist;
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);

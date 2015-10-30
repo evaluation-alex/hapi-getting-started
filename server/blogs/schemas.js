@@ -77,6 +77,10 @@ export default {
                 isActive: Joi.string()
             }
         },
+        findOptions: {
+            forPartial: [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
+                ['subGroup', 'subscriberGroups']]
+        },
         update: {
             payload: {
                 title: Joi.string(),

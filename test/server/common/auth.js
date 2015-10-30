@@ -166,6 +166,7 @@ describe('Auth', () => {
             .then((user) => {
                 user.loginSuccess('127.0.0.1', 'test');
                 user.session[0].expires = moment().subtract(15, 'days').toDate();
+                user.__isModified = true;
                 return user.save();
             })
             .then(() => {

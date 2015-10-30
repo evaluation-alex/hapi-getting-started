@@ -6,10 +6,6 @@ import {buildFindHandler, buildUpdateHandler} from './../../common/handlers';
 import {i18n} from './../../common/posthandlers';
 import schemas from './schemas';
 import Notifications from './model';
-const queryOptions = {
-    forPartial: [['state', 'state'], ['objectType', 'objectType']],
-    forDateRange: 'createdOn'
-};
 export default {
     find: {
         validate: findValidator(schemas.controller.find),
@@ -19,7 +15,7 @@ export default {
         handler: buildFindHandler(Notifications, request => {
             let query = merge(
                 {email: by(request)},
-                buildQuery(request, queryOptions)
+                buildQuery(request, schemas.controller.findOptions)
             );
             const prefs = user(request).preferences;
             const blocked = flatten([
@@ -43,6 +39,9 @@ export default {
             prePopulate(Notifications, 'id'),
             onlyOwner(Notifications)
         ],
-        handler: buildUpdateHandler(Notifications, schemas.dao.updateMethod.method)
+        handler: buildUpdateHandler(Notifications, schemas.dao.updateMethod.method),
+        post: [
+            i18n()
+        ]
     }
 };

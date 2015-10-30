@@ -23,6 +23,7 @@ describe('Session', () => {
             .then((newUser) => {
                 newUser.loginSuccess('test', 'test').save();
                 done();
+                return null;
             })
             .catch((err) => {
                 done(err);
@@ -47,10 +48,12 @@ describe('Session', () => {
                         }
                     };
                     return server.injectThen(request);
-                }).then((response) => {
+                })
+                .then((response) => {
                     expect(response.statusCode).to.equal(429);
                     tu.cleanupAuthAttempts();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -180,6 +183,7 @@ describe('Session', () => {
                 .then((foundUser) => {
                     foundUser.loginSuccess('127.0.0.1', 'test').save();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -205,6 +209,7 @@ describe('Session', () => {
                     expect(foundUser.session.length).to.equal(0);
                     foundUser.loginSuccess('127.0.0.1', 'test').save();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);

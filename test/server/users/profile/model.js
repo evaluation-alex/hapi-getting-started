@@ -21,6 +21,7 @@ describe('Profile DAO', () => {
                 .then((p) => {
                     testpref = p;
                     testpref.profile.firstName = 'ksheth';
+                    testpref.__isModified = true;
                     return testpref.save();
                 })
                 .then(() => {
@@ -77,6 +78,7 @@ describe('Profile DAO', () => {
                 .then((p) => {
                     testpref = p;
                     testpref.profile.lastName = 'seth';
+                    testpref.__isModified = true;
                     return testpref.save();
                 })
                 .then(() => {
@@ -133,6 +135,7 @@ describe('Profile DAO', () => {
                 .then((p) => {
                     testpref = p;
                     testpref.profile.preferredName = 'kumar';
+                    testpref.__isModified = true;
                     return testpref.save();
                 })
                 .then(() => {
@@ -178,6 +181,177 @@ describe('Profile DAO', () => {
         });
         after((done) => {
             usersToClear.push('setProfilePreferredName');
+            done();
+        });
+    });
+    describe('Profile.this.setFacebook', () => {
+        let testpref = null;
+        before((done) => {
+            //email, organisation, locale, by
+            Users.create('setProfileFacebook', 'silver lining', 'password', 'hi')
+                .then((p) => {
+                    testpref = p;
+                    testpref.profile.facebook = {fbid: 1, graph: 'whatever'};
+                    testpref.__isModified = true;
+                    return testpref.save();
+                })
+                .then(() => {
+                    done();
+                });
+        });
+        it('should do nothing if there is no change in the facebook profile', (done) => {
+            let error = null;
+            testpref.setProfileFacebook(testpref.profile.facebook, 'test').save()
+                .then((p) => {
+                    expect(p.profile.facebook).to.deep.equal({fbid: 1, graph: 'whatever'});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^profile\.facebook/}});
+                })
+                .then((paudit) => {
+                    expect(paudit.length).to.equal(0);
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist;
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should update to the new facebook profile', (done) => {
+            let error = null;
+            testpref.setProfileFacebook({fbid: 1, graph: 'whatever2'}, 'test').save()
+                .then((p) => {
+                    expect(p.profile.facebook).to.deep.equal({fbid: 1, graph: 'whatever2'});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^profile\.facebook/}});
+                })
+                .then((paudit) => {
+                    expect(paudit.length).to.equal(1);
+                    expect(paudit[0].change[0].newValues).to.deep.equal({fbid: 1, graph: 'whatever2'});
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist;
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        after((done) => {
+            usersToClear.push('setProfileFacebook');
+            done();
+        });
+    });
+    describe('Profile.this.setGoogle', () => {
+        let testpref = null;
+        before((done) => {
+            //email, organisation, locale, by
+            Users.create('setProfileGoogle', 'silver lining', 'password', 'hi')
+                .then((p) => {
+                    testpref = p;
+                    testpref.profile.google = {gid: 1, graph: 'whatever'};
+                    testpref.__isModified = true;
+                    return testpref.save();
+                })
+                .then(() => {
+                    done();
+                });
+        });
+        it('should do nothing if there is no change in the facebook profile', (done) => {
+            let error = null;
+            testpref.setProfileGoogle(testpref.profile.google, 'test').save()
+                .then((p) => {
+                    expect(p.profile.google).to.deep.equal({gid: 1, graph: 'whatever'});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^profile\.google/}});
+                })
+                .then((paudit) => {
+                    expect(paudit.length).to.equal(0);
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist;
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should update to the new google profile', (done) => {
+            let error = null;
+            testpref.setProfileGoogle({gid: 1, graph: 'whatever2'}, 'test').save()
+                .then((p) => {
+                    expect(p.profile.google).to.deep.equal({gid: 1, graph: 'whatever2'});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^profile\.google/}});
+                })
+                .then((paudit) => {
+                    expect(paudit.length).to.equal(1);
+                    expect(paudit[0].change[0].newValues).to.deep.equal({gid: 1, graph: 'whatever2'});
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist;
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        after((done) => {
+            usersToClear.push('setProfileGoogle');
+            done();
+        });
+    });
+    describe('Profile.this.setTwitter', () => {
+        let testpref = null;
+        before((done) => {
+            //email, organisation, locale, by
+            Users.create('setProfileTwitter', 'silver lining', 'password', 'hi')
+                .then((p) => {
+                    testpref = p;
+                    testpref.profile.twitter = {tid: 1, followers: 'whatever'};
+                    testpref.__isModified = true;
+                    return testpref.save();
+                })
+                .then(() => {
+                    done();
+                });
+        });
+        it('should do nothing if there is no change in the twitter profile', (done) => {
+            let error = null;
+            testpref.setProfileTwitter(testpref.profile.twitter, 'test').save()
+                .then((p) => {
+                    expect(p.profile.twitter).to.deep.equal({tid: 1, followers: 'whatever'});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^profile\.twitter/}});
+                })
+                .then((paudit) => {
+                    expect(paudit.length).to.equal(0);
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist;
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should update to the new twitter profile', (done) => {
+            let error = null;
+            testpref.setProfileTwitter({tid: 1, followers: 'whatever2'}, 'test').save()
+                .then((p) => {
+                    expect(p.profile.twitter).to.deep.equal({tid: 1, followers: 'whatever2'});
+                    return Audit.findAudit('users', p.email, {'change.action': {$regex: /^profile\.twitter/}});
+                })
+                .then((paudit) => {
+                    expect(paudit.length).to.equal(1);
+                    expect(paudit[0].change[0].newValues).to.deep.equal({tid: 1, followers: 'whatever2'});
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist;
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        after((done) => {
+            usersToClear.push('setProfileTwitter');
             done();
         });
     });

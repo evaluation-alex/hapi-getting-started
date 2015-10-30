@@ -75,6 +75,7 @@ describe('Preferences DAO', () => {
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.blogs.inapp.frequency = 'daily';
+                    testpref.__isModified = true;
                     return testpref.save();
                 })
                 .then(() => {
@@ -131,6 +132,7 @@ describe('Preferences DAO', () => {
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.blogs.inapp.lastSent = new Date(2015, 2, 23, 0, 0, 0, 0);
+                    testpref.__isModified = true;
                     return testpref.save();
                 })
                 .then(() => {
@@ -184,6 +186,7 @@ describe('Preferences DAO', () => {
             Users.create('addNotificationsBlogsBlocked1', 'silver lining', 'password', 'en')
                 .then((p1) => {
                     p1.preferences.notifications.blogs.blocked.push('blocked1');
+                    p1.__isModified = true;
                     return p1.save();
                 })
                 .then(() => {
@@ -191,6 +194,7 @@ describe('Preferences DAO', () => {
                 })
                 .then((p2) => {
                     p2.preferences.notifications.blogs.blocked.push('blocked1');
+                    p2.__isModified = true;
                     return p2.save();
                 })
                 .then(() => {
@@ -256,6 +260,7 @@ describe('Preferences DAO', () => {
             Users.create('removeNotificationsBlogsBlocked', 'silver lining', 'password', 'en')
                 .then((p) => {
                     p.preferences.notifications.blogs.blocked.push('toBeRemoved');
+                    p.__isModified = true;
                     return p.save();
                 })
                 .then(() => {
@@ -323,6 +328,7 @@ describe('Preferences DAO', () => {
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.posts.inapp.frequency = 'daily';
+                    testpref.__isModified = true;
                     return testpref.save();
                 })
                 .then(() => {
@@ -379,6 +385,7 @@ describe('Preferences DAO', () => {
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.posts.inapp.lastSent = new Date(2015, 2, 23, 0, 0, 0, 0);
+                    testpref.__isModified = true;
                     return testpref.save();
                 })
                 .then(() => {
@@ -432,6 +439,7 @@ describe('Preferences DAO', () => {
             Users.create('addNotificationsPostsBlocked1', 'silver lining', 'password', 'en')
                 .then((p1) => {
                     p1.preferences.notifications.posts.blocked.push('blocked1');
+                    p1.__isModified = true;
                     return p1.save();
                 })
                 .then(() => {
@@ -439,6 +447,7 @@ describe('Preferences DAO', () => {
                 })
                 .then((p2) => {
                     p2.preferences.notifications.posts.blocked.push('blocked1');
+                    p2.__isModified = true;
                     return p2.save();
                 })
                 .then(() => {
@@ -504,6 +513,7 @@ describe('Preferences DAO', () => {
             Users.create('removeNotificationsPostsBlocked', 'silver lining', 'password', 'en')
                 .then((p) => {
                     p.preferences.notifications.posts.blocked.push('toBeRemoved');
+                    p.__isModified = true;
                     return p.save();
                 })
                 .then(() => {
@@ -571,6 +581,7 @@ describe('Preferences DAO', () => {
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.userGroups.inapp.frequency = 'daily';
+                    testpref.__isModified = true;
                     return testpref.save();
                 })
                 .then(() => {
@@ -597,6 +608,7 @@ describe('Preferences DAO', () => {
         });
         it('should update to the new Inapp frequency', (done) => {
             let error = null;
+            testpref.__isModified = true;
             testpref.setPreferencesNotificationsUserGroupsInappFrequency('immediate', 'test').save()
                 .then((p) => {
                     expect(p.preferences.notifications.userGroups.inapp.frequency).to.equal('immediate');
@@ -627,6 +639,7 @@ describe('Preferences DAO', () => {
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.userGroups.inapp.lastSent = new Date(2015, 2, 23, 0, 0, 0, 0);
+                    testpref.__isModified = true;
                     return testpref.save();
                 })
                 .then(() => {
@@ -680,6 +693,7 @@ describe('Preferences DAO', () => {
             Users.create('addNotificationsUserGroupsBlocked1', 'silver lining', 'password', 'hi')
                 .then((p1) => {
                     p1.preferences.notifications.userGroups.blocked.push('blocked1');
+                    p1.__isModified = true;
                     return p1.save();
                 })
                 .then(() => {
@@ -687,6 +701,7 @@ describe('Preferences DAO', () => {
                 })
                 .then((p2) => {
                     p2.preferences.notifications.userGroups.blocked.push('blocked1');
+                    p2.__isModified = true;
                     return p2.save();
                 })
                 .then(() => {
@@ -752,6 +767,7 @@ describe('Preferences DAO', () => {
             Users.create('removeNotificationsUserGroupsBlocked', 'silver lining', 'password', 'en')
                 .then((p) => {
                     p.preferences.notifications.userGroups.blocked.push('toBeRemoved');
+                    p.__isModified = true;
                     return p.save();
                 })
                 .then(() => {

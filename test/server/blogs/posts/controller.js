@@ -55,7 +55,9 @@ describe('Posts', () => {
                     let pubDt = new Date();
                     pubDt.setFullYear(2015, 1, 14);
                     p3.publishedOn = pubDt;
+                    p3.__isModified = true;
                     p2.isActive = false;
+                    p2.__isModified = true;
                     return Bluebird.join(p1.save(), p2.save(), p3.save(), () => {
                         done();
                     });
@@ -471,10 +473,12 @@ describe('Posts', () => {
                     expect(foundAudit).to.exist;
                     expect(foundAudit.length).to.equal(1);
                     expect(foundAudit[0].change[0].action).to.match(/isActive/);
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -504,10 +508,12 @@ describe('Posts', () => {
                     expect(foundAudit).to.exist;
                     expect(foundAudit.length).to.equal(1);
                     expect(foundAudit[0].change[0].action).to.match(/isActive/);
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -539,10 +545,12 @@ describe('Posts', () => {
                     expect(foundAudit.length).to.equal(1);
                     expect(foundAudit[0].change[0].action).to.match(/remove/);
                     expect(foundAudit[0].change[1].action).to.match(/add/);
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -572,10 +580,12 @@ describe('Posts', () => {
                     expect(foundAudit).to.exist;
                     expect(foundAudit.length).to.equal(1);
                     expect(foundAudit[0].change[0].action).to.match(/content/);
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -611,11 +621,14 @@ describe('Posts', () => {
                     expect(foundAudit[0].change[0].action).to.match(/access/);
                     expect(foundAudit[0].change[1].action).to.match(/allowComments/);
                     expect(foundAudit[0].change[2].action).to.match(/needsReview/);
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     done();
-                }).catch((err) => {
+                    return null;
+                })
+                .catch((err) => {
                     done(err);
                 });
         });
@@ -623,6 +636,7 @@ describe('Posts', () => {
             Posts.findOne({_id: Posts.ObjectID(postId)})
                 .then((post) => {
                     post.state = 'archived';
+                    post.__isModified = true;
                     return post.save();
                 })
                 .then(() => {
@@ -698,9 +712,11 @@ describe('Posts', () => {
                     expect(foundAudit).to.exist;
                     expect(foundAudit.length).to.equal(1);
                     expect(foundAudit[0].change[0].action).to.equal('state');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
+                    return null;
                 })
                 .then(() => {
                     //because the events from the controller may not be complete
@@ -719,6 +735,7 @@ describe('Posts', () => {
                 .then((count) => {
                     expect(count).to.equal(3);
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -754,9 +771,11 @@ describe('Posts', () => {
                     expect(foundAudit).to.exist;
                     expect(foundAudit.length).to.equal(1);
                     expect(foundAudit[0].change[0].action).to.equal('state');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
+                    return null;
                 })
                 .then(() => {
                     //because the events from the controller may not be complete
@@ -775,6 +794,7 @@ describe('Posts', () => {
                 .then((count) => {
                     expect(count).to.equal(3);
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -809,10 +829,12 @@ describe('Posts', () => {
                 })
                 .then((found) => {
                     expect(found[0].state).to.equal('draft');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -847,9 +869,11 @@ describe('Posts', () => {
                 })
                 .then((found) => {
                     expect(found[0].state).to.equal('pending review');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
+                    return null;
                 })
                 .then(() => {
                     //because the events from the controller may not be complete
@@ -868,6 +892,7 @@ describe('Posts', () => {
                 .then((count) => {
                     expect(count).to.equal(1);
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -902,9 +927,11 @@ describe('Posts', () => {
                 })
                 .then((found) => {
                     expect(found[0].state).to.equal('published');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
+                    return null;
                 })
                 .then(() => {
                     //because the events from the controller may not be complete
@@ -923,6 +950,7 @@ describe('Posts', () => {
                 .then((count) => {
                     expect(count).to.equal(3);
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -957,11 +985,14 @@ describe('Posts', () => {
                 })
                 .then((found) => {
                     expect(found[0].state).to.equal('archived');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     done();
-                }).catch((err) => {
+                    return null;
+                })
+                .catch((err) => {
                     done(err);
                 });
         });
@@ -1019,9 +1050,11 @@ describe('Posts', () => {
                 })
                 .then((found) => {
                     expect(found[0].state).to.equal('do not publish');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
+                    return null;
                 })
                 .then(() => {
                     return Notifications.find({
@@ -1040,6 +1073,7 @@ describe('Posts', () => {
                 .then((count) => {
                     expect(count).to.equal(4);//because there is one notification to the author for the rejection as well
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -1074,10 +1108,12 @@ describe('Posts', () => {
                 })
                 .then((found) => {
                     expect(found[0].state).to.equal('draft');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -1116,10 +1152,12 @@ describe('Posts', () => {
                 })
                 .then((found) => {
                     expect(found[0].state).to.equal('published');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     done(err);
@@ -1247,11 +1285,13 @@ describe('Posts', () => {
                     expect(found.length).to.equal(1);
                     expect(found[0].state).to.equal('published');
                     expect(found[0].content).to.equal('something. anything will do.');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     done();
                     postsToClear.push('test POST needsReview and publish');
+                    return null;
                 }).catch((err) => {
                     postsToClear.push('test POST needsReview and publish');
                     done(err);
@@ -1291,11 +1331,13 @@ describe('Posts', () => {
                     expect(found.length).to.equal(1);
                     expect(found[0].content).to.equal('something. anything will do.');
                     expect(found[0].state).to.equal('pending review');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     postsToClear.push('test POST needsReview and pending review');
                     done();
+                    return null;
                 }).catch((err) => {
                     postsToClear.push('test POST needsReview and pending review');
                     done(err);
@@ -1335,11 +1377,13 @@ describe('Posts', () => {
                     expect(found.length).to.equal(1);
                     expect(found[0].content).to.equal('something. anything will do.');
                     expect(found[0].state).to.equal('draft');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     postsToClear.push('test POST draft');
                     done();
+                    return null;
                 }).catch((err) => {
                     postsToClear.push('test POST draft');
                     done(err);
@@ -1381,12 +1425,15 @@ describe('Posts', () => {
                     expect(found.length).to.equal(1);
                     expect(found[0].content).to.equal('something. anything will do.');
                     expect(found[0].state).to.equal('published');
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     postsToClear.push('test POST needsReview, owner and published');
                     done();
-                }).catch((err) => {
+                    return null;
+                })
+                .catch((err) => {
                     postsToClear.push('test POST needsReview, owner and published');
                     done(err);
                 });
@@ -1425,12 +1472,15 @@ describe('Posts', () => {
                     expect(found[0].needsReview).to.equal(true);
                     expect(found[0].access).to.equal('restricted');
                     expect(found[0].allowComments).to.equal(false);
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     postsToClear.push('test POST needsReview, access, allowComments');
                     done();
-                }).catch((err) => {
+                    return null;
+                })
+                .catch((err) => {
                     postsToClear.push('test POST needsReview, access, allowComments');
                     done(err);
                 });
@@ -1529,12 +1579,14 @@ describe('Posts', () => {
                 .then((a) => {
                     expect(a).to.exist;
                     expect(a[0].change[0].action).to.match(/isActive/);
+                    return null;
                 })
                 .then(() => {
                     tu.cleanupAudit();
                     blogsToClear.push('testDelPost');
                     postsToClear.push('success DELETE /blogs/{blogId}/posts/{id}');
                     done();
+                    return null;
                 })
                 .catch((err) => {
                     blogsToClear.push('testDelPost');

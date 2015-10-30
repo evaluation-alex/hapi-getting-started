@@ -22,10 +22,11 @@ export function sendNotifications(Model, notifyCb) {
                                 args.description,
                                 by(request));
                         }
-                        return undefined;
+                        return null;
                     })
                     .then(() => {
                         reply.continue();
+                        return null;
                     })
                     .catch(errback);
             } else {
@@ -50,12 +51,10 @@ export function cancelNotifications(Model, action, cancelCb) {
                     state: 'unread',
                     action: action
                 })
-                    .then(notifications => Bluebird.settle(
-                        notifications.map(notification => cancel(target, request, notification))
-                    )
-                )
+                    .then(notifications => notifications.map(notification => cancel(target, request, notification)).map(p => p.reflect()))
                     .then(() => {
                         reply.continue();
+                        return null;
                     })
                     .catch(errback);
             } else {
@@ -70,6 +69,7 @@ export function i18n() {
             if (!request.response.isBoom) {
                 const lcl = locale(request);
                 const obj = request.response.source;
+                /*istanbul ignore else*/
                 if (obj) {
                     if (hasItems(obj.data)) {
                         obj.data.forEach(d => d.i18n(lcl));

@@ -40,7 +40,7 @@ class Users {
         return this;
     }
 
-    stripPrivateData() {
+    populate() {
         return {
             email: this.email
         };

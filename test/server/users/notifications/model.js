@@ -180,6 +180,7 @@ describe('Notifications DAO', () => {
                     let localised = notification.i18n('en');
                     expect(localised.content).to.equal('New Post test post in Blog test blog published by test author');
                     expect(localised.title).to.equal('titles dont matter');
+                    return null;
                 })
                 .catch((err) => {
                     expect(err).to.not.exist;
@@ -193,7 +194,8 @@ describe('Notifications DAO', () => {
     after((done) => {
         Notifications.remove({title: 'titles dont matter'})
             .then(() => {
-                return tu.cleanup({}, done);
+                tu.cleanup({}, done);
+                return null;
             });
     });
 });

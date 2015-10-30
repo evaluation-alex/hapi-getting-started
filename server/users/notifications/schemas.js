@@ -13,8 +13,7 @@ export default {
             props: [
                 'state',
                 'isActive'
-            ],
-            arrProps: []
+            ]
         },
         saveAudit: true,
         i18n: ['title', 'content'],
@@ -47,6 +46,10 @@ export default {
                 createdOnAfter: Joi.date().format('YYYY-MM-DD'),
                 isActive: Joi.string()
             }
+        },
+        findOptions: {
+            forPartial: [['state', 'state'], ['objectType', 'objectType']],
+            forDateRange: 'createdOn'
         },
         update: {
             payload: {

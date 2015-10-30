@@ -30,6 +30,7 @@ describe('Blogs DAO', () => {
                     expect(paudit).to.exist;
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0]).to.be.instanceof(Audit);
+                    return null;
                 })
                 .catch((err) => {
                     expect(err).to.not.exist;
@@ -46,9 +47,10 @@ describe('Blogs DAO', () => {
                 .then((p) => {
                     expect(p).to.exist;
                     expect(p).to.be.an.instanceof(Blogs);
+                    return null;
                 })
                 .then(() => {
-                    Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
+                    return Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
                         .then((p) => {
                             expect(p).to.not.exist;
                         })

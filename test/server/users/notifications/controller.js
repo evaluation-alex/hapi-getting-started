@@ -35,7 +35,9 @@ describe('Notifications', () => {
             let n3 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abcd1234', 'titles dont matter', 'cancelled', 'fyi', 'low', 'content is useful', 'root');
             Bluebird.join(n1, n2, n3, (n11, n21, n31) => {
                 n31[0].deactivate('test');
+                n31[0].__isModified = true;
                 n21[0].createdOn.setFullYear(2015, 1, 14);
+                n21[0].__isModified = true;
                 return Bluebird.join(n21[0].save(), n31[0].save(), (n211, n311) => {
                     return [n211, n311];
                 });
@@ -179,6 +181,7 @@ describe('Notifications', () => {
                 .then((u) => {
                     authHeader = u.authheader;
                     u.user.preferences.notifications.userGroups.blocked.push('abc123');
+                    u.user.__isModified = true;
                     return u.user.save();
                 })
                 .then(() => {
@@ -314,6 +317,7 @@ describe('Notifications', () => {
             .then((audit) => {
                 expect(audit.length).to.equal(1);
                 done();
+                return null;
             })
             .catch((err) => {
                 done(err);
@@ -322,7 +326,8 @@ describe('Notifications', () => {
     after((done) => {
         Notifications.remove({title: 'titles dont matter'})
             .then(() => {
-                return tu.cleanup({}, done);
+                tu.cleanup({}, done);
+                return null;
             });
     });
 });

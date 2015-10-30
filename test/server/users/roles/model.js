@@ -131,6 +131,7 @@ describe('Roles DAO', () => {
         tu.cleanupRoles(rolesToClear)
             .then(() => {
                 tu.cleanup({}, done);
+                return null;
             })
             .done();
     });

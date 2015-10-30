@@ -13,26 +13,24 @@ export default {
         handler(request, reply) {
             const {email, password} = request.payload;
             const ipadrs = ip(request);
-            reply(
-                Users.findByCredentials(email, password)
+            Users.findByCredentials(email, password)
                 .then(user => user.loginSuccess(ipadrs, user.email).save())
                 .then(user => user.afterLogin(ipadrs))
                 .catch(err => {
                     AuthAttempts.create(ipadrs, email);
                     return logAndBoom(err);
                 })
-            );
+                .then(reply);
         }
     },
     logout: {
         handler(request, reply) {
             let user = request.auth.credentials.user;
-            reply(
-                user.logout(ip(request), user.email).save()
+            user.logout(ip(request), user.email).save()
                 .then(() => {
                     return {message: 'Success.'};
                 })
-            );
+                .then(reply);
         }
     }
 };

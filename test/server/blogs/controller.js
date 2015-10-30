@@ -36,8 +36,10 @@ describe('Blogs', () => {
                 })
                 .then((p) => {
                     p.isActive = false;
+                    p.__isModified = true;
                     p.save();
                     done();
+                    return null;
                 });
         });
         it('should give blogs when isactive = true is sent', (done) => {
@@ -278,8 +280,11 @@ describe('Blogs', () => {
             Blogs.create('test PUT /blogs isActive=true', 'silver lining', 'test PUT /blogs isActive=true', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     p.isActive = false;
-                    p.save();
+                    p.__isModified = true;
                     id = p._id.toString();
+                    return p.save();
+                })
+                .then(() => {
                     let request = {
                         method: 'PUT',
                         url: '/blogs/' + id,

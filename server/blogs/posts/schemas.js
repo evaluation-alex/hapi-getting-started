@@ -86,6 +86,11 @@ export default {
                 state: Joi.string()
             }
         },
+        findOptions: {
+            forPartial: [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']],
+            forDateRange: 'publishedOn',
+            forID: [['blogId', 'blogId']]
+        },
         update: {
             payload: {
                 blogId: Joi.string(),

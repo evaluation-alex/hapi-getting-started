@@ -102,6 +102,7 @@ describe('UserGroups DAO', () => {
             UserGroups.create('addUsersTest1', 'silver lining', 'UserGroups.this.addMemberAlreadyPresent', 'test3')
                 .then((ug) => {
                     ug.members.push('alreadyMember');
+                    ug.__isModified = true;
                     return ug.save();
                 })
                 .then((ug) => {
@@ -113,6 +114,7 @@ describe('UserGroups DAO', () => {
                 })
                 .then((ugaudit) => {
                     expect(ugaudit.length).to.equal(0);
+                    return null;
                 })
                 .catch((err) => {
                     expect(err).to.not.exist;
@@ -128,6 +130,7 @@ describe('UserGroups DAO', () => {
             UserGroups.create('addUsersTest2', 'silver lining', 'UserGroups.this.addOwnerAlreadyPresent', 'test3')
                 .then((ug) => {
                     ug.owners.push('alreadyOwner');
+                    ug.__isModified = true;
                     return ug.save();
                 })
                 .then((ug) => {
@@ -272,6 +275,7 @@ describe('UserGroups DAO', () => {
             UserGroups.create('removeUsersTest1', 'silver lining', 'UserGroups.this.removeMemberNotPresent', 'test4')
                 .then((ug) => {
                     ug.owners.push('notMemberButOwner');
+                    ug.__isModified = true;
                     return ug.save();
                 })
                 .then((ug) => {
@@ -301,6 +305,7 @@ describe('UserGroups DAO', () => {
             UserGroups.create('removeUsersTest2', 'silver lining', 'UserGroups.this.removeOwnerNotPresent', 'test4')
                 .then((ug) => {
                     ug.members.push('notOwnerButMember');
+                    ug.__isModified = true;
                     return ug.save();
                 })
                 .then((ug) => {
@@ -355,6 +360,7 @@ describe('UserGroups DAO', () => {
             UserGroups.create('removeUsersTest4.0', 'silver lining', 'UserGroups.this.removeOwner', 'test4')
                 .then((ug) => {
                     ug.owners.push('owners');
+                    ug.__isModified = true;
                     return ug.save();
                 })
                 .then((ug) => {
@@ -386,6 +392,7 @@ describe('UserGroups DAO', () => {
             UserGroups.create('removeUsersTest5.0', 'silver lining', 'UserGroups.this.removeMember', 'test4')
                 .then((ug) => {
                     ug.members.push('members');
+                    ug.__isModified = true;
                     return ug.save();
                 })
                 .then((ug) => {
@@ -432,6 +439,7 @@ describe('UserGroups DAO', () => {
                 })
                 .then((ug) => {
                     ug.isActive = false;
+                    ug.__isModified = true;
                     return ug.save();
                 })
                 .then((ug) => {
@@ -473,6 +481,7 @@ describe('UserGroups DAO', () => {
                 })
                 .then((ug) => {
                     ug.isActive = false;
+                    ug.__isModified = true;
                     return ug.save();
                 })
                 .then((ug) => {

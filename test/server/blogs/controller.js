@@ -21,12 +21,7 @@ describe('Blogs', () => {
                 rootAuthHeader = res.authheader;
                 done();
             })
-            .catch((err) => {
-                if (err) {
-                    done(err);
-                }
-            })
-            .done();
+            .catch(done);
     });
     describe('GET /blogs', () => {
         before((done) => {
@@ -37,9 +32,8 @@ describe('Blogs', () => {
                 .then((p) => {
                     p.isActive = false;
                     p.__isModified = true;
-                    p.save();
                     done();
-                    return null;
+                    return p.save();
                 });
         });
         it('should give blogs when isactive = true is sent', (done) => {
@@ -58,9 +52,8 @@ describe('Blogs', () => {
                         expect(d.isActive).to.be.true;
                     });
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                })
+                .catch(done);
         });
         it('should give inactive blogs when isactive = false is sent', (done) => {
             let request = {
@@ -78,9 +71,8 @@ describe('Blogs', () => {
                         expect(d.isActive).to.be.false;
                     });
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                })
+                .catch(done);
         });
         it('should give the blogs where the user sent is a member of the owners list', (done) => {
             let request = {
@@ -103,9 +95,8 @@ describe('Blogs', () => {
                         expect(match).to.be.true;
                     });
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                })
+                .catch(done);
         });
         it('should return both inactive and active blogs when nothing is sent', (done) => {
             let request = {
@@ -119,9 +110,8 @@ describe('Blogs', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(200);
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                })
+                .catch(done);
         });
         after((done) => {
             blogsToClear.push('test GET /blogs is active');
@@ -151,9 +141,8 @@ describe('Blogs', () => {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.match(/blog/);
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                })
+                .catch(done);
         });
         it('should send back not found when the blog with the id in params is not found', (done) => {
             let request = {
@@ -167,9 +156,8 @@ describe('Blogs', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(404);
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                })
+                .catch(done);
         });
         after((done) => {
             blogsToClear.push('test GET /blogs/id');
@@ -190,9 +178,8 @@ describe('Blogs', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(404);
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                })
+                .catch(done);
         });
         it('should send back error if any of the users to be added are not valid', (done) => {
             Blogs.create('test PUT /blogs invalidusers', 'silver lining', 'test PUT /blogs invalidusers', [], [], [], [], false, 'public', true, 'test')
@@ -215,7 +202,8 @@ describe('Blogs', () => {
                     expect(response.payload).to.match(/bogus/);
                     blogsToClear.push('test PUT /blogs invalidusers');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('test PUT /blogs invalidusers');
                     done(err);
                 });
@@ -241,7 +229,8 @@ describe('Blogs', () => {
                     expect(response.payload).to.match(/bogus/);
                     blogsToClear.push('test PUT /blogs invalidgroups');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('test PUT /blogs invalidgroups');
                     done(err);
                 });
@@ -270,7 +259,8 @@ describe('Blogs', () => {
                     expect(response.statusCode).to.equal(401);
                     blogsToClear.push('testPutBlogNotOwner');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('testPutBlogNotOwner');
                     done(err);
                 });
@@ -431,7 +421,8 @@ describe('Blogs', () => {
                     expect(foundAudit[0].change[0].action).to.match(/remove/);
                     blogsToClear.push('test PUT /blogs remove subscribers and sub groups');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('test PUT /blogs remove subscribers and sub groups');
                     done(err);
                 });
@@ -536,7 +527,8 @@ describe('Blogs', () => {
                     blogsToClear.push('test PUT /blogs update desc');
                     blogsToClear.push('updated');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('test PUT /blogs update desc');
                     blogsToClear.push('updated');
                     done(err);
@@ -573,7 +565,8 @@ describe('Blogs', () => {
                     expect(foundAudit[0].change[0].action).to.match(/access/);
                     blogsToClear.push('test PUT /blogs access');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('test PUT /blogs update access');
                     done(err);
                 });
@@ -646,7 +639,8 @@ describe('Blogs', () => {
                     expect(foundAudit[0].change[0].action).to.match(/allowComments/);
                     blogsToClear.push('test PUT /blogs allowComments');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('test PUT /blogs allowComments');
                     done(err);
                 });
@@ -667,7 +661,8 @@ describe('Blogs', () => {
                     expect(response.statusCode).to.equal(404);
                     blogsToClear.push('testBlogsPutSubscribeNotFound');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('testBlogsPutSubscribeNotFound');
                     done(err);
                 });
@@ -800,7 +795,8 @@ describe('Blogs', () => {
                     expect(response.statusCode).to.equal(404);
                     blogsToClear.push('testBlogsPutUnSubscribeNotFound');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('testBlogsPutUnSubscribeNotFound');
                     done(err);
                 });
@@ -935,7 +931,8 @@ describe('Blogs', () => {
                     expect(response.statusCode).to.equal(422);
                     blogsToClear.push('testBlogUserExistPUTApprove');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('testBlogUserExistPUTApprove');
                     done(err);
                 });
@@ -1042,7 +1039,8 @@ describe('Blogs', () => {
                     expect(foundAudit.length).to.equal(0);
                     blogsToClear.push('testBlogPutApproveAddUserEmpty');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('testBlogPutApproveAddUserEmpty');
                     done(err);
                 });
@@ -1314,7 +1312,8 @@ describe('Blogs', () => {
                     expect(response.statusCode).to.equal(409);
                     blogsToClear.push('test POST /blogs dupe');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('test POST /blogs dupe');
                     done(err);
                 });
@@ -1411,7 +1410,8 @@ describe('Blogs', () => {
                     groupsToClear.push('test post /blogs');
                     blogsToClear.push('test post /blogs success');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     groupsToClear.push('test post /blogs');
                     blogsToClear.push('test post /blogs success');
                     done(err);
@@ -1432,9 +1432,7 @@ describe('Blogs', () => {
                     expect(response.statusCode).to.equal(404);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should send back forbidden error when you try to delete a blog you are not an owner of', (done) => {
             let id = '';
@@ -1491,7 +1489,8 @@ describe('Blogs', () => {
                     expect(a[0].change[0].action).to.match(/isActive/);
                     blogsToClear.push('test DELETE /blogs/id');
                     done();
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     blogsToClear.push('test DELETE /blogs/id');
                     done(err);
                 });

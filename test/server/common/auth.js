@@ -27,12 +27,7 @@ describe('Auth', () => {
             .then(() => {
                 done();
             })
-            .catch((err) => {
-                if (err) {
-                    done(err);
-                }
-            })
-            .done();
+            .catch(done);
     });
     it('returns authentication credentials when correct authorization header is sent in the request', (done) => {
         let request = {
@@ -59,9 +54,7 @@ describe('Auth', () => {
             .then(() => {
                 done();
             })
-            .catch((err) => {
-                done(err);
-            });
+            .catch(done);
     });
     it('returns an error when the session is not found', (done) => {
         let request = {
@@ -86,9 +79,7 @@ describe('Auth', () => {
             .then(() => {
                 done();
             })
-            .catch((err) => {
-                done(err);
-            });
+            .catch(done);
     });
     it('returns an error when the user is not found', (done) => {
         let request = {
@@ -113,9 +104,7 @@ describe('Auth', () => {
             .then(() => {
                 done();
             })
-            .catch((err) => {
-                done(err);
-            });
+            .catch(done);
     });
     it('returns an error when user has already logged out', (done) => {
         server.route({
@@ -146,9 +135,7 @@ describe('Auth', () => {
             .then(() => {
                 done();
             })
-            .catch((err) => {
-                done(err);
-            });
+            .catch(done);
     });
     it('returns a session expired when the session has expired', (done) => {
         server.route({
@@ -181,9 +168,8 @@ describe('Auth', () => {
             })
             .then(() => {
                 done();
-            }).catch((err) => {
-                done(err);
-            });
+            })
+            .catch(done);
     });
     it('does adequate error handling and logging when errors occur', (done) => {
         let request = {

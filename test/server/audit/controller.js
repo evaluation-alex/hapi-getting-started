@@ -15,12 +15,7 @@ describe('Audit', () => {
                 authheader = res.authheader;
                 done();
             })
-            .catch((err) => {
-                if (err) {
-                    done(err);
-                }
-            })
-            .done();
+            .catch(done);
     });
     describe('GET /audit', () => {
         describe('users', () => {
@@ -36,18 +31,18 @@ describe('Audit', () => {
                         return newUser2.loginSuccess('test', 'test').save();
                     })
                     .then((newUser2) => {
-                        newUser2.deactivate('test').save();
+                        return newUser2.deactivate('test').save();
+                    })
+                    .then(() => {
                         emails.push('test.users2@test.api');
                         emails.push('test.users@test.api');
                         done();
-                        return null;
                     })
                     .catch((err) => {
                         emails.push('test.users2@test.api');
                         emails.push('test.users@test.api');
                         done(err);
-                    })
-                    .done();
+                    });
             });
             it('should give audit of only the user whose email is sent in the parameter', (done) => {
                 let request = {
@@ -63,9 +58,8 @@ describe('Audit', () => {
                     expect(response.payload).to.contain('test.users2@test.api');
                     expect(response.payload).to.not.contain('test.users@test.api');
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                })
+                    .catch(done);
             });
             it('should give audit of all changes done by user', (done) => {
                 let request = {
@@ -80,9 +74,8 @@ describe('Audit', () => {
                     expect(response.payload).to.exist;
                     expect(response.payload).to.contain('test');
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                })
+                    .catch(done);
             });
             it('should give audit of all changes', (done) => {
                 let request = {
@@ -96,9 +89,8 @@ describe('Audit', () => {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.exist;
                     done();
-                }).catch((err) => {
-                    done(err);
-                });
+                })
+                    .catch(done);
             });
         });
     });

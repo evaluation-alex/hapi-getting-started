@@ -200,11 +200,7 @@ describe('Preferences DAO', () => {
                 .then(() => {
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should add a new entry to blocked when an item is newly blocked', (done) => {
             let error = null;
@@ -266,11 +262,7 @@ describe('Preferences DAO', () => {
                 .then(() => {
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should do nothing if the item is not present in the blocked list', (done) => {
             let error = null;
@@ -453,11 +445,7 @@ describe('Preferences DAO', () => {
                 .then(() => {
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should add a new entry to blocked when an item is newly blocked', (done) => {
             let error = null;
@@ -519,11 +507,7 @@ describe('Preferences DAO', () => {
                 .then(() => {
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should do nothing if the item is not present in the blocked list', (done) => {
             let error = null;
@@ -707,11 +691,7 @@ describe('Preferences DAO', () => {
                 .then(() => {
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should add a new entry to blocked when an item is newly blocked', (done) => {
             let error = null;
@@ -773,11 +753,7 @@ describe('Preferences DAO', () => {
                 .then(() => {
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should do nothing if the item is not present in the blocked list', (done) => {
             let error = null;
@@ -828,6 +804,6 @@ describe('Preferences DAO', () => {
         });
     });
     after((done) => {
-        tu.cleanup({users: usersToClear}, done);
+        return tu.cleanup({users: usersToClear}, done);
     });
 });

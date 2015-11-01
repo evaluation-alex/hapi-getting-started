@@ -71,11 +71,7 @@ describe('Roles DAO', () => {
                     role = r;
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should return true if you match a specific action, object combination', (done) => {
             try {
@@ -116,11 +112,7 @@ describe('Roles DAO', () => {
                     expect(root[0].hasPermissionsTo('update', '*')).to.be.true;
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         after((done) => {
             rolesToClear.push('hasPermissions');
@@ -128,12 +120,7 @@ describe('Roles DAO', () => {
         });
     });
     after((done) => {
-        tu.cleanupRoles(rolesToClear)
-            .then(() => {
-                tu.cleanup({}, done);
-                return null;
-            })
-            .done();
+        tu.cleanup({roles: rolesToClear}, done);
     });
 })
 ;

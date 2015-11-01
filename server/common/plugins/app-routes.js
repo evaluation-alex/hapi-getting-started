@@ -3,19 +3,21 @@ import path from 'path';
 import {functions} from 'lodash';
 import fs from 'fs';
 function describeRoutes(routes) {
-    routes.forEach(route => {
-        console.log(`${route.method}  ${route.path}`);
-    });
+    return routes.map(route => `${route.method}  ${route.path}`).join('\n');
 }
 function describeModel(model) {
     if (fs.existsSync(model + '.js')) {
         let modl = require(model);
-        console.log(`class: ${modl.name}`);
         const staticMethods = functions(modl).join('\n\t');
-        console.log(`static methods: ${staticMethods}`);
         const protoMethods = functions(modl.prototype).join('\n\t');
-        console.log(`prototype methods: ${protoMethods}`);
+        return `
+class: ${modl.name}
+static methods:
+    ${staticMethods}
+prototype methods:
+    ${protoMethods}`;
     }
+    return '';
 }
 
 export let register = function register(server, options, next) {
@@ -26,8 +28,10 @@ export let register = function register(server, options, next) {
         /*istanbul ignore if*/
         /*istanbul ignore else*/
         if (process.env.NODE_ENV !== 'production') {
-            describeModel(model);
-            describeRoutes(routes);
+            console.log(`
+${describeModel(model)}
+${describeRoutes(routes)}
+`);
         }
         routes.forEach(route => {
             route.path = options.prependRoute + route.path;

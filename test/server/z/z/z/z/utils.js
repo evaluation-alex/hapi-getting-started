@@ -2,7 +2,7 @@
 /*eslint-disable no-unused-expressions*/
 /*eslint-disable no-var*/
 /*jshint -W079*/
-let Bluebird = require('bluebird');
+let Bluebird = require('Bluebird');
 let tu = require('./../../../../testutils');
 let Model = require('./../../../../../../build/common/dao');
 let utils = require('./../../../../../../build/common/utils');
@@ -15,7 +15,10 @@ describe('DAO', () => {
                 server.start(() => {
                     Bluebird.all(
                         ['users', 'user-groups', 'audit', 'roles', 'notifications', 'blogs', 'posts', 'auth-attempts']
-                        .map((c) => Model.db('app').dropCollection(c))
+                        .map((c) => {
+                                return Model.db('app').dropCollection(c);
+                                //return c;
+                            })
                     )
                     .then(() => {
                             utils.dumpTimings();

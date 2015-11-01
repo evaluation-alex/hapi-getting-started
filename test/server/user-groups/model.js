@@ -114,7 +114,6 @@ describe('UserGroups DAO', () => {
                 })
                 .then((ugaudit) => {
                     expect(ugaudit.length).to.equal(0);
-                    return null;
                 })
                 .catch((err) => {
                     expect(err).to.not.exist;

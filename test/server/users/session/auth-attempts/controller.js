@@ -15,12 +15,7 @@ describe('AuthAttempts', () => {
                 authheader = res.authheader;
                 done();
             })
-            .catch((err) => {
-                if (err) {
-                    done(err);
-                }
-            })
-            .done();
+            .catch(done);
     });
     describe('GET /auth-attempts', () => {
         it('should give auth-attempts of only the ip and email sent in the parameters', (done) => {
@@ -41,11 +36,8 @@ describe('AuthAttempts', () => {
                     expect(response.payload).to.contain('test.abuse.find');
                     expect(response.payload).to.contain('127.0.0.2');
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
 
         });
         it('should give all auth-attempts if nothing is passed', (done) => {
@@ -71,11 +63,8 @@ describe('AuthAttempts', () => {
                     expect(response.payload).to.match(/test.abuse/);
                     expect(response.payload).to.contain('127.0.0.2');
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
     });
     after((done) => {

@@ -198,12 +198,10 @@ export default {
                 };
             }),
             cancelNotifications(Blogs, 'approve', (blog, request, notification) => {
-                let modified = false;
                 const updatedBy = by(request);
                 request.payload.addedSubscribers.forEach(a => {
                     /*istanbul ignore else*/
                     if (notification.content.join === a) {
-                        modified = true;
                         notification.setState('cancelled', updatedBy);
                     }
                 });

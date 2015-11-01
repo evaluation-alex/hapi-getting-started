@@ -43,5 +43,8 @@
 	"{{email}} has joined {{title}} and needs your approval": "{{email}} has joined {{title}} and needs your approval",
 	"{{email}} has left {{title}}": "{{email}} has left {{title}}",
 	"UserGroup {{title}} deleted.": "UserGroup {{title}} deleted.",
-	"UserGroup {{title}} deleted by {{updatedBy}}": "UserGroup {{title}} deleted by {{updatedBy}}"
+	"UserGroup {{title}} deleted by {{updatedBy}}": "UserGroup {{title}} deleted by {{updatedBy}}",
+	"UserGroup {{title}} updated by {{updatedBy}}": "UserGroup {{title}} updated by {{updatedBy}}",
+	"UserGroup {{title}} created.": "UserGroup {{title}} created.",
+	"UserGroup {{title}} created and you have been designated owner by {{createdBy}}": "UserGroup {{title}} created and you have been designated owner by {{createdBy}}"
 }

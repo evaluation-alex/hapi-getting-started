@@ -197,12 +197,10 @@ export default {
                 };
             }),
             cancelNotifications(UserGroups, 'approve', (ug, request, notification) => {
-                let modified = false;
                 const updatedBy = by(request);
                 request.payload.addedMembers.forEach(a => {
                     /*istanbul ignore else*/
                     if (notification.content.join === a) {
-                        modified = true;
                         notification.setState('cancelled', updatedBy);
                     }
                 });

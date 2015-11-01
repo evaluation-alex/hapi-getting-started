@@ -48,6 +48,7 @@ module.exports = function () {
                 }, (err) => {
                     err ? reject(err) : resolve(server);
                 });
+                return server;
             });
     });
 };

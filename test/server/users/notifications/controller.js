@@ -19,12 +19,7 @@ describe('Notifications', () => {
                 rootAuthHeader = res.authheader;
                 done();
             })
-            .catch((err) => {
-                if (err) {
-                    done(err);
-                }
-            })
-            .done();
+            .catch(done);
     });
     describe('GET /notifications', () => {
         before((done) => {
@@ -45,9 +40,7 @@ describe('Notifications', () => {
                 .then(() => {
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
             /*jshint unused:true*/
         });
         it('should give active notifications when isactive = true is sent', (done) => {
@@ -67,9 +60,7 @@ describe('Notifications', () => {
                     expect(p.data[1].isActive).to.be.true;
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should give inactive notifications when isactive = false is sent', (done) => {
             let request = {
@@ -87,9 +78,7 @@ describe('Notifications', () => {
                     expect(p.data[0].isActive).to.be.false;
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should give only the notifications whose state is sent in the parameter', (done) => {
             let request = {
@@ -107,9 +96,7 @@ describe('Notifications', () => {
                     expect(p.data[0].objectId).to.match(/abc123/);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should give only the notifications of the user making the query', (done) => {
             let request = {
@@ -129,9 +116,7 @@ describe('Notifications', () => {
                     expect(p.data[2].email).to.match(/root/);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should give all notifications in a given time period', (done) => {
             let request = {
@@ -150,9 +135,7 @@ describe('Notifications', () => {
                     });
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should give all posts in a given time period2', (done) => {
             let request = {
@@ -171,9 +154,7 @@ describe('Notifications', () => {
                     });
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should filter out blocked notifications based on preferences', (done) => {
             let authHeader = '';
@@ -202,9 +183,7 @@ describe('Notifications', () => {
                     });
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
     });
     describe('PUT /notifications/{id}', () => {
@@ -222,9 +201,7 @@ describe('Notifications', () => {
                     expect(response.statusCode).to.equal(404);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should return unauthorized if someone other than the owner of the notification tries to change it', (done) => {
             let id = null;
@@ -251,9 +228,7 @@ describe('Notifications', () => {
                     expect(response.statusCode).to.equal(401);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should deactivate notification and have changes audited', (done) => {
             let id = '';
@@ -284,9 +259,7 @@ describe('Notifications', () => {
                     expect(audit.length).to.equal(1);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
     });
     it('should update state and have changes audited', (done) => {
@@ -317,17 +290,10 @@ describe('Notifications', () => {
             .then((audit) => {
                 expect(audit.length).to.equal(1);
                 done();
-                return null;
             })
-            .catch((err) => {
-                done(err);
-            });
+            .catch(done);
     });
     after((done) => {
-        Notifications.remove({title: 'titles dont matter'})
-            .then(() => {
-                tu.cleanup({}, done);
-                return null;
-            });
+        return tu.cleanup({notifications: ['titles dont matter']}, done);
     });
 });

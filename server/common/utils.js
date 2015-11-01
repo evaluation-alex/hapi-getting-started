@@ -151,7 +151,7 @@ class ListValueMap extends Map {
             _50: stats.quantile(v, 0.5),
             _75: stats.quantile(v, 0.75),
             _90: stats.quantile(v, 0.90),
-            _100: stats.quantile(v, 1),
+            _100: stats.quantile(v, 1)
         };
     }
 

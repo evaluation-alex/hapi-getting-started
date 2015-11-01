@@ -30,7 +30,6 @@ describe('Blogs DAO', () => {
                     expect(paudit).to.exist;
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0]).to.be.instanceof(Audit);
-                    return null;
                 })
                 .catch((err) => {
                     expect(err).to.not.exist;
@@ -47,7 +46,6 @@ describe('Blogs DAO', () => {
                 .then((p) => {
                     expect(p).to.exist;
                     expect(p).to.be.an.instanceof(Blogs);
-                    return null;
                 })
                 .then(() => {
                     return Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
@@ -83,11 +81,7 @@ describe('Blogs DAO', () => {
                 .then(() => {
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should add a new entry to users when user/group is newly added', (done) => {
             let error = null;
@@ -169,11 +163,7 @@ describe('Blogs DAO', () => {
                 .then(() => {
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should do nothing if the user/group is not present in the group', (done) => {
             let error = null;

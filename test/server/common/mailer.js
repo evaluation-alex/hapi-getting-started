@@ -14,8 +14,7 @@ describe('Mailer', () => {
             .catch((err) => {
                 expect(err).to.be.an.instanceof(Error);
                 done();
-            })
-            .done();
+            });
     });
     it('sends an email, if sent repeatedly, hits the cache', (done) => {
         let options = {

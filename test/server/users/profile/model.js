@@ -356,6 +356,6 @@ describe('Profile DAO', () => {
         });
     });
     after((done) => {
-        tu.cleanup({users: usersToClear}, done);
+        return tu.cleanup({users: usersToClear}, done);
     });
 });

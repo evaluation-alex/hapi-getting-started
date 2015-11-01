@@ -21,14 +21,12 @@ describe('Session', () => {
                 return Users.create('test.users@test.api', 'silver lining', 'password123', 'en');
             })
             .then((newUser) => {
-                newUser.loginSuccess('test', 'test').save();
+                return newUser.loginSuccess('test', 'test').save();
+            })
+            .then(() => {
                 done();
-                return null;
             })
-            .catch((err) => {
-                done(err);
-            })
-            .done();
+            .catch(done);
     });
     describe('POST /session', () => {
         it('returns early when abuse is detected', (done) => {
@@ -51,13 +49,12 @@ describe('Session', () => {
                 })
                 .then((response) => {
                     expect(response.statusCode).to.equal(429);
-                    tu.cleanupAuthAttempts();
-                    done();
-                    return null;
+                    return tu.cleanupAuthAttempts();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .then(() => {
+                    done();
+                })
+                .catch(done);
         });
         it('returns an error when you pass incorrect credentials', (done) => {
             let request = {
@@ -81,9 +78,7 @@ describe('Session', () => {
                     expect(foundAudit).to.exist;
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('returns an error when you pass non existent user', (done) => {
             let request = {
@@ -99,9 +94,7 @@ describe('Session', () => {
                     expect(response.statusCode).to.equal(404);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('returns a session successfully', (done) => {
             let request = {
@@ -123,9 +116,7 @@ describe('Session', () => {
                     expect(foundAudit).to.exist;
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
     });
     describe('DELETE /session', () => {
@@ -139,9 +130,7 @@ describe('Session', () => {
                     expect(response.statusCode).to.equal(401);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('returns a not found when user does not exist', (done) => {
             let request = {
@@ -181,13 +170,12 @@ describe('Session', () => {
                     return Users.findOne({email: 'one@first.com'});
                 })
                 .then((foundUser) => {
-                    foundUser.loginSuccess('127.0.0.1', 'test').save();
-                    done();
-                    return null;
+                    return foundUser.loginSuccess('127.0.0.1', 'test').save();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .then(() => {
+                    done();
+                })
+                .catch(done);
         });
         it('removes the authenticated user session successfully', (done) => {
             tu.findAndLogin('one@first.com')
@@ -207,13 +195,12 @@ describe('Session', () => {
                 })
                 .then((foundUser) => {
                     expect(foundUser.session.length).to.equal(0);
-                    foundUser.loginSuccess('127.0.0.1', 'test').save();
-                    done();
-                    return null;
+                    return foundUser.loginSuccess('127.0.0.1', 'test').save();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .then(() => {
+                    done();
+                })
+                .catch(done);
         });
     });
     after((done) => {

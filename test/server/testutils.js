@@ -95,13 +95,16 @@ let cleanupNotifications = Bluebird.method((toClear) => {
         ]
     }) : true;
 });
+let cleanupNotifications2 = Bluebird.method((notificationsToCleanup) =>
+        utils.hasItems(notificationsToCleanup) ? Notifications.remove({title: {$in: notificationsToCleanup}}) : true
+);
 module.exports.cleanupAudit = function cleanupAudit() {
     return Audit.remove({});
 };
 module.exports.cleanupAuthAttempts = function cleanupAuthAttempts() {
     return AuthAttempts.remove({});
 };
-module.exports.cleanupRoles = Bluebird.method((roles) =>
+let cleanupRoles = Bluebird.method((roles) =>
         utils.hasItems(roles) ? Roles.remove({name: {$in: roles}}) : true
 );
 module.exports.cleanup = function cleanup(toClear, cb) {
@@ -110,14 +113,14 @@ module.exports.cleanup = function cleanup(toClear, cb) {
         cleanupBlogs(toClear.blogs),
         cleanupPosts(toClear.posts),
         cleanupNotifications(toClear),
+        cleanupNotifications2(toClear.notifications),
+        cleanupRoles(toClear.roles),
         module.exports.cleanupAudit(),
         module.exports.cleanupAuthAttempts(),
         () => {
             cb();
         })
-        .catch((err) => {
-            cb(err);
-        })
+        .catch(cb)
         .done();
 };
 module.exports.testComplete = function testComplete(notify, err) {

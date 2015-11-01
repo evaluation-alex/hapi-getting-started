@@ -12,12 +12,7 @@ describe('Contact', () => {
                 server = res.server;
                 done();
             })
-            .catch((err) => {
-                if (err) {
-                    done(err);
-                }
-            })
-            .done();
+            .catch(done);
     });
     it('returns an error when send email fails', (done) => {
         Fs.renameSync('./build/web/contact/contact.hbs.md', './build/web/contact/contact2.hbs.md');
@@ -34,9 +29,8 @@ describe('Contact', () => {
             Fs.renameSync('./build/web/contact/contact2.hbs.md', './build/web/contact/contact.hbs.md');
             expect(response.statusCode).to.equal(500);
             done();
-        }).catch((err) => {
-            done(err);
-        });
+        })
+            .catch(done);
     });
     it('returns success after sending an email', (done) => {
         let request = {
@@ -51,8 +45,7 @@ describe('Contact', () => {
         server.injectThen(request).then((response) => {
             expect(response.statusCode).to.equal(200);
             done();
-        }).catch((err) => {
-            done(err);
-        });
+        })
+            .catch(done);
     });
 });

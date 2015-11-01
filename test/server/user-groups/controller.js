@@ -18,12 +18,7 @@ describe('UserGroups', () => {
                 rootAuthHeader = res.authheader;
                 done();
             })
-            .catch((err) => {
-                if (err) {
-                    done(err);
-                }
-            })
-            .done();
+            .catch(done);
     });
     describe('GET /user-groups', () => {
         before((done) => {
@@ -49,11 +44,7 @@ describe('UserGroups', () => {
                 .then(() => {
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should give active groups when isactive = true is sent', (done) => {
             let request = {
@@ -73,9 +64,7 @@ describe('UserGroups', () => {
                     expect(p.data[2].isActive).to.be.true;
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should give inactive groups when isactive = false is sent', (done) => {
             let request = {
@@ -93,9 +82,7 @@ describe('UserGroups', () => {
                     expect(p.data[0].isActive).to.be.false;
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should give only the groups whose name is sent in the parameter', (done) => {
             let request = {
@@ -113,9 +100,7 @@ describe('UserGroups', () => {
                     expect(p.data[0].name).to.match(/GetUserGroupsTestName/);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should give the groups where the user is a member when user id is sent in the parameters', (done) => {
             let request = {
@@ -133,9 +118,7 @@ describe('UserGroups', () => {
                     expect(p.data[0].name).to.match(/GetUserGroupsTestMemberActive/);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should return both inactive and active groups when nothing is sent', (done) => {
             let request = {
@@ -152,9 +135,7 @@ describe('UserGroups', () => {
                     expect(p.data.length).to.equal(4);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         after((done) => {
             groupsToClear.push('GetUserGroupsTestName');
@@ -188,9 +169,7 @@ describe('UserGroups', () => {
                     expect(p.name).to.equal('testGetByID');
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should send back not found when the user-group with the id in params is not found', (done) => {
             let request = {
@@ -205,9 +184,7 @@ describe('UserGroups', () => {
                     expect(response.statusCode).to.equal(404);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         after((done) => {
             groupsToClear.push('testGetByID');
@@ -407,7 +384,6 @@ describe('UserGroups', () => {
                     expect(foundAudit[0].change[1].action).to.match(/add/);
                     groupsToClear.push('testPutGroupAddUserOwner');
                     done();
-                    return null;
                 })
                 .catch((err) => {
                     groupsToClear.push('testPutGroupAddUserOwner');
@@ -456,7 +432,6 @@ describe('UserGroups', () => {
                     expect(foundAudit[0].change[1].action).to.match(/remove/);
                     groupsToClear.push('testPutGroupRemoveUserOwner');
                     done();
-                    return null;
                 })
                 .catch((err) => {
                     groupsToClear.push('testPutGroupRemoveUserOwner');
@@ -531,7 +506,6 @@ describe('UserGroups', () => {
                     groupsToClear.push('testPutGroupAddRemoveUserOwner');
                     expect(count).to.equal(1);
                     done();
-                    return null;
                 })
                 .catch((err) => {
                     groupsToClear.push('testPutGroupAddRemoveUserOwner');
@@ -1068,7 +1042,6 @@ describe('UserGroups', () => {
                     expect(response.statusCode).to.equal(422);
                     groupsToClear.push('testGroupUserExistPUTReject');
                     done();
-                    return null;
                 })
                 .catch((err) => {
                     groupsToClear.push('testGroupUserExistPUTReject');

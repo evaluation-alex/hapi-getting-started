@@ -21,16 +21,12 @@ describe('Users', () => {
                 return Users.create('test.users@test.api', 'silver lining', 'password123', 'en');
             })
             .then((newUser) => {
-                newUser.loginSuccess('127.0.0.1', 'test').save();
+                return newUser.loginSuccess('127.0.0.1', 'test').save();
+            }).
+            then(() => {
                 done();
-                return null;
             })
-            .catch((err) => {
-                if (err) {
-                    done(err);
-                }
-            })
-            .done();
+            .catch(done);
     });
     it('should send back a not authorized when user is not logged in', (done) => {
         let authheader = '';
@@ -53,9 +49,7 @@ describe('Users', () => {
                 expect(response.statusCode).to.equal(401);
                 done();
             })
-            .catch((err) => {
-                done(err);
-            });
+            .catch(done);
     });
     it('should send back a not authorized when user does not have permissions to view', (done) => {
         tu.findAndLogin('test.users@test.api', [])
@@ -74,9 +68,7 @@ describe('Users', () => {
                 expect(response.statusCode).to.equal(403);
                 done();
             })
-            .catch((err) => {
-                done(err);
-            });
+            .catch(done);
     });
     it('should send back users when requestor has permissions and is authenticated, Users:GET /users', (done) => {
         tu.findAndLogin('one@first.com')
@@ -96,9 +88,7 @@ describe('Users', () => {
                 expect(response.payload).to.exist;
                 done();
             })
-            .catch((err) => {
-                done(err);
-            });
+            .catch(done);
     });
     describe('GET /users', () => {
         let authheader = '';
@@ -112,13 +102,12 @@ describe('Users', () => {
                     return newUser.loginSuccess('127.0.0.1', 'test').save();
                 })
                 .then((newUser) => {
-                    newUser.deactivate('test').save();
-                    done();
-                    return null;
+                    return newUser.deactivate('test').save();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .then(() => {
+                    done();
+                })
+                .catch(done);
         });
         it('should give active users when isactive = true is sent', (done) => {
             let request = {
@@ -135,9 +124,7 @@ describe('Users', () => {
                     expect(response.payload).to.not.contain('test.users2@test.api');
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should give inactive users when isactive = false is sent', (done) => {
             let request = {
@@ -154,9 +141,7 @@ describe('Users', () => {
                     expect(response.payload).to.contain('test.users2@test.api');
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should give only the user whose email is sent in the parameter', (done) => {
             let request = {
@@ -174,9 +159,7 @@ describe('Users', () => {
                     expect(response.payload).to.contain('one@first.com');
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should return both inactive and active users when nothing is sent', (done) => {
             let request = {
@@ -194,9 +177,7 @@ describe('Users', () => {
                     expect(response.payload).to.contain('one@first.com');
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         after((done) => {
             emails.push('test.users2@test.api');
@@ -213,11 +194,7 @@ describe('Users', () => {
                     id = u.user._id.toString();
                     done();
                 })
-                .catch((err) => {
-                    if (err) {
-                        done(err);
-                    }
-                });
+                .catch(done);
         });
         it('should only send back user with the id in params', (done) => {
             let request = {
@@ -234,9 +211,7 @@ describe('Users', () => {
                     expect(response.payload).to.contain('one@first.com');
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should send back not found when the user with the id in params is not found', (done) => {
             let request = {
@@ -251,9 +226,7 @@ describe('Users', () => {
                     expect(response.statusCode).to.equal(404);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should send back unauthorized if the id in the url and authenticated user are different', (done) => {
             Users.findOne({email: 'root'})
@@ -271,9 +244,7 @@ describe('Users', () => {
                     expect(response.statusCode).to.equal(401);
                     done();
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
     });
     describe('PUT /users/{id}', () => {
@@ -287,10 +258,11 @@ describe('Users', () => {
                     return Users.create('test.users3@test.api', 'silver lining', 'password123', 'en');
                 })
                 .then((newUser) => {
-                    newUser.loginSuccess('127.0.0.1', 'test').save();
                     id = newUser._id.toString();
+                    return newUser.loginSuccess('127.0.0.1', 'test').save();
+                })
+                .then(() => {
                     done();
-                    return null;
                 });
         });
         it('should update is active, session should be deactivated and changes audited', (done) => {
@@ -317,11 +289,8 @@ describe('Users', () => {
                 .then((foundAudit) => {
                     expect(foundAudit).to.exist;
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should update roles, session should be deactivated and changes audited', (done) => {
             let request = {
@@ -348,11 +317,8 @@ describe('Users', () => {
                 .then((foundAudit) => {
                     expect(foundAudit).to.exist;
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should update password, session should be deactivated and changes audited', (done) => {
             let request = {
@@ -377,11 +343,8 @@ describe('Users', () => {
                 .then((foundAudit) => {
                     expect(foundAudit).to.exist;
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should update roles, password and is active, session should be deactivated and all changes audited', (done) => {
             let request = {
@@ -406,11 +369,8 @@ describe('Users', () => {
                     expect(foundUser.roles).to.include('readonly');
                     expect(foundUser.isActive).to.be.true;
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should return unauthorised if someone other than root or the user tries to modify user attributes', (done) => {
             tu.findAndLogin('one@first.com')
@@ -433,11 +393,8 @@ describe('Users', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(401);
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should return not found if the user is not found', (done) => {
             let request = {
@@ -456,11 +413,8 @@ describe('Users', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(404);
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
     });
     describe('POST /signup', () => {
@@ -478,11 +432,8 @@ describe('Users', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(409);
                     done();
-                    return null;
                 })
-                .catch((err)=> {
-                    done(err);
-                });
+                .catch(done);
         });
         it('returns a error when unable to send an email', (done) => {
             Fs.renameSync('./build/users/templates/welcome.hbs.md', './build/users/templates/welcome2.hbs.md');
@@ -501,7 +452,6 @@ describe('Users', () => {
                     expect(response.statusCode).to.equal(500);
                     emails.push(request.payload.email);
                     done();
-                    return null;
                 })
                 .catch((err)=> {
                     emails.push(request.payload.email);
@@ -537,7 +487,6 @@ describe('Users', () => {
                     expect(foundLogin).to.exist;
                     emails.push(request.payload.email);
                     done();
-                    return null;
                 })
                 .catch((err) => {
                     emails.push(request.payload.email);
@@ -559,11 +508,8 @@ describe('Users', () => {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.contain('Success');
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('successfully sends a reset password request', (done) => {
             let request = {
@@ -586,11 +532,8 @@ describe('Users', () => {
                 .then((foundUser) => {
                     expect(foundUser.resetPwd).to.exist;
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('gracefully handles errors and sends back boom message', (done) => {
             let prev = Mailer.sendEmail;
@@ -609,7 +552,6 @@ describe('Users', () => {
                     expect(response.statusCode).to.equal(500);
                     Mailer.sendEmail = prev;
                     done();
-                    return null;
                 })
                 .catch((err) => {
                     Mailer.sendEmail = prev;
@@ -632,11 +574,8 @@ describe('Users', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(400);
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('returns a bad request if the key does not match', (done) => {
             Users.findOne({email: 'test.users@test.api'})
@@ -658,11 +597,8 @@ describe('Users', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(400);
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('successfully sets a password, invalidates session and logs user out', (done) => {
             let key = '';
@@ -697,11 +633,8 @@ describe('Users', () => {
                 .then((foundUser) => {
                     expect(foundUser.resetPwd).to.not.exist;
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
     });
     after((done) => {

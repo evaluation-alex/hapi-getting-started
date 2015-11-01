@@ -13,12 +13,7 @@ describe('Profile', () => {
                 server = res.server;
                 done();
             })
-            .catch((err) => {
-                if (err) {
-                    done(err);
-                }
-            })
-            .done();
+            .catch(done);
     });
     describe('PUT /profile/{id}', () => {
         let authheader = '';
@@ -59,11 +54,8 @@ describe('Profile', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(401);
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
         it('should return not found if the profile is not found', (done) => {
             let request = {
@@ -81,9 +73,8 @@ describe('Profile', () => {
             server.injectThen(request).then((response) => {
                 expect(response.statusCode).to.equal(404);
                 done();
-            }).catch((err) => {
-                done(err);
-            });
+            })
+                .catch(done);
         });
         it('should modify profile and audit changes', (done) => {
             Users.findOne({email: 'root'})
@@ -115,11 +106,8 @@ describe('Profile', () => {
                     expect(audit).to.exist;
                     expect(audit.length).to.equal(1);
                     done();
-                    return null;
                 })
-                .catch((err) => {
-                    done(err);
-                });
+                .catch(done);
         });
     });
     after((done) => {

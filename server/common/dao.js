@@ -10,9 +10,9 @@ function toStatsD(bucket, query, start, err) {
     const elapsed = Date.now() - start;
     process.nextTick(() => {
         statsd.timing(bucket, elapsed);
+        timing(bucket, elapsed);
         if (query) {
             statsd.increment(bucket + '.' + sortBy(keys(query), String).join(','), 1);
-            timing(bucket, elapsed);
         }
         if (err) {
             statsd.increment(bucket + '.err', 1);

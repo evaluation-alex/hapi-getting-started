@@ -45,6 +45,7 @@ Bluebird.all(Object.keys(manifest.plugins).map(plugin => {
         } else {
             start(server);
         }
+        return null;
     })
     .catch(err => {
         console.log(err);

@@ -2,7 +2,6 @@
 let gulp = require('gulp');
 let $ = require('gulp-load-plugins')({pattern: ['gulp-*', 'del', 'gutil', 'merge-stream']});
 let path = require('path');
-let _ = require('lodash');
 let pkg = require('./package.json');
 gulp.task('server:eslint', () => {
     return gulp.src('server/**/*.js')
@@ -100,3 +99,13 @@ console.log('running for ' + process.env.NODE_ENV);
 gulp.task('server:default', ['server:watch', 'server:dev']);
 gulp.task('default', ['server:default']);
 gulp.task('test', ['server:test:cov']);
+gulp.task('coverage', () => {
+    process.env['COVERALLS_REPO_TOKEN'] = 'IYP8L16MHhTpbiZ5dWPkAJQ1dMjg1xt6S';
+    process.env['CODECLIMATE_REPO_TOKEN']='9940f0a450f94f5dda0fb33a2389529ce79888ae1e3e5d13bbb0e92cb2c2aaee';
+    return $.mergeStream(
+        gulp.src('test/artifacts/lcov.info')
+            .pipe($.coveralls()),
+        gulp.src('test/artifacts/lcov.info')
+            .pipe($.codeclimateReporter({token: process.env['CODECLIMATE_REPO_TOKEN']}))
+    );
+});

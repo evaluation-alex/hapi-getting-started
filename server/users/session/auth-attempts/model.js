@@ -1,8 +1,9 @@
 'use strict';
 import Bluebird from 'bluebird';
-import {authAttempts as limits} from './../../../config';
+import config from './../../../config';
 import {build} from './../../../common/dao';
 import schemas from './schemas';
+let {authAttempts: limits} = config;
 class AuthAttempts {
     constructor(attrs) {
         this.init(attrs);

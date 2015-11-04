@@ -1,7 +1,8 @@
 'use strict';
 import UserAgent from 'useragent';
 import {by, timing} from './../utils';
-import {statsd} from './../../config';
+import config from './../../config';
+let {statsd} = config;
 function toStatsD(route, statusCode, user, device, browser, start, finish) {
     let elapsed = finish - start;
     process.nextTick(() => {

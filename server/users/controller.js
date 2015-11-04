@@ -1,7 +1,7 @@
 'use strict';
 import path from 'path';
 import Bluebird from 'bluebird';
-import {projectName} from './../config';
+import config from './../config';
 import {sendEmail} from './../common/plugins/mailer';
 import {PasswordResetError} from './../common/errors';
 import {ip, buildQuery, logAndBoom} from './../common/utils';
@@ -9,6 +9,7 @@ import {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} 
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
 import schemas from './schemas';
 import Users from './model';
+let {projectName} = config;
 export default {
     signup: {
         validate: schemas.controller.signup,

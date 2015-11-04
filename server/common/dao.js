@@ -2,9 +2,10 @@
 import {extend, capitalize, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, sortBy, keys, assign} from 'lodash';
 import Bluebird from 'bluebird';
 import {MongoClient, ObjectID} from 'mongodb';
-import {i18n, logger, statsd} from './../config';
+import config from './../config';
 import {errback, hasItems, timing} from './utils';
 import {ObjectNotCreatedError} from './errors';
+let {i18n, logger, statsd} = config;
 let connections = {};
 function toStatsD(bucket, query, start, err) {
     const elapsed = Date.now() - start;

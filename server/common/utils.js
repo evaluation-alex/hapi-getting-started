@@ -5,7 +5,8 @@ import bcrypt from 'bcrypt';
 import boom from 'boom';
 import {ObjectID as objectID} from 'mongodb';
 import stats from 'simple-statistics';
-import {logger} from './../config';
+import config from './../config';
+let {logger} = config;
 export function logAndBoom(err) {
     logger.error({error: err, stack: err.stack});
     return err.canMakeBoomError ? err : boom.badImplementation(err);

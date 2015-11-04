@@ -1,6 +1,7 @@
 'use strict';
 import Boom from 'boom';
-import {i18n} from './../config';
+import config from './../config';
+let {i18n} = config;
 function makeCustomError(message, name, errorType, phrase) {
     class CustomError extends Error {
         constructor(data) {

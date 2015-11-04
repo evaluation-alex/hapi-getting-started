@@ -4,7 +4,6 @@ import config from './../../config';
 import {logAndBoom} from './../../common/utils';
 import {sendEmail} from './../../common/plugins/mailer';
 import schemas from './schemas';
-
 export default {
     contact: {
         validate: schemas.controller.contact,

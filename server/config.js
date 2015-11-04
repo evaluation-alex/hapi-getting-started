@@ -2,7 +2,7 @@
 /*eslint-disable no-process-exit*/
 import fs from 'fs';
 import devnull from 'dev-null';
-import Bunyan from 'bunyan';
+import {createLogger} from 'bunyan';
 import StatsD from 'node-statsd';
 import i18n from 'i18n';
 /* istanbul ignore if  */
@@ -27,7 +27,7 @@ if (!args.sendemails) {
         send(mail, cb) {
             let input = mail.message.createReadStream();
             input.pipe(devnull());
-            input.on('end', function () {
+            input.on('end', () => {
                 cb(null, true);
             });
         }
@@ -36,33 +36,8 @@ if (!args.sendemails) {
     nodemailer = args.nodemailer;
 }
 i18n.configure(args.i18n);
-let config = {
-    projectName: args.project,
-    authAttempts: {
-        forIp: 50,
-        forIpAndUser: 7
-    },
-    nodemailer: nodemailer,
-    logger: Bunyan.createLogger(args.bunyan),
-    system: {
-        fromAddress: {
-            name: args.project,
-            address: args.nodemailer.auth.user
-        },
-        toAddress: {
-            name: args.project,
-            address: args.nodemailer.auth.user
-        }
-    },
-    statsd: new StatsD(args.statsd),
-    i18n: i18n,
-    manifest: {
-        plugins: manifest.plugins,
-        server: manifest.server,
-        connections: manifest.connections
-    }
-};
-
+let logger = createLogger(args.bunyan);
+let statsd = new StatsD(args.statsd);
 manifest.connections.forEach(connection => {
     if (connection.tls &&
         connection.tls.key &&
@@ -77,5 +52,27 @@ manifest.connections.forEach(connection => {
         delete connection.tls;
     }
 });
-config.manifest.plugins['hapi-bunyan'].logger = config.logger;
-export default config;
+manifest.plugins['hapi-bunyan'].logger = logger;
+export default {
+    projectName: args.project,
+    authAttempts: {
+        forIp: 50,
+        forIpAndUser: 7
+    },
+    nodemailer,
+    logger,
+    system: {
+        fromAddress: {
+            name: args.project,
+            address: args.nodemailer.auth.user
+        },
+        toAddress: {
+            name: args.project,
+            address: args.nodemailer.auth.user
+        }
+    },
+    statsd,
+    i18n,
+    manifest
+};
+

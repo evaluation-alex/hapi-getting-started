@@ -87,7 +87,7 @@ let cleanupPosts = Bluebird.method((postsToCleanup) =>
 );
 let cleanupNotifications = Bluebird.method((toClear) => {
     let notificationsToCleanup = _.flatten(_.map(['userGroups', 'blogs', 'posts'], (a) => _.map(toClear[a], (i) => new RegExp(i, 'g'))));
-    utils.hasItems(notificationsToCleanup) ? Notifications.remove({
+    return utils.hasItems(notificationsToCleanup) ? Notifications.remove({
         $or: [
             {'title.1.title': {$in: notificationsToCleanup}},
             {'title.1.postTitle': {$in: notificationsToCleanup}},

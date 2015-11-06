@@ -3,7 +3,7 @@ let gulp = require('gulp');
 let $ = require('gulp-load-plugins')({pattern: ['gulp-*', 'del', 'gutil', 'merge-stream']});
 let path = require('path');
 let pkg = require('./package.json');
-let mongourl = require('./build/manifest.json').plugins['./build/common/plugins/connections'].mongo.app.url;
+let mongourl = require('./server/manifest.json').plugins['./build/common/plugins/connections'].mongo.app.url;
 let MongoClient = require('mongodb').MongoClient;
 gulp.task('server:eslint', () => {
     return gulp.src('server/**/*.js')

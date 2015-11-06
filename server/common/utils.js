@@ -1,5 +1,5 @@
 'use strict';
-import {get, isArray, isNumber, pluck} from 'lodash';
+import {get, isArray, uniq} from 'lodash';
 import moment from 'moment';
 import bcrypt from 'bcrypt';
 import boom from 'boom';
@@ -33,13 +33,7 @@ export function locale(request) {
 }
 // TODO: if not found in user prefs, figure out from request headers - tbd
 export function lookupParamsOrPayloadOrQuery(request, field) {
-    return request.params && request.params[field] ?
-        request.params[field] :
-        request.payload && request.payload[field] ?
-            request.payload[field] :
-            request.query && request.query[field] ?
-                request.query[field] :
-                undefined;
+    return get(request, ['params', field], get(request, ['payload', field], get(request, ['query', field], undefined)));
 }
 export function hasItems(arr) {
     return arr && arr.length > 0;
@@ -110,64 +104,70 @@ export function secureHash(password) {
 export function secureCompare(password, hash) {
     return bcrypt.compareSync(password, hash) || password === hash;
 }
-class FixedLengthArray extends Array {
-    constructor(maxLength) {
-        super([]);
-        this.maxLength = maxLength;
-    }
-
-    push(values) {
-        super.push(values);
-        super.splice(0, this.length - this.maxLength);
-    }
-
-    //static get [Symbol.species]() { return Array; }
+let quantiles = [0, 0.05, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 0.95, 1];
+let toFlushDefaults = ['type', 'name', 'count', 'uniques', 'mean', 'variance', 'stdDev', 'p0', 'p10', 'p25', 'p50', 'p75', 'p90', 'p100', 'lastObservation'];
+function cmp(v, f) {
+    let d = v - f;
+    return d > 0 ? 1 : d < 0 ? -1 : 0;
 }
-class ListValueMap extends Map {
-    constructor(maxLength) {
-        super([]);
-        this.maxLength = maxLength;
+class Stats {
+    constructor(type, name) {
+        this.type = type;
+        this.name = name;
+        this.lastObservation = undefined;
+        this.lastFlushed = Date.now();
+        this.init();
     }
-
-    set(key, value) {
-        if (!super.has(key)) {
-            super.set(key, new FixedLengthArray(this.maxLength));
-        }
-        return super.set(super.get(key).push({ts: Date.now(), v: value}));
+    init() {
+        this.mean = 0;
+        this.variance = 0;
+        this.stdDev = 0;
+        quantiles.forEach(q => {
+            this['p' + q * 100] = 0;
+        }, this);
+        this.count = 0;
+        this.uniques = 0;
+        this.observations = [];
     }
-
-    stats(key) {
-        const value = super.get(key);
-        const v = pluck(value, 'v');
-        return {
-            key: key,
-            count: v.length,
-            median: stats.median(v),
-            mode: stats.mode(v),
-            variance: stats.variance(v),
-            stdDev: stats.standardDeviation(v),
-            _0: stats.quantile(v, 0),
-            _10: stats.quantile(v, 0.1),
-            _25: stats.quantile(v, 0.25),
-            _50: stats.quantile(v, 0.5),
-            _75: stats.quantile(v, 0.75),
-            _90: stats.quantile(v, 0.90),
-            _100: stats.quantile(v, 1)
-        };
+    addObservation(obs) {
+        let n = this.count + 1;
+        let nMinus1 = this.count;
+        let mean = this.mean;
+        let delta = obs - mean;
+        let variance = this.variance;
+        //https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+        mean = mean + ((obs - mean) / n);
+        variance = ((nMinus1 * variance) + delta * (obs - mean)) / n;
+        this.lastObservation = obs;
+        this.observations.push(obs);
+        this.count = n;
+        this.mean = mean;
+        this.variance = variance;
+        this.stdDev = Math.sqrt(variance);
     }
-
-    //static get [Symbol.species]() { return Map; }
+    flush(fieldsToFlush) {
+        this.observations.sort(cmp);
+        quantiles.forEach(q => {
+            this['p' + q * 100] = stats.quantileSorted(this.observations, q);
+        }, this);
+        this.uniques = uniq(this.observations, true).length;
+        let ret = fieldsToFlush.map(f => this[f], this).join(':');
+        this.init();
+        this.lastFlushed = Date.now();
+        return ret;
+    }
 }
-let timings = new ListValueMap(10000);
-export function timing(key, elapsed) {
-    timings.set(key, elapsed);
+let timings = new Map([]);
+export function timing(type, name, elapsed) {
+    let key = type + name;
+    if (!timings.has(key)) {
+        timings.set(key, new Stats(type, name));
+    }
+    timings.get(key).addObservation(elapsed);
 }
 export function dumpTimings() {
-    console.log('dbcall,count,median,mode,variance,stddev,min,10,25,avg,75,90,max');
-    timings.forEach((value, key)  => {
-        if (key && !isNumber(key)) {
-            const stats = timings.stats(key);
-            console.log(`${stats.key},${stats.count},${stats.median},${stats.mode},${stats.variance},${stats.stdDev},${stats._0},${stats._10},${stats._25},${stats._50},${stats._75},${stats._90},${stats._100}`);
-        }
+    console.log(toFlushDefaults.join(':'));
+    timings.forEach(value => {
+        console.log(value.flush(toFlushDefaults));
     });
 }

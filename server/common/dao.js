@@ -5,18 +5,17 @@ import {MongoClient, ObjectID} from 'mongodb';
 import config from './../config';
 import {errback, hasItems, timing} from './utils';
 import {ObjectNotCreatedError} from './errors';
-let {i18n, logger, statsd} = config;
+let {i18n, logger} = config;
 let connections = {};
-function toStatsD(bucket, query, start, err) {
+function gatherStats(bucket, query, start, err) {
     const elapsed = Date.now() - start;
     process.nextTick(() => {
-        statsd.timing(bucket, elapsed);
-        timing(bucket, elapsed);
+        timing('dao', bucket, elapsed);
         if (query) {
-            statsd.increment(bucket + '.' + sortBy(keys(query), String).join(','), 1);
+            timing('dao', bucket + '|' + sortBy(keys(query), String).join('|'), elapsed);
         }
         if (err) {
-            statsd.increment(bucket + '.err', 1);
+            timing('dao', bucket + '.err', elapsed);
         }
     });
 }
@@ -25,10 +24,10 @@ function defaultcb(resolve, reject, bucket, query, start = Date.now()) {
         if (err) {
             logger.error({error: err, stack: err.stack});
             reject(err);
-            toStatsD(bucket, query, start, err);
+            gatherStats(bucket, query, start, err);
         } else {
             resolve(res);
-            toStatsD(bucket, query, start);
+            gatherStats(bucket, query, start);
         }
     };
 }
@@ -176,7 +175,7 @@ function withFindMethods(Dao, areValidProperty) {
                 /*istanbul ignore next*/
                 function handleError(err) {
                     errback(err);
-                    toStatsD(bucket, query, start, err);
+                    gatherStats(bucket, query, start, err);
                     reject(err);
                 }
 
@@ -199,7 +198,7 @@ function withFindMethods(Dao, areValidProperty) {
                             cursor.next(next);
                         } else {
                             resolve(results);
-                            toStatsD(bucket, query, start, err);
+                            gatherStats(bucket, query, start, err);
                         }
                     }
                 }

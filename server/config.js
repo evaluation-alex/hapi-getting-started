@@ -3,7 +3,6 @@
 import fs from 'fs';
 import devnull from 'dev-null';
 import {createLogger} from 'bunyan';
-import StatsD from 'node-statsd';
 import i18n from 'i18n';
 /* istanbul ignore if  */
 if (!fs.existsSync('./build/.opts')) {
@@ -37,7 +36,6 @@ if (!args.sendemails) {
 }
 i18n.configure(args.i18n);
 let logger = createLogger(args.bunyan);
-let statsd = new StatsD(args.statsd);
 manifest.connections.forEach(connection => {
     if (connection.tls &&
         connection.tls.key &&
@@ -71,7 +69,6 @@ export default {
             address: args.nodemailer.auth.user
         }
     },
-    statsd,
     i18n,
     manifest
 };

@@ -1,14 +1,13 @@
 'use strict';
 import UserAgent from 'useragent';
 import {by, timing} from './../utils';
-import config from './../../config';
-let {statsd} = config;
-function toStatsD(route, statusCode, user, device, browser, start, finish) {
+function gatherStats(route, statusCode, user, device, browser, start, finish) {
     let elapsed = finish - start;
     process.nextTick(() => {
-        statsd.increment([device, browser, route, route + statusCode, user], 1);
-        statsd.timing([route, user], elapsed);
-        timing(route, elapsed);
+        timing('controller', user, elapsed);
+        timing('controller', user + '|' + device + '|' + browser, elapsed);
+        timing('controller', route, elapsed);
+        timing('controller', route + statusCode, elapsed);
     });
 }
 function normalizePath(request) {
@@ -31,7 +30,7 @@ export let register = function register(server, options, next) {
         const browser = ua.toString();
         const start = request.info.received;
         const end = request.info.responded;
-        toStatsD(path, statusCode, user, device, browser, start, end);
+        gatherStats(path, statusCode, user, device, browser, start, end);
     });
     return next();
 };

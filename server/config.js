@@ -37,6 +37,7 @@ if (!args.sendemails) {
 i18n.configure(args.i18n);
 let logger = createLogger(args.bunyan);
 manifest.connections.forEach(connection => {
+    /*istanbul ignore if*//*istanbul ignore else*/
     if (connection.tls &&
         connection.tls.key &&
         connection.tls.key.length > 0 &&

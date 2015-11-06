@@ -13,23 +13,14 @@ describe('DAO', () => {
             .then((res) => {
                 let server = res.server;
                 server.start(() => {
-                    Bluebird.all(
-                        ['users', 'user-groups', 'audit', 'roles', 'notifications', 'blogs', 'posts', 'auth-attempts']
-                        .map((c) => {
-                                return Model.db('app').dropCollection(c);
-                                //return c;
-                            })
-                    )
-                    .then(() => {
-                            utils.dumpTimings();
-                            server.stop({timeout: 100}, () => {
-                                var ct = setTimeout(() => {
-                                    expect(Model.db('app')).to.be.undefined;
-                                    clearTimeout(ct);
-                                    done();
-                                }, 1000);
-                            });
-                        });
+                    utils.dumpTimings();
+                    server.stop({timeout: 100}, () => {
+                        var ct = setTimeout(() => {
+                            expect(Model.db('app')).to.be.undefined;
+                            clearTimeout(ct);
+                            done();
+                        }, 1000);
+                    });
                 });
             });
     });

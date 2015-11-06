@@ -3,6 +3,8 @@ let gulp = require('gulp');
 let $ = require('gulp-load-plugins')({pattern: ['gulp-*', 'del', 'gutil', 'merge-stream']});
 let path = require('path');
 let pkg = require('./package.json');
+let mongourl = require('./build/manifest.json').plugins['./build/common/plugins/connections'].mongo.app.url;
+let MongoClient = require('mongodb').MongoClient;
 gulp.task('server:eslint', () => {
     return gulp.src('server/**/*.js')
         .pipe($.eslint(pkg.eslintConfig))
@@ -46,26 +48,53 @@ gulp.task('server:build', ['server:eslint', 'server:jscs', 'server:jshint'], () 
             .pipe(gulp.dest('build')),
         gulp.src('server/**/*.md')
             .pipe(gulp.dest('build'))
-        );
+    );
 });
 gulp.task('server:watch', () => {
     gulp.watch('server/**/*.js', ['server:build']);
 });
-gulp.task('server:test:nocov', ['server:clean', 'server:build'], () => {
+function serverPostTestClean(cb) {
+    let db;
+    $.del(['i18n/hi.json'])
+        .then(() => {
+            return MongoClient.connect(mongourl);
+        })
+        .then((dbconn) => {
+            db = dbconn;
+            return db.collections();
+        })
+        .then((collections) => {
+            collections.forEach((collection) => {
+                $.gutil.log('dropping ' + collection.collectionName);
+                collection.drop();
+            });
+        })
+        .then(() => {
+            db.close();
+            cb();
+        })
+        .catch(err => {
+            cb(err);
+        });
+}
+gulp.task('server:test:nocov', ['server:clean', 'server:build'], (cb) => {
     return gulp.src(['test/server/**/*.js'], {read: false})
         .pipe($.mocha({
             reporter: 'spec',
             ui: 'bdd',
             timeout: 6000000
         }))
-        .on('error', $.gutil.log);
+        .once('error', $.gutil.log)
+        .once('end', () => {
+            serverPostTestClean(cb);
+        });
 });
 gulp.task('server:test:cov', ['server:clean', 'server:build'], (cb) => {
     gulp.src(['build/**/*.js'])
         .pipe($.istanbul())
         .pipe($.istanbul.hookRequire())
-        .on('finish', function () {
-            gulp.src(['test/server/**/*.js'])
+        .once('finish', () => {
+            gulp.src(['test/server/**/*.js'], {read: false})
                 .pipe($.mocha({
                     reporter: 'spec',
                     ui: 'bdd',
@@ -77,8 +106,10 @@ gulp.task('server:test:cov', ['server:clean', 'server:build'], (cb) => {
                     reportOpts: {dir: './test/artifacts'}
                 }))
                 .pipe($.istanbul.enforceThresholds({thresholds: {global: 95}}))
-                .on('error', $.gutil.log)
-                .on('end', cb);
+                .once('error', $.gutil.log)
+                .once('end', () => {
+                    serverPostTestClean(cb);
+                });
         });
 });
 gulp.task('server:test:watch', () => {
@@ -93,7 +124,7 @@ gulp.task('server:dev', ['server:clean', 'server:build'], () => {
         ignore: ['**/node_modules/**/*', 'public/**/*.*', 'dist/**/*.*', 'test/**/*.*', '.git/**/*.*'],
         tasks: ['server:build'],
         delay: '20000ms'
-    })
+    });
 });
 console.log('running for ' + process.env.NODE_ENV);
 gulp.task('server:default', ['server:watch', 'server:dev']);

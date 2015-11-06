@@ -19,7 +19,8 @@ function gatherStats(bucket, query, start, err) {
         }
     });
 }
-function defaultcb(resolve, reject, bucket, query, start = Date.now()) {
+function defaultcb(resolve, reject, bucket, query) {
+    const start = Date.now();
     return function cb(err, res) {
         if (err) {
             logger.error({error: err, stack: err.stack});

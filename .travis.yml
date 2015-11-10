@@ -31,4 +31,4 @@ before_script:
   - mkdir ./logs
 after_script:
   - cat $HOME/logs/influx.log
-  - cat $HOME/hapi-getting-started/combined.csv
+  - cat $HOME/build/k-sheth/hapi-getting-started/combined.csv

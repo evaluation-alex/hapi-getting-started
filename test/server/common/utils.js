@@ -85,7 +85,7 @@ describe('Utils', () => {
         expect(query.b.$in.length).to.equal(2);
         expect(query.b.$in[0]).to.be.an.instanceof(RegExp);
         expect(query.b.$in[1]).to.be.an.instanceof(RegExp);
-        let query2 = utils.buildQuery(request, {forExact:fields});
+        let query2 = utils.buildQuery(request, {forExact: fields});
         expect(query2.a).to.exist;
         expect(query2.b.$in).to.exist;
         expect(query2.b.$in.length).to.equal(2);

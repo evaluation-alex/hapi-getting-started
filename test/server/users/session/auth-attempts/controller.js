@@ -38,7 +38,6 @@ describe('AuthAttempts', () => {
                     done();
                 })
                 .catch(done);
-
         });
         it('should give all auth-attempts if nothing is passed', (done) => {
             let authSpam = [];

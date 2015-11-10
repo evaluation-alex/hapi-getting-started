@@ -9,7 +9,7 @@
         "server:build:clean": "node --harmony ./node_modules/gulp/bin/gulp server:clean server:build",
         "server:build:watch": "node --harmony ./node_modules/gulp/bin/gulp server:watch",
         "server:setup": "node --harmony ./build/setup.js",
-        "server:test:cov": "node --harmony ./node_modules/gulp/bin/gulp server:test:cov",
+        "server:test": "node --harmony ./node_modules/gulp/bin/gulp server:test",
         "server:test:nocov": "node --harmony ./node_modules/gulp/bin/gulp server:test:nocov",
         "server:coveralls": "cat ./test/artifacts/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
         "server:climate": "cat ./test/artifacts/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
@@ -32,13 +32,13 @@
         "i18n": "0.5.x",
         "inert": "3.x.x",
         "joi": "7.x.x",
+        "kerberos": "0.x.x",
         "lodash": "3.10.x",
         "moment": "2.10.x",
         "mongodb": "2.0.x",
         "node-uuid": "1.4.x",
         "nodemailer": "1.x.x",
         "nodemailer-markdown": "1.x.x",
-        "simple-statistics": "1.x.x",
         "useragent": "2.1.x"
     },
     "devDependencies": {
@@ -73,7 +73,8 @@
         "merge-stream": "1.x.x",
         "mocha": "2.x.x",
         "nodemon": "1.x.x",
-        "promptly": "0.2.x"
+        "promptly": "0.2.x",
+        "run-sequence": "1.x.x"
     },
     "name": "hapi-getting-started",
     "version": "0.0.4",

@@ -1,0 +1,95 @@
+{
+    "env": "dev",
+    "project": "frame",
+    "nodemailer": {
+        "auth": {
+            "user": "xxx",
+            "pass": "xxx"
+        },
+        "secure": true,
+        "host": "smtp.gmail.com",
+        "port": 465
+    },
+    "bunyan": {
+        "name": "main",
+        "streams": [
+            {
+                "type": "rotating-file",
+                "path": "logs/frame.log",
+                "period": "1d",
+                "count": 7,
+                "name": "file",
+                "level": "debug"
+            }
+        ]
+    },
+    "influxdb": {
+        "host": "localhost",
+        "httpport": 8086,
+        "udpport": 8088,
+        "database": "frame",
+        "shellCmd": "/opt/influxdb/influx"
+    },
+    "sendemails": false,
+    "i18n": {
+        "locales": ["en"],
+        "defaultLocale": "en",
+        "directory": "./i18n"
+    },
+    "manifest": {
+        "plugins": {
+            "hapi-bunyan": {
+                "logger": "",
+                "mergeData": true,
+                "includeTags": true,
+                "joinTags": ","
+            },
+            "inert": {},
+            "hapi-auth-basic": {},
+            "./build/common/plugins/connections": {
+                "mongo": {
+                    "app": {
+                        "url": "mongodb://frameRoot:frameRoot@127.0.0.1:27017/frame"
+                    }
+                }
+            },
+            "./build/common/plugins/auth": {},
+            "./build/common/plugins/err-handler": {},
+            "./build/common/plugins/metrics": {},
+            "./build/common/plugins/app-routes": {
+                "prependRoute": "/api",
+                "modules": [
+                    "web/contact",
+                    "users",
+                    "users/session",
+                    "users/profile",
+                    "users/session/auth-attempts",
+                    "users/notifications",
+                    "users/preferences",
+                    "user-groups",
+                    "blogs",
+                    "blogs/posts",
+                    "audit"
+                ]
+            }
+        },
+        "connections": [{
+            "port": 8080,
+            "labels": ["http"]
+        }, {
+            "port": 443,
+            "labels": ["secure", "api"],
+            "tls": {
+                "key": "./.secure/key.pem",
+                "cert": "./.secure/cert.pem"
+            }
+        }],
+        "server": {
+            "connections": {
+                "routes": {
+                    "security": true
+                }
+            }
+        }
+    }
+}

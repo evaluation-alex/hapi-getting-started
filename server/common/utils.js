@@ -1,12 +1,13 @@
 'use strict';
-import {get, isArray, uniq} from 'lodash';
+import {get, isArray, isBoolean, isString, isNumber} from 'lodash';
 import moment from 'moment';
 import bcrypt from 'bcrypt';
 import boom from 'boom';
 import {ObjectID as objectID} from 'mongodb';
-import stats from 'simple-statistics';
 import config from './../config';
-let {logger} = config;
+import dgram from 'dgram';
+let {logger, influxdb} = config;
+let udpClient = dgram.createSocket('udp4');
 export function logAndBoom(err) {
     logger.error({error: err, stack: err.stack});
     return err.canMakeBoomError ? err : boom.badImplementation(err);
@@ -38,31 +39,25 @@ export function lookupParamsOrPayloadOrQuery(request, field) {
 export function hasItems(arr) {
     return arr && arr.length > 0;
 }
-const queryBuilderForArray = {
+const queryBuilder = {
     objectId: p => {
-        return {$in: p.map(objectID)};
+        return isArray(p) ? {$in: p.map(objectID)} : objectID(p);
     },
     exact: p => {
-        return {$in: p};
+        return isArray(p) ? {$in: p} : p;
     },
     partial: p => {
-        return {$in: p.map(op => new RegExp('^.*?' + op + '.*$', 'i'))};
-    }
-};
-const queryBuilderForOne = {
-    objectId: p => objectID(p),
-    exact: p => p,
-    partial: p => {
-        return {$regex: new RegExp('^.*?' + p + '.*$', 'i')};
+        return isArray(p) ?
+        {$in: p.map(op => new RegExp('^.*?' + op + '.*$', 'i'))} :
+        {$regex: new RegExp('^.*?' + p + '.*$', 'i')};
     }
 };
 function buildQueryFor(type, query, request, fields) {
-    const builder = queryBuilderForOne[type];
-    const arrBuilder = queryBuilderForArray[type];
+    const builder = queryBuilder[type];
     fields.forEach(pair => {
         const p = lookupParamsOrPayloadOrQuery(request, pair[0]);
         if (p) {
-            query[pair[1]] = isArray(p) ? arrBuilder(p) : builder(p);
+            query[pair[1]] = builder(p);
         }
     });
     return query;
@@ -104,70 +99,33 @@ export function secureHash(password) {
 export function secureCompare(password, hash) {
     return bcrypt.compareSync(password, hash) || password === hash;
 }
-let quantiles = [0, 0.05, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 0.95, 1];
-let toFlushDefaults = ['type', 'name', 'count', 'uniques', 'mean', 'variance', 'stdDev', 'p0', 'p10', 'p25', 'p50', 'p75', 'p90', 'p100', 'lastObservation'];
-function cmp(v, f) {
-    let d = v - f;
-    return d > 0 ? 1 : d < 0 ? -1 : 0;
-}
-class Stats {
-    constructor(type, name) {
-        this.type = type;
-        this.name = name;
-        this.lastObservation = undefined;
-        this.lastFlushed = Date.now();
-        this.init();
-    }
-    init() {
-        this.mean = 0;
-        this.variance = 0;
-        this.stdDev = 0;
-        quantiles.forEach(q => {
-            this['p' + q * 100] = 0;
-        }, this);
-        this.count = 0;
-        this.uniques = 0;
-        this.observations = [];
-    }
-    addObservation(obs) {
-        let n = this.count + 1;
-        let nMinus1 = this.count;
-        let mean = this.mean;
-        let delta = obs - mean;
-        let variance = this.variance;
-        //https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
-        mean = mean + ((obs - mean) / n);
-        variance = ((nMinus1 * variance) + delta * (obs - mean)) / n;
-        this.lastObservation = obs;
-        this.observations.push(obs);
-        this.count = n;
-        this.mean = mean;
-        this.variance = variance;
-        this.stdDev = Math.sqrt(variance);
-    }
-    flush(fieldsToFlush) {
-        this.observations.sort(cmp);
-        quantiles.forEach(q => {
-            this['p' + q * 100] = stats.quantileSorted(this.observations, q);
-        }, this);
-        this.uniques = uniq(this.observations, true).length;
-        let ret = fieldsToFlush.map(f => this[f], this).join(':');
-        this.init();
-        this.lastFlushed = Date.now();
-        return ret;
+function escape(str) {
+    if (str && str.replace) {
+        return str.replace(/ /g, '\\ ').replace(/,/g, '\\,');
     }
 }
-let timings = new Map([]);
-export function timing(type, name, elapsed) {
-    let key = type + name;
-    if (!timings.has(key)) {
-        timings.set(key, new Stats(type, name));
+function cmp(a, b) {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+function asString(v) {
+    if (isBoolean(v)) {
+        return v ? 't' : 'f';
+    } else if (isString(v)) {
+        return `"${v.replace(/"/g, '\\"')}"`;
+    } else if (isNumber(v)) {
+        return `${v}i`;
     }
-    timings.get(key).addObservation(elapsed);
+}
+export function timing(key, tags, fields) {
+    const timestamp = 1000000 * Date.now();
+    process.nextTick(() => {
+        const tagstr = Object.keys(tags).sort(cmp).map(k => `${escape(k)}=${escape(tags[k])}`).join(',');
+        const fieldstr = Object.keys(fields).sort(cmp).map(k => `${escape(k)}=${asString(fields[k])}`).join(',');
+        const message = new Buffer(`${escape(key)},${tagstr} ${fieldstr} ${timestamp}`);
+        udpClient.send(message, 0, message.length, influxdb.udpport, influxdb.host, errback);
+    });
 }
 export function dumpTimings() {
-    console.log(toFlushDefaults.join(':'));
-    timings.forEach(value => {
-        console.log(value.flush(toFlushDefaults));
-    });
+    console.log('all done');
+    udpClient.close();
 }

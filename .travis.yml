@@ -12,8 +12,21 @@ node_js:
   - "5"
 services:
   - mongodb
+before_install:
+  - mkdir $HOME/data
+  - mkdir $HOME/data/influxdb/data
+  - mkdir $HOME/data/influxdb/meta
+  - mkdir $HOME/data/influxdb/hh
+  - mkdir $HOME/data/influxdb/wal
+  - mkdir $HOME/logs
+  - wget http://influxdb.s3.amazonaws.com/influxdb_latest_amd64.deb
+  - dpkg-deb -x influxdb_latest_amd64.deb $HOME
+  - $HOME/opt/influxdb/influxd -config $HOME/hapi-getting-started/influxdb.conf > $HOME/logs/influx.log 2>&1 &
 before_script:
   - npm run server:build:clean
   - npm run server:setup
   - mkdir ./test/artifacts
   - mkdir ./logs
+after_script:
+  - cat $HOME/logs/influx.log
+  - cat $HOME/hapi-getting-started/combined.csv

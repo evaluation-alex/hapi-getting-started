@@ -7,28 +7,28 @@ import {errback, hasItems, timing} from './utils';
 import {ObjectNotCreatedError} from './errors';
 let {i18n, logger} = config;
 let connections = {};
-function gatherStats(bucket, query, start, err) {
+function gatherStats(collection, method, query, start, err) {
     const elapsed = Date.now() - start;
-    process.nextTick(() => {
-        timing('dao', bucket, elapsed);
-        if (query) {
-            timing('dao', bucket + '|' + sortBy(keys(query), String).join('|'), elapsed);
-        }
-        if (err) {
-            timing('dao', bucket + '.err', elapsed);
-        }
-    });
+    const fields = {elapsed};
+    const tags = {collection, method};
+    if (query) {
+        fields.query = sortBy(keys(query), String).join('|');
+    }
+    if (err) {
+        fields.err = true;
+    }
+    timing('dao', tags, fields);
 }
-function defaultcb(resolve, reject, bucket, query) {
+function defaultcb(resolve, reject, collection, method, query) {
     const start = Date.now();
     return function cb(err, res) {
         if (err) {
             logger.error({error: err, stack: err.stack});
             reject(err);
-            gatherStats(bucket, query, start, err);
+            gatherStats(collection, method, query, start, err);
         } else {
             resolve(res);
-            gatherStats(bucket, query, start);
+            gatherStats(collection, method, query, start);
         }
     };
 }
@@ -38,7 +38,10 @@ export function connect(name, cfg) {
             resolve(connections[name]);
         } else {
             MongoClient.connect(cfg.url, cfg.options,
-                defaultcb(db => {connections[name] = db; resolve(db);}, reject, 'connect'));
+                defaultcb(db => {
+                    connections[name] = db;
+                    resolve(db);
+                }, reject, 'db', 'connect'));
         }
     });
 }
@@ -52,7 +55,7 @@ export function disconnect(name) {
     });
 }
 function withSchemaProperties(Dao, connection, collection, indexes, modelSchema) {
-    return extend(Dao, { ObjectID, collection, indexes, connection, modelSchema });
+    return extend(Dao, {ObjectID, collection, indexes, connection, modelSchema});
 }
 function withSetupMethods(Dao, nonEnumerables) {
     extend(Dao.prototype, {
@@ -69,10 +72,9 @@ function withSetupMethods(Dao, nonEnumerables) {
             return db(Dao.connection).collection(Dao.collection);
         },
         createIndexes() {
-            const bucket = Dao.collection + '.createIndex';
             return Bluebird.all(Dao.indexes.map(index => {
                 return new Bluebird((resolve, reject) => {
-                    Dao.clctn().createIndex(index.fields, index.options || {}, defaultcb(resolve, reject, bucket));
+                    Dao.clctn().createIndex(index.fields, index.options || {}, defaultcb(resolve, reject, Dao.collection, 'createIndex'));
                 });
             }));
         }
@@ -81,24 +83,23 @@ function withSetupMethods(Dao, nonEnumerables) {
 function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
     extend(Dao, {
         upsert(obj) {
-            const bucket = Dao.collection + '.upsert';
             return new Bluebird((resolve, reject) => {
                 obj._id = obj._id || Dao.ObjectID();
                 const opts = {upsert: true, returnOriginal: false};
                 Dao.clctn().findOneAndReplace({_id: obj._id}, obj, opts,
-                    defaultcb(doc => resolve(new Dao(doc.value)), reject, bucket)
+                    defaultcb(doc => resolve(new Dao(doc.value)), reject, Dao.collection, 'upsert')
                 );
             });
         }
     });
-    /*istanbul ignore if*//*istanbul ignore else*/
+    /*istanbul ignore if*/
+    /*istanbul ignore else*/
     if (process.env.NODE_ENV !== 'production') {
         extend(Dao, {
             remove(query) {
-                const bucket = Dao.collection + '.remove';
                 return new Bluebird((resolve, reject) => {
                     Dao.clctn().deleteMany(query,
-                        defaultcb(doc => resolve(doc.deletedCount), reject, bucket, query)
+                        defaultcb(doc => resolve(doc.deletedCount), reject, Dao.collection, 'remove', query)
                     );
                 });
             }
@@ -107,17 +108,16 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
     if (!isReadonly) {
         extend(Dao, {
             remove(query) {
-                const bucket = Dao.collection + '.remove';
                 return new Bluebird((resolve, reject) => {
                     Dao.clctn().deleteMany(query,
-                        defaultcb(doc => resolve(doc.deletedCount), reject, bucket, query)
+                        defaultcb(doc => resolve(doc.deletedCount), reject, Dao.collection, 'remove', query)
                     );
                 });
             },
             saveChangeHistory(audit) {
                 return new Bluebird((resolve, reject) => {
                     if (audit && saveAudit) {
-                        db(Dao.connection).collection('audit').insertOne(audit, defaultcb(resolve, reject, 'audit.insert'));
+                        db(Dao.connection).collection('audit').insertOne(audit, defaultcb(resolve, reject, 'audit', 'insert'));
                     } else {
                         resolve(true);
                     }
@@ -139,16 +139,16 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
                             return Bluebird.reject(new ObjectNotCreatedError({collection: Dao.collection}));
                         } else {
                             return Dao.saveChangeHistory({
-                                objectChangedType: Dao.collection,
-                                objectChangedId: obj[idForAudit],
-                                organisation: obj.organisation,
-                                by: by,
-                                on: now,
-                                change: [{
-                                    action: 'create',
-                                    newValues: doc
-                                }]
-                            })
+                                    objectChangedType: Dao.collection,
+                                    objectChangedId: obj[idForAudit],
+                                    organisation: obj.organisation,
+                                    by: by,
+                                    on: now,
+                                    change: [{
+                                        action: 'create',
+                                        newValues: doc
+                                    }]
+                                })
                                 .then(() => obj);
                         }
                     });
@@ -160,15 +160,13 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
 function withFindMethods(Dao, areValidProperty) {
     extend(Dao, {
         count(query) {
-            const bucket = Dao.collection + '.count';
             return new Bluebird((resolve, reject) => {
-                Dao.clctn().count(query, defaultcb(resolve, reject, bucket, query));
+                Dao.clctn().count(query, defaultcb(resolve, reject, Dao.collection, 'count', query));
             });
         },
         find(query, fields, sort, limit, skip) {
             return new Bluebird((resolve, reject) => {
                 const start = Date.now();
-                const bucket = Dao.collection + '.find';
                 let cursor = Dao.clctn().find(query,
                     {fields: fields, sort: sort, limit: limit, skip: skip}
                 );
@@ -176,7 +174,7 @@ function withFindMethods(Dao, areValidProperty) {
                 /*istanbul ignore next*/
                 function handleError(err) {
                     errback(err);
-                    gatherStats(bucket, query, start, err);
+                    gatherStats(Dao.collection, 'find', query, start, err);
                     reject(err);
                 }
 
@@ -199,7 +197,7 @@ function withFindMethods(Dao, areValidProperty) {
                             cursor.next(next);
                         } else {
                             resolve(results);
-                            gatherStats(bucket, query, start, err);
+                            gatherStats(Dao.collection, 'find', query, start, err);
                         }
                     }
                 }
@@ -208,10 +206,9 @@ function withFindMethods(Dao, areValidProperty) {
             });
         },
         findOne(query) {
-            const bucket = Dao.collection + '.findOne';
             return new Bluebird((resolve, reject) => {
                 Dao.clctn().findOne(query, {},
-                    defaultcb(doc => resolve(doc ? new Dao(doc) : undefined), reject, bucket, query)
+                    defaultcb(doc => resolve(doc ? new Dao(doc) : undefined), reject, Dao.collection, 'findOne', query)
                 );
             });
         },

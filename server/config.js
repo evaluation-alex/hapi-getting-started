@@ -1,22 +1,10 @@
 'use strict';
-/*eslint-disable no-process-exit*/
 import fs from 'fs';
 import devnull from 'dev-null';
 import {createLogger} from 'bunyan';
 import i18n from 'i18n';
-/* istanbul ignore if  */
-if (!fs.existsSync('./build/.opts')) {
-    console.log('.opts file missing. will exit');
-    process.exit(1);
-}
-/* istanbul ignore if  */
-if (!fs.existsSync('./build/manifest.json')) {
-    console.log('manifest.json file missing. will exit');
-    process.exit(1);
-}
-/*eslint-enable no-process-exit*/
-let args = JSON.parse(fs.readFileSync('./build/.opts'));
-let manifest = JSON.parse(fs.readFileSync('./build/manifest.json'));
+let args = JSON.parse(fs.readFileSync('./build/options.json'));
+let manifest = args.manifest;
 let nodemailer = {};
 /* istanbul ignore else  */
 if (!args.sendemails) {
@@ -35,7 +23,8 @@ if (!args.sendemails) {
     nodemailer = args.nodemailer;
 }
 i18n.configure(args.i18n);
-let logger = createLogger(args.bunyan);
+const logger = createLogger(args.bunyan);
+const influxdb = args.influxdb;
 manifest.connections.forEach(connection => {
     /*istanbul ignore if*//*istanbul ignore else*/
     if (connection.tls &&
@@ -71,6 +60,7 @@ export default {
         }
     },
     i18n,
+    influxdb,
     manifest
 };
 

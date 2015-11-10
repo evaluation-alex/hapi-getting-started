@@ -17,7 +17,12 @@ const test = {
     logdir: './logs',
     logMetrics: false,
     certfile: './.secure/cert.pem',
-    keyfile: './.secure/key.pem'
+    keyfile: './.secure/key.pem',
+    influxdbHost: 'localhost',
+    influxdbHttpPort: 8086,
+    influxdbUdpPort: 8088,
+    influxdbDatabase: 'frame',
+    influxdbShellCmd: '$HOME/opt/influxdb/influx'
 };
 function fromStdIn(results, property, message, opts) {
     return new Bluebird((resolve, reject) => {
@@ -52,6 +57,11 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
     .then(results => fromStdIn(results, 'smtpUsername', 'SMTP username: (' + results.rootEmail + ') ', {'default': results.systemEmail}))
     .then(results => fromStdIn(results, 'smtpPassword', 'SMTP password: ', {'default': ''}))
     .then(results => fromStdIn(results, 'port', 'port: ', {'default': 3000}))
+    .then(results => fromStdIn(results, 'influxdbHost', 'influxdb host: (localhost) ', {'default': 'localhost'}))
+    .then(results => fromStdIn(results, 'influxdbHttpPort', 'influxdb http port: (8086)', {'default': 8086}))
+    .then(results => fromStdIn(results, 'influxdbUdpPort', 'influxdb udp port: (8088) ', {'default': 8088}))
+    .then(results => fromStdIn(results, 'influxdbDatabase', 'influxdb database: (frame) ', {'default': 'frame'}))
+    .then(results => fromStdIn(results, 'influxdbShellCmd', 'influxdb shell cmd: (/opt/influxdb/influx) ', {'default': '$HOME/opt/influxdb/influx'}))
     .then(results => fromStdIn(results, 'logdir', 'log directory: ', {'default': './logs'}))
     .then(results => fromStdIn(results, 'logMetrics', 'capture metrics: ', {'default': true}))
     .then(results => fromStdIn(results, 'certfile', 'certificate file for https: ', {'default': './secure/cert.pem'}))
@@ -81,48 +91,55 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                     level: 'debug'
                 }]
             },
+            influxdb: {
+                host: results.influxdbHost,
+                httpport: results.influxdbHttpPort,
+                udpport: results.influxdbUdpPort,
+                database: results.influxdbDatabase,
+                shellCmd: results.influxdbShellCmd,
+            },
             sendemails: false,
-            'i18n': {
+            i18n: {
                 locales: ['en'],
                 defaultLocale: 'en',
                 directory: './i18n'
-            }
-        };
-        const manifest = {
-            plugins: {
-                'hapi-bunyan': {
-                    'logger': '',
-                    'mergeData': true,
-                    'includeTags': true,
-                    'joinTags': ','
-                },
-                'inert': {},
-                'hapi-auth-basic': {},
-                './build/common/plugins/connections': {
-                    'mongo': {
-                        'app': {
-                            'url': results.mongodbUrl
+            },
+            manifest: {
+                plugins: {
+                    'hapi-bunyan': {
+                        logger: '',
+                        mergeData: true,
+                        includeTags: true,
+                        joinTags: ','
+                    },
+                    inert: {},
+                    'hapi-auth-basic': {},
+                    './build/common/plugins/connections': {
+                        'mongo': {
+                            'app': {
+                                'url': results.mongodbUrl
+                            }
                         }
+                    },
+                    './build/common/plugins/auth': {},
+                    './build/common/plugins/err-handler': {},
+                    './build/common/plugins/metrics': {},
+                    './build/common/plugins/app-routes': {
+                        prependRoute: '/api',
+                        modules: [
+                            'web/contact',
+                            'users',
+                            'users/session',
+                            'users/profile',
+                            'users/session/auth-attempts',
+                            'users/notifications',
+                            'users/preferences',
+                            'user-groups',
+                            'blogs',
+                            'blogs/posts',
+                            'audit'
+                        ]
                     }
-                },
-                './build/common/plugins/auth': {},
-                './build/common/plugins/err-handler': {},
-                './build/common/plugins/metrics': {},
-                './build/common/plugins/app-routes': {
-                    'prependRoute': '/api',
-                    'modules': [
-                        'web/contact',
-                        'users',
-                        'users/session',
-                        'users/profile',
-                        'users/session/auth-attempts',
-                        'users/notifications',
-                        'users/preferences',
-                        'user-groups',
-                        'blogs',
-                        'blogs/posts',
-                        'audit'
-                    ]
                 }
             },
             connections: [{
@@ -144,8 +161,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 }
             }
         };
-        fs.writeFileSync('./server/.opts', JSON.stringify(opts, null, 4));
-        fs.writeFileSync('./server/manifest.json', JSON.stringify(manifest, null, 4));
+        fs.writeFileSync('./server/options.json', JSON.stringify(opts, null, 4));
         return results;
     })
     .then(() => {
@@ -159,5 +175,4 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
             return process.exit(1);
         }
     });
-
 /*eslint-enable no-process-exit*/

@@ -1,10 +1,10 @@
 node_modules/*
-test/artifacts/*
+test/artifacts/**/*.*
 logs/*
 .idea/*
-server/.opts
 npm-debug.log
 .secure/*
-statsd
 public/*
 build/*
+results.csv
+combined.csv

@@ -14,6 +14,7 @@ services:
   - mongodb
 before_install:
   - mkdir $HOME/data
+  - mkdir $HOME/data/influxdb
   - mkdir $HOME/data/influxdb/data
   - mkdir $HOME/data/influxdb/meta
   - mkdir $HOME/data/influxdb/hh

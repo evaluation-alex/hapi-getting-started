@@ -13,7 +13,6 @@ const test = {
     smtpPort: 465,
     smtpUsername: 'you',
     smtpPassword: '^YOURSMTPWD$',
-    port: 3000,
     logdir: './logs',
     logMetrics: false,
     certfile: './.secure/cert.pem',
@@ -42,30 +41,21 @@ function fromStdIn(results, property, message, opts) {
     });
 }
 fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistart'})
-    .then(results => fromStdIn(results,
-        'mongodbUrl',
-        'MongoDB URL: (mongodb://localhost:27017/' + results.projectName + ') ',
-        {'default': 'mongodb://localhost:27017/' + results.projectName}
-    ))
-    .then(results => {
-        results.rootEmail = 'root';
-        return results;
-    })
+    .then(results => fromStdIn(results, 'mongodbUrl', 'MongoDB URL: (mongodb://localhost:27017/' + results.projectName + ') ',{'default': 'mongodb://localhost:27017/' + results.projectName}))
+    .then(results => {results.rootEmail = 'root';return results;})
     .then(results => fromStdIn(results, 'rootPassword', 'Root user password: ', {'default': ''}))
     .then(results => fromStdIn(results, 'smtpHost', 'SMTP host: (smtp.gmail.com) ', {'default': 'smtp.gmail.com'}))
     .then(results => fromStdIn(results, 'smtpPort', 'SMTP port: (465) ', {'default': 465}))
     .then(results => fromStdIn(results, 'smtpUsername', 'SMTP username: (' + results.rootEmail + ') ', {'default': results.systemEmail}))
     .then(results => fromStdIn(results, 'smtpPassword', 'SMTP password: ', {'default': ''}))
-    .then(results => fromStdIn(results, 'port', 'port: ', {'default': 3000}))
     .then(results => fromStdIn(results, 'influxdbHost', 'influxdb host: (localhost) ', {'default': 'localhost'}))
     .then(results => fromStdIn(results, 'influxdbHttpPort', 'influxdb http port: (8086)', {'default': 8086}))
     .then(results => fromStdIn(results, 'influxdbUdpPort', 'influxdb udp port: (8088) ', {'default': 8088}))
     .then(results => fromStdIn(results, 'influxdbDatabase', 'influxdb database: (frame) ', {'default': 'frame'}))
-    .then(results => fromStdIn(results, 'influxdbShellCmd', 'influxdb shell cmd: (/opt/influxdb/influx) ', {'default': '$HOME/opt/influxdb/influx'}))
+    .then(results => fromStdIn(results, 'influxdbShellCmd', 'influxdb shell cmd: (/opt/influxdb/influx) ', {'default': '$HOME/opt/influxdb/versions/0.9.4.2/influx'}))
     .then(results => fromStdIn(results, 'logdir', 'log directory: ', {'default': './logs'}))
-    .then(results => fromStdIn(results, 'logMetrics', 'capture metrics: ', {'default': true}))
-    .then(results => fromStdIn(results, 'certfile', 'certificate file for https: ', {'default': './secure/cert.pem'}))
-    .then(results => fromStdIn(results, 'keyfile', 'key file for https: ', {'default': './secure/key.pem'}))
+    .then(results => fromStdIn(results, 'certfile', 'certificate file for https: ', {'default': './.secure/cert.pem'}))
+    .then(results => fromStdIn(results, 'keyfile', 'key file for https: ', {'default': './.secure/key.pem'}))
     .then(results => {
         console.log('setting up with - ' + JSON.stringify(results));
         const opts = {
@@ -96,7 +86,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 httpport: results.influxdbHttpPort,
                 udpport: results.influxdbUdpPort,
                 database: results.influxdbDatabase,
-                shellCmd: results.influxdbShellCmd,
+                shellCmd: results.influxdbShellCmd
             },
             sendemails: false,
             i18n: {
@@ -140,28 +130,29 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                             'audit'
                         ]
                     }
-                }
-            },
-            connections: [{
-                port: 8000,
-                labels: ['http']
-            }, {
-                port: 443,
-                labels: ['secure', 'api'],
-                tls: {
-                    key: results.keyfile,
-                    cert: results.certfile
-                }
-            }],
-            server: {
-                connections: {
-                    routes: {
-                        security: true
+                },
+                connections: [{
+                    port: 8000,
+                    labels: ['http']
+                }, {
+                    port: 443,
+                    labels: ['secure', 'api'],
+                    tls: {
+                        key: results.keyfile,
+                        cert: results.certfile
+                    }
+                }],
+                server: {
+                    connections: {
+                        routes: {
+                            security: true
+                        }
                     }
                 }
             }
         };
         fs.writeFileSync('./server/options.json', JSON.stringify(opts, null, 4));
+        console.log('options.json - ' + JSON.stringify(opts, null, 4));
         return results;
     })
     .then(() => {

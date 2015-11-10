@@ -24,7 +24,7 @@ before_install:
   - wget http://influxdb.s3.amazonaws.com/influxdb_0.9.4.2_amd64.deb
   - dpkg-deb -x influxdb_0.9.4.2_amd64.deb $HOME
 before_script:
-  - $HOME/opt/influxdb/versions/0.9.4.2/influxd -config $HOME/hapi-getting-started/influxdb.conf > $HOME/logs/influx.log 2>&1 &
+  - $HOME/opt/influxdb/versions/0.9.4.2/influxd -config $HOME/build/k-sheth/hapi-getting-started/influxdb.conf > $HOME/logs/influx.log 2>&1 &
   - npm run server:build:clean
   - npm run server:setup
   - mkdir ./test/artifacts

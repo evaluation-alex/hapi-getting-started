@@ -3,8 +3,8 @@
     "project": "frame",
     "nodemailer": {
         "auth": {
-            "user": "xxx",
-            "pass": "xxx"
+            "user": "root",
+            "pass": "x"
         },
         "secure": true,
         "host": "smtp.gmail.com",
@@ -15,7 +15,7 @@
         "streams": [
             {
                 "type": "rotating-file",
-                "path": "logs/frame.log",
+                "path": "./logs/frame.log",
                 "period": "1d",
                 "count": 7,
                 "name": "file",
@@ -49,7 +49,7 @@
             "./build/common/plugins/connections": {
                 "mongo": {
                     "app": {
-                        "url": "mongodb://frameRoot:frameRoot@127.0.0.1:27017/frame"
+                        "url": "mongodb://frameRoot:frameRoot@localhost:27017/frame"
                     }
                 }
             },

@@ -12,6 +12,7 @@ node_js:
   - "5"
 services:
   - mongodb
+#influxdb installation taken from https://github.com/gobwas/influent/blob/master/.travis.yml
 before_install:
   - mkdir $HOME/data
   - mkdir $HOME/data/influxdb

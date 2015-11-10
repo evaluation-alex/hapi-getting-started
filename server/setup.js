@@ -22,7 +22,7 @@ const test = {
     influxdbHttpPort: 8086,
     influxdbUdpPort: 8088,
     influxdbDatabase: 'frame',
-    influxdbShellCmd: '$HOME/opt/influxdb/influx'
+    influxdbShellCmd: '$HOME/opt/influxdb/versions/0.9.4.2/influx'
 };
 function fromStdIn(results, property, message, opts) {
     return new Bluebird((resolve, reject) => {

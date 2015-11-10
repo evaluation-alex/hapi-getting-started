@@ -20,10 +20,10 @@ before_install:
   - mkdir $HOME/data/influxdb/hh
   - mkdir $HOME/data/influxdb/wal
   - mkdir $HOME/logs
-  - wget http://influxdb.s3.amazonaws.com/influxdb_latest_amd64.deb
-  - dpkg-deb -x influxdb_latest_amd64.deb $HOME
-  - $HOME/opt/influxdb/influxd -config $HOME/hapi-getting-started/influxdb.conf > $HOME/logs/influx.log 2>&1 &
+  - wget http://influxdb.s3.amazonaws.com/influxdb_0.9.4.2_amd64.deb
+  - dpkg-deb -x influxdb_0.9.4.2_amd64.deb $HOME
 before_script:
+  - $HOME/opt/influxdb/influxd -config $HOME/hapi-getting-started/influxdb.conf > $HOME/logs/influx.log 2>&1 &
   - npm run server:build:clean
   - npm run server:setup
   - mkdir ./test/artifacts

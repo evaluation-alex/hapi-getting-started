@@ -15,7 +15,7 @@
         "streams": [
             {
                 "type": "rotating-file",
-                "path": "./logs/frame.log",
+                "path": "logs/frame.log",
                 "period": "1d",
                 "count": 7,
                 "name": "file",

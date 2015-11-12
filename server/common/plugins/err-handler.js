@@ -2,7 +2,7 @@
 import {locale} from './../utils';
 export let register = function register(server, options, next) {
     server.ext('onPreResponse', (request, reply) => {
-        let response = request.response;
+        const response = request.response;
         if (response.canMakeBoomError) {
             return reply(response.i18nError(locale(request)));
         }

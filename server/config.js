@@ -3,8 +3,8 @@ import fs from 'fs';
 import devnull from 'dev-null';
 import {createLogger} from 'bunyan';
 import i18n from 'i18n';
-let args = JSON.parse(fs.readFileSync('./build/options.json'));
-let manifest = args.manifest;
+const args = JSON.parse(fs.readFileSync('./build/options.json'));
+const manifest = args.manifest;
 let nodemailer = {};
 /* istanbul ignore else  */
 if (!args.sendemails) {

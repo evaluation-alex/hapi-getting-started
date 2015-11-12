@@ -20,7 +20,7 @@ class UserGroups {
             });
     }
     static create(name, organisation, description, owner) {
-        let document = {
+        return UserGroups.insertAndAudit({
             name,
             organisation,
             description,
@@ -28,8 +28,7 @@ class UserGroups {
             owners: [owner],
             needsApproval: [],
             access: 'restricted'
-        };
-        return UserGroups.insertAndAudit(document, owner);
+        }, owner);
     }
 }
 build(UserGroups, schemas.dao, schemas.model, [], 'name');

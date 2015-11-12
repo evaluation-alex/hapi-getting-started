@@ -6,7 +6,7 @@ const pathWithId = (pathPrefix, component) => ((pathPrefix ? pathPrefix : '') + 
 export function buildRoute(method, path, controller, strategy = 'simple') {
     const {handler, validate, pre, post} = controller;
     const auth = strategy ? {strategy} : !!strategy;
-    let route = {
+    return {
         method,
         path,
         handler,
@@ -19,7 +19,6 @@ export function buildRoute(method, path, controller, strategy = 'simple') {
             }
         }
     };
-    return route;
 }
 export function buildRESTRoutes(component, controller, pathPrefix) {
     const restMethods = [

@@ -3,20 +3,19 @@ import Bluebird from 'bluebird';
 import config from './../../../config';
 import {build} from './../../../common/dao';
 import schemas from './schemas';
-let {authAttempts: limits} = config;
+const {authAttempts: limits} = config;
 class AuthAttempts {
     constructor(attrs) {
         this.init(attrs);
     }
 
     static create(ip, email) {
-        let document = {
+        return AuthAttempts.upsert({
             ip,
             email,
             organisation: '*',
             time: new Date()
-        };
-        return AuthAttempts.upsert(document);
+        });
     }
 
     static abuseDetected(ip, email) {

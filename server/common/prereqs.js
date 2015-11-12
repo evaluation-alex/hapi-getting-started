@@ -22,12 +22,7 @@ function buildAreValid(Model, pldPropToLookup) {
         if (hasItems(toLookup)) {
             Model.areValid(toLookup, org(request))
                 .then(validated => {
-                    let msg = '';
-                    toLookup.forEach(a => {
-                        if (!validated[a]) {
-                            msg += a.toString() + ',';
-                        }
-                    });
+                    const msg = toLookup.map(a => !validated[a] ? a.toString() + ',' : '').join('');
                     return (msg.indexOf(',') > -1) ? Bluebird.reject(new NotValidUsersOrGroupsError({msg})) : true;
                 })
                 .catch(logAndBoom)

@@ -2,7 +2,7 @@
 import {flattenDeep} from 'lodash';
 import {buildRESTRoutes, buildRoute} from './../../common/routes';
 import Controller from './controller';
-let routes = flattenDeep([
+const routes = flattenDeep([
     buildRESTRoutes('posts', Controller, '/blogs/{blogId}'),
     buildRESTRoutes('posts', Controller),
     ['publish', 'reject'].map(action => {

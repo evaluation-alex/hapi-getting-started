@@ -22,7 +22,7 @@ class Blogs {
     }
 
     static create(title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {
-        let document = {
+        return Blogs.insertAndAudit({
             title,
             organisation,
             description,
@@ -34,8 +34,7 @@ class Blogs {
             needsReview,
             access,
             allowComments
-        };
-        return Blogs.insertAndAudit(document, by);
+        }, by);
     }
 }
 build(Blogs, schemas.dao, schemas.model);

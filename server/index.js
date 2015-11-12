@@ -3,7 +3,7 @@ import Hapi from 'hapi';
 import Bluebird from 'bluebird';
 import path from 'path';
 import config from './config';
-let manifest = config.manifest;
+const manifest = config.manifest;
 function start(server) {
     server.start(() => {
         console.log('engage' + JSON.stringify(server.connections.map(c => c.info)));
@@ -15,8 +15,8 @@ manifest.connections.forEach(connection => {
 });
 Bluebird.all(Object.keys(manifest.plugins).map(plugin => {
     const module = plugin[0] === '.' ? path.join(__dirname, '/../', plugin) : plugin;
-    let register = require(module);
-    let options = manifest.plugins[plugin];
+    const register = require(module);
+    const options = manifest.plugins[plugin];
     return new Bluebird((resolve, reject) => {
         server.register({register, options}, err => {
             err ? reject(err) : resolve();

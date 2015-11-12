@@ -63,17 +63,15 @@ class Users {
     }
 
     static create(email, organisation, password, locale) {
-        let document = {
+        return Users.insertAndAudit({
             email,
             password: secureHash(password),
             organisation,
             roles: ['readonly'],
             session: [],
-            preferences: Preferences.create(),
+            preferences: Preferences.create(locale),
             profile: Profile.create()
-        };
-        document.preferences.locale = locale;
-        return Users.insertAndAudit(document, email);
+        }, email);
     }
 
     static findByCredentials(email, password) {

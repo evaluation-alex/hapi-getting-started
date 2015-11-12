@@ -9,7 +9,7 @@ import {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} 
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
 import schemas from './schemas';
 import Users from './model';
-let {projectName} = config;
+const {projectName} = config;
 export default {
     signup: {
         validate: schemas.controller.signup,

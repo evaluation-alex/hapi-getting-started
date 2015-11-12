@@ -7,7 +7,7 @@ import Nodemailer from 'nodemailer';
 import {markdown} from 'nodemailer-markdown';
 import config from './../../config';
 
-let transport = Bluebird.promisifyAll(Nodemailer.createTransport(clone(config.nodemailer)));
+const transport = Bluebird.promisifyAll(Nodemailer.createTransport(clone(config.nodemailer)));
 transport.use('compile', markdown({useEmbeddedImages: true}));
 const readFile = Bluebird.promisify(fs.readFile);
 

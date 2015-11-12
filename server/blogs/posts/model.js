@@ -41,7 +41,7 @@ class Posts {
 
     static create(blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, contentType, content, by) {
         const now = new Date();
-        let document = {
+        return Posts.insertAndAudit({
             blogId,
             organisation,
             title,
@@ -58,8 +58,7 @@ class Posts {
             publishedOn: state === 'published' ? now : null,
             reviewedBy: state === 'published' ? by : null,
             reviewedOn: state === 'published' ? now : null
-        };
-        return Posts.insertAndAudit(document, by);
+        }, by);
     }
 
     update(doc, by) {

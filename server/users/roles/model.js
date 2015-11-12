@@ -12,12 +12,11 @@ class Roles {
         );
     }
     static create(name, organisation, permissions) {
-        let document = {
+        return Roles.upsert({
             name,
             organisation,
             permissions
-        };
-        return Roles.upsert(document);
+        });
     }
 }
 build(Roles, schemas.dao, schemas.model);

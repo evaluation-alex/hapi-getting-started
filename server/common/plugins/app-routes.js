@@ -7,7 +7,7 @@ function describeRoutes(routes) {
 }
 function describeModel(model) {
     if (fs.existsSync(model + '.js')) {
-        let modl = require(model);
+        const modl = require(model);
         return `class: ${modl.name}
 static methods:
     ${functions(modl).join('\n\t')}
@@ -18,10 +18,10 @@ prototype methods:
 }
 
 export let register = function register(server, options, next) {
-    let buildPath = path.join(process.cwd(), '/build/');
+    const buildPath = path.join(process.cwd(), '/build/');
     options.modules.forEach(module => {
-        let model = path.join(buildPath, module, '/model');
-        let routes = require(path.join(buildPath, module, '/routes'));
+        const model = path.join(buildPath, module, '/model');
+        const routes = require(path.join(buildPath, module, '/routes'));
         /*istanbul ignore if*/
         /*istanbul ignore else*/
         if (process.env.NODE_ENV !== 'production') {

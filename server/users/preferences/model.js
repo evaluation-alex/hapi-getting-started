@@ -2,7 +2,7 @@
 import {build} from './../../common/dao';
 import schemas from './schemas';
 class Preferences {
-    static create() {
+    static create(locale = 'en') {
         return {
             notifications: {
                 blogs: {
@@ -39,7 +39,7 @@ class Preferences {
                     blocked: []
                 }
             },
-            locale: 'en'
+            locale
         };
     }
     resetPrefs() {

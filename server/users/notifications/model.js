@@ -8,7 +8,7 @@ class Notifications {
         this.init(attrs);
     }
     static createOne (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
-        let document = {
+        return Notifications.upsert({
             email,
             organisation,
             objectType,
@@ -23,8 +23,7 @@ class Notifications {
             createdOn: new Date(),
             updatedBy: by,
             updatedOn: new Date()
-        };
-        return Notifications.upsert(document);
+        });
     }
     static createMany(email, organisation, objectType, objectId, title, state, action, priority, content, by) {
         return Bluebird.all(unique(flatten(email)).map(e =>

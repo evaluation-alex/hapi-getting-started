@@ -1,7 +1,7 @@
 'use strict';
 import config from './../../config';
 import Users from './../../users/model';
-let {logger} = config;
+const {logger} = config;
 export let register = function register(server, options, next) {
     server.connections.forEach(connection => {
         connection.auth.strategy('simple', 'basic', {

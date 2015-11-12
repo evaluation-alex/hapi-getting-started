@@ -5,7 +5,7 @@ import {MongoClient, ObjectID} from 'mongodb';
 import config from './../config';
 import {errback, hasItems, timing} from './utils';
 import {ObjectNotCreatedError} from './errors';
-let {i18n, logger} = config;
+const {i18n, logger} = config;
 let connections = {};
 function gatherStats(collection, method, query, start, err) {
     const elapsed = Date.now() - start;

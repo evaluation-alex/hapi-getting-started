@@ -6,8 +6,8 @@ import boom from 'boom';
 import {ObjectID as objectID} from 'mongodb';
 import config from './../config';
 import dgram from 'dgram';
-let {logger, influxdb} = config;
-let udpClient = dgram.createSocket('udp4');
+const {logger, influxdb} = config;
+const udpClient = dgram.createSocket('udp4');
 export function logAndBoom(err) {
     logger.error({error: err, stack: err.stack});
     return err.canMakeBoomError ? err : boom.badImplementation(err);
@@ -77,7 +77,7 @@ function buildQueryForDateRange(query, request, field) {
     return query;
 }
 export function buildQuery(request, options) {
-    let {forPartial, forExact, forDateRange, forID} = options;
+    const {forPartial, forExact, forDateRange, forID} = options;
     let query = {};
     if (hasItems(forPartial)) {
         buildQueryFor('partial', query, request, forPartial);

@@ -2,7 +2,7 @@
 import {flatten} from 'lodash';
 import {buildRESTRoutes, buildRoute} from './../common/routes';
 import Controller from './controller';
-let routes = flatten([
+const routes = flatten([
     buildRESTRoutes('users', Controller),
     buildRoute('POST', '/users/signup', Controller.signup, false),
     buildRoute('PUT', '/users/forgot', Controller.forgot, false),

@@ -17,10 +17,10 @@ export let register = function register(server, options, next) {
         const tags = {
             route: normalizePath(request),
             method: request.method.toUpperCase(),
+            userid: by(request),
             statusCode: '#' + request.response.statusCode
         };
         const fields = {
-            usr: by(request),
             device: ua.device.toString(),
             browser: ua.toString(),
             elapsed: request.info.responded - request.info.received

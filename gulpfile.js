@@ -69,25 +69,25 @@ gulp.task('server:test:prep', (cb) => {
 gulp.task('server:test:perf', (cb) => {
     $.gutil.log(`querying influxdb on ${influxdb.host}:${influxdb.httpport}/${influxdb.database}`);
     const cmdprefix = `${influxdb.shellCmd} -host '${influxdb.host}' -port '${influxdb.httpport}' -database '${influxdb.database}' -format csv -execute '`;
-    const cmdpostfix = `' | sort -r | uniq | sed 's/,1970-01-01T00:00:00Z//g' | sed 's/,time//g' | sed 's/\"//g' `;
-    const fields = `min(elapsed), percentile(elapsed, 10) as p10, percentile(elapsed, 20) as p20, percentile(elapsed, 25) as p25, percentile(elapsed, 30) as p30, percentile(elapsed, 40) as p40, percentile(elapsed, 50) as p50, percentile(elapsed, 60) as p60, percentile(elapsed, 70) as p70, percentile(elapsed, 75) as p75, percentile(elapsed, 80) as p80, percentile(elapsed, 90) as p90, max(elapsed), mean(elapsed), stddev(elapsed), last(elapsed) as lastObserved, count(elapsed)`;
+    const cmdpostfix = `' | sort -r | uniq | sed 's/,1970-01-01T00:00:00Z//g' | sed 's/,time//g' | sed 's/\"//g' | sed 's/route=//g' | sed 's/method=//g' | sed 's/statusCode=//g' | sed 's/collection=//g'`;
+    const fields = `min(elapsed), percentile(elapsed, 10) as p10, percentile(elapsed, 20) as p20, percentile(elapsed, 25) as p25, percentile(elapsed, 30) as p30, percentile(elapsed, 40) as p40, percentile(elapsed, 50) as p50, percentile(elapsed, 60) as p60, percentile(elapsed, 70) as p70, percentile(elapsed, 75) as p75, percentile(elapsed, 80) as p80, percentile(elapsed, 90) as p90, max(elapsed), mean(elapsed), stddev(elapsed), last(elapsed) as lastObserved, sum(elapsed) as total, count(elapsed), count(distinct elapsed) as uniqs`;
     const queryOn = {
         dao: [
-            {groupBy: 'collection, method', rearrange: `| awk -F, -v OFS=, '{print $4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$1,$2,$3",#"}'`},
-            {groupBy: 'collection', rearrange: `| awk -F, -v OFS=, '{print $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$1,$2",,#"}'`},
-            {groupBy: 'method', rearrange: `| awk -F, -v OFS=, '{print $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$1,","$2",#"}'`}
+            {groupBy: 'collection, method', rearrange: `| awk -F, -v OFS=, '{print $1,$2,$3",#",$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22}'`},
+            {groupBy: 'collection', rearrange: `| awk -F, -v OFS=, '{print $1,$2",,#",$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22}'`},
+            {groupBy: 'method', rearrange: `| awk -F, -v OFS=, '{print $1,","$2",#",$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22}'`}
         ],
         controller: [
-            {groupBy: 'route', rearrange: `| awk -F, -v OFS=, '{print $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$1,$2",,#"}'`},
-            {groupBy: 'method', rearrange: `| awk -F, -v OFS=, '{print $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$1",",$2",#"}'`},
-            {groupBy: 'statusCode', rearrange: `| awk -F, -v OFS=, '{print $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$1,",,"$2}'`},
-            {groupBy: 'route, method', rearrange: `| awk -F, -v OFS=, '{print $4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$1,$3,$2",#"}'`},
-            {groupBy: 'route, statusCode', rearrange: `| awk -F, -v OFS=, '{print $4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$1,$2,","$3}'`},
-            {groupBy: 'method, statusCode', rearrange: `| awk -F, -v OFS=, '{print $4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$1,","$2,$3}'`}
+            {groupBy: 'route', rearrange: `| awk -F, -v OFS=, '{print $1,$2",,#",$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22}'`},
+            {groupBy: 'method', rearrange: `| awk -F, -v OFS=, '{print $1",",$2",#",$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22}'`},
+            {groupBy: 'statusCode', rearrange: `| awk -F, -v OFS=, '{print $1,",,"$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22}'`},
+            {groupBy: 'route, method', rearrange: `| awk -F, -v OFS=, '{print $1,$3,$2",#",$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22}'`},
+            {groupBy: 'route, statusCode', rearrange: `| awk -F, -v OFS=, '{print $1,$2,","$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22}'`},
+            {groupBy: 'method, statusCode', rearrange: `| awk -F, -v OFS=, '{print $1,","$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22}'`}
         ]
     };
     const cmd = _.flatten(Object.keys(queryOn).map(measure => queryOn[measure].map(params => `${cmdprefix} select ${fields} from ${measure} group by ${params.groupBy} ${cmdpostfix} ${params.rearrange} >> results.csv;`))).join('');
-    const toExec = `rm -rf results.csv combined.csv;${cmd}cat results.csv | sort -r | uniq | sed 's/route=//g' | sed 's/method=//g' | sed 's/statusCode=//g' | sed 's/collection=//g' | sed 's/name,,,tags/measure,routeORCollection,method,statusCode/' |tail -n+7 > combined.csv;`;
+    const toExec = `rm -rf results.csv;${cmd}cat results.csv | sort -r | uniq | sed 's/name,min,tags,#,/name,routeOrCollection,method,statusCode,min,/' | tail -n+7 > combined.csv;`;
     exec(toExec, (err, stdout, stderr) => {
         $.gutil.log(stdout);
         $.gutil.log(stderr);

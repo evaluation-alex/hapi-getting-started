@@ -42,7 +42,7 @@ class Session {
             _id: this._id,
             user: this.email,
             session: omit(session, 'key'),
-            authHeader: 'Basic ' + new Buffer(this.email + ':' + session.key).toString('base64'),
+            authHeader: `Basic ${new Buffer(`${this.email}:${session.key}`).toString('base64')}`,
             preferences: this.preferences
         };
     }

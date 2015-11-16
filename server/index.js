@@ -6,7 +6,7 @@ import config from './config';
 const manifest = config.manifest;
 function start(server) {
     server.start(() => {
-        console.log('engage' + JSON.stringify(server.connections.map(c => c.info)));
+        console.log(`engage ${JSON.stringify(server.connections.map(c => c.info))}`);
     });
 }
 let server = new Hapi.Server(manifest.server);

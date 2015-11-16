@@ -8,6 +8,7 @@ class Notifications {
         this.init(attrs);
     }
     static createOne (email, organisation, objectType, objectId, title, state, action, priority, content, by) {
+        let now = new Date();
         return Notifications.upsert({
             email,
             organisation,
@@ -20,9 +21,9 @@ class Notifications {
             content,
             isActive: true,
             createdBy: by,
-            createdOn: new Date(),
+            createdOn: now,
             updatedBy: by,
-            updatedOn: new Date()
+            updatedOn: now
         });
     }
     static createMany(email, organisation, objectType, objectId, title, state, action, priority, content, by) {

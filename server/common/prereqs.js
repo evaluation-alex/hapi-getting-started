@@ -70,11 +70,11 @@ export function canUpdate(object) {
 }
 export function isMemberOf(Model, groups) {
     return {
-        assign: 'isMemberOf' + capitalize(Model.collection) + '(' + groups.join(',') + ')',
+        assign: `isMemberOf${capitalize(Model.collection)}(${groups.join(',')})`,
         method(request, reply) {
             const obj = request.pre[Model.collection];
             const user = by(request);
-            if (user === 'root' || !!find(groups, role => obj['isPresentIn' + role.split('.').map(capitalize).join('')](user))) {
+            if (user === 'root' || !!find(groups, role => obj[`isPresentIn${role.split('.').map(capitalize).join('')}`](user))) {
                 reply(true);
             } else {
                 reply(new NotAMemberOfValidGroupError({owners: JSON.stringify(groups)}));

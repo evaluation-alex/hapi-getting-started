@@ -7,7 +7,7 @@ export let register = function register(server, options, next) {
     forIn(options.mongo, (connectionargs, name) => {
         dbconnections.push(connect(name, connectionargs)
             .then(db => {
-                server.expose('MongoDB' + name, db);
+                server.expose(`MongoDB${name}`, db);
                 server.on('stop', () => {
                     disconnect(name);
                 });

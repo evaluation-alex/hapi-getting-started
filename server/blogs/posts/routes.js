@@ -7,8 +7,8 @@ const routes = flattenDeep([
     buildRESTRoutes('posts', Controller),
     ['publish', 'reject'].map(action => {
         return [
-            buildRoute('PUT', '/blogs/{blogId}/posts/{id}/' + action, Controller[action]),
-            buildRoute('PUT', '/posts/{id}/' + action, Controller[action])
+            buildRoute('PUT', `/blogs/{blogId}/posts/{id}/${action}`, Controller[action]),
+            buildRoute('PUT', `/posts/{id}/${action}`, Controller[action])
         ];
     })
 ]);

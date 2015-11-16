@@ -4,7 +4,7 @@ import Bluebird from 'bluebird';
 import config from './../config';
 import {sendEmail} from './../common/plugins/mailer';
 import {PasswordResetError} from './../common/errors';
-import {ip, buildQuery, logAndBoom} from './../common/utils';
+import {ip, logAndBoom} from './../common/utils';
 import {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} from './../common/prereqs';
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
 import schemas from './schemas';
@@ -52,7 +52,7 @@ export default {
         pre: [
             canView(Users.collection)
         ],
-        handler: buildFindHandler(Users, request => buildQuery(request, schemas.controller.findOptions))
+        handler: buildFindHandler(Users, schemas.controller.findOptions)
     },
     findOne: {
         pre: [

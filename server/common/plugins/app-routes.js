@@ -3,7 +3,7 @@ import path from 'path';
 import {functions} from 'lodash';
 import fs from 'fs';
 function describeRoutes(routes) {
-    return routes.map(route =>`${route.method}  ${route.path}`).join('\n');
+    return routes.map(route => `${route.method}  ${route.path}`).join('\n');
 }
 function describeModel(model) {
     if (fs.existsSync(model + '.js')) {

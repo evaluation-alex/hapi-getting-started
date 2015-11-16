@@ -83,9 +83,9 @@ function withSetupMethods(Dao, nonEnumerables) {
 function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
     extend(Dao, {
         upsert(obj) {
+            const opts = {upsert: true, returnOriginal: false};
             return new Bluebird((resolve, reject) => {
                 obj._id = obj._id || Dao.ObjectID();
-                const opts = {upsert: true, returnOriginal: false};
                 Dao.clctn().findOneAndReplace({_id: obj._id}, obj, opts,
                     defaultcb(doc => resolve(new Dao(doc.value)), reject, Dao.collection, 'upsert')
                 );
@@ -125,13 +125,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
             },
             insertAndAudit(doc, by) {
                 const now = new Date();
-                merge(doc, {
-                    isActive: true,
-                    createdBy: by,
-                    createdOn: now,
-                    updatedBy: by,
-                    updatedOn: now
-                });
+                merge(doc, {isActive: true, createdBy: by, createdOn: now, updatedBy: by, updatedOn: now});
                 return Dao.upsert(doc)
                     .then(obj => {
                         /*istanbul ignore if: too lazy to write this test case*/
@@ -144,10 +138,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
                                     organisation: obj.organisation,
                                     by: by,
                                     on: now,
-                                    change: [{
-                                        action: 'create',
-                                        newValues: doc
-                                    }]
+                                    change: [{action: 'create', newValues: doc }]
                                 })
                                 .then(() => obj);
                         }
@@ -167,9 +158,7 @@ function withFindMethods(Dao, areValidProperty) {
         find(query, fields, sort, limit, skip) {
             return new Bluebird((resolve, reject) => {
                 const start = Date.now();
-                let cursor = Dao.clctn().find(query,
-                    {fields: fields, sort: sort, limit: limit, skip: skip}
-                );
+                let cursor = Dao.clctn().find(query, {fields, sort, limit, skip});
                 let results = [];
                 /*istanbul ignore next*/
                 function handleError(err) {
@@ -243,10 +232,7 @@ function withFindMethods(Dao, areValidProperty) {
                 if (!hasItems(toCheck) || !areValidProperty) {
                     return Bluebird.resolve({});
                 } else {
-                    let conditions = {
-                        isActive: true,
-                        organisation: organisation
-                    };
+                    let conditions = {isActive: true, organisation};
                     /*istanbul ignore if*/
                     if (areValidProperty === '_id') {
                         toCheck = toCheck.map(id => Dao.ObjectID(id));
@@ -270,7 +256,7 @@ function propDescriptors(properties) {
         return {
             name: p,
             path: p.split('.'),
-            method: 'set' + p.split('.').map(capitalize).join('')
+            method: `set${p.split('.').map(capitalize).join('')}`
         };
     });
 }
@@ -278,18 +264,18 @@ function arrDescriptors(lists) {
     return lists.map(l => {
         const methodSuffix = l.split('.').map(capitalize).join('');
         let pathadd = l.split('.');
-        pathadd[pathadd.length - 1] = 'added' + capitalize(pathadd[pathadd.length - 1]);
+        pathadd[pathadd.length - 1] = `added${capitalize(pathadd[pathadd.length - 1])}`;
         let pathrem = l.split('.');
-        pathrem[pathrem.length - 1] = 'removed' + capitalize(pathrem[pathrem.length - 1]);
+        pathrem[pathrem.length - 1] = `removed${capitalize(pathrem[pathrem.length - 1])}`;
         return {
             name: l,
             path: l.split('.'),
             methodSuffix: methodSuffix,
             added: pathadd,
-            addMethod: 'add' + methodSuffix,
+            addMethod: `add${methodSuffix}`,
             removed: pathrem,
-            removeMethod: 'remove' + methodSuffix,
-            isPresentIn: 'isPresentIn' + methodSuffix
+            removeMethod: `remove${methodSuffix}`,
+            isPresentIn: `isPresentIn${methodSuffix}`
         };
     });
 }
@@ -322,7 +308,7 @@ function withArrMethods(model, lists) {
                     const found = find(list, item => isEqual(item, memberToAdd));
                     if (!found) {
                         list.push(memberToAdd);
-                        this.trackChanges('add ' + name, null, memberToAdd, by);
+                        this.trackChanges(`add ${name}`, null, memberToAdd, by);
                     }
                 }, this);
                 return this;
@@ -332,7 +318,7 @@ function withArrMethods(model, lists) {
                 toRemove.forEach(memberToRemove => {
                     const removed = remove(list, item => isEqual(item, memberToRemove));
                     if (hasItems(removed)) {
-                        this.trackChanges('remove ' + name, memberToRemove, null, by);
+                        this.trackChanges(`remove ${name}`, memberToRemove, null, by);
                     }
                 }, this);
                 return this;
@@ -369,22 +355,22 @@ function withApproveRejectJoinLeave(model, affectedRole, needsApproval) {
     const needsApprovalMethodSuffix = needsApproval.split('.').map(capitalize).join('');
     const affectedRoleMethodSuffix = affectedRole.split('.').map(capitalize).join('');
     let toAdd = affectedRole.split('.');
-    toAdd[toAdd.length - 1] = 'added' + capitalize(toAdd[toAdd.length - 1]);
+    toAdd[toAdd.length - 1] = `added${capitalize(toAdd[toAdd.length - 1])}`;
     extend(model.prototype, {
         join(doc, by) {
             const method = this.access === 'public' ? affectedRoleMethodSuffix : needsApprovalMethodSuffix;
-            return this['add' + method]([by], by);
+            return this[`add${method}`]([by], by);
         },
         approve(doc, by) {
-            this['add' + affectedRoleMethodSuffix](get(doc.payload, toAdd), by);
-            this['remove' + needsApprovalMethodSuffix](get(doc.payload, toAdd), by);
+            this[`add${affectedRoleMethodSuffix}`](get(doc.payload, toAdd), by);
+            this[`remove${needsApprovalMethodSuffix}`](get(doc.payload, toAdd), by);
             return this;
         },
         reject(doc, by) {
-            return this['remove' + needsApprovalMethodSuffix](get(doc.payload, toAdd), by);
+            return this[`remove${needsApprovalMethodSuffix}`](get(doc.payload, toAdd), by);
         },
         leave(doc, by) {
-            return this['remove' + affectedRoleMethodSuffix]([by], by);
+            return this[`remove${affectedRoleMethodSuffix}`]([by], by);
         }
     });
     return model;

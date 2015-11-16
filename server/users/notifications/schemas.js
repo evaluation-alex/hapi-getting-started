@@ -49,7 +49,8 @@ export default {
         },
         findOptions: {
             forPartial: [['state', 'state'], ['objectType', 'objectType']],
-            forDateRange: 'createdOn'
+            forDateBefore: [['createdOnBefore', 'createdOn']],
+            forDateAfter: [['createdOnAfter', 'createdOn']]
         },
         update: {
             payload: {

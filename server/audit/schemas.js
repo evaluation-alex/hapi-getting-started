@@ -37,7 +37,8 @@ export default {
         },
         findOptions: {
             forPartial: [['by', 'by']],
-            forDate: 'on',
+            forDateBefore: [['onBefore', 'on']],
+            forDateAfter: [['onAfter', 'on']],
             forExact: [['objectType', 'objectChangedType'], ['objectChangedId', 'objectChangedId']]
         }
     }

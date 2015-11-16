@@ -1,10 +1,10 @@
 'use strict';
 import fs from 'fs';
+import i18n from 'i18n';
+import dgram from 'dgram';
 import devnull from 'dev-null';
 import {createLogger} from 'bunyan';
-import i18n from 'i18n';
 const args = JSON.parse(fs.readFileSync('./build/options.json'));
-const manifest = args.manifest;
 let nodemailer = {};
 /* istanbul ignore else  */
 if (!args.sendemails) {
@@ -25,6 +25,8 @@ if (!args.sendemails) {
 i18n.configure(args.i18n);
 const logger = createLogger(args.bunyan);
 const influxdb = args.influxdb;
+influxdb.udpClient = dgram.createSocket('udp4');
+const manifest = args.manifest;
 manifest.connections.forEach(connection => {
     /*istanbul ignore if*//*istanbul ignore else*/
     if (connection.tls &&

@@ -1,7 +1,7 @@
 'use strict';
 import {isFunction} from 'lodash';
 import Bluebird from 'bluebird';
-import {org, user, by, logAndBoom, hasItems} from './utils';
+import {org, user, by, logAndBoom, hasItems, buildQuery} from './utils';
 export function buildCreateHandler(Model) {
     return function createHandler(request, reply) {
         Model.newObject(request, by(request))
@@ -10,13 +10,13 @@ export function buildCreateHandler(Model) {
     };
 }
 export function buildFindHandler(Model, queryBuilder) {
-    const buildQueryFrom = Bluebird.method(request => queryBuilder(request));
+    const buildQueryFrom = Bluebird.method(request => isFunction(queryBuilder) ? queryBuilder(request) : buildQuery(request, queryBuilder));
     return function findHandler(request, reply) {
         const {fields, sort, limit, page} = request.query;
         buildQueryFrom(request)
             .then(query => {
                 query.organisation = query.organisation ||
-                    {$regex: new RegExp('^.*?' + org(request) + '.*$', 'i')};
+                    {$regex: new RegExp(`^.*?${org(request)}.*$`, 'i')};
                 if (request.query.isActive) {
                     query.isActive = request.query.isActive === '"true"';
                 }

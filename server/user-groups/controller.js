@@ -1,6 +1,6 @@
 'use strict';
 import {capitalize} from 'lodash';
-import {by, org, buildQuery, hasItems} from './../common/utils';
+import {by, org, hasItems} from './../common/utils';
 import {findValidator, canUpdate, canView, areValidUsers, isMemberOf, uniqueCheck, prePopulate} from './../common/prereqs';
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
 import {sendNotifications, cancelNotifications} from './../common/posthandlers';
@@ -40,7 +40,7 @@ export default {
         pre: [
             canView(UserGroups.collection)
         ],
-        handler: buildFindHandler(UserGroups, request => buildQuery(request, schemas.controller.findOptions))
+        handler: buildFindHandler(UserGroups, schemas.controller.findOptions)
     },
     findOne: {
         pre: [

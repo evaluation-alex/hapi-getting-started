@@ -41,12 +41,12 @@ function fromStdIn(results, property, message, opts) {
     });
 }
 fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistart'})
-    .then(results => fromStdIn(results, 'mongodbUrl', 'MongoDB URL: (mongodb://localhost:27017/' + results.projectName + ') ',{'default': 'mongodb://localhost:27017/' + results.projectName}))
-    .then(results => {results.rootEmail = 'root';return results;})
+    .then(results => fromStdIn(results, 'mongodbUrl', `MongoDB URL: (mongodb://localhost:27017/${results.projectName}) `,{'default': `mongodb://localhost:27017/${results.projectName}`}))
+    .then(results => fromStdIn(results, 'rootEmail', 'Root email: (root)',{'default': 'root'}))
     .then(results => fromStdIn(results, 'rootPassword', 'Root user password: ', {'default': ''}))
     .then(results => fromStdIn(results, 'smtpHost', 'SMTP host: (smtp.gmail.com) ', {'default': 'smtp.gmail.com'}))
     .then(results => fromStdIn(results, 'smtpPort', 'SMTP port: (465) ', {'default': 465}))
-    .then(results => fromStdIn(results, 'smtpUsername', 'SMTP username: (' + results.rootEmail + ') ', {'default': results.systemEmail}))
+    .then(results => fromStdIn(results, 'smtpUsername', `SMTP username: (${results.rootEmail}) `, {'default': results.systemEmail}))
     .then(results => fromStdIn(results, 'smtpPassword', 'SMTP password: ', {'default': ''}))
     .then(results => fromStdIn(results, 'influxdbHost', 'influxdb host: (localhost) ', {'default': 'localhost'}))
     .then(results => fromStdIn(results, 'influxdbHttpPort', 'influxdb http port: (8086)', {'default': 8086}))
@@ -57,7 +57,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
     .then(results => fromStdIn(results, 'certfile', 'certificate file for https: ', {'default': './.secure/cert.pem'}))
     .then(results => fromStdIn(results, 'keyfile', 'key file for https: ', {'default': './.secure/key.pem'}))
     .then(results => {
-        console.log('setting up with - ' + JSON.stringify(results));
+        console.log(`setting up with - ${JSON.stringify(results)}`);
         const opts = {
             env: 'dev',
             project: results.projectName,
@@ -74,7 +74,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 name: 'main',
                 streams: [{
                     type: 'rotating-file',
-                    path: results.logdir + '/' + results.projectName + '.log',
+                    path: `${results.logdir}/${results.projectName}.log`,
                     period: '1d',
                     count: 7,
                     name: 'file',
@@ -152,7 +152,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
             }
         };
         fs.writeFileSync('./server/options.json', JSON.stringify(opts, null, 4));
-        console.log('options.json - ' + JSON.stringify(opts, null, 4));
+        console.log(`options.json - ${JSON.stringify(opts, null, 4)}`);
         return results;
     })
     .then(() => {

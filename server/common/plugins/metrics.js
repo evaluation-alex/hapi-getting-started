@@ -18,7 +18,7 @@ export let register = function register(server, options, next) {
             route: normalizePath(request),
             method: request.method.toUpperCase(),
             userid: by(request),
-            statusCode: '#' + request.response.statusCode
+            statusCode: `#${request.response.statusCode}`
         };
         const fields = {
             device: ua.device.toString(),

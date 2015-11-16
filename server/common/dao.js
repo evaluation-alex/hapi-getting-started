@@ -9,13 +9,11 @@ const {i18n, logger} = config;
 let connections = {};
 function gatherStats(collection, method, query, start, err) {
     const elapsed = Date.now() - start;
-    const fields = {elapsed};
+    err = !!err;
+    const fields = {elapsed, err};
     const tags = {collection, method};
     if (query) {
         fields.query = sortBy(keys(query), String).join('|');
-    }
-    if (err) {
-        fields.err = true;
     }
     timing('dao', tags, fields);
 }

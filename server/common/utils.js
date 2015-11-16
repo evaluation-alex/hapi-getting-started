@@ -73,15 +73,12 @@ function escape(str) {
         return str.replace(/ /g, '\\ ').replace(/,/g, '\\,');
     }
 }
-function cmp(a, b) {
-    return a < b ? -1 : a > b ? 1 : 0;
-}
 function asString(v) {
     if (isBoolean(v)) {
         return v ? 't' : 'f';
     } else if (isString(v)) {
         return `"${v.replace(/"/g, '\\"')}"`;
-    } else if (isNumber(v)) {
+    } else /*istanbul ignore else*/ if (isNumber(v)) {
         return `${v}i`;
     }
 }
@@ -89,8 +86,8 @@ export function timing(key, tags, fields) {
     const timestamp = 1000000 * Date.now();
     process.nextTick(() => {
         //https://influxdb.com/docs/v0.9/write_protocols/write_syntax.html
-        const tagstr = Object.keys(tags).sort(cmp).map(k => `${escape(k)}=${escape(tags[k])}`).join(',');
-        const fieldstr = Object.keys(fields).sort(cmp).map(k => `${escape(k)}=${asString(fields[k])}`).join(',');
+        const tagstr = Object.keys(tags).sort().map(k => `${escape(k)}=${escape(tags[k])}`).join(',');
+        const fieldstr = Object.keys(fields).sort().map(k => `${escape(k)}=${asString(fields[k])}`).join(',');
         const message = new Buffer(`${escape(key)},${tagstr} ${fieldstr} ${timestamp}`);
         influxdb.udpClient.send(message, 0, message.length, influxdb.udpport, influxdb.host, errback);
     });

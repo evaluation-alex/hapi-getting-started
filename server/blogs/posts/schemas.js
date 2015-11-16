@@ -88,7 +88,8 @@ export default {
         },
         findOptions: {
             forPartial: [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy'], ['state', 'state']],
-            forDateRange: 'publishedOn',
+            forDateBefore: [['publishedOnBefore', 'publishedOn']],
+            forDateAfter: [['publishedOnAfter', 'publishedOn']],
             forID: [['blogId', 'blogId']]
         },
         update: {

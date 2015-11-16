@@ -33,8 +33,8 @@ export function buildRESTRoutes(component, controller, pathPrefix = '') {
     ];
     return filter(restMethods.map(rest => controller[rest.method] ? buildRoute(...rest.args) : undefined));
 }
-export function buildJoinApproveRejectLeaveRoutes(component, controller, pathPrefix = '') {
-    return ['join', 'approve', 'reject', 'leave'].map(action =>
+export function buildRoutesForMethods(methods, component, controller, pathPrefix = '') {
+    return methods.map(action =>
         buildRoute('PUT', `${pathWithId(pathPrefix, component)}/${action}`, controller[action])
     );
 }

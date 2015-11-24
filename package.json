@@ -27,7 +27,7 @@
         "dev-null": "0.1.x",
         "handlebars": "4.0.x",
         "hapi": "11.x.x",
-        "hapi-auth-basic": "4.0.x",
+        "hapi-auth-basic": "4.1.x",
         "hapi-bunyan": "0.6.x",
         "i18n": "0.5.x",
         "inert": "3.x.x",
@@ -60,7 +60,7 @@
         "gulp-eslint": "1.x.x",
         "gulp-istanbul": "0.x.x",
         "gulp-jscs": "3.x.x",
-        "gulp-jshint": "1.x.x",
+        "gulp-jshint": "2.x.x",
         "gulp-load-plugins": "1.x.x",
         "gulp-mocha": "2.x.x",
         "gulp-nodemon": "2.x.x",
@@ -68,8 +68,10 @@
         "gulp-sourcemaps": "1.x.x",
         "gutil": "1.x.x",
         "istanbul": "0.4.x",
+        "influx": "4.x.x",
         "jscs": "2.x.x",
         "jshint": "2.x.x",
+        "json2csv": "3.x.x",
         "merge-stream": "1.x.x",
         "mocha": "2.x.x",
         "nodemon": "1.x.x",
@@ -97,9 +99,6 @@
         "url": "https://github.com/k-sheth/hapi-getting-started/issues"
     },
     "homepage": "https://github.com/k-sheth/hapi-getting-started",
-    "engines": {
-        "node": ">= 0.12.x"
-    },
     "eslintConfig": {
         "ecmaFeatures": {
             "arrowFunctions": true,
@@ -195,7 +194,7 @@
     "jshintConfig": {
         "maxerr": 500,
         "bitwise": true,
-        "camelcase": true,
+        "camelcase": false,
         "curly": true,
         "eqeqeq": true,
         "forin": true,

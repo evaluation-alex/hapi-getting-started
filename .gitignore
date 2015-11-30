@@ -3,8 +3,6 @@ test/artifacts/**/*.*
 logs/*
 .idea/*
 npm-debug.log
-.secure/*
+server/.secure/*
 public/*
 build/*
-results.csv
-combined.csv

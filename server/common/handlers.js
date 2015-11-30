@@ -1,5 +1,5 @@
 'use strict';
-import {isFunction} from 'lodash';
+import {isFunction, merge} from 'lodash';
 import Bluebird from 'bluebird';
 import {org, user, by, logAndBoom, hasItems, buildQuery} from './utils';
 export function buildCreateHandler(Model) {
@@ -9,18 +9,33 @@ export function buildCreateHandler(Model) {
             .then(reply);
     };
 }
+function fieldsAdapter(fields) {
+    if (!fields || fields === '') {
+        return;
+    }
+    return fields.split(/\s+/)
+        .map(field => {return {[field]: true}})
+        .reduce((p, c) => merge(p, c), {});
+}
+function sortAdapter(sort) {
+    if (!sort || sort === '') {
+        return;
+    }
+    return sort.split(/\s+/)
+        .map(field => (field[0] === '-') ? {[field.slice(1)]: -1} : {[field]: 1})
+        .reduce((p, c) => merge(p, c), {});
+}
 export function buildFindHandler(Model, queryBuilder) {
     const buildQueryFrom = Bluebird.method(request => isFunction(queryBuilder) ? queryBuilder(request) : buildQuery(request, queryBuilder));
     return function findHandler(request, reply) {
         const {fields, sort, limit, page} = request.query;
         buildQueryFrom(request)
             .then(query => {
-                query.organisation = query.organisation ||
-                    {$regex: new RegExp(`^.*?${org(request)}.*$`, 'i')};
+                query.organisation = query.organisation || org(request);
                 if (request.query.isActive) {
                     query.isActive = request.query.isActive === '"true"';
                 }
-                return Model.pagedFind(query, fields, sort, limit, page);
+                return Model.pagedFind(query, fieldsAdapter(fields), sortAdapter(sort), limit, page);
             })
             .then(output => {
                 if (hasItems(output.data) && isFunction(output.data[0].populate)) {

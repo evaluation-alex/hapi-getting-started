@@ -132,10 +132,10 @@ export function abuseDetected() {
     };
 }
 
-export function findValidator(validator) {
+export function findValidator(validator, limit = 5, page = 1) {
     validator.query.fields = Joi.string();
     validator.query.sort = Joi.string();
-    validator.query.limit = Joi.number();
-    validator.query.page = Joi.number();
+    validator.query.limit = Joi.number().default(limit);
+    validator.query.page = Joi.number().default(page);
     return validator;
 }

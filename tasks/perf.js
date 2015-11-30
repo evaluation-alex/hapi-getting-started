@@ -1,10 +1,10 @@
 'use strict';
-const _ = require('lodash');
-const fs = require('fs');
-const Bluebird = require('bluebird');
-const json2csv = Bluebird.promisify(require('json2csv'));
-const config = JSON.parse(fs.readFileSync('./build/options.json'));
-const influxdb = Bluebird.promisifyAll(require('influx')({
+let _ = require('lodash');
+let fs = require('fs');
+let Bluebird = require('bluebird');
+let json2csv = Bluebird.promisify(require('json2csv'));
+let config = JSON.parse(fs.readFileSync('./server/options.json'));
+let influxdb = Bluebird.promisifyAll(require('influx')({
     host: config.influxdb.host,
     port: config.influxdb.httpport,
     protocol: 'http',
@@ -34,9 +34,13 @@ const queries = _.flatten(
     )
 );
 const json2Csv = (data) => json2csv({data, fields});
-Bluebird.all(queries.map(query => influxdb.queryAsync(query)))
-    .then(_.flattenDeep)
-    .then(json2Csv)
-    .then(csv => csv.replace(/"null"/g, 0).replace(/"/g, ''))
-    .then(console.log.bind(console))
-    .then(() => process.exit(0));
+module.exports = function (gulp, $) {
+    return function (cb) {
+        Bluebird.all(queries.map(query => influxdb.queryAsync(query)))
+            .then(_.flattenDeep)
+            .then(json2Csv)
+            .then(csv => csv.replace(/"null"/g, 0).replace(/"/g, ''))
+            .then(console.log.bind(console))
+            .then(() => cb());
+    }
+};

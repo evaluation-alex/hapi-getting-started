@@ -2,6 +2,7 @@
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
 let Users = require('./../../../build/users/model');
+let Blogs = require('./../../../build/blogs/model');
 let Audit = require('./../../../build/audit/model');
 let Mailer = require('./../../../build/common/plugins/mailer');
 let Bluebird = require('bluebird');
@@ -11,6 +12,7 @@ let expect = require('chai').expect;
 describe('Users', () => {
     let server = null;
     let emails = [];
+    let blogs = [];
     before((done) => {
         tu.setupServer()
             .then((res) => {
@@ -451,14 +453,16 @@ describe('Users', () => {
                     Fs.renameSync('./build/users/templates/welcome2.hbs.md', './build/users/templates/welcome.hbs.md');
                     expect(response.statusCode).to.equal(500);
                     emails.push(request.payload.email);
+                    blogs.push(request.payload.email + '\'s private blog');
                     done();
                 })
                 .catch((err)=> {
                     emails.push(request.payload.email);
+                    blogs.push(request.payload.email + '\'s private blog');
                     done(err);
                 });
         });
-        it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records and default preferences are setup', (done) => {
+        it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records and default preferences are setup and default private blog is created', (done) => {
             let request = {
                 method: 'POST',
                 url: '/users/signup',
@@ -486,9 +490,16 @@ describe('Users', () => {
                 .then((foundLogin) => {
                     expect(foundLogin).to.exist;
                     emails.push(request.payload.email);
+                    return Blogs.findOne({createdBy: request.payload.email});
+                })
+                .then((foundBlog) => {
+                    expect(foundBlog).to.exist;
+                    expect(foundBlog.createdBy).to.equal('test.signup2@signup.api');
+                    blogs.push(foundBlog.title);
                     done();
                 })
                 .catch((err) => {
+                    blogs.push('test.signup2@signup.api\'s private blog');
                     emails.push(request.payload.email);
                     done(err);
                 });
@@ -638,6 +649,6 @@ describe('Users', () => {
         });
     });
     after((done) => {
-        return tu.cleanup({users: emails}, done);
+        return tu.cleanup({users: emails, blogs: blogs}, done);
     });
 });

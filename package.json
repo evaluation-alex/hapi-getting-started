@@ -1,10 +1,7 @@
 {
     "scripts": {
         "updatedeps": "rm -rf ./node_modules && npm i",
-        "server:jshint": "node --harmony ./node_modules/jshint/bin/jshint --exclude-path ./.gitignore --verbose --reporter unix .",
-        "server:eslint": "node --harmony ./node_modules/eslint/bin/eslint --ignore-path ./.gitignore ./server ./test",
-        "server:jscs": "node --harmony ./node_modules/jscs/bin/jscs --esnext --reporter console ./server ./test",
-        "server:lint": "npm run server:eslint && npm run server:jscs",
+        "server:lint": "node --harmony ./node_modules/gulp/bin/gulp server:lint",
         "server:build": "node --harmony ./node_modules/gulp/bin/gulp server:build",
         "server:build:clean": "node --harmony ./node_modules/gulp/bin/gulp server:clean server:build",
         "server:build:watch": "node --harmony ./node_modules/gulp/bin/gulp server:watch",

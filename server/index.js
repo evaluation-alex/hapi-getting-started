@@ -4,6 +4,7 @@ import Bluebird from 'bluebird';
 import path from 'path';
 import config from './config';
 const manifest = config.manifest;
+process.title = 'hgs-server-' + process.env.NODE_ENV;
 function start(server) {
     server.start(() => {
         console.log(`engage ${JSON.stringify(server.connections.map(c => c.info))}`);

@@ -34,7 +34,7 @@
     "i18n": {
         "locales": ["en"],
         "defaultLocale": "en",
-        "directory": "./i18n"
+        "directory": "./build/i18n"
     },
     "manifest": {
         "plugins": {
@@ -80,8 +80,8 @@
             "port": 443,
             "labels": ["secure", "api"],
             "tls": {
-                "key": "./.secure/key.pem",
-                "cert": "./.secure/cert.pem"
+                "key": "./build/key.pem",
+                "cert": "./build/cert.pem"
             }
         }],
         "server": {

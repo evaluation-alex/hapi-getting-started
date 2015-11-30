@@ -15,8 +15,8 @@ const test = {
     smtpPassword: '^YOURSMTPWD$',
     logdir: './logs',
     logMetrics: false,
-    certfile: './.secure/cert.pem',
-    keyfile: './.secure/key.pem',
+    certfile: './build/cert.pem',
+    keyfile: './build/key.pem',
     influxdbHost: 'localhost',
     influxdbHttpPort: 8086,
     influxdbUdpPort: 8088,
@@ -92,7 +92,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
             i18n: {
                 locales: ['en'],
                 defaultLocale: 'en',
-                directory: './i18n'
+                directory: './build/i18n'
             },
             manifest: {
                 plugins: {

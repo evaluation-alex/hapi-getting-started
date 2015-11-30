@@ -9,6 +9,7 @@ import {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} 
 import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
 import schemas from './schemas';
 import Users from './model';
+import Blogs from './../blogs/model';
 const {projectName} = config;
 export default {
     signup: {
@@ -23,6 +24,21 @@ export default {
         ],
         handler: buildCreateHandler(Users),
         post: [
+            {
+                method(request, reply) {
+                    if (!request.response.isBoom) {
+                        let user = request.payload.email;
+                        let org = request.payload.organisation;
+                        let groups = [user];
+                        Blogs.create(`${user}'s private blog`, org, `Get started`, groups, groups, groups, [], false, 'restricted', true, user)
+                            .then(() => {
+                                reply.continue();
+                            });
+                    } else {
+                        return reply.continue();
+                    }
+                }
+            },
             {
                 method(request, reply) {
                     if (!request.response.isBoom) {

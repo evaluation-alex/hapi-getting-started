@@ -1,6 +1,7 @@
 'use strict';
-import Joi from 'joi';
-export default {
+const Joi = require('joi');
+const shared = require('./../../../shared/users/profile/validation');
+module.exports = {
     dao: {
         isVirtualModel: true,
         updateMethod: {
@@ -24,17 +25,6 @@ export default {
         twitter: Joi.object()
     },
     controller: {
-        update: {
-            payload: {
-                profile: {
-                    firstName: Joi.string(),
-                    lastName: Joi.string(),
-                    preferredName: Joi.string(),
-                    facebook: Joi.object(),
-                    google: Joi.object(),
-                    twitter: Joi.object()
-                }
-            }
-        }
+        update: shared.controller.update
     }
 };

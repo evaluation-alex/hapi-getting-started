@@ -1,33 +1,32 @@
 'use strict';
-import {isFunction, merge} from 'lodash';
-import Bluebird from 'bluebird';
-import {org, user, by, logAndBoom, hasItems, buildQuery} from './utils';
-export function buildCreateHandler(Model) {
+const {isFunction, merge} = require('lodash');
+const Bluebird = require('bluebird');
+const {org, user, by, logAndBoom, hasItems, buildQuery, timing} = require('./utils');
+module.exports.buildCreateHandler = function buildCreateHandler(Model) {
+    const tags = {collection: Model.collection, method: 'create', type: 'main'};
     return function createHandler(request, reply) {
+        const start = Date.now();
         Model.newObject(request, by(request))
             .catch(logAndBoom)
-            .then(reply);
+            .then(reply)
+            .finally(() => {
+                timing('handler', tags, {elapsed: Date.now() - start});
+            });
     };
-}
-function fieldsAdapter(fields) {
-    if (!fields || fields === '') {
+};
+function findopts(opts) {
+    if (!opts || opts === '') {
         return;
     }
-    return fields.split(/\s+/)
-        .map(field => {return {[field]: true}})
+    return opts.split(/\s+/)
+        .map(each => (each[0] === '-') ? {[each.slice(1)]: -1} : {[each]: 1})
         .reduce((p, c) => merge(p, c), {});
 }
-function sortAdapter(sort) {
-    if (!sort || sort === '') {
-        return;
-    }
-    return sort.split(/\s+/)
-        .map(field => (field[0] === '-') ? {[field.slice(1)]: -1} : {[field]: 1})
-        .reduce((p, c) => merge(p, c), {});
-}
-export function buildFindHandler(Model, queryBuilder) {
+module.exports.buildFindHandler = function buildFindHandler(Model, queryBuilder) {
+    const tags = {collection: Model.collection, method: 'find', type: 'main'};
     const buildQueryFrom = Bluebird.method(request => isFunction(queryBuilder) ? queryBuilder(request) : buildQuery(request, queryBuilder));
     return function findHandler(request, reply) {
+        const start = Date.now();
         const {fields, sort, limit, page} = request.query;
         buildQueryFrom(request)
             .then(query => {
@@ -35,7 +34,7 @@ export function buildFindHandler(Model, queryBuilder) {
                 if (request.query.isActive) {
                     query.isActive = request.query.isActive === '"true"';
                 }
-                return Model.pagedFind(query, fieldsAdapter(fields), sortAdapter(sort), limit, page);
+                return Model.pagedFind(query, findopts(fields), findopts(sort), limit, page);
             })
             .then(output => {
                 if (hasItems(output.data) && isFunction(output.data[0].populate)) {
@@ -50,24 +49,37 @@ export function buildFindHandler(Model, queryBuilder) {
                 }
             })
             .catch(logAndBoom)
-            .then(reply);
+            .then(reply)
+            .finally(() => {
+                timing('handler', tags, {elapsed: Date.now() - start});
+            });
     };
-}
-export function buildFindOneHandler(Model) {
+};
+module.exports.buildFindOneHandler = function buildFindOneHandler(Model) {
+    const tags = {collection: Model.collection, method: 'findOne', type: 'main'};
     const findOne = Bluebird.method((obj, user) => isFunction(obj.populate) ? obj.populate(user) : obj);
     return function findOneHandler(request, reply) {
+        const start = Date.now();
         findOne(request.pre[Model.collection], user(request))
             .catch(logAndBoom)
-            .then(reply);
+            .then(reply)
+            .finally(() => {
+                timing('handler', tags, {elapsed: Date.now() - start});
+            });
     };
-}
-export function buildUpdateHandler(Model, updateCb) {
+};
+module.exports.buildUpdateHandler = function buildUpdateHandler(Model, updateCb) {
+    const tags = {collection: Model.collection, method: 'update', type: 'main'};
     const update = Bluebird.method((u, request, by) => isFunction(updateCb) ? updateCb(u, request, by) : u[updateCb](request, by));
     return function updateHandler(request, reply) {
+        const start = Date.now();
         update(request.pre[Model.collection], request, by(request))
             .then(u => u.save())
             .catch(logAndBoom)
-            .then(reply);
+            .then(reply)
+            .finally(() => {
+                timing('handler', tags, {elapsed: Date.now() - start});
+            });
     };
-}
+};
 

@@ -1,7 +1,7 @@
 'use strict';
-import {merge} from 'lodash';
-import {build} from './../common/dao';
-import schemas from './schemas';
+const {merge} = require('lodash');
+const {build} = require('./../common/dao');
+const schemas = require('./schemas');
 class Audit {
     constructor(attrs) {
         this.init(attrs);
@@ -11,4 +11,4 @@ class Audit {
     }
 }
 build(Audit, schemas.dao, schemas.model);
-export default Audit;
+module.exports = Audit;

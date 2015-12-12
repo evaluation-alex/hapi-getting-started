@@ -1,6 +1,7 @@
 'use strict';
-import Joi from 'joi';
-export default {
+const Joi = require('joi');
+const shared = require('./../../../shared/users/notifications/validation');
+module.exports = {
     dao: {
         connection: 'app',
         collection: 'notifications',
@@ -37,26 +38,12 @@ export default {
         updatedOn: Joi.date()
     },
     controller: {
-        find: {
-            query: {
-                title: Joi.string(),
-                state: Joi.string(),
-                objectType: Joi.string(),
-                createdOnBefore: Joi.date().format('YYYY-MM-DD'),
-                createdOnAfter: Joi.date().format('YYYY-MM-DD'),
-                isActive: Joi.string()
-            }
-        },
+        find: shared.controller.find,
         findOptions: {
             forPartial: [['state', 'state'], ['objectType', 'objectType']],
             forDateBefore: [['createdOnBefore', 'createdOn']],
             forDateAfter: [['createdOnAfter', 'createdOn']]
         },
-        update: {
-            payload: {
-                state: Joi.string().only(['read', 'starred']),
-                isActive: Joi.boolean()
-            }
-        }
+        update: shared.controller.update
     }
 };

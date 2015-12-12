@@ -1,11 +1,11 @@
 'use strict';
-import {merge} from 'lodash';
-import {buildQuery} from './../../../common/utils';
-import {canView, findValidator} from './../../../common/prereqs';
-import {buildFindHandler} from './../../../common/handlers';
-import schemas from './schemas';
-import AuthAttempts from './model';
-export default {
+const {merge} = require('lodash');
+const {buildQuery} = require('./../../../common/utils');
+const {canView, findValidator} = require('./../../../common/prereqs');
+const {buildFindHandler} = require('./../../../common/handlers');
+const schemas = require('./schemas');
+const AuthAttempts = require('./model');
+module.exports = {
     find: {
         validate: findValidator(schemas.controller.find),
         pre: [

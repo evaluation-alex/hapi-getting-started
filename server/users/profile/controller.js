@@ -1,9 +1,9 @@
 'use strict';
-import {canUpdate, prePopulate, onlyOwner} from './../../common/prereqs';
-import {buildUpdateHandler} from './../../common/handlers';
-import Users from './../model';
-import schemas from './schemas';
-export default {
+const {canUpdate, prePopulate, onlyOwner} = require('./../../common/prereqs');
+const {buildUpdateHandler} = require('./../../common/handlers');
+const Users = require('./../model');
+const schemas = require('./schemas');
+module.exports = {
     update: {
         validate: schemas.controller.update,
         pre: [

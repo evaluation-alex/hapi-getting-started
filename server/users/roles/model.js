@@ -1,7 +1,7 @@
 'use strict';
-import {find} from 'lodash';
-import {build} from './../../common/dao';
-import schemas from './schemas';
+const {find} = require('lodash');
+const {build} = require('./../../common/dao');
+const schemas = require('./schemas');
 class Roles {
     constructor(attrs) {
         this.init(attrs);
@@ -20,4 +20,4 @@ class Roles {
     }
 }
 build(Roles, schemas.dao, schemas.model);
-export default Roles;
+module.exports = Roles;

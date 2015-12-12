@@ -1,7 +1,7 @@
 'use strict';
-import {org, hasItems} from './../common/utils';
-import {build} from './../common/dao';
-import schemas from './schemas';
+const {org, hasItems} = require('./../common/utils');
+const {build} = require('./../common/dao');
+const schemas = require('./schemas');
 class Blogs {
     constructor(attrs) {
         this.init(attrs);
@@ -38,4 +38,4 @@ class Blogs {
     }
 }
 build(Blogs, schemas.dao, schemas.model);
-export default Blogs;
+module.exports = Blogs;

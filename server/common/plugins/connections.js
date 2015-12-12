@@ -1,8 +1,8 @@
 'use strict';
-import {forIn} from 'lodash';
-import Bluebird from 'bluebird';
-import {connect, disconnect} from './../dao';
-export let register = function register(server, options, next) {
+const {forIn} = require('lodash');
+const Bluebird = require('bluebird');
+const {connect, disconnect} = require('./../dao');
+const register = function register(server, options, next) {
     const dbconnections = [];
     forIn(options.mongo, (connectionargs, name) => {
         dbconnections.push(connect(name, connectionargs)
@@ -21,3 +21,4 @@ export let register = function register(server, options, next) {
 register.attributes = {
     name: 'MongoConnections'
 };
+module.exports = register;

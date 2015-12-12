@@ -1,24 +1,7 @@
 'use strict';
-import Joi from 'joi';
-const channelSchema = Joi.object().keys({
-    frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
-    lastSent: Joi.date()
-});
-const notificationPrefSchema = Joi.object().keys({
-    inapp: channelSchema,
-    email: channelSchema,
-    blocked: Joi.array().items(Joi.object())
-});
-const updateChannelSchema = Joi.object().keys({
-    frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly')
-});
-const notificationUpdatePrefSchema = Joi.object().keys({
-    inapp: updateChannelSchema,
-    email: updateChannelSchema,
-    addedBlocked: Joi.array().items(Joi.object()),
-    removedBlocked: Joi.array().items(Joi.object())
-});
-export default {
+const Joi = require('joi');
+const shared = require('./../../../shared/users/preferences/validation');
+module.exports = {
     dao: {
         isVirtualModel: true,
         updateMethod: {
@@ -47,24 +30,13 @@ export default {
     },
     model: {
         notifications: Joi.object().keys({
-            blogs: notificationPrefSchema,
-            posts: notificationPrefSchema,
-            userGroups: notificationPrefSchema
+            blogs: shared.notificationPref,
+            posts: shared.notificationPref,
+            userGroups: shared.notificationPref
         }),
         locale: Joi.string().only('en', 'hi')
     },
     controller: {
-        update: {
-            payload: {
-                preferences: {
-                    notifications: Joi.object().keys({
-                        blogs: notificationUpdatePrefSchema,
-                        posts: notificationUpdatePrefSchema,
-                        userGroups: notificationUpdatePrefSchema
-                    }),
-                    locale: Joi.string().only('en', 'hi')
-                }
-            }
-        }
+        update: shared.controller.update
     }
 };

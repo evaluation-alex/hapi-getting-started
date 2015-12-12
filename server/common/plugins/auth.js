@@ -1,8 +1,8 @@
 'use strict';
-import config from './../../config';
-import Users from './../../users/model';
+const config = require('./../../config');
+const Users = require('./../../users/model');
 const {logger} = config;
-export let register = function register(server, options, next) {
+const register = function register(server, options, next) {
     server.connections.forEach(connection => {
         connection.auth.strategy('simple', 'basic', {
             validateFunc(request, email, sessionkey, callback) {
@@ -22,3 +22,4 @@ export let register = function register(server, options, next) {
 register.attributes = {
     name: 'auth'
 };
+module.exports = register;

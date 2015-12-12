@@ -1,9 +1,9 @@
 'use strict';
-import fs from 'fs';
-import i18n from 'i18n';
-import dgram from 'dgram';
-import devnull from 'dev-null';
-import {createLogger} from 'bunyan';
+const fs = require('fs');
+const i18n = require('i18n');
+const dgram = require('dgram');
+const devnull = require('dev-null');
+const {createLogger} = require('bunyan');
 const args = JSON.parse(fs.readFileSync('./build/options.json'));
 let nodemailer = {};
 /* istanbul ignore else  */
@@ -43,7 +43,7 @@ manifest.connections.forEach(connection => {
     }
 });
 manifest.plugins['hapi-bunyan'].logger = logger;
-export default {
+module.exports = {
     projectName: args.project,
     authAttempts: {
         forIp: 50,

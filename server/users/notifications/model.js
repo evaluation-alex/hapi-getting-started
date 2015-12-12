@@ -1,8 +1,8 @@
 'use strict';
-import {unique, flatten, isArray} from 'lodash';
-import Bluebird from 'bluebird';
-import {build} from './../../common/dao';
-import schemas from './schemas';
+const {unique, flatten, isArray} = require('lodash');
+const Bluebird = require('bluebird');
+const {build} = require('./../../common/dao');
+const schemas = require('./schemas');
 class Notifications {
     constructor(attrs) {
         this.init(attrs);
@@ -40,4 +40,4 @@ class Notifications {
     }
 }
 build(Notifications, schemas.dao, schemas.model);
-export default Notifications;
+module.exports = Notifications;

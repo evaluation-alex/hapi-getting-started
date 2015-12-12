@@ -1,12 +1,12 @@
 'use strict';
-import {capitalize} from 'lodash';
-import {by, org, hasItems} from './../common/utils';
-import {findValidator, canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate} from './../common/prereqs';
-import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
-import {sendNotifications, cancelNotifications} from './../common/posthandlers';
-import schemas from './schemas';
-import Blogs from './model';
-export default {
+const {capitalize} = require('lodash');
+const {by, org, hasItems} = require('./../common/utils');
+const {findValidator, canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate} = require('./../common/prereqs');
+const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = require('./../common/handlers');
+const {sendNotifications, cancelNotifications} = require('./../common/posthandlers');
+const schemas = require('./schemas');
+const Blogs = require('./model');
+module.exports = {
     new: {
         validate: schemas.controller.create,
         pre: [

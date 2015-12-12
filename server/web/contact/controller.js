@@ -1,10 +1,10 @@
 'use strict';
-import path from 'path';
-import config from './../../config';
-import {logAndBoom} from './../../common/utils';
-import {sendEmail} from './../../common/plugins/mailer';
-import schemas from './schemas';
-export default {
+const path = require('path');
+const config = require('./../../config');
+const {logAndBoom} = require('./../../common/utils');
+const {sendEmail} = require('./../../common/plugins/mailer');
+const schemas = require('./schemas');
+module.exports = {
     contact: {
         validate: schemas.controller.contact,
         handler(request, reply) {

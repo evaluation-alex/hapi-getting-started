@@ -1,6 +1,7 @@
 'use strict';
-import Joi from 'joi';
-export default {
+const Joi = require('joi');
+const shared = require('./../../../shared/users/session/validation');
+module.exports = {
     dao: {
         isVirtualModel: true
     },
@@ -10,11 +11,6 @@ export default {
         expires: Joi.date()
     })),
     controller: {
-        login: {
-            payload: {
-                email: Joi.string().required(),
-                password: Joi.string().required()
-            }
-        }
+        login: shared.controller.login
     }
 };

@@ -1,7 +1,7 @@
 'use strict';
-import {buildRoute} from './../../common/routes';
-import Controller from './controller';
+const {buildRoute} = require('./../../common/routes');
+const Controller = require('./controller');
 const routes = [
     buildRoute('POST', '/contact', Controller.contact, false)
 ];
-export default routes;
+module.exports = routes;

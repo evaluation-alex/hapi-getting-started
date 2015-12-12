@@ -1,17 +1,17 @@
 'use strict';
-import {find} from 'lodash';
-import Bluebird from 'bluebird';
-import moment from 'moment';
-import Uuid from 'node-uuid';
+const {find} = require('lodash');
+const Bluebird = require('bluebird');
+const moment = require('moment');
+const Uuid = require('node-uuid');
 import {UserNotFoundError, IncorrectPasswordError, UserNotLoggedInError,
     SessionCredentialsNotMatchingError, SessionExpiredError} from './../common/errors';
-import {ip, secureHash, secureCompare, hasItems} from './../common/utils';
-import {build} from './../common/dao';
-import schemas from './schemas';
-import Session from './session/model';
-import Preferences from './preferences/model';
-import Profile from './profile/model';
-import Roles from './roles/model';
+const {ip, secureHash, secureCompare, hasItems} = require('./../common/utils');
+const {build} = require('./../common/dao');
+const schemas = require('./schemas');
+const Session = require('./session/model');
+const Preferences = require('./preferences/model');
+const Profile = require('./profile/model');
+const Roles = require('./roles/model');
 class Users {
     constructor(attrs) {
         this.init(attrs);
@@ -108,4 +108,4 @@ class Users {
     }
 }
 build(Users, schemas.dao, schemas.model, [Session, Preferences, Profile], 'email');
-export default Users;
+module.exports = Users;

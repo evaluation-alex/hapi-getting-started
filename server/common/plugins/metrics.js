@@ -1,6 +1,6 @@
 'use strict';
-import UserAgent from 'useragent';
-import {by, timing} from './../utils';
+const UserAgent = require('useragent');
+const {by, timing} = require('./../utils');
 function normalizePath(request) {
     const specials = request.connection._router.specials;
     if (request._route === specials.notFound.route) {
@@ -11,7 +11,7 @@ function normalizePath(request) {
         return request._route.path.slice(1).replace(/\//g, '.').replace(/{/g, '').replace(/}/g, '');
     }
 }
-export let register = function register(server, options, next) {
+const register = function register(server, options, next) {
     server.on('tail', request => {
         const ua = UserAgent.lookup(request.headers['user-agent']);
         const tags = {
@@ -32,3 +32,4 @@ export let register = function register(server, options, next) {
 register.attributes = {
     name: 'metrics'
 };
+module.exports = register;

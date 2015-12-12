@@ -1,5 +1,5 @@
 'use strict';
-import {buildRESTRoutes} from './../../../common/routes';
-import Controller from './controller';
+const {buildRESTRoutes} = require('./../../../common/routes');
+const Controller = require('./controller');
 const routes = buildRESTRoutes('auth-attempts', Controller);
-export default routes;
+module.exports = routes;

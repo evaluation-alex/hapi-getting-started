@@ -1,6 +1,6 @@
 'use strict';
-import {locale} from './../utils';
-export let register = function register(server, options, next) {
+const {locale} = require('./../utils');
+const register = function register(server, options, next) {
     server.ext('onPreResponse', (request, reply) => {
         const response = request.response;
         if (response.canMakeBoomError) {
@@ -13,3 +13,4 @@ export let register = function register(server, options, next) {
 register.attributes = {
     name: 'i18n'
 };
+module.exports = register;

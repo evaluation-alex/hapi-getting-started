@@ -1,9 +1,10 @@
 'use strict';
-import Joi from 'joi';
-import {model as session} from './session/schemas';
-import {model as preferences} from './preferences/schemas';
-import {model as profile} from './profile/schemas';
-export default {
+const Joi = require('joi');
+const {model: session} = require('./session/schemas');
+const {model: preferences} = require('./preferences/schemas');
+const {model: profile} = require('./profile/schemas');
+const shared = require('./../../shared/users/validation');
+module.exports = {
     dao: {
         connection: 'app',
         collection: 'users',
@@ -42,41 +43,13 @@ export default {
         updatedOn: Joi.date()
     },
     controller: {
-        signup: {
-            payload: {
-                email: Joi.string().required(),
-                organisation: Joi.string().required(),
-                locale: Joi.string().only(['en', 'hi']).default('en'),
-                password: Joi.string().required()
-            }
-        },
-        find: {
-            query: {
-                email: Joi.string(),
-                isActive: Joi.string()
-            }
-        },
+        signup: shared.controller.signup,
+        find: shared.controller.find,
         findOptions: {
             forPartial: [['email', 'email']]
         },
-        update: {
-            payload: {
-                isActive: Joi.boolean(),
-                roles: Joi.array().items(Joi.string()),
-                password: Joi.string()
-            }
-        },
-        forgot: {
-            payload: {
-                email: Joi.string().required()
-            }
-        },
-        reset: {
-            payload: {
-                key: Joi.string().required(),
-                email: Joi.string().required(),
-                password: Joi.string().required()
-            }
-        }
+        update: shared.controller.update,
+        forgot: shared.controller.forgot,
+        reset: shared.controller.reset
     }
 };

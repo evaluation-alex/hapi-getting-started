@@ -1,6 +1,6 @@
 'use strict';
-import {build} from './../../common/dao';
-import schemas from './schemas';
+const {build} = require('./../../common/dao');
+const schemas = require('./schemas');
 class Preferences {
     static create(locale = 'en') {
         return {
@@ -48,4 +48,4 @@ class Preferences {
     }
 }
 build(Preferences, schemas.dao, schemas.model);
-export default Preferences;
+module.exports = Preferences;

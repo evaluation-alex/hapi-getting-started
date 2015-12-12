@@ -1,10 +1,10 @@
 'use strict';
-import {remove, find, omit} from 'lodash';
-import Uuid from 'node-uuid';
-import moment from 'moment';
-import {secureHash} from './../../common/utils';
-import {build} from './../../common/dao';
-import schemas from './schemas';
+const {remove, find, omit} = require('lodash');
+const Uuid = require('node-uuid');
+const moment = require('moment');
+const {secureHash} = require('./../../common/utils');
+const {build} = require('./../../common/dao');
+const schemas = require('./schemas');
 class Session {
     _invalidateSession(ipaddress, by) {
         const removed = remove(this.session, session => session.ipaddress === ipaddress);
@@ -57,4 +57,4 @@ class Session {
     }
 }
 build(Session, schemas.dao, schemas.model);
-export default Session;
+module.exports = Session;

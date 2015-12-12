@@ -1,9 +1,14 @@
 'use strict';
-let gulp = require('gulp');
-let $ = require('gulp-load-plugins')({pattern: ['gulp-*', 'del', 'gutil', 'merge-stream', 'run-sequence']});
+const gulp = require('gulp');
+const $ = require('gulp-load-plugins')({pattern: ['gulp-*', 'del', 'gutil', 'merge-stream', 'run-sequence']});
+
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+console.log('running for ' + process.env.NODE_ENV);
+
 function task(task, ...rest) {
     return require('./tasks/' + task)(gulp, $, ...rest);
 }
+gulp.task('help', $.taskListing);
 
 /*server tasks*/
 gulp.task('server:lint', task('lint', ['server/**/*.js']));
@@ -12,6 +17,7 @@ gulp.task('server:build', ['server:lint'], task('server-build'));
 gulp.task('server:watch', task('watch', ['server/**/*.js'], ['server:build']));
 gulp.task('server:dev', ['server:clean', 'server:build'], task('server-dev'));
 gulp.task('server:default', ['server:watch', 'server:dev']);
+
 /*server test tasks*/
 gulp.task('server:test:prep', task('server-test-prep'));
 gulp.task('server:test:perf', task('perf'));
@@ -28,7 +34,7 @@ gulp.task('server:test', (cb) => {
         cb
     );
 });
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-console.log('running for ' + process.env.NODE_ENV);
+
+/*top level tasks*/
 gulp.task('default', ['server:default']);
 gulp.task('test', ['server:test']);

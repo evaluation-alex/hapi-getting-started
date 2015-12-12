@@ -1,13 +1,14 @@
 'use strict';
-import moment from 'moment';
-import {lookupParamsOrPayloadOrQuery, org, buildQuery} from './../../common/utils';
-import {canView, canUpdate, prePopulate, isMemberOf, areValidPosts, uniqueCheck, findValidator} from './../../common/prereqs';
-import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../../common/handlers';
-import {sendNotifications, cancelNotifications} from './../../common/posthandlers';
-import UserGroups from './../../user-groups/model';
-import Blogs from './../model';
-import schemas from './schemas';
-import Posts from './model';
+const moment = require('moment');
+const {filter, flatten} = require('lodash');
+const {lookupParamsOrPayloadOrQuery, org, buildQuery} = require('./../../common/utils');
+const {canView, canUpdate, prePopulate, isMemberOf, areValidPosts, uniqueCheck, findValidator} = require('./../../common/prereqs');
+const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = require('./../../common/handlers');
+const {sendNotifications, cancelNotifications} = require('./../../common/posthandlers');
+const UserGroups = require('./../../user-groups/model');
+const Blogs = require('./../model');
+const schemas = require('./schemas');
+const Posts = require('./model');
 /*jshint unused:false*/
 /*eslint-disable no-unused-vars*/
 const sendNotificationsWhen = {
@@ -15,10 +16,7 @@ const sendNotificationsWhen = {
         const blog = request.pre.blogs;
         return UserGroups.find({name: {$in: blog.subscriberGroups}, organisation: post.organisation})
             .then(groups => {
-                const to = [blog.owners, blog.subscribers];
-                groups.forEach(group => {
-                    to.push(group.members);
-                });
+                const to = filter(flatten([blog.owners, blog.subscribers, groups.map(group => group.members)]));
                 return {
                     to: to,
                     title: ['New Post {{postTitle}} created.', {postTitle: post.title}],
@@ -60,7 +58,7 @@ const sendNotificationsWhen = {
 };
 /*jshint unused:true*/
 /*eslint-enable no-unused-vars*/
-export default {
+module.exports = {
     new: {
         validate: schemas.controller.create,
         pre: [

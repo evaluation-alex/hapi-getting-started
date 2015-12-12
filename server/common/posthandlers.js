@@ -1,11 +1,13 @@
 'use strict';
-import Bluebird from 'bluebird';
-import {by, errback, hasItems, locale} from './utils';
-import Notifications from './../users/notifications/model';
-export function sendNotifications(Model, notifyCb) {
+const Bluebird = require('bluebird');
+const {by, errback, hasItems, locale, timing} = require('./utils');
+const Notifications = require('./../users/notifications/model');
+module.exports.sendNotifications = function sendNotifications(Model, notifyCb) {
+    const tags = {collection: Model.collection, method: 'sendNotifications', type: 'post'};
     const notify = Bluebird.method((target, request) => notifyCb(target, request));
     return {
         method(request, reply) {
+            const start = Date.now();
             if (!request.response.isBoom) {
                 const target = request.response.source;
                 notify(target, request)
@@ -28,14 +30,19 @@ export function sendNotifications(Model, notifyCb) {
                         reply.continue();
                         return null;
                     })
-                    .catch(errback);
+                    .catch(errback)
+                    .finally(() => {
+                        timing('handler', tags, {elapsed: Date.now() - start});
+                    });
             } else {
+                timing('handler', tags, {elapsed: Date.now() - start});
                 reply.continue();
             }
         }
     };
-}
-export function cancelNotifications(Model, action, cancelCb) {
+};
+module.exports.cancelNotifications = function cancelNotifications(Model, action, cancelCb) {
+    const tags = {collection: Model.collection, method: 'cancelNotifications', type: 'post'};
     const cancel = Bluebird.method((target, request, notification) =>
             cancelCb ?
                 cancelCb(target, request, notification) :
@@ -43,6 +50,7 @@ export function cancelNotifications(Model, action, cancelCb) {
     );
     return {
         method(request, reply) {
+            const start = Date.now();
             if (!request.response.isBoom) {
                 const target = request.response.source;
                 Notifications.find({
@@ -56,16 +64,22 @@ export function cancelNotifications(Model, action, cancelCb) {
                         reply.continue();
                         return null;
                     })
-                    .catch(errback);
+                    .catch(errback)
+                    .finally(() => {
+                        timing('handler', tags, {elapsed: Date.now() - start});
+                    });
             } else {
+                timing('handler', tags, {elapsed: Date.now() - start});
                 reply.continue();
             }
         }
     };
-}
-export function i18n() {
+};
+module.exports.i18n = function i18n(Model) {
+    const tags = {collection: Model.collection, method: 'i18n', type: 'post'};
     return {
         method(request, reply) {
+            const start = Date.now();
             if (!request.response.isBoom) {
                 const lcl = locale(request);
                 const obj = request.response.source;
@@ -78,7 +92,8 @@ export function i18n() {
                     }
                 }
             }
+            timing('handler', tags, {elapsed: Date.now() - start});
             return reply.continue();
         }
     };
-}
+};

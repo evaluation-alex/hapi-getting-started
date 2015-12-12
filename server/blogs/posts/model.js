@@ -1,12 +1,12 @@
 'use strict';
-import {merge, pick} from 'lodash';
-import Bluebird from 'bluebird';
-import {ArchivedPostUpdateError} from './../../common/errors';
-import {org} from './../../common/utils';
-import {build} from './../../common/dao';
-import UserGroups from './../../user-groups/model';
-import Blogs from './../model';
-import schemas from './schemas';
+const {merge, pick} = require('lodash');
+const Bluebird = require('bluebird');
+const {ArchivedPostUpdateError} = require('./../../common/errors');
+const {org} = require('./../../common/utils');
+const {build} = require('./../../common/dao');
+const UserGroups = require('./../../user-groups/model');
+const Blogs = require('./../model');
+const schemas = require('./schemas');
 class Posts {
     constructor(attrs) {
         this.init(attrs);
@@ -125,4 +125,4 @@ class Posts {
     }
 }
 build(Posts, schemas.dao, schemas.model, [], '_id');
-export default Posts;
+module.exports = Posts;

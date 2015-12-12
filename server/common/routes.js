@@ -1,12 +1,12 @@
 'use strict';
-import {filter} from 'lodash';
+const {filter} = require('lodash');
 function path(pathPrefix, component) {
     return `${pathPrefix}/${component}`;
 }
 function pathWithId(pathPrefix, component) {
     return `${pathPrefix}/${component}/{id}`;
 }
-export function buildRoute(method, path, controller, strategy = 'simple') {
+const buildRoute = function buildRoute(method, path, controller, strategy = 'simple') {
     const {handler, validate, pre, post} = controller;
     const auth = strategy ? {strategy} : !!strategy;
     return {
@@ -22,8 +22,9 @@ export function buildRoute(method, path, controller, strategy = 'simple') {
             }
         }
     };
-}
-export function buildRESTRoutes(component, controller, pathPrefix = '') {
+};
+module.exports.buildRoute = buildRoute;
+module.exports.buildRESTRoutes = function buildRESTRoutes(component, controller, pathPrefix = '') {
     const restMethods = [
         {method: 'new', args: ['POST', path(pathPrefix, component), controller.new]},
         {method: 'find', args: ['GET', path(pathPrefix, component), controller.find]},
@@ -32,9 +33,9 @@ export function buildRESTRoutes(component, controller, pathPrefix = '') {
         {method: 'delete', args: ['DELETE', pathWithId(pathPrefix, component), controller.delete]}
     ];
     return filter(restMethods.map(rest => controller[rest.method] ? buildRoute(...rest.args) : undefined));
-}
-export function buildRoutesForMethods(methods, component, controller, pathPrefix = '') {
+};
+module.exports.buildRoutesForMethods = function buildRoutesForMethods(methods, component, controller, pathPrefix = '') {
     return methods.map(action =>
         buildRoute('PUT', `${pathWithId(pathPrefix, component)}/${action}`, controller[action])
     );
-}
+};

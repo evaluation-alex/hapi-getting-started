@@ -1,10 +1,10 @@
 'use strict';
-import {extend, capitalize, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, sortBy, keys, assign} from 'lodash';
-import Bluebird from 'bluebird';
-import {MongoClient, ObjectID} from 'mongodb';
-import config from './../config';
-import {errback, hasItems, timing} from './utils';
-import {ObjectNotCreatedError} from './errors';
+const {extend, capitalize, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, sortBy, keys, assign} = require('lodash');
+const Bluebird = require('bluebird');
+const {MongoClient, ObjectID} = require('mongodb');
+const config = require('./../config');
+const {errback, hasItems, timing} = require('./utils');
+const {ObjectNotCreatedError} = require('./errors');
 const {i18n, logger} = config;
 let connections = {};
 function gatherStats(collection, method, query, start, err) {
@@ -30,7 +30,7 @@ function defaultcb(resolve, reject, collection, method, query) {
         }
     };
 }
-export function connect(name, cfg) {
+module.exports.connect = function connect(name, cfg) {
     return new Bluebird((resolve, reject) => {
         if (connections[name]) {
             resolve(connections[name]);
@@ -42,16 +42,17 @@ export function connect(name, cfg) {
                 }, reject, 'db', 'connect'));
         }
     });
-}
-export function db(name) {
+};
+const db = function db(name) {
     return connections[name];
-}
-export function disconnect(name) {
+};
+module.exports.db = db;
+module.exports.disconnect = function disconnect(name) {
     db(name).close(false, err => {
         connections[name] = undefined;
         errback(err);
     });
-}
+};
 function withSchemaProperties(Dao, connection, collection, indexes, modelSchema) {
     return extend(Dao, {ObjectID, collection, indexes, connection, modelSchema});
 }
@@ -136,7 +137,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
                                     organisation: obj.organisation,
                                     by: by,
                                     on: now,
-                                    change: [{action: 'create', newValues: doc }]
+                                    change: [{action: 'create', newValues: doc}]
                                 })
                                 .then(() => obj);
                         }
@@ -278,70 +279,76 @@ function arrDescriptors(lists) {
     });
 }
 function withSetMethods(model, properties) {
-    properties.forEach(p => {
-        const {method, path, name} = p;
-        extend(model.prototype, {
-            [method](newValue, by) {
-                const origval = get(this, path);
-                if (!isUndefined(newValue) && !isEqual(origval, newValue)) {
-                    this.trackChanges(name, origval, newValue, by);
-                    set(this, path, newValue);
+    properties
+        .map(p => {
+            const {method, path, name} = p;
+            return {
+                [method](newValue, by) {
+                    const origval = get(this, path);
+                    if (!isUndefined(newValue) && !isEqual(origval, newValue)) {
+                        this.trackChanges(name, origval, newValue, by);
+                        set(this, path, newValue);
+                    }
+                    return this;
                 }
-                return this;
-            }
-        });
-    });
+            };
+        })
+        .map(setMethod => extend(model.prototype, setMethod));
     return model;
 }
 function withArrMethods(model, lists) {
-    lists.forEach(role => {
-        const {path, name, isPresentIn, addMethod, removeMethod} = role;
-        extend(model.prototype, {
-            [isPresentIn](toCheck) {
-                return !!find(get(this, path), item => isEqual(item, toCheck));
-            },
-            [addMethod](toAdd, by) {
-                const list = get(this, path);
-                toAdd.forEach(memberToAdd => {
-                    const found = find(list, item => isEqual(item, memberToAdd));
-                    if (!found) {
-                        list.push(memberToAdd);
-                        this.trackChanges(`add ${name}`, null, memberToAdd, by);
-                    }
-                }, this);
-                return this;
-            },
-            [removeMethod](toRemove, by) {
-                const list = get(this, path);
-                toRemove.forEach(memberToRemove => {
-                    const removed = remove(list, item => isEqual(item, memberToRemove));
-                    if (hasItems(removed)) {
-                        this.trackChanges(`remove ${name}`, memberToRemove, null, by);
-                    }
-                }, this);
-                return this;
-            }
-        });
-    });
+    lists
+        .map(role => {
+            const {path, name, isPresentIn, addMethod, removeMethod} = role;
+            return {
+                [isPresentIn](toCheck) {
+                    return !!find(get(this, path), item => isEqual(item, toCheck));
+                },
+                [addMethod](toAdd, by) {
+                    const list = get(this, path);
+                    toAdd.forEach(memberToAdd => {
+                        const found = find(list, item => isEqual(item, memberToAdd));
+                        if (!found) {
+                            list.push(memberToAdd);
+                            this.trackChanges(`add ${name}`, null, memberToAdd, by);
+                        }
+                    }, this);
+                    return this;
+                },
+                [removeMethod](toRemove, by) {
+                    const list = get(this, path);
+                    toRemove.forEach(memberToRemove => {
+                        const removed = remove(list, item => isEqual(item, memberToRemove));
+                        if (hasItems(removed)) {
+                            this.trackChanges(`remove ${name}`, memberToRemove, null, by);
+                        }
+                    }, this);
+                    return this;
+                }
+            };
+        })
+        .map(arrMethods => extend(model.prototype, arrMethods));
     return model;
 }
 function withUpdate(model, props, arrs, updateMethod) {
     extend(model.prototype, {
         [updateMethod](doc, by) {
             props.forEach(p => {
-                const u = get(doc.payload, p.path);
+                let {method, path} = p;
+                const u = get(doc.payload, path);
                 if (!isUndefined(u)) {
-                    this[p.method](u, by);
+                    this[method](u, by);
                 }
             }, this);
             arrs.forEach(arr => {
-                const r = get(doc.payload, arr.removed);
-                if (!isUndefined(r) && hasItems(r)) {
-                    this[arr.removeMethod](r, by);
+                let {removed: removedItems, removeMethod, added: addedItems, addMethod} = arr;
+                const toRemove = get(doc.payload, removedItems);
+                if (!isUndefined(toRemove) && hasItems(toRemove)) {
+                    this[removeMethod](toRemove, by);
                 }
-                const a = get(doc.payload, arr.added);
-                if (!isUndefined(a) && hasItems(a)) {
-                    this[arr.addMethod](a, by);
+                const toAdd = get(doc.payload, addedItems);
+                if (!isUndefined(toAdd) && hasItems(toAdd)) {
+                    this[addMethod](toAdd, by);
                 }
             }, this);
             return this;
@@ -430,7 +437,7 @@ function withSave(model, saveAudit, idForAudit = '_id') {
     });
     return model;
 }
-export function build(toBuild, schema, model, extendModels, areValidProperty = undefined) {
+module.exports.build = function build(toBuild, schema, model, extendModels, areValidProperty = undefined) {
     if (!schema.isVirtualModel) {
         withSchemaProperties(toBuild, schema.connection, schema.collection, schema.indexes, model);
         withSetupMethods(toBuild, schema.nonEnumerables || []);
@@ -461,4 +468,4 @@ export function build(toBuild, schema, model, extendModels, areValidProperty = u
         });
     }
     return toBuild;
-}
+};

@@ -1,8 +1,8 @@
 'use strict';
-import Hapi from 'hapi';
-import Bluebird from 'bluebird';
-import path from 'path';
-import config from './config';
+const Hapi = require('hapi');
+const Bluebird = require('bluebird');
+const path = require('path');
+const config = require('./config');
 const manifest = config.manifest;
 process.title = 'hgs-server-' + process.env.NODE_ENV;
 function start(server) {

@@ -1,12 +1,12 @@
 'use strict';
-import {flatten, merge} from 'lodash';
-import {buildQuery, by, user, hasItems} from './../../common/utils';
-import {findValidator, canView, canUpdate, prePopulate, onlyOwner} from './../../common/prereqs';
-import {buildFindHandler, buildUpdateHandler} from './../../common/handlers';
-import {i18n} from './../../common/posthandlers';
-import schemas from './schemas';
-import Notifications from './model';
-export default {
+const {flatten, merge} = require('lodash');
+const {buildQuery, by, user, hasItems} = require('./../../common/utils');
+const {findValidator, canView, canUpdate, prePopulate, onlyOwner} = require('./../../common/prereqs');
+const {buildFindHandler, buildUpdateHandler} = require('./../../common/handlers');
+const {i18n} = require('./../../common/posthandlers');
+const schemas = require('./schemas');
+const Notifications = require('./model');
+module.exports = {
     find: {
         validate: findValidator(schemas.controller.find),
         pre: [
@@ -29,7 +29,7 @@ export default {
             return query;
         }),
         post: [
-            i18n()
+            i18n(Notifications)
         ]
     },
     update: {
@@ -41,7 +41,7 @@ export default {
         ],
         handler: buildUpdateHandler(Notifications, schemas.dao.updateMethod.method),
         post: [
-            i18n()
+            i18n(Notifications)
         ]
     }
 };

@@ -1,6 +1,6 @@
 'use strict';
-import Joi from 'joi';
-export default {
+const Joi = require('joi');
+module.exports = {
     dao: {
         connection: 'app',
         collection: 'roles',

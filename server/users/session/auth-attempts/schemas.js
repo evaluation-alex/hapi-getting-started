@@ -1,6 +1,7 @@
 'use strict';
-import Joi from 'joi';
-export default {
+const Joi = require('joi');
+const shared = require('./../../../../shared/users/session/auth-attempts/validation');
+module.exports = {
     dao: {
         connection: 'app',
         collection: 'auth-attempts',
@@ -19,12 +20,7 @@ export default {
         time: Joi.date().required()
     },
     controller: {
-        find: {
-            query: {
-                ip: Joi.string(),
-                email: Joi.string()
-            }
-        },
+        find: shared.controller.find,
         findOptions: {
             forPartialMatch: [['ip', 'ip'], ['email', 'email']]
         }

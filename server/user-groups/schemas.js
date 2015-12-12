@@ -1,6 +1,7 @@
 'use strict';
-import Joi from 'joi';
-export default {
+const Joi = require('joi');
+const shared = require('./../../shared/user-groups/validation');
+module.exports = {
     dao: {
         connection: 'app',
         collection: 'user-groups',
@@ -43,46 +44,13 @@ export default {
         updatedOn: Joi.date()
     },
     controller: {
-        create: {
-            payload: {
-                name: Joi.string().required(),
-                members: Joi.array().items(Joi.string()),
-                owners: Joi.array().items(Joi.string()),
-                description: Joi.string(),
-                access: Joi.string().only(['restricted', 'public'])
-            }
-        },
-        find: {
-            query: {
-                email: Joi.string(),
-                groupName: Joi.string(),
-                isActive: Joi.string()
-            }
-        },
+        create: shared.controller.create,
+        find: shared.controller.find,
         findOptions: {
             forPartial: [['email', 'members'], ['groupName', 'name']]
         },
-        update: {
-            payload: {
-                isActive: Joi.boolean(),
-                addedMembers: Joi.array().items(Joi.string()).unique(),
-                removedMembers: Joi.array().items(Joi.string()).unique(),
-                addedOwners: Joi.array().items(Joi.string()).unique(),
-                removedOwners: Joi.array().items(Joi.string()).unique(),
-                description: Joi.string(),
-                access: Joi.string().only(['restricted', 'public'])
-            }
-        },
-        approve: {
-            payload: {
-                addedMembers: Joi.array().items(Joi.string()).unique()
-            }
-        },
-        reject: {
-            approve: {
-                payload: {
-                    addedMembers: Joi.array().items(Joi.string()).unique()
-                }
-            }
-        }}
+        update: shared.controller.update,
+        approve: shared.controller.approve,
+        reject: shared.controller.reject
+    }
 };

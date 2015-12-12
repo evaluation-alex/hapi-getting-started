@@ -1,6 +1,7 @@
 'use strict';
-import Joi from 'joi';
-export default {
+const Joi = require('joi');
+//const shared = require('./../../../shared/web/contact/validation');
+module.exports = {
     controller: {
         contact: {
             payload: {

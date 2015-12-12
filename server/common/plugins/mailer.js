@@ -1,11 +1,11 @@
 'use strict';
-import fs from 'fs';
-import {clone, merge} from 'lodash';
-import Bluebird from 'bluebird';
-import hbs from 'handlebars';
-import Nodemailer from 'nodemailer';
-import {markdown} from 'nodemailer-markdown';
-import config from './../../config';
+const fs = require('fs');
+const {clone, merge} = require('lodash');
+const Bluebird = require('bluebird');
+const hbs = require('handlebars');
+const Nodemailer = require('nodemailer');
+const {markdown} = require('nodemailer-markdown');
+const config = require('./../../config');
 
 const transport = Bluebird.promisifyAll(Nodemailer.createTransport(clone(config.nodemailer)));
 transport.use('compile', markdown({useEmbeddedImages: true}));
@@ -25,10 +25,10 @@ const renderTemplate = Bluebird.method((template, context) => {
             });
     }
 });
-export function sendEmail (options, template, context) {
+module.exports.sendEmail = function sendEmail (options, template, context) {
     return renderTemplate(template, context)
         .then(content => {
             options = merge(options, {from: config.system.fromAddress, markdown: content});
             return transport.sendMailAsync(options);
         });
-}
+};

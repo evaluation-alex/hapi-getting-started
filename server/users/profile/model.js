@@ -1,6 +1,6 @@
 'use strict';
-import {build} from './../../common/dao';
-import schemas from './schemas';
+const {build} = require('./../../common/dao');
+const schemas = require('./schemas');
 class Profile {
     static create() {
         return {
@@ -18,4 +18,4 @@ class Profile {
     }
 }
 build(Profile, schemas.dao, schemas.model);
-export default Profile;
+module.exports = Profile;

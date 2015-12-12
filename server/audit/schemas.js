@@ -1,6 +1,7 @@
 'use strict';
-import Joi from 'joi';
-export default {
+const Joi = require('joi');
+const shared = require('./../../shared/audit/validation');
+module.exports = {
     dao: {
         connection: 'app',
         collection: 'audit',
@@ -26,15 +27,7 @@ export default {
         }))
     },
     controller: {
-        find: {
-            query: {
-                by: Joi.string(),
-                objectType: Joi.string(),
-                objectChangedId: Joi.string(),
-                onBefore: Joi.date().format('YYYY-MM-DD'),
-                onAfter: Joi.date().format('YYYY-MM-DD')
-            }
-        },
+        find: shared.controller.find,
         findOptions: {
             forPartial: [['by', 'by']],
             forDateBefore: [['onBefore', 'on']],

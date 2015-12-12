@@ -32,11 +32,12 @@
         "kerberos": "0.x.x",
         "lodash": "3.10.x",
         "moment": "2.10.x",
-        "mongodb": "2.0.x",
+        "mongodb": "2.1.x",
         "node-uuid": "1.4.x",
         "nodemailer": "1.x.x",
         "nodemailer-markdown": "1.x.x",
-        "useragent": "2.1.x"
+        "useragent": "2.1.x",
+        "superagent": "1.5.x"
     },
     "devDependencies": {
         "babel": "5.x.x",
@@ -51,7 +52,7 @@
         "eslint": "1.x.x",
         "gulp": "3.9.x",
         "gulp-babel": "5.x.x",
-        "gulp-codeclimate-reporter": "1.1.x",
+        "gulp-codeclimate-reporter": "1.2.x",
         "gulp-concat": "2.x.x",
         "gulp-coveralls": "0.1.x",
         "gulp-eslint": "1.x.x",
@@ -63,6 +64,7 @@
         "gulp-nodemon": "2.x.x",
         "gulp-replace": "0.x.x",
         "gulp-sourcemaps": "1.x.x",
+        "gulp-task-listing": "1.x.x",
         "gutil": "1.x.x",
         "istanbul": "0.4.x",
         "influx": "4.x.x",

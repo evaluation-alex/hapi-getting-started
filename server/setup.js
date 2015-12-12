@@ -1,8 +1,8 @@
 'use strict';
 /*eslint-disable no-process-exit*/
-import fs from 'fs';
-import Bluebird from 'bluebird';
-import {prompt} from 'promptly';
+const fs = require('fs');
+const Bluebird = require('bluebird');
+const {prompt} = require('promptly');
 const test = {
     projectName: 'hapistart',
     mongodbUrl: 'mongodb://127.0.0.1:27017/hapistart',

@@ -1,10 +1,10 @@
 'use strict';
-import {ip, logAndBoom} from './../../common/utils';
-import {abuseDetected} from './../../common/prereqs';
-import Users from './../model';
-import AuthAttempts from './auth-attempts/model';
-import schemas from './schemas';
-export default {
+const {ip, logAndBoom} = require('./../../common/utils');
+const {abuseDetected} = require('./../../common/prereqs');
+const Users = require('./../model');
+const AuthAttempts = require('./auth-attempts/model');
+const schemas = require('./schemas');
+module.exports = {
     login: {
         validate: schemas.controller.login,
         pre: [

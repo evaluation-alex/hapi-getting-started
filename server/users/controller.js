@@ -1,17 +1,17 @@
 'use strict';
-import path from 'path';
-import Bluebird from 'bluebird';
-import config from './../config';
-import {sendEmail} from './../common/plugins/mailer';
-import {PasswordResetError} from './../common/errors';
-import {ip, logAndBoom} from './../common/utils';
-import {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} from './../common/prereqs';
-import {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} from './../common/handlers';
-import schemas from './schemas';
-import Users from './model';
-import Blogs from './../blogs/model';
+const path = require('path');
+const Bluebird = require('bluebird');
+const config = require('./../config');
+let Mailer = require('./../common/plugins/mailer');
+const {PasswordResetError} = require('./../common/errors');
+const {ip, logAndBoom} = require('./../common/utils');
+const {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} = require('./../common/prereqs');
+const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = require('./../common/handlers');
+const schemas = require('./schemas');
+const Users = require('./model');
+const Blogs = require('./../blogs/model');
 const {projectName} = config;
-export default {
+module.exports = {
     signup: {
         validate: schemas.controller.signup,
         pre: [
@@ -49,7 +49,7 @@ export default {
                                 address: request.payload.email
                             }
                         };
-                        sendEmail(options, path.join(__dirname, '/templates/welcome.hbs.md'), request.payload)
+                        Mailer.sendEmail(options, path.join(__dirname, '/templates/welcome.hbs.md'), request.payload)
                             .then(() => {
                                 reply.continue();
                             })
@@ -98,7 +98,7 @@ export default {
                             subject: `Reset your ${projectName} password`,
                             to: request.payload.email
                         };
-                        return sendEmail(options, path.join(__dirname, '/templates/forgot-password.hbs.md'), {key: user.resetPwd.token});
+                        return Mailer.sendEmail(options, path.join(__dirname, '/templates/forgot-password.hbs.md'), {key: user.resetPwd.token});
                     }
                 })
                 .then(() => {

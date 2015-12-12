@@ -1,9 +1,9 @@
 'use strict';
-import {canView, findValidator} from './../common/prereqs';
-import {buildFindHandler} from './../common/handlers';
-import schemas from './schemas';
-import Audit from './model';
-export default {
+const {canView, findValidator} = require('./../common/prereqs');
+const {buildFindHandler} = require('./../common/handlers');
+const schemas = require('./schemas');
+const Audit = require('./model');
+module.exports = {
     find: {
         validate: findValidator(schemas.controller.find),
         pre: [

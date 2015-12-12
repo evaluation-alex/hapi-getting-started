@@ -20,13 +20,14 @@ const cols = [
 ].join(',');
 const fields = [
     {label: 'collectionOrRoute', value: (row) => row.collection || row.route}, 'method',
-    {label: 'statusCode', value: 'statusCode', default: '#'},
+    {label: 'statusCodeOrType', value: (row) => row.statusCode || row.type || '#'},
     'min', 'p10', 'p20', 'p25', 'p30', 'p40', 'p50', 'p60', 'p70', 'p75', 'p80', 'p90', 'max',
     'mean', 'stddev', 'lastObserved', 'total', 'count', 'uniqs'
 ];
 const queryOn = {
     dao: ['collection, method', 'collection', 'method'],
-    controller: ['route', 'method', 'statusCode', 'route, method', 'route, statusCode', 'method, statusCode']
+    controller: ['route', 'method', 'statusCode', 'route, method', 'route, statusCode', 'method, statusCode'],
+    handler: ['collection', 'method', 'type', 'collection, method', 'collection, type', 'collection, method, type']
 };
 const queries = _.flatten(
     Object.keys(queryOn).map(measure =>
@@ -41,6 +42,7 @@ module.exports = function (gulp, $) {
             .then(json2Csv)
             .then(csv => csv.replace(/"null"/g, 0).replace(/"/g, ''))
             .then(console.log.bind(console))
-            .then(() => cb());
+            .then(() => cb())
+            .catch(err => cb(err));
     }
 };

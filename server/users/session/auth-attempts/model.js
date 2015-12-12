@@ -1,8 +1,8 @@
 'use strict';
-import Bluebird from 'bluebird';
-import config from './../../../config';
-import {build} from './../../../common/dao';
-import schemas from './schemas';
+const Bluebird = require('bluebird');
+const config = require('./../../../config');
+const {build} = require('./../../../common/dao');
+const schemas = require('./schemas');
 const {authAttempts: limits} = config;
 class AuthAttempts {
     constructor(attrs) {
@@ -28,4 +28,4 @@ class AuthAttempts {
     }
 }
 build(AuthAttempts, schemas.dao, schemas.model);
-export default AuthAttempts;
+module.exports = AuthAttempts;

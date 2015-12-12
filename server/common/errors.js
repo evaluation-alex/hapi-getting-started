@@ -1,6 +1,6 @@
 'use strict';
-import Boom from 'boom';
-import config from './../config';
+const Boom = require('boom');
+const config = require('./../config');
 const {i18n} = config;
 function makeCustomError(message, name, errorType, phrase) {
     class CustomError extends Error {
@@ -20,63 +20,63 @@ function makeCustomError(message, name, errorType, phrase) {
     }
     return CustomError;
 }
-export const UserNotFoundError = makeCustomError('UserNotFound',
+module.exports.UserNotFoundError = makeCustomError('UserNotFound',
     'UserNotFoundError',
     'notFound',
     '{{email}} not found');
-export const UserNotLoggedInError = makeCustomError('UserNotLoggedIn',
+module.exports.UserNotLoggedInError = makeCustomError('UserNotLoggedIn',
     'UserNotLoggedInError',
     'unauthorized',
     '{{email}} not logged in');
-export const SessionExpiredError = makeCustomError('SessionExpired',
+module.exports.SessionExpiredError = makeCustomError('SessionExpired',
     'SessionExpiredError',
     'unauthorized',
     'Your ({{email}}) session has expired, login again');
-export const SessionCredentialsNotMatchingError = makeCustomError('SessionCredentialsNotMatching',
+module.exports.SessionCredentialsNotMatchingError = makeCustomError('SessionCredentialsNotMatching',
     'SessionCredentialsNotMatchingError',
     'unauthorized',
     '{{email}} does not have the right credentials, login again');
-export const IncorrectPasswordError = makeCustomError('IncorrectPassword',
+module.exports.IncorrectPasswordError = makeCustomError('IncorrectPassword',
     'IncorrectPasswordError',
     'unauthorized',
     'Invalid password for {{email}}');
-export const ArchivedPostUpdateError = makeCustomError('ArchivedPostUpdate',
+module.exports.ArchivedPostUpdateError = makeCustomError('ArchivedPostUpdate',
     'ArchivedPostUpdateError',
     'conflict',
     'Cannot update archived posts');
-export const ObjectNotCreatedError = makeCustomError('ObjectNotCreated',
+module.exports.ObjectNotCreatedError = makeCustomError('ObjectNotCreated',
     'ObjectNotCreatedError',
     'notFound',
     '{{collection}} object could not be created.');
-export const ObjectAlreadyExistsError = makeCustomError('ObjectAlreadyExists',
+module.exports.ObjectAlreadyExistsError = makeCustomError('ObjectAlreadyExists',
     'ObjectAlreadyExistsError',
     'conflict',
     'Object already exists');
-export const ObjectNotFoundError = makeCustomError('ObjectNotFound',
+module.exports.ObjectNotFoundError = makeCustomError('ObjectNotFound',
     'ObjectNotFoundError',
     'notFound',
     '{{type}} ({{idstr}}) not found');
-export const NotAMemberOfValidGroupError = makeCustomError('NotAMemberOfValidGroup',
+module.exports.NotAMemberOfValidGroupError = makeCustomError('NotAMemberOfValidGroup',
     'NotAMemberOfValidGroup',
     'unauthorized',
     'Only members of {{owners}} group are permitted to perform this action');
-export const NotValidUsersOrGroupsError = makeCustomError('NotValidUsersOrGroups',
+module.exports.NotValidUsersOrGroupsError = makeCustomError('NotValidUsersOrGroups',
     'NotValidUsersOrGroupsError',
     'badData',
     'Bad user / groups : {{msg}}');
-export const AbusiveLoginAttemptsError = makeCustomError('AbusiveLoginAttempts',
+module.exports.AbusiveLoginAttemptsError = makeCustomError('AbusiveLoginAttempts',
     'AbusiveLoginAttemptsError',
     'tooManyRequests',
     'Maximum number of auth attempts reached. Please try again later.');
-export const PasswordResetError = makeCustomError('PasswordResetFailed',
+module.exports.PasswordResetError = makeCustomError('PasswordResetFailed',
     'PasswordResetError',
     'badRequest',
     'Invalid email or key.');
-export const NoPermissionsForActionError = makeCustomError('NoPermissionsForAction',
+module.exports.NoPermissionsForActionError = makeCustomError('NoPermissionsForAction',
     'NoPermissionsForActionError',
     'forbidden',
     'Permission denied {{action}} on {{object}} for user {{user}}');
-export const NotObjectOwnerError = makeCustomError('NotObjectOwner',
+module.exports.NotObjectOwnerError = makeCustomError('NotObjectOwner',
     'NotObjectOwnerError',
     'unauthorized',
     '{{email}} does not have permission to modify');

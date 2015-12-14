@@ -34,7 +34,7 @@ module.exports = {
         _id: Joi.object(),
         blogId: Joi.object().required(),
         organisation: Joi.string().required(),
-        title: Joi.string(),
+        title: Joi.string().required(),
         state: Joi.string().only(['draft', 'pending review', 'published', 'archived', 'do not publish']).default('draft'),
         access: Joi.string().only(['public', 'restricted']).default('public'),
         allowComments: Joi.boolean().default(true),

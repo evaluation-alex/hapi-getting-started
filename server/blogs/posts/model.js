@@ -119,4 +119,4 @@ Posts.prototype = {
             });
     }
 };
-module.exports = build(Posts, schemas.dao, schemas.model, [Recipes, Meals], '_id');
+module.exports = build(Posts, schemas.dao, schemas.model, [], '_id');

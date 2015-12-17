@@ -1,8 +1,7 @@
 'use strict';
 const {buildRoute} = require('./../../common/routes');
 const Controller = require('./controller');
-const routes = [
+module.exports = [
     buildRoute('POST', '/session', Controller.login, false),
     buildRoute('DELETE', '/session', Controller.logout)
 ];
-module.exports = routes;

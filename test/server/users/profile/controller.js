@@ -77,8 +77,10 @@ describe('Profile', () => {
                 .catch(done);
         });
         it('should modify profile and audit changes', (done) => {
+            let original;
             Users.findOne({email: 'root'})
                 .then((p) => {
+                    original = p;
                     id = p._id.toString();
                     let request = {
                         method: 'PUT',
@@ -105,6 +107,10 @@ describe('Profile', () => {
                 .then((audit) => {
                     expect(audit).to.exist;
                     expect(audit.length).to.equal(1);
+                    original.__isModified = true;
+                    return original.save();
+                })
+                .then(() => {
                     done();
                 })
                 .catch(done);

@@ -7,68 +7,65 @@ const {build} = require('./../../common/dao');
 const UserGroups = require('./../../user-groups/model');
 const Blogs = require('./../model');
 const schemas = require('./schemas');
-class Posts {
-    constructor(attrs) {
-        this.init(attrs);
-    }
-
-    static newObject(doc, by) {
-        const blog = doc.pre.blogs;
-        merge(doc.payload, pick(blog, ['access', 'allowComments', 'needsReview']));
-        if (doc.payload.state === 'published') {
-            if (doc.payload.needsReview && !(blog.isPresentInOwners(by) || by === 'root')) {
-                doc.payload.state = 'pending review';
-            }
+const Posts = function Posts(attrs) {
+    this.init(attrs);
+    return this;
+};
+Posts.newObject = function newObject(doc, by) {
+    const blog = doc.pre.blogs;
+    merge(doc.payload, pick(blog, ['access', 'allowComments', 'needsReview']));
+    if (doc.payload.state === 'published') {
+        if (doc.payload.needsReview && !(blog.isPresentInOwners(by) || by === 'root')) {
+            doc.payload.state = 'pending review';
         }
-        return Posts.create(blog._id,
-            org(doc),
-            doc.payload.title,
-            doc.payload.state,
-            doc.payload.access,
-            doc.payload.allowComments,
-            doc.payload.needsReview,
-            doc.payload.category,
-            doc.payload.tags,
-            doc.payload.attachments,
+    }
+    return Posts.create(blog._id,
+        org(doc),
+        doc.payload.title,
+        doc.payload.state,
+        doc.payload.access,
+        doc.payload.allowComments,
+        doc.payload.needsReview,
+        doc.payload.category,
+        doc.payload.tags,
+        doc.payload.attachments,
             doc.payload.contentType || 'post',
-            doc.payload.content,
-            by)
-            .then(post => {
-                post.blog = blog;
-                return post;
-            });
-    }
-
-    static create(blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, contentType, content, by) {
-        const now = new Date();
-        return Posts.insertAndAudit({
-            blogId,
-            organisation,
-            title,
-            state,
-            access,
-            allowComments,
-            needsReview,
-            category,
-            tags,
-            attachments,
-            contentType,
-            content,
-            publishedBy: by,
-            publishedOn: state === 'published' ? now : null,
-            reviewedBy: state === 'published' ? by : null,
-            reviewedOn: state === 'published' ? now : null
-        }, by);
-    }
-
+        doc.payload.content,
+        by)
+        .then(post => {
+            post.blog = blog;
+            return post;
+        });
+};
+Posts.create = function create(blogId, organisation, title, state, access, allowComments, needsReview, category, tags, attachments, contentType, content, by) {
+    const now = new Date();
+    return Posts.insertAndAudit({
+        blogId,
+        organisation,
+        title,
+        state,
+        access,
+        allowComments,
+        needsReview,
+        category,
+        tags,
+        attachments,
+        contentType,
+        content,
+        publishedBy: by,
+        publishedOn: state === 'published' ? now : null,
+        reviewedBy: state === 'published' ? by : null,
+        reviewedOn: state === 'published' ? now : null
+    }, by);
+};
+Posts.prototype = {
     update(doc, by) {
         if (this.state !== 'archived') {
             return this.updatePost(doc, by);
         } else {
             return Bluebird.reject(new ArchivedPostUpdateError());
         }
-    }
-
+    },
     publish(doc, by) {
         if (['draft', 'pending review'].indexOf(this.state) !== -1) {
             const blog = doc.pre.blogs;
@@ -81,8 +78,7 @@ class Posts {
             }
         }
         return this;
-    }
-
+    },
     reject(doc, by) {
         if (['draft', 'pending review'].indexOf(this.state) !== -1) {
             this.setState('do not publish', by);
@@ -90,8 +86,7 @@ class Posts {
             this.reviewedOn = new Date();
         }
         return this;
-    }
-
+    },
     populate(user) {
         return Blogs.findOne({_id: Blogs.ObjectID(this.blogId)})
             .then(blog => {
@@ -123,6 +118,5 @@ class Posts {
                 return this;
             });
     }
-}
-build(Posts, schemas.dao, schemas.model, [], '_id');
-module.exports = Posts;
+};
+module.exports = build(Posts, schemas.dao, schemas.model, [Recipes, Meals], '_id');

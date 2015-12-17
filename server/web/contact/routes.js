@@ -1,7 +1,6 @@
 'use strict';
 const {buildRoute} = require('./../../common/routes');
 const Controller = require('./controller');
-const routes = [
+module.exports = [
     buildRoute('POST', '/contact', Controller.contact, false)
 ];
-module.exports = routes;

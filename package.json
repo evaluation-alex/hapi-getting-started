@@ -1,24 +1,24 @@
 {
     "scripts": {
-        "updatedeps": "rm -rf ./node_modules && npm i",
-        "server:lint": "node --harmony ./node_modules/gulp/bin/gulp server:lint",
-        "server:build": "node --harmony ./node_modules/gulp/bin/gulp server:build",
-        "server:build:clean": "node --harmony ./node_modules/gulp/bin/gulp server:clean server:build",
-        "server:build:watch": "node --harmony ./node_modules/gulp/bin/gulp server:watch",
+        "gulp": "node --harmony ./node_modules/gulp/bin/gulp",
+        "clean_install": "rm -rf ./node_modules && npm i",
+        "server:lint": "npm run gulp -- server:lint",
+        "server:build": "npm run gulp -- server:build",
+        "server:build:clean": "npm run gulp -- server:clean server:build",
+        "server:build:watch": "npm run gulp -- server:watch",
         "server:setup": "node --harmony ./build/setup.js",
-        "server:test": "node --harmony ./node_modules/gulp/bin/gulp server:test",
-        "server:test:nocov": "node --harmony ./node_modules/gulp/bin/gulp server:test:nocov",
-        "server:coveralls": "cat ./test/artifacts/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
-        "server:climate": "cat ./test/artifacts/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
+        "server:test": "npm run gulp -- server:test",
+        "server:test:nocov": "npm run gulp -- server:test:nocov",
+        "server:coveralls": "cat ./test/artifacts/server/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
+        "server:climate": "cat ./test/artifacts/server/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
         "server:coverage": "npm run server:coveralls && npm run server:climate",
-        "lint": "npm run server:lint",
-        "test": "node --harmony ./node_modules/gulp/bin/gulp test && npm run server:coverage",
-        "dev": "node --harmony ./node_modules/gulp/bin/gulp",
-        "start": "node --harmony ./build/index.js"
+        "server:start": "node --harmony ./build/index.js",
+        "lint": "npm run gulp -- lint",
+        "test": "npm run gulp -- test"
     },
     "dependencies": {
         "bcrypt": "0.8.x",
-        "bluebird": "3.0.x",
+        "bluebird": "3.1.x",
         "boom": "3.0.x",
         "bunyan": "1.5.x",
         "dev-null": "0.1.x",
@@ -37,13 +37,17 @@
         "nodemailer": "1.x.x",
         "nodemailer-markdown": "1.x.x",
         "useragent": "2.1.x",
-        "superagent": "1.5.x"
+        "superagent": "1.6.x"
     },
     "devDependencies": {
-        "babel": "5.x.x",
-        "babel-core": "5.x.x",
+        "babel-core": "6.x.x",
         "babel-eslint": "4.x.x",
         "babel-jscs": "2.x.x",
+        "babel-preset-es2015-node5": "1.1.1",
+        "babel-preset-es2015": "6.x.x",
+        "babel-preset-react": "6.x.x",
+        "babel-preset-stage-0": "6.x.x",
+        "babel-register": "6.x.x",
         "babel-runtime": "5.x.x",
         "chai": "3.x.x",
         "codeclimate-test-reporter": "0.1.x",
@@ -51,7 +55,7 @@
         "del": "2.x.x",
         "eslint": "1.x.x",
         "gulp": "3.9.x",
-        "gulp-babel": "5.x.x",
+        "gulp-babel": "6.x.x",
         "gulp-codeclimate-reporter": "1.2.x",
         "gulp-concat": "2.x.x",
         "gulp-coveralls": "0.1.x",
@@ -77,27 +81,9 @@
         "promptly": "0.2.x",
         "run-sequence": "1.x.x"
     },
-    "name": "hapi-getting-started",
-    "version": "0.0.4",
-    "description": "User management, authentication and authorization api for Node.js using hapi",
-    "main": "server/index.js",
-    "keywords": [
-        "hapijs",
-        "getting started"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "git@github.com:k-sheth/hapi-getting-started.git"
+    "babel": {
+        "presets": ["es2015", "react", "stage-0"]
     },
-    "author": {
-        "name": "Kumarpal Sheth",
-        "email": "k.sheth@gmail.com"
-    },
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/k-sheth/hapi-getting-started/issues"
-    },
-    "homepage": "https://github.com/k-sheth/hapi-getting-started",
     "eslintConfig": {
         "ecmaFeatures": {
             "arrowFunctions": true,
@@ -257,8 +243,25 @@
         "white": false,
         "predef": ["describe", "before", "beforeEach", "after", "afterEach", "it", "expect"]
     },
-    "babel": {
-        "stage": 0,
-        "loose": "all"
-    }
+    "name": "hapi-getting-started",
+    "version": "0.0.4",
+    "description": "User management, authentication and authorization api for Node.js using hapi",
+    "main": "server/index.js",
+    "keywords": [
+        "hapijs",
+        "getting started"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:k-sheth/hapi-getting-started.git"
+    },
+    "author": {
+        "name": "Kumarpal Sheth",
+        "email": "k.sheth@gmail.com"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/k-sheth/hapi-getting-started/issues"
+    },
+    "homepage": "https://github.com/k-sheth/hapi-getting-started"
 }

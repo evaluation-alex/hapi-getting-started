@@ -2,22 +2,22 @@
 const {find} = require('lodash');
 const {build} = require('./../../common/dao');
 const schemas = require('./schemas');
-class Roles {
-    constructor(attrs) {
-        this.init(attrs);
-    }
+const Roles = function Roles(attrs) {
+    this.init(attrs);
+    return this;
+};
+Roles.create = function create(name, organisation, permissions) {
+    return Roles.upsert({
+        name,
+        organisation,
+        permissions
+    });
+};
+Roles.prototype = {
     hasPermissionsTo(performAction, onObject) {
         return !!find(this.permissions,
             p => ((p.object === onObject || p.object === '*') && (p.action === performAction || p.action === 'update'))
         );
     }
-    static create(name, organisation, permissions) {
-        return Roles.upsert({
-            name,
-            organisation,
-            permissions
-        });
-    }
-}
-build(Roles, schemas.dao, schemas.model);
-module.exports = Roles;
+};
+module.exports = build(Roles, schemas.dao, schemas.model);

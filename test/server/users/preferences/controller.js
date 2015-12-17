@@ -1,6 +1,7 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
+let _ = require('lodash');
 let Users = require('./../../../../build/users/model');
 let Audit = require('./../../../../build/audit/model');
 let tu = require('./../../testutils');
@@ -77,8 +78,10 @@ describe('Preferences', () => {
                 catch(done);
         });
         it('should modify preferences and audit changes', (done) => {
+            let original;
             Users.findOne({email: 'root'})
                 .then((p) => {
+                    original = p;
                     p.preferences.notifications.blogs.blocked.push({id: 'something'});
                     p.preferences.notifications.posts.blocked.push({id: 'none of them'});
                     id = p._id.toString();
@@ -137,6 +140,12 @@ describe('Preferences', () => {
                 .then((audit) => {
                     expect(audit).to.exist;
                     expect(audit.length).to.equal(1);
+                    original.preferences.notifications.blogs.blocked.pop();
+                    original.preferences.notifications.posts.blocked.pop();
+                    original.__isModified = true;
+                    return original.save();
+                })
+                .then(() => {
                     done();
                 })
                 .catch(done);

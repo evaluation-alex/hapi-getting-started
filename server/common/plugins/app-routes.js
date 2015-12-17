@@ -1,6 +1,6 @@
 'use strict';
 const path = require('path');
-const {functions} = require('lodash');
+const {functions, flattenDeep} = require('lodash');
 const fs = require('fs');
 function describeRoutes(routes) {
     return routes.map(route => `${route.method}  ${route.path}`).join('\n');
@@ -16,15 +16,10 @@ const register = function register(server, options, next) {
     const buildPath = path.join(process.cwd(), '/build/');
     options.modules.forEach(module => {
         const model = path.join(buildPath, module, '/model');
-        const routes = require(path.join(buildPath, module, '/routes'));
+        const routes = flattenDeep(require(path.join(buildPath, module, '/routes')));
         routes.forEach(route => {
             route.path = options.prependRoute + route.path;
-            try {
-                server.route(route);
-            } catch (err) {
-                console.log(err);
-                console.log(err.stack);
-            }
+            server.route(route);
         });
         /*istanbul ignore if*/
         /*istanbul ignore else*/

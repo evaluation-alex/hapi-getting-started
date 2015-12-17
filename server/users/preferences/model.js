@@ -1,8 +1,8 @@
 'use strict';
 const {build} = require('./../../common/dao');
 const schemas = require('./schemas');
-class Preferences {
-    static create(locale = 'en') {
+const Preferences = function Preferences() {};
+Preferences.create = function create(locale = 'en') {
         return {
             notifications: {
                 blogs: {
@@ -41,11 +41,11 @@ class Preferences {
             },
             locale
         };
-    }
+    };
+Preferences.prototype = {
     resetPrefs() {
         this.preferences = Preferences.create();
         return this;
     }
-}
-build(Preferences, schemas.dao, schemas.model);
-module.exports = Preferences;
+};
+module.exports = build(Preferences, schemas.dao, schemas.model);

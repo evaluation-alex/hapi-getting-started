@@ -1,5 +1,5 @@
 'use strict';
-const {filter} = require('lodash');
+const {filter, merge} = require('lodash');
 function path(pathPrefix, component) {
     return `${pathPrefix}/${component}`;
 }
@@ -8,14 +8,14 @@ function pathWithId(pathPrefix, component) {
 }
 const buildRoute = function buildRoute(method, path, controller, strategy = 'simple') {
     const {handler, validate, pre, post} = controller;
-    const auth = strategy ? {strategy} : !!strategy;
     return {
         method,
         path,
         handler,
         config: {
-            auth,
-            validate,
+            auth: strategy ? {strategy} : !!strategy,
+            //http://stackoverflow.com/questions/33526978/hapi-lab-how-to-test-all-the-required-fields
+            validate: merge({}, {options: {abortEarly: false}}, validate),
             pre,
             ext: {
                 onPostHandler: post

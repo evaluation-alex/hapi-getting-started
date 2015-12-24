@@ -7,7 +7,6 @@ function task(task, ...rest) {
     return require('./tasks/' + task)(gulp, $, ...rest);
 }
 gulp.task('help', $.taskListing);
-
 /*server tasks*/
 gulp.task('server:lint', task('lint', ['server/**/*.js']));
 gulp.task('server:clean', task('clean', ['build/**/*.*', 'test/artifacts/server/**/*.*']));
@@ -31,7 +30,8 @@ gulp.task('server:test', (cb) => {
         cb
     );
 });
-
+/*common lint task*/
+gulp.task('lint', ['server:lint']);
 /*top level tasks*/
 gulp.task('default', ['server:default']);
 gulp.task('test', ['server:test']);

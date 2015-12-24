@@ -38,8 +38,7 @@ module.exports.buildFindHandler = function buildFindHandler(Model, queryBuilder)
             })
             .then(output => {
                 if (hasItems(output.data) && isFunction(output.data[0].populate)) {
-                    const user = by(request);
-                    return Bluebird.all(output.data.map(item => item.populate(user)))
+                    return Bluebird.all(output.data.map(item => item.populate(by(request))))
                         .then(op => {
                             output.data = op;
                             return output;

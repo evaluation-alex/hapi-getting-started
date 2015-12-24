@@ -12,10 +12,10 @@ function makeCustomError(message, name, errorType, phrase) {
             this.phrase = phrase;
             this.data = data || {};
             this.canMakeBoomError = true;
+            this.i18nError = function i18nError(locale) {//stupid babel 6
+                return Boom[this.errorType](i18n.__({phrase: this.phrase, locale: locale}, this.data));
+            };
             Error.captureStackTrace(this, CustomError);
-        }
-        i18nError(locale) {
-            return Boom[this.errorType](i18n.__({phrase: this.phrase, locale: locale}, this.data));
         }
     }
     return CustomError;

@@ -23,8 +23,7 @@ const buildRoute = function buildRoute(method, path, controller, strategy = 'sim
         }
     };
 };
-module.exports.buildRoute = buildRoute;
-module.exports.buildRESTRoutes = function buildRESTRoutes(component, controller, pathPrefix = '') {
+const buildRESTRoutes = function buildRESTRoutes(component, controller, pathPrefix = '') {
     const restMethods = [
         {method: 'new', args: ['POST', path(pathPrefix, component), controller.new]},
         {method: 'find', args: ['GET', path(pathPrefix, component), controller.find]},
@@ -34,8 +33,13 @@ module.exports.buildRESTRoutes = function buildRESTRoutes(component, controller,
     ];
     return filter(restMethods.map(rest => controller[rest.method] ? buildRoute(...rest.args) : undefined));
 };
-module.exports.buildRoutesForMethods = function buildRoutesForMethods(methods, component, controller, pathPrefix = '') {
+const buildRoutesForMethods = function buildRoutesForMethods(methods, component, controller, pathPrefix = '') {
     return methods.map(action =>
         buildRoute('PUT', `${pathWithId(pathPrefix, component)}/${action}`, controller[action])
     );
+};
+module.exports = {
+    buildRoute,
+    buildRESTRoutes,
+    buildRoutesForMethods
 };

@@ -45,6 +45,7 @@ module.exports = {
     controller: {
         signup: shared.controller.signup,
         find: shared.controller.find,
+        findDefaults: {sort: '-updatedOn', limit: 8, page: 1},
         findOptions: {
             forPartial: [['email', 'email']]
         },

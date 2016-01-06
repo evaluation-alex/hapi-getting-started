@@ -2,7 +2,7 @@
 const Bluebird = require('bluebird');
 const {by, errback, hasItems, locale, timing} = require('./utils');
 const Notifications = require('./../users/notifications/model');
-module.exports.sendNotifications = function sendNotifications(Model, notifyCb) {
+const sendNotifications = function sendNotifications(Model, notifyCb) {
     const tags = {collection: Model.collection, method: 'sendNotifications', type: 'post'};
     const notify = Bluebird.method((target, request) => notifyCb(target, request));
     return {
@@ -41,7 +41,7 @@ module.exports.sendNotifications = function sendNotifications(Model, notifyCb) {
         }
     };
 };
-module.exports.cancelNotifications = function cancelNotifications(Model, action, cancelCb) {
+const cancelNotifications = function cancelNotifications(Model, action, cancelCb) {
     const tags = {collection: Model.collection, method: 'cancelNotifications', type: 'post'};
     const cancel = Bluebird.method((target, request, notification) =>
             cancelCb ?
@@ -75,7 +75,7 @@ module.exports.cancelNotifications = function cancelNotifications(Model, action,
         }
     };
 };
-module.exports.i18n = function i18n(Model) {
+const i18n = function i18n(Model) {
     const tags = {collection: Model.collection, method: 'i18n', type: 'post'};
     return {
         method(request, reply) {
@@ -96,4 +96,9 @@ module.exports.i18n = function i18n(Model) {
             return reply.continue();
         }
     };
+};
+module.exports = {
+    sendNotifications,
+    cancelNotifications,
+    i18n
 };

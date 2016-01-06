@@ -75,14 +75,16 @@
         },
         "connections": [{
             "port": 8080,
-            "labels": ["http"]
+            "labels": ["http"],
+            "compression": false
         }, {
             "port": 443,
             "labels": ["secure", "api"],
             "tls": {
                 "key": "./build/key.pem",
                 "cert": "./build/cert.pem"
-            }
+            },
+            "compression": false
         }],
         "server": {
             "connections": {

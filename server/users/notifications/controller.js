@@ -8,7 +8,7 @@ const schemas = require('./schemas');
 const Notifications = require('./model');
 module.exports = {
     find: {
-        validate: findValidator(schemas.controller.find),
+        validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
         pre: [
             canView(Notifications.collection)
         ],

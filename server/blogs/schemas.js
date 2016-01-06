@@ -57,6 +57,7 @@ module.exports = {
     controller: {
         create: shared.controller.create,
         find: shared.controller.find,
+        findDefaults: {sort: '-updatedOn', limit: 8, page: 1},
         findOptions: {
             forPartial: [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
                 ['subGroup', 'subscriberGroups']]

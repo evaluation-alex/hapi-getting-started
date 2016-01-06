@@ -41,8 +41,8 @@ function fromStdIn(results, property, message, opts) {
     });
 }
 fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistart'})
-    .then(results => fromStdIn(results, 'mongodbUrl', `MongoDB URL: (mongodb://localhost:27017/${results.projectName}) `,{'default': `mongodb://localhost:27017/${results.projectName}`}))
-    .then(results => fromStdIn(results, 'rootEmail', 'Root email: (root)',{'default': 'root'}))
+    .then(results => fromStdIn(results, 'mongodbUrl', `MongoDB URL: (mongodb://localhost:27017/${results.projectName}) `, {'default': `mongodb://localhost:27017/${results.projectName}`}))
+    .then(results => fromStdIn(results, 'rootEmail', 'Root email: (root)', {'default': 'root'}))
     .then(results => fromStdIn(results, 'rootPassword', 'Root user password: ', {'default': ''}))
     .then(results => fromStdIn(results, 'smtpHost', 'SMTP host: (smtp.gmail.com) ', {'default': 'smtp.gmail.com'}))
     .then(results => fromStdIn(results, 'smtpPort', 'SMTP port: (465) ', {'default': 465}))
@@ -133,14 +133,14 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 },
                 connections: [{
                     port: 8000,
-                    labels: ['http']
+                    labels: ['http'], compression: false
                 }, {
                     port: 443,
                     labels: ['secure', 'api'],
                     tls: {
                         key: results.keyfile,
                         cert: results.certfile
-                    }
+                    }, compression: false
                 }],
                 server: {
                     connections: {

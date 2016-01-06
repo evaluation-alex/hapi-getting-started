@@ -21,6 +21,7 @@ module.exports = {
     },
     controller: {
         find: shared.controller.find,
+        findDefaults: {sort: '-time', limit: 8, page: 1},
         findOptions: {
             forPartialMatch: [['ip', 'ip'], ['email', 'email']]
         }

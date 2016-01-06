@@ -1,5 +1,5 @@
 'use strict';
-const {extend, capitalize, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, sortBy, keys, assign} = require('lodash');
+const {extend, capitalize, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, assign} = require('lodash');
 const Bluebird = require('bluebird');
 const {MongoClient, ObjectID} = require('mongodb');
 const config = require('./../config');
@@ -13,7 +13,7 @@ function gatherStats(collection, method, query, start, err) {
     const fields = {elapsed, err};
     const tags = {collection, method};
     if (query) {
-        fields.query = sortBy(keys(query), String).join('|');
+        fields.query = Object.keys(query).sort().join('|');
     }
     timing('dao', tags, fields);
 }
@@ -30,7 +30,7 @@ function defaultcb(resolve, reject, collection, method, query) {
         }
     };
 }
-module.exports.connect = function connect(name, cfg) {
+const connect = function connect(name, cfg) {
     return new Bluebird((resolve, reject) => {
         if (connections[name]) {
             resolve(connections[name]);
@@ -46,8 +46,7 @@ module.exports.connect = function connect(name, cfg) {
 const db = function db(name) {
     return connections[name];
 };
-module.exports.db = db;
-module.exports.disconnect = function disconnect(name) {
+const disconnect = function disconnect(name) {
     db(name).close(false, err => {
         connections[name] = undefined;
         errback(err);
@@ -437,7 +436,7 @@ function withSave(model, saveAudit, idForAudit = '_id') {
     });
     return model;
 }
-module.exports.build = function build(toBuild, schema, model, extendModels, areValidProperty = undefined) {
+const build = function build(toBuild, schema, model, extendModels, areValidProperty = undefined) {
     if (!schema.isVirtualModel) {
         withSchemaProperties(toBuild, schema.connection, schema.collection, schema.indexes, model);
         withSetupMethods(toBuild, schema.nonEnumerables || []);
@@ -468,4 +467,10 @@ module.exports.build = function build(toBuild, schema, model, extendModels, areV
         });
     }
     return toBuild;
+};
+module.exports = {
+    db,
+    connect,
+    disconnect,
+    build
 };

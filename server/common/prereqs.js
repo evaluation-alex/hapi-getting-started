@@ -31,19 +31,19 @@ function buildAreValid(Model, pldPropToLookup) {
         }
     };
 }
-module.exports.areValidUsers = function areValidUsers(payloadPropertiesToLookup) {
+const areValidUsers = function areValidUsers(payloadPropertiesToLookup) {
     return {
         assign: 'validUsers',
         method: buildAreValid(Users, payloadPropertiesToLookup)
     };
 };
-module.exports.areValidGroups = function areValidGroups(payloadPropertiesToLookup) {
+const areValidGroups = function areValidGroups(payloadPropertiesToLookup) {
     return {
         assign: 'validUserGroups',
         method: buildAreValid(UserGroups, payloadPropertiesToLookup)
     };
 };
-module.exports.areValidPosts = function areValidPosts(payloadPropertiesToLookup) {
+const areValidPosts = function areValidPosts(payloadPropertiesToLookup) {
     return {
         assign: 'validPosts',
         method: buildAreValid(Posts, payloadPropertiesToLookup)
@@ -64,13 +64,13 @@ function ensurePermissions(action, object) {
         }
     };
 }
-module.exports.canView = function canView(object) {
+const canView = function canView(object) {
     return ensurePermissions('view', object);
 };
-module.exports.canUpdate = function canUpdate(object) {
+const canUpdate = function canUpdate(object) {
     return ensurePermissions('update', object);
 };
-module.exports.isMemberOf = function isMemberOf(Model, groups) {
+const isMemberOf = function isMemberOf(Model, groups) {
     const tags = {collection: Model.collection, method: 'isMemberOf', type: 'pre'};
     return {
         assign: `isMemberOf${capitalize(Model.collection)}(${groups.join(',')})`,
@@ -88,7 +88,7 @@ module.exports.isMemberOf = function isMemberOf(Model, groups) {
         }
     };
 };
-module.exports.uniqueCheck = function uniqueCheck(Model, queryBuilder) {
+const uniqueCheck = function uniqueCheck(Model, queryBuilder) {
     const tags = {collection: Model.collection, method: 'uniqueCheck', type: 'pre'};
     return {
         assign: 'uniqueCheck',
@@ -104,7 +104,7 @@ module.exports.uniqueCheck = function uniqueCheck(Model, queryBuilder) {
         }
     };
 };
-module.exports.onlyOwner = function onlyOwner(Model) {
+const onlyOwner = function onlyOwner(Model) {
     const tags = {collection: Model.collection, method: 'onlyOwner', type: 'pre'};
     return {
         assign: 'allowedToViewOrEditPersonalInfo',
@@ -120,7 +120,7 @@ module.exports.onlyOwner = function onlyOwner(Model) {
         }
     };
 };
-module.exports.prePopulate = function prePopulate(Model, idToUse) {
+const prePopulate = function prePopulate(Model, idToUse) {
     const tags = {collection: Model.collection, method: 'prePopulate', type: 'pre'};
     return {
         assign: Model.collection,
@@ -141,7 +141,7 @@ module.exports.prePopulate = function prePopulate(Model, idToUse) {
         }
     };
 };
-module.exports.abuseDetected = function abuseDetected() {
+const abuseDetected = function abuseDetected() {
     const tags = {collection: 'User', method: 'abuseDetected', type: 'pre'};
     return {
         assign: 'abuseDetected',
@@ -157,10 +157,24 @@ module.exports.abuseDetected = function abuseDetected() {
         }
     };
 };
-module.exports.findValidator = function findValidator(validator, sort = '-updatedOn', limit = 5, page = 1) {
+const findValidator = function findValidator(validator, defaults) {
+    const {sort, limit, page} = defaults;
     validator.query.fields = Joi.string();
     validator.query.sort = Joi.string().default(sort);
     validator.query.limit = Joi.number().default(limit);
     validator.query.page = Joi.number().default(page);
     return validator;
+};
+module.exports = {
+    areValidUsers,
+    areValidGroups,
+    areValidPosts,
+    canView,
+    canUpdate,
+    isMemberOf,
+    uniqueCheck,
+    onlyOwner,
+    prePopulate,
+    abuseDetected,
+    findValidator
 };

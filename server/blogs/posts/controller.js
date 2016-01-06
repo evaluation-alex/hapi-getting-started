@@ -81,7 +81,7 @@ module.exports = {
         ]
     },
     find: {
-        validate: findValidator(schemas.controller.find),
+        validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
         pre: [
             canView(Posts.collection)
         ],

@@ -28,6 +28,7 @@ module.exports = {
     },
     controller: {
         find: shared.controller.find,
+        findDefaults: {sort: '-on', limit: 5, page: 1},
         findOptions: {
             forPartial: [['by', 'by']],
             forDateBefore: [['onBefore', 'on']],

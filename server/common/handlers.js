@@ -1,8 +1,8 @@
 'use strict';
 const {isFunction, merge} = require('lodash');
 const Bluebird = require('bluebird');
-const {org, user, by, logAndBoom, hasItems, buildQuery, timing} = require('./utils');
-module.exports.buildCreateHandler = function buildCreateHandler(Model) {
+const {org, user, by, logAndBoom, hasItems, buildQuery, findopts, timing} = require('./utils');
+const buildCreateHandler = function buildCreateHandler(Model) {
     const tags = {collection: Model.collection, method: 'create', type: 'main'};
     return function createHandler(request, reply) {
         const start = Date.now();
@@ -14,15 +14,7 @@ module.exports.buildCreateHandler = function buildCreateHandler(Model) {
             });
     };
 };
-function findopts(opts) {
-    if (!opts || opts === '') {
-        return;
-    }
-    return opts.split(/\s+/)
-        .map(each => (each[0] === '-') ? {[each.slice(1)]: -1} : {[each]: 1})
-        .reduce((p, c) => merge(p, c), {});
-}
-module.exports.buildFindHandler = function buildFindHandler(Model, queryBuilder) {
+const buildFindHandler = function buildFindHandler(Model, queryBuilder) {
     const tags = {collection: Model.collection, method: 'find', type: 'main'};
     const buildQueryFrom = Bluebird.method(request => isFunction(queryBuilder) ? queryBuilder(request) : buildQuery(request, queryBuilder));
     return function findHandler(request, reply) {
@@ -54,7 +46,7 @@ module.exports.buildFindHandler = function buildFindHandler(Model, queryBuilder)
             });
     };
 };
-module.exports.buildFindOneHandler = function buildFindOneHandler(Model) {
+const buildFindOneHandler = function buildFindOneHandler(Model) {
     const tags = {collection: Model.collection, method: 'findOne', type: 'main'};
     const findOne = Bluebird.method((obj, user) => isFunction(obj.populate) ? obj.populate(user) : obj);
     return function findOneHandler(request, reply) {
@@ -67,7 +59,7 @@ module.exports.buildFindOneHandler = function buildFindOneHandler(Model) {
             });
     };
 };
-module.exports.buildUpdateHandler = function buildUpdateHandler(Model, updateCb) {
+const buildUpdateHandler = function buildUpdateHandler(Model, updateCb) {
     const tags = {collection: Model.collection, method: 'update', type: 'main'};
     const update = Bluebird.method((u, request, by) => isFunction(updateCb) ? updateCb(u, request, by) : u[updateCb](request, by));
     return function updateHandler(request, reply) {
@@ -81,4 +73,9 @@ module.exports.buildUpdateHandler = function buildUpdateHandler(Model, updateCb)
             });
     };
 };
-
+module.exports = {
+    buildCreateHandler,
+    buildFindHandler,
+    buildFindOneHandler,
+    buildUpdateHandler
+};

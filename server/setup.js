@@ -133,14 +133,16 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 },
                 connections: [{
                     port: 8000,
-                    labels: ['http'], compression: false
+                    labels: ['http'],
+                    compression: false
                 }, {
                     port: 443,
                     labels: ['secure', 'api'],
                     tls: {
                         key: results.keyfile,
                         cert: results.certfile
-                    }, compression: false
+                    },
+                    compression: false
                 }],
                 server: {
                     connections: {

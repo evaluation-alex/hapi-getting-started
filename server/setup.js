@@ -3,7 +3,7 @@
 const fs = require('fs');
 const Bluebird = require('bluebird');
 const {prompt} = require('promptly');
-const test = {
+const base = {
     projectName: 'hapistart',
     mongodbUrl: 'mongodb://127.0.0.1:27017/hapistart',
     rootEmail: 'root',
@@ -25,8 +25,8 @@ const test = {
 };
 function fromStdIn(results, property, message, opts) {
     return new Bluebird((resolve, reject) => {
-        if (process.env.NODE_ENV === 'test') {
-            results[property] = test[property];
+        if (process.env.NODE_ENV === 'development') {
+            results[property] = base[property];
             resolve(results);
         } else {
             prompt(message, opts, (err, out) => {

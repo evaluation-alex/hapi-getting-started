@@ -1,9 +1,14 @@
 'use strict';
-const {capitalize} = require('lodash');
-const {by, org, hasItems} = require('./../common/utils');
-const {findValidator, canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate} = require('./../common/prereqs');
-const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = require('./../common/handlers');
-const {sendNotifications, cancelNotifications} = require('./../common/posthandlers');
+const _ = require('lodash');
+const utils = require('./../common/utils');
+const pre = require('./../common/prereqs');
+const handlers = require('./../common/handlers');
+const post = require('./../common/posthandlers');
+const {capitalize} = _;
+const {by, org, hasItems} = utils;
+const {findValidator, canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate} = pre;
+const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
+const {sendNotifications, cancelNotifications} = post;
 const schemas = require('./schemas');
 const Blogs = require('./model');
 module.exports = {

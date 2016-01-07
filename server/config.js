@@ -3,7 +3,8 @@ const fs = require('fs');
 const i18n = require('i18n');
 const dgram = require('dgram');
 const devnull = require('dev-null');
-const {createLogger} = require('bunyan');
+const bunyan = require('bunyan');
+const {createLogger} = bunyan;
 const args = JSON.parse(fs.readFileSync('./build/options.json'));
 let nodemailer = {};
 /* istanbul ignore else  */

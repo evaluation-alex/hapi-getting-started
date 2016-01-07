@@ -25,7 +25,7 @@ describe('Profile', () => {
                     done();
                 });
         });
-        it('should return unauthorised if someone other than root or the user tries to modify user attributes', (done) => {
+        it('should return forbidden if someone other than root or the user tries to modify user attributes', (done) => {
             let oneauthheader = '';
             tu.findAndLogin('one@first.com')
                 .then((u) => {
@@ -52,7 +52,7 @@ describe('Profile', () => {
                     return server.injectThen(request);
                 })
                 .then((response) => {
-                    expect(response.statusCode).to.equal(401);
+                    expect(response.statusCode).to.equal(403);
                     done();
                 })
                 .catch(done);

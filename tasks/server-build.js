@@ -6,6 +6,7 @@ module.exports = function (gulp, $) {
             gulp.src(['server/**/*.js'], {base: './server'})
                 .pipe($.sourcemaps.init())
                 .pipe($.babel({
+                    babelrc: false,//https://discuss.babeljs.io/t/disable-babelrc/63
                     presets: ['es2015-node5']
                 }))
                 .pipe($.replace(/(\s+)_classCallCheck\(this/, '/*istanbul ignore next: dont mess up my coverage*/\n$1_classCallCheck(this'))

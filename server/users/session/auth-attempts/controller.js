@@ -1,8 +1,12 @@
 'use strict';
-const {merge} = require('lodash');
-const {buildQuery} = require('./../../../common/utils');
-const {canView, findValidator} = require('./../../../common/prereqs');
-const {buildFindHandler} = require('./../../../common/handlers');
+const _ = require('lodash');
+const utils = require('./../../../common/utils');
+const pre = require('./../../../common/prereqs');
+const handlers = require('./../../../common/handlers');
+const {merge} = _;
+const {buildQuery} = utils;
+const {canView, findValidator} = pre;
+const {buildFindHandler} = handlers;
 const schemas = require('./schemas');
 const AuthAttempts = require('./model');
 module.exports = {

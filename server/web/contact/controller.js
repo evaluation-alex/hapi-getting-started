@@ -1,8 +1,10 @@
 'use strict';
 const path = require('path');
 const config = require('./../../config');
-const {logAndBoom} = require('./../../common/utils');
-const {sendEmail} = require('./../../common/plugins/mailer');
+const utils = require('./../../common/utils');
+const {logAndBoom} = utils;
+const Mailer = require('./../../common/plugins/mailer');
+const {sendEmail} = Mailer;
 const schemas = require('./schemas');
 module.exports = {
     contact: {

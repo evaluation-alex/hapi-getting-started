@@ -1,6 +1,8 @@
 'use strict';
-const {canView, findValidator} = require('./../common/prereqs');
-const {buildFindHandler} = require('./../common/handlers');
+const pre = require('./../common/prereqs');
+const handlers = require('./../common/handlers');
+const {canView, findValidator} = pre;
+const {buildFindHandler} = handlers;
 const schemas = require('./schemas');
 const Audit = require('./model');
 module.exports = {

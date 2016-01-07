@@ -1,10 +1,14 @@
 'use strict';
-const {extend, capitalize, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, assign} = require('lodash');
+const _ = require('lodash');
 const Bluebird = require('bluebird');
-const {MongoClient, ObjectID} = require('mongodb');
+const mongodb = require('mongodb');
 const config = require('./../config');
-const {errback, hasItems, timing} = require('./utils');
-const {ObjectNotCreatedError} = require('./errors');
+const utils = require('./utils');
+const errors = require('./errors');
+const {extend, capitalize, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, assign} = _;
+const {MongoClient, ObjectID} = mongodb;
+const {errback, hasItems, timing} = utils;
+const {ObjectNotCreatedError} = errors;
 const {i18n, logger} = config;
 let connections = {};
 function gatherStats(collection, method, query, start, err) {

@@ -1,10 +1,12 @@
 'use strict';
-const {get, isArray, isBoolean, isString, isNumber, merge} = require('lodash');
+const _ = require('lodash');
 const moment = require('moment');
 const bcrypt = require('bcrypt');
 const boom = require('boom');
-const {ObjectID: objectID} = require('mongodb');
+const mongodb = require('mongodb');
 const config = require('./../config');
+const {get, isArray, isBoolean, isString, isNumber, merge} = _;
+const {ObjectID: objectID} = mongodb;
 const {logger, influxdb} = config;
 const logAndBoom = function logAndBoom(err) {
     logger.error({error: err, stack: err.stack});

@@ -203,7 +203,7 @@ describe('Notifications', () => {
                 })
                 .catch(done);
         });
-        it('should return unauthorized if someone other than the owner of the notification tries to change it', (done) => {
+        it('should return forbidden if someone other than the owner of the notification tries to change it', (done) => {
             let id = null;
             Notifications.create('root', 'silver lining', 'blogs', 'xyz123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
                 .then((n) => {
@@ -225,7 +225,7 @@ describe('Notifications', () => {
                     return server.injectThen(request);
                 })
                 .then((response) => {
-                    expect(response.statusCode).to.equal(401);
+                    expect(response.statusCode).to.equal(403);
                     done();
                 })
                 .catch(done);

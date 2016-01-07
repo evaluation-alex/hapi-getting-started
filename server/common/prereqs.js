@@ -1,10 +1,13 @@
 'use strict';
-const {get, flatten, filter, capitalize, find} = require('lodash');
+const _ = require('lodash');
+const utils = require('./utils');
+const errors = require('./errors');
 const Bluebird = require('bluebird');
 const Joi = require('joi');
-const {hasItems, org, logAndBoom, user, by, lookupParamsOrPayloadOrQuery, ip, timing} = require('./utils');
-import {NotValidUsersOrGroupsError, NoPermissionsForActionError, NotAMemberOfValidGroupError,
-    ObjectAlreadyExistsError, NotObjectOwnerError, ObjectNotFoundError, AbusiveLoginAttemptsError} from './errors';
+const {get, flatten, filter, capitalize, find} = _;
+const {hasItems, org, logAndBoom, user, by, lookupParamsOrPayloadOrQuery, ip, timing} = utils;
+const {NotValidUsersOrGroupsError, NoPermissionsForActionError, NotAMemberOfValidGroupError,
+    ObjectAlreadyExistsError, NotObjectOwnerError, ObjectNotFoundError, AbusiveLoginAttemptsError} = errors;
 const Users = require('./../users/model');
 const AuthAttempts = require('./../users/session/auth-attempts/model');
 const UserGroups = require('./../user-groups/model');

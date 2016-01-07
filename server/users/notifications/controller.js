@@ -1,9 +1,14 @@
 'use strict';
-const {flatten, merge} = require('lodash');
-const {buildQuery, by, user, hasItems} = require('./../../common/utils');
-const {findValidator, canView, canUpdate, prePopulate, onlyOwner} = require('./../../common/prereqs');
-const {buildFindHandler, buildUpdateHandler} = require('./../../common/handlers');
-const {i18n} = require('./../../common/posthandlers');
+const _ = require('lodash');
+const utils = require('./../../common/utils');
+const pre = require('./../../common/prereqs');
+const handlers = require('./../../common/handlers');
+const post = require('./../../common/posthandlers');
+const {flatten, merge} = _;
+const {buildQuery, by, user, hasItems} = utils;
+const {findValidator, canView, canUpdate, prePopulate, onlyOwner} = pre;
+const {buildFindHandler, buildUpdateHandler} = handlers;
+const {i18n} = post;
 const schemas = require('./schemas');
 const Notifications = require('./model');
 module.exports = {

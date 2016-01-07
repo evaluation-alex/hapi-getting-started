@@ -1,7 +1,9 @@
 'use strict';
-const {forIn} = require('lodash');
+const _ = require('lodash');
 const Bluebird = require('bluebird');
-const {connect, disconnect} = require('./../dao');
+const dao = require('./../dao');
+const {forIn} = _;
+const {connect, disconnect} = dao;
 const register = function register(server, options, next) {
     const dbconnections = [];
     forIn(options.mongo, (connectionargs, name) => {

@@ -1,6 +1,7 @@
 'use strict';
 const Bluebird = require('bluebird');
-const {by, errback, hasItems, locale, timing} = require('./utils');
+const utils = require('./utils');
+const {by, errback, hasItems, locale, timing} = utils;
 const Notifications = require('./../users/notifications/model');
 const sendNotifications = function sendNotifications(Model, notifyCb) {
     const tags = {collection: Model.collection, method: 'sendNotifications', type: 'post'};

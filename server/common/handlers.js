@@ -1,7 +1,9 @@
 'use strict';
-const {isFunction, merge} = require('lodash');
+const _ = require('lodash');
 const Bluebird = require('bluebird');
-const {org, user, by, logAndBoom, hasItems, buildQuery, findopts, timing} = require('./utils');
+const utils = require('./utils');
+const {isFunction, merge} = _;
+const {org, user, by, logAndBoom, hasItems, buildQuery, findopts, timing} = utils;
 const buildCreateHandler = function buildCreateHandler(Model) {
     const tags = {collection: Model.collection, method: 'create', type: 'main'};
     return function createHandler(request, reply) {

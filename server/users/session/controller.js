@@ -1,6 +1,8 @@
 'use strict';
-const {ip, logAndBoom} = require('./../../common/utils');
-const {abuseDetected} = require('./../../common/prereqs');
+const pre = require('./../../common/prereqs');
+const utils = require('./../../common/utils');
+const {ip, logAndBoom} = utils;
+const {abuseDetected} = pre;
 const Users = require('./../model');
 const AuthAttempts = require('./auth-attempts/model');
 const schemas = require('./schemas');

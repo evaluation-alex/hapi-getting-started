@@ -2,11 +2,15 @@
 const path = require('path');
 const Bluebird = require('bluebird');
 const config = require('./../config');
-let Mailer = require('./../common/plugins/mailer');
-const {PasswordResetError} = require('./../common/errors');
-const {ip, logAndBoom} = require('./../common/utils');
-const {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} = require('./../common/prereqs');
-const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = require('./../common/handlers');
+const Mailer = require('./../common/plugins/mailer');
+const errors = require('./../common/errors');
+const utils = require('./../common/utils');
+const pre = require('./../common/prereqs');
+const handlers = require('./../common/handlers');
+const {PasswordResetError} = errors;
+const {ip, logAndBoom} = utils;
+const {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} = pre;
+const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
 const schemas = require('./schemas');
 const Users = require('./model');
 const Blogs = require('./../blogs/model');
@@ -81,8 +85,8 @@ module.exports = {
     update: {
         validate: schemas.controller.update,
         pre: [
-            canUpdate(Users.collection),
             prePopulate(Users, 'id'),
+            canUpdate(Users.collection),
             onlyOwner(Users)
         ],
         handler: buildUpdateHandler(Users, (usr, request, e) => usr._invalidateSession(ip(request), e).updateUser(request, e))

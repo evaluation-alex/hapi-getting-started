@@ -1,5 +1,6 @@
 'use strict';
-const {locale} = require('./../utils');
+const utils = require('./../utils');
+const {locale} = utils;
 const register = function register(server, options, next) {
     server.ext('onPreResponse', (request, reply) => {
         const response = request.response;

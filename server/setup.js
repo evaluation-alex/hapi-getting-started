@@ -2,7 +2,8 @@
 /*eslint-disable no-process-exit*/
 const fs = require('fs');
 const Bluebird = require('bluebird');
-const {prompt} = require('promptly');
+const promptly = require('promptly');
+const {prompt} = promptly;
 const base = {
     projectName: 'hapistart',
     mongodbUrl: 'mongodb://127.0.0.1:27017/hapistart',

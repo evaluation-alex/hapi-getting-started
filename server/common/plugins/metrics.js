@@ -1,6 +1,7 @@
 'use strict';
 const UserAgent = require('useragent');
-const {by, timing} = require('./../utils');
+const utils = require('./../utils');
+const {by, timing} = utils;
 function normalizePath(request) {
     const specials = request.connection._router.specials;
     if (request._route === specials.notFound.route) {

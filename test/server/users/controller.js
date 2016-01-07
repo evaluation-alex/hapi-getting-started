@@ -230,7 +230,7 @@ describe('Users', () => {
                 })
                 .catch(done);
         });
-        it('should send back unauthorized if the id in the url and authenticated user are different', (done) => {
+        it('should send back forbidden if the id in the url and authenticated user are different', (done) => {
             Users.findOne({email: 'root'})
                 .then((u) => {
                     let request = {
@@ -243,7 +243,7 @@ describe('Users', () => {
                     return server.injectThen(request);
                 })
                 .then((response) => {
-                    expect(response.statusCode).to.equal(401);
+                    expect(response.statusCode).to.equal(403);
                     done();
                 })
                 .catch(done);
@@ -374,7 +374,7 @@ describe('Users', () => {
                 })
                 .catch(done);
         });
-        it('should return unauthorised if someone other than root or the user tries to modify user attributes', (done) => {
+        it('should return forbidden if someone other than root or the user tries to modify user attributes', (done) => {
             tu.findAndLogin('one@first.com')
                 .then((u) => {
                     authheader = u.authheader;
@@ -393,7 +393,7 @@ describe('Users', () => {
                     return server.injectThen(request);
                 })
                 .then((response) => {
-                    expect(response.statusCode).to.equal(401);
+                    expect(response.statusCode).to.equal(403);
                     done();
                 })
                 .catch(done);

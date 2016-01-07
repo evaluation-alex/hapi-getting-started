@@ -1,6 +1,8 @@
 'use strict';
-const {canUpdate, prePopulate, onlyOwner} = require('./../../common/prereqs');
-const {buildUpdateHandler} = require('./../../common/handlers');
+const pre = require('./../../common/prereqs');
+const handlers = require('./../../common/handlers');
+const {canUpdate, prePopulate, onlyOwner} = pre;
+const {buildUpdateHandler} = handlers;
 const Users = require('./../model');
 const schemas = require('./schemas');
 module.exports = {

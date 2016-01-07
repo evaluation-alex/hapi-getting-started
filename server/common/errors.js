@@ -79,6 +79,6 @@ module.exports = {
         'Permission denied {{action}} on {{object}} for user {{user}}'),
     NotObjectOwnerError: makeCustomError('NotObjectOwner',
         'NotObjectOwnerError',
-        'unauthorized',
+        'forbidden',
         '{{email}} does not have permission to modify')
 };

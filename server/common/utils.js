@@ -4,6 +4,7 @@ const moment = require('moment');
 const bcrypt = require('bcrypt');
 const boom = require('boom');
 const mongodb = require('mongodb');
+const crypto = require('crypto');
 const config = require('./../config');
 const {get, isArray, isBoolean, isString, isNumber, merge} = _;
 const {ObjectID: objectID} = mongodb;
@@ -66,6 +67,11 @@ const findopts = function findopts(opts) {
         .map(each => (each[0] === '-') ? {[each.slice(1)]: -1} : {[each]: 1})
         .reduce((p, c) => merge(p, c), {});
 };
+//TODO: not the most efficient, but will do for now
+const hashCode = function hashCode(obj) {
+    obj.__hashCode__ = crypto.createHash('md5').update(JSON.stringify(obj)).digest('hex');
+    return obj;
+};
 const secureHash = function secureHash(password) {
     return bcrypt.hashSync(password, 10);
 };
@@ -114,6 +120,7 @@ module.exports = {
     findopts,
     secureHash,
     secureCompare,
+    hashCode,
     timing,
     dumpTimings
 };

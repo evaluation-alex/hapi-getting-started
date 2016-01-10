@@ -53,12 +53,12 @@ describe('Audit', () => {
                     }
                 };
                 server.injectThen(request).then((response) => {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist;
-                    expect(response.payload).to.contain('test.users2@test.api');
-                    expect(response.payload).to.not.contain('test.users@test.api');
-                    done();
-                })
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.payload).to.exist;
+                        expect(response.payload).to.contain('test.users2@test.api');
+                        expect(response.payload).to.not.contain('test.users@test.api');
+                        done();
+                    })
                     .catch(done);
             });
             it('should give audit of all changes done by user', (done) => {
@@ -70,11 +70,11 @@ describe('Audit', () => {
                     }
                 };
                 server.injectThen(request).then((response) => {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist;
-                    expect(response.payload).to.contain('test');
-                    done();
-                })
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.payload).to.exist;
+                        expect(response.payload).to.contain('test');
+                        done();
+                    })
                     .catch(done);
             });
             it('should give audit of all changes', (done) => {
@@ -86,10 +86,25 @@ describe('Audit', () => {
                     }
                 };
                 server.injectThen(request).then((response) => {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist;
-                    done();
-                })
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.payload).to.exist;
+                        done();
+                    })
+                    .catch(done);
+            });
+            it('should give nothing if no search criterion satisfied', (done) => {
+                let request = {
+                    method: 'GET',
+                    url: '/audit?by=xxxxx',
+                    headers: {
+                        Authorization: authheader
+                    }
+                };
+                server.injectThen(request).then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.payload).to.exist;
+                        done();
+                    })
                     .catch(done);
             });
         });

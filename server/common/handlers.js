@@ -3,12 +3,13 @@ const _ = require('lodash');
 const Bluebird = require('bluebird');
 const utils = require('./utils');
 const {isFunction, merge} = _;
-const {org, user, by, logAndBoom, hasItems, buildQuery, findopts, timing} = utils;
+const {org, user, by, logAndBoom, hasItems, buildQuery, findopts, timing, hashCode} = utils;
 const buildCreateHandler = function buildCreateHandler(Model) {
     const tags = {collection: Model.collection, method: 'create', type: 'main'};
     return function createHandler(request, reply) {
         const start = Date.now();
         Model.newObject(request, by(request))
+            .then(hashCode)
             .catch(logAndBoom)
             .then(reply)
             .finally(() => {
@@ -31,8 +32,10 @@ const buildFindHandler = function buildFindHandler(Model, queryBuilder) {
                 return Model.pagedFind(query, findopts(fields), findopts(sort), limit, page);
             })
             .then(output => {
-                if (hasItems(output.data) && isFunction(output.data[0].populate)) {
-                    return Bluebird.all(output.data.map(item => item.populate(by(request))))
+                if (hasItems(output.data)) {
+                    let hasPopulate = isFunction(output.data[0].populate);
+                    let user = by(request);
+                    return Bluebird.all(output.data.map(item => hashCode(hasPopulate ? item.populate(user) : item)))
                         .then(op => {
                             output.data = op;
                             return output;
@@ -54,6 +57,7 @@ const buildFindOneHandler = function buildFindOneHandler(Model) {
     return function findOneHandler(request, reply) {
         const start = Date.now();
         findOne(request.pre[Model.collection], user(request))
+            .then(hashCode)
             .catch(logAndBoom)
             .then(reply)
             .finally(() => {
@@ -68,6 +72,7 @@ const buildUpdateHandler = function buildUpdateHandler(Model, updateCb) {
         const start = Date.now();
         update(request.pre[Model.collection], request, by(request))
             .then(u => u.save())
+            .then(hashCode)
             .catch(logAndBoom)
             .then(reply)
             .finally(() => {

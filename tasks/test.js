@@ -17,6 +17,7 @@ module.exports = function (gulp, $, which, cvg) {
                 reporter: 'spec',
                 ui: 'bdd',
                 harmony: true,
+                timeout: 20000,
                 require: req[which]
             }));
     };

@@ -18,7 +18,8 @@ module.exports = {
         },
         saveAudit: true,
         i18n: ['title', 'content'],
-        nonEnumerables: []
+        nonEnumerables: [],
+        schemaVersion: 1
     },
     model: {
         _id: Joi.object(),

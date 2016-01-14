@@ -33,7 +33,8 @@ module.exports = {
             needsApproval: 'needsApproval'
         },
         saveAudit: true,
-        nonEnumerables: ['audit']
+        nonEnumerables: ['audit'],
+        schemaVersion: 1
     },
     model: {
         _id: Joi.object(),

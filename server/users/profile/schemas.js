@@ -14,7 +14,8 @@ module.exports = {
                 'profile.google',
                 'profile.twitter'
             ]
-        }
+        },
+        schemaVersion: 1
     },
     model: {
         firstName: Joi.string(),

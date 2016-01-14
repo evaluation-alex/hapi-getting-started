@@ -3,7 +3,8 @@ const Joi = require('joi');
 const shared = require('./../../../shared/users/session/validation');
 module.exports = {
     dao: {
-        isVirtualModel: true
+        isVirtualModel: true,
+        schemaVersion: 1
     },
     model: Joi.array().items(Joi.object().keys({
         ipaddress: Joi.string(),

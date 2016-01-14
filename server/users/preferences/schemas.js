@@ -26,7 +26,8 @@ module.exports = {
                 'preferences.notifications.posts.blocked',
                 'preferences.notifications.userGroups.blocked'
             ]
-        }
+        },
+        schemaVersion: 1
     },
     model: {
         notifications: Joi.object().keys({

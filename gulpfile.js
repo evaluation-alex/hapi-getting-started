@@ -2,8 +2,8 @@
 const gulp = require('gulp');
 const $ = require('gulp-load-plugins')({pattern: ['gulp-*', 'del', 'gutil', 'merge-stream', 'run-sequence']});
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-$.disableLinting = process.env.LINTING;
-$.disableCoverage = process.env.COVERAGE;
+$.disableLinting = process.env.DISABLE_LINTING;
+$.disableCoverage = process.env.DISABLE_COVERAGE;
 console.log('running for ' + process.env.NODE_ENV);
 function task(task, ...rest) {
     return require('./tasks/' + task)(gulp, $, ...rest);

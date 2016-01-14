@@ -20,7 +20,7 @@
     './blogs/controller',
     './blogs/posts/model',
     './blogs/posts/controller',
-    './contact/controller',
+    './web/contact/controller',
     './common/auth',
     './common/handlers',
     './common/mailer',

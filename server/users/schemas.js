@@ -21,7 +21,8 @@ module.exports = {
             ]
         },
         saveAudit: true,
-        nonEnumerables: ['audit', '_roles']
+        nonEnumerables: ['audit', '_roles'],
+        schemaVersion: 1
     },
     model: {
         _id: Joi.object(),

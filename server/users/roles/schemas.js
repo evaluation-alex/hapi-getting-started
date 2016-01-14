@@ -8,7 +8,8 @@ module.exports = {
             {fields: {name: 1, organisation: 1}, options: {unique: true}}
         ],
         saveAudit: false,
-        isReadonly: true
+        isReadonly: true,
+        schemaVersion: 1
     },
     model: {
         _id: Joi.object(),

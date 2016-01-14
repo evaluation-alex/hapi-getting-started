@@ -11,7 +11,8 @@ module.exports = {
             {fields: {on: 1}}
         ],
         saveAudit: false,
-        isReadonly: true
+        isReadonly: true,
+        schemaVersion: 1
     },
     model: {
         _id: Joi.object(),

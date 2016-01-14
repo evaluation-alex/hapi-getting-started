@@ -26,7 +26,8 @@ module.exports = {
             affectedRole: 'members',
             needsApproval: 'needsApproval'
         },
-        nonEnumerables: ['audit']
+        nonEnumerables: ['audit'],
+        schemaVersion: 1
     },
     model: {
         _id: Joi.object(),

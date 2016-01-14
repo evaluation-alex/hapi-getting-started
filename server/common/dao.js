@@ -56,8 +56,8 @@ const disconnect = function disconnect(name) {
         errback(err);
     });
 };
-function withSchemaProperties(Dao, connection, collection, indexes, modelSchema) {
-    return extend(Dao, {ObjectID, collection, indexes, connection, modelSchema});
+function withSchemaProperties(Dao, connection, collection, indexes, modelSchema, schemaVersion) {
+    return extend(Dao, {ObjectID, collection, indexes, connection, modelSchema, schemaVersion});
 }
 function withSetupMethods(Dao, nonEnumerables) {
     extend(Dao.prototype, {
@@ -87,6 +87,9 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
         upsert(obj) {
             const opts = {upsert: true, returnOriginal: false};
             return new Bluebird((resolve, reject) => {
+                obj.objectVersion = obj.objectVersion || 0;
+                obj.objectVersion++;
+                obj.schemaVersion = obj.schemaVersion || Dao.schemaVersion;
                 obj._id = obj._id || Dao.ObjectID();
                 Dao.clctn().findOneAndReplace({_id: obj._id}, obj, opts,
                     defaultcb(doc => resolve(new Dao(doc.value)), reject, Dao.collection, 'upsert')
@@ -426,6 +429,8 @@ function withSave(model, saveAudit, idForAudit = '_id') {
                         objectChangedType: model.collection,
                         objectChangedId: this[idForAudit],
                         organisation: this.organisation,
+                        objectVersion: this.objectVersion || 1,
+                        schemaVersion: this.schemaVersion || model.schemaVersion,
                         change: []
                     };
                 this.audit.change.push({action, origValues, newValues});
@@ -442,7 +447,7 @@ function withSave(model, saveAudit, idForAudit = '_id') {
 }
 const build = function build(toBuild, schema, model, extendModels, areValidProperty = undefined) {
     if (!schema.isVirtualModel) {
-        withSchemaProperties(toBuild, schema.connection, schema.collection, schema.indexes, model);
+        withSchemaProperties(toBuild, schema.connection, schema.collection, schema.indexes, model, schema.schemaVersion);
         withSetupMethods(toBuild, schema.nonEnumerables || []);
         withModifyMethods(toBuild, schema.isReadonly, schema.saveAudit, schema.idForAudit);
         withFindMethods(toBuild, areValidProperty);

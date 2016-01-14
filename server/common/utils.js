@@ -30,12 +30,18 @@ const org = function org(request) {
 const user = function user(request) {
     return get(request, ['auth', 'credentials', 'user'], undefined);
 };
+// TODO: if not found in user prefs, figure out from request headers - tbd
 const locale = function locale(request) {
     return get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
 };
-// TODO: if not found in user prefs, figure out from request headers - tbd
-const lookupParamsOrPayloadOrQuery = function lookupParamsOrPayloadOrQuery(request, field) {
-    return get(request, ['params', field], get(request, ['payload', field], get(request, ['query', field], undefined)));
+const lookupParamsOrPayloadOrQuery = function lookupParamsOrPayloadOrQuery(request, field, defaultVal) {
+    return get(request, ['params', field],
+        get(request, ['payload', field],
+            get(request, ['query', field],
+                get(request, ['headers', field], defaultVal)
+            )
+        )
+    );
 };
 const hasItems = function hasItems(arr) {
     return arr && arr.length > 0;

@@ -1,7 +1,7 @@
 'use strict';
 /*eslint-disable no-unused-expressions*/
 /*jshint -W079*/
-let tu = require('./../testutils');
+let tu = require('./../../testutils');
 let Fs = require('fs');
 let expect = require('chai').expect;
 describe('Contact', () => {

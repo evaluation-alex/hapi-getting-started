@@ -4,7 +4,7 @@ const utils = require('./utils');
 const errors = require('./errors');
 const Bluebird = require('bluebird');
 const Joi = require('joi');
-const {get, flatten, filter, capitalize, find} = _;
+const {get, flatten, filter, upperFirst, find} = _;
 const {hasItems, org, logAndBoom, user, by, lookupParamsOrPayloadOrQuery, ip, timing} = utils;
 const {NotValidUsersOrGroupsError, NoPermissionsForActionError, NotAMemberOfValidGroupError,
     ObjectAlreadyExistsError, NotObjectOwnerError, ObjectNotFoundError, AbusiveLoginAttemptsError} = errors;
@@ -76,12 +76,12 @@ const canUpdate = function canUpdate(object) {
 const isMemberOf = function isMemberOf(Model, groups) {
     const tags = {collection: Model.collection, method: 'isMemberOf', type: 'pre'};
     return {
-        assign: `isMemberOf${capitalize(Model.collection)}(${groups.join(',')})`,
+        assign: `isMemberOf${upperFirst(Model.collection)}(${groups.join(',')})`,
         method(request, reply) {
             const start = Date.now();
             const obj = request.pre[Model.collection];
             const user = by(request);
-            if (user === 'root' || !!find(groups, role => obj[`isPresentIn${role.split('.').map(capitalize).join('')}`](user))) {
+            if (user === 'root' || !!find(groups, role => obj[`isPresentIn${role.split('.').map(upperFirst).join('')}`](user))) {
                 reply(true);
             } else {
                 reply(new NotAMemberOfValidGroupError({owners: JSON.stringify(groups)}));
@@ -133,7 +133,7 @@ const prePopulate = function prePopulate(Model, idToUse) {
             Model.findOne({_id: Model.ObjectID(id)})
                 .then(obj => !obj ?
                     Bluebird.reject(new ObjectNotFoundError({
-                        type: capitalize(Model.collection),
+                        type: upperFirst(Model.collection),
                         idstr: id.toString()
                     })) : obj)
                 .catch(logAndBoom)

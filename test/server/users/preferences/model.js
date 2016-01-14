@@ -209,7 +209,7 @@ describe('Preferences DAO', () => {
                     return found.addPreferencesNotificationsBlogsBlocked(['newBlocked'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'newBlocked')).to.exist;
+                    expect(_.find(p.preferences.notifications.blogs.blocked, item => item === 'newBlocked')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then((paudit) => {
@@ -231,7 +231,7 @@ describe('Preferences DAO', () => {
                     return found.addPreferencesNotificationsBlogsBlocked(['blocked1'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'blocked1')).to.exist;
+                    expect(_.find(p.preferences.notifications.blogs.blocked, item => item === 'blocked1')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then((paudit) => {
@@ -271,7 +271,7 @@ describe('Preferences DAO', () => {
                     return found.removePreferencesNotificationsBlogsBlocked(['unknownBlog'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'unknownBlog1')).to.not.exist;
+                    expect(_.find(p.preferences.notifications.blogs.blocked, item => item === 'unknownBlog1')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then((paudit) => {
@@ -292,7 +292,7 @@ describe('Preferences DAO', () => {
                     return found.removePreferencesNotificationsBlogsBlocked(['toBeRemoved'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.blogs.blocked, 'toBeRemoved')).to.not.exist;
+                    expect(_.find(p.preferences.notifications.blogs.blocked, item => item === 'toBeRemoved')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.blogs\.blocked/}});
                 })
                 .then((paudit) => {
@@ -454,7 +454,7 @@ describe('Preferences DAO', () => {
                     return found.addPreferencesNotificationsPostsBlocked(['newBlocked'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'newBlocked')).to.exist;
+                    expect(_.find(p.preferences.notifications.posts.blocked, item => item === 'newBlocked')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.posts\.blocked/}});
                 })
                 .then((paudit) => {
@@ -476,7 +476,7 @@ describe('Preferences DAO', () => {
                     return found.addPreferencesNotificationsPostsBlocked(['blocked1'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'blocked1')).to.exist;
+                    expect(_.find(p.preferences.notifications.posts.blocked, item => item === 'blocked1')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.posts\.blocked/}});
                 })
                 .then((paudit) => {
@@ -516,7 +516,7 @@ describe('Preferences DAO', () => {
                     return found.removePreferencesNotificationsPostsBlocked(['unknownBlog'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'unknownBlog1')).to.not.exist;
+                    expect(_.find(p.preferences.notifications.posts.blocked, item => item === 'unknownBlog1')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.posts\.blocked/}});
                 })
                 .then((paudit) => {
@@ -537,7 +537,7 @@ describe('Preferences DAO', () => {
                     return found.removePreferencesNotificationsPostsBlocked(['toBeRemoved'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.posts.blocked, 'toBeRemoved')).to.not.exist;
+                    expect(_.find(p.preferences.notifications.posts.blocked, item => item === 'toBeRemoved')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.posts\.blocked/}});
                 })
                 .then((paudit) => {
@@ -700,7 +700,7 @@ describe('Preferences DAO', () => {
                     return found.addPreferencesNotificationsUserGroupsBlocked(['newBlocked'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'newBlocked')).to.exist;
+                    expect(_.find(p.preferences.notifications.userGroups.blocked, item => item === 'newBlocked')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then((paudit) => {
@@ -722,7 +722,7 @@ describe('Preferences DAO', () => {
                     return found.addPreferencesNotificationsUserGroupsBlocked(['blocked1'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'blocked1')).to.exist;
+                    expect(_.find(p.preferences.notifications.userGroups.blocked, item => item === 'blocked1')).to.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^add preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then((paudit) => {
@@ -762,7 +762,7 @@ describe('Preferences DAO', () => {
                     return found.removePreferencesNotificationsUserGroupsBlocked(['unknownBlog'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'unknownBlog')).to.not.exist;
+                    expect(_.find(p.preferences.notifications.userGroups.blocked, item => item === 'unknownBlog')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then((paudit) => {
@@ -783,7 +783,7 @@ describe('Preferences DAO', () => {
                     return found.removePreferencesNotificationsUserGroupsBlocked(['toBeRemoved'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.preferences.notifications.userGroups.blocked, 'toBeRemoved')).to.not.exist;
+                    expect(_.find(p.preferences.notifications.userGroups.blocked, item => item === 'toBeRemoved')).to.not.exist;
                     return Audit.findAudit('users', p.email, {'change.action': {$regex: /^remove preferences\.notifications\.userGroups\.blocked/}});
                 })
                 .then((paudit) => {

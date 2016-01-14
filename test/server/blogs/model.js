@@ -90,7 +90,7 @@ describe('Blogs DAO', () => {
                     return found.addSubscriberGroups(['newUserGroup'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscriberGroups, 'newUserGroup')).to.exist;
+                    expect(_.find(p.subscriberGroups, item => item === 'newUserGroup')).to.exist;
                     return Audit.findAudit('blogs', p._id, {'change.action': {$regex: /^add subscriberGroup/}});
                 })
                 .then((paudit) => {
@@ -102,7 +102,7 @@ describe('Blogs DAO', () => {
                     return found.addSubscribers(['newSubscriber'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscribers, 'newSubscriber')).to.exist;
+                    expect(_.find(p.subscribers, item => item === 'newSubscriber')).to.exist;
                     return Audit.findAudit('blogs', p._id, {'change.action': {$regex: /^add subscribers/}});
                 })
                 .then((paudit) => {
@@ -124,7 +124,7 @@ describe('Blogs DAO', () => {
                     return found.addSubscriberGroups(['testBlogAddUsers'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscriberGroups, 'testBlogAddUsers')).to.exist;
+                    expect(_.find(p.subscriberGroups, item => item === 'testBlogAddUsers')).to.exist;
                     return Audit.findAudit('blogs', p._id, {'change.action': {$regex: /^add subscriberGroup/}});
                 })
                 .then((paudit) => {
@@ -135,7 +135,7 @@ describe('Blogs DAO', () => {
                     return found.addOwners(['directlyadded'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.owners, 'directlyadded')).to.exist;
+                    expect(_.find(p.owners, item => item === 'directlyadded')).to.exist;
                     return Audit.findAudit('blogs', p._id, {'change.action': {$regex: /^add owner/}});
                 })
                 .then((paudit) => {
@@ -172,7 +172,7 @@ describe('Blogs DAO', () => {
                     return found.removeSubscriberGroups(['unknownGroup'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscriberGroups, 'unknownGroup')).to.not.exist;
+                    expect(_.find(p.subscriberGroups, item => item === 'unknownGroup')).to.not.exist;
                     return Audit.findAudit('blogs', p._id, {'change.action': {$regex: /^remove subscriberGroup/}});
                 })
                 .then((paudit) => {
@@ -183,7 +183,7 @@ describe('Blogs DAO', () => {
                     return found.removeSubscribers(['unknownUser'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscribers, 'unknownUser')).to.not.exist;
+                    expect(_.find(p.subscribers, item => item === 'unknownUser')).to.not.exist;
                     return Audit.findAudit('blogs', p._id, {'change.action': {$regex: /^remove subscriber/}});
                 })
                 .then((paudit) => {
@@ -204,7 +204,7 @@ describe('Blogs DAO', () => {
                     return found.removeSubscriberGroups(['testBlogsRemoveUsers'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.subscriberGroups, 'testBlogsRemoveUsers')).to.not.exist;
+                    expect(_.find(p.subscriberGroups, item => item === 'testBlogsRemoveUsers')).to.not.exist;
                     return Audit.findAudit('blogs', p._id, {'change.action': {$regex: /^remove subscriberGroups/}});
                 })
                 .then((paudit) => {
@@ -216,7 +216,7 @@ describe('Blogs DAO', () => {
                     return found.removeOwners(['directlyadded'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.owners, 'directlyadded')).to.not.exist;
+                    expect(_.find(p.owners, item => item === 'directlyadded')).to.not.exist;
                     return Audit.findAudit('blogs', p._id, {'change.action': {$regex: /^remove owner/}});
                 })
                 .then((paudit) => {

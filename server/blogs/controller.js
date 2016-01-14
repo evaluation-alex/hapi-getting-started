@@ -4,7 +4,7 @@ const utils = require('./../common/utils');
 const pre = require('./../common/prereqs');
 const handlers = require('./../common/handlers');
 const post = require('./../common/posthandlers');
-const {capitalize} = _;
+const {upperFirst} = _;
 const {by, org, hasItems} = utils;
 const {findValidator, canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate} = pre;
 const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
@@ -70,7 +70,7 @@ module.exports = {
                 let shouldNotify = false;
                 ['owners', 'contributors', 'subscribers', 'subscriberGroups'].forEach(toInspect => {
                     ['added', 'removed'].forEach(t => {
-                        const p = t + capitalize(toInspect);
+                        const p = t + upperFirst(toInspect);
                         if (hasItems(request.payload[p])) {
                             shouldNotify = true;
                             description[toInspect] = description[toInspect] || {};

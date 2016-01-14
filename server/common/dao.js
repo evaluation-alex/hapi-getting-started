@@ -5,7 +5,7 @@ const mongodb = require('mongodb');
 const config = require('./../config');
 const utils = require('./utils');
 const errors = require('./errors');
-const {extend, capitalize, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, assign} = _;
+const {extend, upperFirst, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, assign} = _;
 const {MongoClient, ObjectID} = mongodb;
 const {errback, hasItems, timing} = utils;
 const {ObjectNotCreatedError} = errors;
@@ -261,17 +261,17 @@ function propDescriptors(properties) {
         return {
             name: p,
             path: p.split('.'),
-            method: `set${p.split('.').map(capitalize).join('')}`
+            method: `set${p.split('.').map(upperFirst).join('')}`
         };
     });
 }
 function arrDescriptors(lists) {
     return lists.map(l => {
-        const methodSuffix = l.split('.').map(capitalize).join('');
+        const methodSuffix = l.split('.').map(upperFirst).join('');
         let pathadd = l.split('.');
-        pathadd[pathadd.length - 1] = `added${capitalize(pathadd[pathadd.length - 1])}`;
+        pathadd[pathadd.length - 1] = `added${upperFirst(pathadd[pathadd.length - 1])}`;
         let pathrem = l.split('.');
-        pathrem[pathrem.length - 1] = `removed${capitalize(pathrem[pathrem.length - 1])}`;
+        pathrem[pathrem.length - 1] = `removed${upperFirst(pathrem[pathrem.length - 1])}`;
         return {
             name: l,
             path: l.split('.'),
@@ -363,10 +363,10 @@ function withUpdate(model, props, arrs, updateMethod) {
     return model;
 }
 function withApproveRejectJoinLeave(model, affectedRole, needsApproval) {
-    const needsApprovalMethodSuffix = needsApproval.split('.').map(capitalize).join('');
-    const affectedRoleMethodSuffix = affectedRole.split('.').map(capitalize).join('');
+    const needsApprovalMethodSuffix = needsApproval.split('.').map(upperFirst).join('');
+    const affectedRoleMethodSuffix = affectedRole.split('.').map(upperFirst).join('');
     let toAdd = affectedRole.split('.');
-    toAdd[toAdd.length - 1] = `added${capitalize(toAdd[toAdd.length - 1])}`;
+    toAdd[toAdd.length - 1] = `added${upperFirst(toAdd[toAdd.length - 1])}`;
     extend(model.prototype, {
         join(doc, by) {
             const method = this.access === 'public' ? affectedRoleMethodSuffix : needsApprovalMethodSuffix;

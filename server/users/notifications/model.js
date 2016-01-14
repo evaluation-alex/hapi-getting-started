@@ -1,5 +1,5 @@
 'use strict';
-const {unique, flatten, isArray} = require('lodash');
+const {uniq, flatten, isArray} = require('lodash');
 const Bluebird = require('bluebird');
 const {build} = require('./../../common/dao');
 const schemas = require('./schemas');
@@ -27,7 +27,7 @@ Notifications.createOne = function createOne(email, organisation, objectType, ob
     });
 };
 Notifications.createMany = function createMany(email, organisation, objectType, objectId, title, state, action, priority, content, by) {
-    return Bluebird.all(unique(flatten(email)).map(e =>
+    return Bluebird.all(uniq(flatten(email)).map(e =>
         Notifications.createOne(e, organisation, objectType, objectId, title, state, action, priority, content, by))
     );
 };

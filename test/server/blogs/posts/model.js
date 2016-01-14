@@ -446,7 +446,7 @@ describe('Posts DAO', () => {
                     return found.addTags(['newTag'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.tags, 'newTag')).to.exist;
+                    expect(_.find(p.tags, item => item === 'newTag')).to.exist;
                     return Audit.findAudit('posts', p._id, {'change.action': {$regex: /^add tag/}});
                 })
                 .then((paudit) => {
@@ -468,7 +468,7 @@ describe('Posts DAO', () => {
                     return found.addTags(['testing'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.tags, 'testing')).to.exist;
+                    expect(_.find(p.tags, item => item === 'testing')).to.exist;
                     return Audit.findAudit('posts', p._id, {'change.action': {$regex: /^add tag/}});
                 })
                 .then((paudit) => {
@@ -504,7 +504,7 @@ describe('Posts DAO', () => {
                     return found.removeTags(['unknownTag'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.tags, 'unknownTag')).to.not.exist;
+                    expect(_.find(p.tags, item => item === 'unknownTag')).to.not.exist;
                     return Audit.findAudit('posts', p._id, {'change.action': {$regex: /^remove tag/}});
                 })
                 .then((paudit) => {
@@ -525,7 +525,7 @@ describe('Posts DAO', () => {
                     return found.removeTags(['removeTags'], 'test').save();
                 })
                 .then((p) => {
-                    expect(_.findWhere(p.tags, 'removeTags')).to.not.exist;
+                    expect(_.find(p.tags, item => item === 'removeTags')).to.not.exist;
                     return Audit.findAudit('posts', p._id, {'change.action': {$regex: /^remove tag/}});
                 })
                 .then((paudit) => {

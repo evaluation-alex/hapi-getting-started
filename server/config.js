@@ -47,8 +47,8 @@ manifest.plugins['hapi-bunyan'].logger = logger;
 module.exports = {
     projectName: args.project,
     authAttempts: {
-        forIp: 50,
-        forIpAndUser: 7
+        forIp: 500,
+        forIpAndUser: 500
     },
     nodemailer,
     logger,

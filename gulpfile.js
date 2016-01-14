@@ -28,7 +28,7 @@ gulp.task('server:test', (cb) => {
         ['server:test:clean', 'server:clean', 'server:test:prep'],
         'server:build',
         $.disableCoverage ? 'server:test:nocov' : 'server:test:cov',
-        //['server:test:clean', 'server:test:perf'],
+        [/*'server:test:clean', */'server:test:perf'],
         cb
     );
 });

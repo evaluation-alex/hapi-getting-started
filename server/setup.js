@@ -104,6 +104,8 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                         joinTags: ','
                     },
                     inert: {},
+                    vision: {},
+                    lout: {},
                     'hapi-auth-basic': {},
                     './build/common/plugins/connections': {
                         'mongo': {
@@ -120,14 +122,14 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                         modules: [
                             'web/contact',
                             'users',
-                            'users/session',
-                            'users/profile',
-                            'users/session/auth-attempts',
-                            'users/notifications',
-                            'users/preferences',
+                            'session',
+                            'profile',
+                            'auth-attempts',
+                            'notifications',
+                            'preferences',
                             'user-groups',
                             'blogs',
-                            'blogs/posts',
+                            'posts',
                             'audit'
                         ]
                     }

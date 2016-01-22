@@ -5,16 +5,21 @@
         "server:lint": "npm run gulp -- server:lint",
         "server:build": "npm run gulp -- server:build",
         "server:build:clean": "npm run gulp -- server:clean server:build",
-        "server:build:watch": "npm run gulp -- server:watch",
-        "server:setup": "node --harmony ./build/setup.js",
         "server:test": "npm run gulp -- server:test",
         "server:test:nocov": "npm run gulp -- server:test:nocov",
         "server:coveralls": "cat ./test/artifacts/server/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
         "server:climate": "cat ./test/artifacts/server/lcov.info | node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js",
         "server:coverage": "npm run server:coveralls && npm run server:climate",
         "server:start": "node --harmony ./build/index.js",
+        "server:setup": "node --harmony ./build/setup.js",
         "lint": "npm run gulp -- lint",
-        "test": "npm run gulp -- test"
+        "test": "npm run gulp server:test",
+        "disable_linting": "export DISABLE_LINTING=true",
+        "enable_linting": "export DISABLE_LINTING=false",
+        "disable_coverage": "export DISABLE_COVERAGE=true",
+        "enable_coverage": "export DISABLE_COVERAGE=false",
+        "production": "export NODE_ENV=production",
+        "development": "export NODE_ENV=development"
     },
     "dependencies": {
         "bcrypt": "0.8.x",
@@ -31,13 +36,16 @@
         "joi": "7.x.x",
         "kerberos": "0.x.x",
         "lodash": "4.x.x",
+        "lout": "8.x.x",
         "moment": "2.11.x",
         "mongodb": "2.1.x",
         "node-uuid": "1.4.x",
         "nodemailer": "2.x.x",
         "nodemailer-markdown": "1.x.x",
+        "superagent": "1.7.x",
+        "traverse": "0.6.x",
         "useragent": "2.1.x",
-        "superagent": "1.6.x"
+        "vision": "4.x.x"
     },
     "devDependencies": {
         "babel-cli": "6.x.x",
@@ -55,15 +63,15 @@
         "babel-register": "6.x.x",
         "babel-runtime": "6.x.x",
         "chai": "3.x.x",
-        "codeclimate-test-reporter": "0.1.x",
-        "coveralls": "2.11.x",
+        "codeclimate-test-reporter": "0.x.x",
+        "coveralls": "2.x.x",
         "del": "2.x.x",
         "eslint": "1.x.x",
         "gulp": "3.9.x",
         "gulp-babel": "6.x.x",
-        "gulp-codeclimate-reporter": "1.2.x",
+        "gulp-codeclimate-reporter": "1.x.x",
+        "gulp-coveralls": "0.x.x",
         "gulp-concat": "2.x.x",
-        "gulp-coveralls": "0.1.x",
         "gulp-eslint": "1.x.x",
         "gulp-istanbul": "0.x.x",
         "gulp-jscs": "3.x.x",
@@ -72,6 +80,7 @@
         "gulp-mocha": "2.x.x",
         "gulp-nodemon": "2.x.x",
         "gulp-replace": "0.x.x",
+        "gulp-relative-sourcemaps-source": "0.x.x",
         "gulp-sourcemaps": "1.x.x",
         "gulp-task-listing": "1.x.x",
         "gutil": "1.x.x",
@@ -101,10 +110,12 @@
             "objectLiteralDuplicateProperties": false,
             "objectLiteralShorthandMethods": true,
             "objectLiteralShorthandProperties": true,
+            "restParams": true,
             "spread": true,
             "superInFunctions": true,
             "templateStrings": true,
-            "jsx": true
+            "jsx": true,
+            "experimentalObjectRestSpread": true
         },
         "env": {
             "browser": true,
@@ -113,7 +124,10 @@
             "es6": true
         },
         "globals": {
-            "expect": true
+            "expect": true,
+            "describe": true,
+            "it": true,
+            "window": true
         },
         "parser": "babel-eslint",
         "rules": {

@@ -1,8 +1,8 @@
 'use strict';
 const Joi = require('joi');
-const {model: session} = require('./session/schemas');
-const {model: preferences} = require('./preferences/schemas');
-const {model: profile} = require('./profile/schemas');
+const {model: session} = require('././schemas');
+const {model: preferences} = require('././schemas');
+const {model: profile} = require('././schemas');
 const shared = require('./../../shared/users/validation');
 module.exports = {
     dao: {
@@ -30,13 +30,13 @@ module.exports = {
         password: Joi.string().required(),
         organisation: Joi.string().required(),
         roles: Joi.array().items(Joi.string()).unique(),
-        resetPwd: Joi.object().keys({
+        resetPwd: {
             token: Joi.string().required(),
             expires: Joi.date().required()
-        }),
+        },
         session: session,
-        preferences: Joi.object().keys(preferences),
-        profile: Joi.object().keys(profile),
+        preferences: preferences,
+        profile: profile,
         isActive: Joi.boolean().default(true),
         createdBy: Joi.string(),
         createdOn: Joi.date(),

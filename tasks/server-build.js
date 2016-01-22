@@ -16,15 +16,8 @@ module.exports = function (gulp, $) {
                 .pipe($.replace(/function _inherits/, '/*istanbul ignore next: dont mess up my coverage*/\nfunction _inherits'))
                 .pipe($.replace(/function _typeof/, '/*istanbul ignore next: dont mess up my coverage*/\nfunction _typeof'))
                 .pipe($.replace(/function _toConsumableArray/, '/*istanbul ignore next: dont mess up my coverage*/\nfunction _toConsumableArray'))
-                .pipe($.sourcemaps.write('.', {
-                    includeContent: false,
-                    sourceRoot(file) {
-                        const from = file.path;
-                        const to = path.resolve(__dirname + '/../server');
-                        const dest = path.relative(from, to) + '/../server';
-                        return dest;
-                    }
-                })) //http://stackoverflow.com/questions/29440811/debug-compiled-es6-nodejs-app-in-webstorm
+                .pipe($.relativeSourcemapsSource({dest: 'build'}))
+                .pipe($.sourcemaps.write('.', {includeContent: false, sourceRoot: '.'})) //http://stackoverflow.com/questions/29440811/debug-compiled-es6-nodejs-app-in-webstorm
                 .pipe(gulp.dest('build')),
             gulp.src(['server/**/*.json', 'server/**/*.md', 'server/.secure/*.pem'])
                 .pipe(gulp.dest('build'))

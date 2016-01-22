@@ -6,9 +6,9 @@ const handlers = require('./../common/handlers');
 const post = require('./../common/posthandlers');
 const {upperFirst} = _;
 const {by, org, hasItems} = utils;
-const {findValidator, canUpdate, canView, areValidUsers, isMemberOf, uniqueCheck, prePopulate} = pre;
+const {findValidator, canUpdate, canView, areValidUsers, isMemberOf, uniqueCheck, prePopulate, buildMongoQuery} = pre;
 const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
-const {sendNotifications, cancelNotifications} = post;
+const {sendNotifications, cancelNotifications, hashCodeOn} = post;
 const schemas = require('./schemas');
 const UserGroups = require('./model');
 module.exports = {
@@ -37,22 +37,30 @@ module.exports = {
                         createdBy
                     }]
                 };
-            })
+            }),
+            hashCodeOn(UserGroups)
         ]
     },
     find: {
         validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
         pre: [
-            canView(UserGroups.collection)
+            canView(UserGroups.collection),
+            buildMongoQuery(UserGroups, schemas.controller.findOptions)
         ],
-        handler: buildFindHandler(UserGroups, schemas.controller.findOptions)
+        handler: buildFindHandler(UserGroups),
+        post: [
+            hashCodeOn(UserGroups)
+        ]
     },
     findOne: {
         pre: [
             canView(UserGroups.collection),
             prePopulate(UserGroups, 'id')
         ],
-        handler: buildFindOneHandler(UserGroups)
+        handler: buildFindOneHandler(UserGroups),
+        post: [
+            hashCodeOn(UserGroups)
+        ]
     },
     update: {
         validate: schemas.controller.update,
@@ -84,7 +92,8 @@ module.exports = {
                     title: ['UserGroup {{title}} updated by {{updatedBy}}', {title, updatedBy}],
                     description: description
                 };
-            })
+            }),
+            hashCodeOn(UserGroups)
         ]
     },
     delete: {
@@ -103,7 +112,8 @@ module.exports = {
                     title: ['UserGroup {{title}} deleted.', {title}],
                     description: ['UserGroup {{title}} deleted by {{updatedBy}}', {title, createdBy}]
                 };
-            })
+            }),
+            hashCodeOn(UserGroups)
         ]
     },
     join: {
@@ -124,7 +134,8 @@ module.exports = {
                     action: ug.access === 'public' ? 'fyi' : 'approve',
                     priority: ug.access === 'restricted' ? 'medium' : 'low'
                 };
-            })
+            }),
+            hashCodeOn(UserGroups)
         ]
     },
     leave: {
@@ -145,7 +156,8 @@ module.exports = {
                     action: 'fyi',
                     priority: 'low'
                 };
-            })
+            }),
+            hashCodeOn(UserGroups)
         ]
     },
     approve: {
@@ -178,7 +190,8 @@ module.exports = {
                     }
                 });
                 return modified ? notification.save() : notification;
-            })
+            }),
+            hashCodeOn(UserGroups)
         ]
     },
     reject: {
@@ -210,8 +223,8 @@ module.exports = {
                     }
                 });
                 return notification.save();
-            })
-
+            }),
+            hashCodeOn(UserGroups)
         ]
     }
 };

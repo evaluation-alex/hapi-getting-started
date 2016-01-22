@@ -4,6 +4,7 @@ const moment = require('moment');
 const bcrypt = require('bcrypt');
 const boom = require('boom');
 const mongodb = require('mongodb');
+const traverse = require('traverse');
 const crypto = require('crypto');
 const config = require('./../config');
 const {get, isArray, isBoolean, isString, isNumber, merge} = _;
@@ -75,7 +76,13 @@ const findopts = function findopts(opts) {
 };
 //TODO: not the most efficient, but will do for now
 const hashCode = function hashCode(obj) {
-    obj.__hashCode__ = crypto.createHash('md5').update(JSON.stringify(obj)).digest('hex');
+    let md5 = crypto.createHash('md5');
+    traverse(obj).map(function (x) {
+        if (this.isLeaf) {
+            md5.update(this.path.join('.')).update(String(x));
+        }
+    });
+    obj.__hashCode__ = md5.digest('hex');
     return obj;
 };
 const secureHash = function secureHash(password) {

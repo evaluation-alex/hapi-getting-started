@@ -32,16 +32,16 @@ module.exports = function () {
                     server.decorate('server', 'injectThen', injectThen);
                 }
                 server.register({
-                    register: require('../../build/common/plugins/dbindexes'),
+                    register: require('./../../build/common/plugins/dbindexes'),
                     options: {
                         'modules': [
                             'users',
-                            'users/roles',
-                            'users/session/auth-attempts',
-                            'users/notifications',
+                            'roles',
+                            'auth-attempts',
+                            'notifications',
                             'user-groups',
                             'blogs',
-                            'blogs/posts',
+                            'posts',
                             'audit'
                         ]
                     }

@@ -31,12 +31,12 @@ Bluebird.all(Object.keys(manifest.plugins).map(plugin => {
                 options: {
                     'modules': [
                         'users',
-                        'users/roles',
-                        'users/session/auth-attempts',
-                        'users/notifications',
+                        'roles',
+                        'auth-attempts',
+                        'notifications',
                         'user-groups',
                         'blogs',
-                        'blogs/posts',
+                        'posts',
                         'audit'
                     ]
                 }

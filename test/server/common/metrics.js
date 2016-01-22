@@ -1,6 +1,4 @@
 'use strict';
-/*eslint-disable no-unused-expressions*/
-/*jshint -W079*/
 let Hapi = require('hapi');
 let MetricsPlugin = require('./../../../build/common/plugins/metrics');
 describe('Metrics', () => {

@@ -12,7 +12,7 @@ const transport = Bluebird.promisifyAll(Nodemailer.createTransport(clone(config.
 transport.use('compile', markdown({useEmbeddedImages: true}));
 const readFile = Bluebird.promisify(fs.readFile);
 let cache = {};
-const renderTemplate = Bluebird.method((template, context) => {
+const renderTemplate = Bluebird.method(function(template, context) {
     context.projectName = config.projectName;
     if (cache[template]) {
         return cache[template](context);
@@ -26,10 +26,9 @@ const renderTemplate = Bluebird.method((template, context) => {
 });
 const sendEmail = function sendEmail(options, template, context) {
     return renderTemplate(template, context)
-        .then(content => {
-            options = merge(options, {from: config.system.fromAddress, markdown: content});
-            return transport.sendMailAsync(options);
-        });
+        .then(content =>
+            transport.sendMailAsync(merge({}, options, {from: config.system.fromAddress, markdown: content}))
+        );
 };
 module.exports = {
     sendEmail

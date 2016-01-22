@@ -4,14 +4,14 @@ const utils = require('./utils');
 const errors = require('./errors');
 const Bluebird = require('bluebird');
 const Joi = require('joi');
-const {get, flatten, filter, upperFirst, find} = _;
-const {hasItems, org, logAndBoom, user, by, lookupParamsOrPayloadOrQuery, ip, timing} = utils;
+const {get, flatten, filter, upperFirst, find, isFunction} = _;
+const {hasItems, org, logAndBoom, user, by, lookupParamsOrPayloadOrQuery, ip, timing, buildQuery} = utils;
 const {NotValidUsersOrGroupsError, NoPermissionsForActionError, NotAMemberOfValidGroupError,
     ObjectAlreadyExistsError, NotObjectOwnerError, ObjectNotFoundError, AbusiveLoginAttemptsError} = errors;
 const Users = require('./../users/model');
-const AuthAttempts = require('./../users/session/auth-attempts/model');
+const AuthAttempts = require('./../auth-attempts/model');
 const UserGroups = require('./../user-groups/model');
-const Posts = require('./../blogs/posts/model');
+const Posts = require('./../posts/model');
 function buildAreValid(Model, pldPropToLookup) {
     const tags = {collection: Model.collection, method: 'areValid', type: 'pre'};
     return function areValid(request, reply) {
@@ -160,6 +160,33 @@ const abuseDetected = function abuseDetected() {
         }
     };
 };
+const buildMongoQuery = function buildMongoQuery(Model, findOptions, builder) {
+    const tags = {collection: Model.collection, method: 'buildMongoQuery', type: 'pre'};
+    const buildP = Bluebird.method((request) => {
+        return (builder && isFunction(builder)) ?
+            builder(request, findOptions) :
+            buildQuery(request, findOptions);
+    });
+    return {
+        assign: 'mongoQuery',
+        method(request, reply) {
+            const start = Date.now();
+            buildP(request)
+                .then(query => {
+                    query.organisation = query.organisation || org(request);
+                    if (request.query.isActive) {
+                        query.isActive = request.query.isActive === '"true"';
+                    }
+                    return query;
+                })
+                .catch(logAndBoom)
+                .then(reply)
+                .finally(() => {
+                    timing('handler', tags, {elapsed: Date.now() - start});
+                });
+        }
+    }
+};
 const findValidator = function findValidator(validator, defaults) {
     const {sort, limit, page} = defaults;
     validator.query.fields = Joi.string();
@@ -179,5 +206,6 @@ module.exports = {
     onlyOwner,
     prePopulate,
     abuseDetected,
-    findValidator
+    findValidator,
+    buildMongoQuery
 };

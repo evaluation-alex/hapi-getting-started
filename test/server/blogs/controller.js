@@ -1,11 +1,8 @@
 'use strict';
-/*eslint-disable no-unused-expressions*/
-/*eslint-disable no-var*/
-/*jshint -W079*/
 let Blogs = require('./../../../build/blogs/model');
 let UserGroups = require('./../../../build/user-groups/model');
 let Audit = require('./../../../build/audit/model');
-let Notifications = require('./../../../build/users/notifications/model');
+let Notifications = require('./../../../build/notifications/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
@@ -1499,6 +1496,4 @@ describe('Blogs', () => {
     after((done) => {
         return tu.cleanup({userGroups: groupsToClear, blogs: blogsToClear}, done);
     });
-})
-;
-/*eslint-enable no-var*/
+});

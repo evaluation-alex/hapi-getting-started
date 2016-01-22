@@ -7,10 +7,12 @@ const errors = require('./../common/errors');
 const utils = require('./../common/utils');
 const pre = require('./../common/prereqs');
 const handlers = require('./../common/handlers');
+const post = require('./../common/posthandlers');
 const {PasswordResetError} = errors;
 const {ip, logAndBoom} = utils;
-const {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate} = pre;
+const {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate, buildMongoQuery} = pre;
 const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
+const {buildPostHandler, hashCodeOn, populateObject} = post;
 const schemas = require('./schemas');
 const Users = require('./model');
 const Blogs = require('./../blogs/model');
@@ -28,51 +30,36 @@ module.exports = {
         ],
         handler: buildCreateHandler(Users),
         post: [
-            {
-                method(request, reply) {
-                    if (!request.response.isBoom) {
-                        let user = request.payload.email;
-                        let org = request.payload.organisation;
-                        let groups = [user];
-                        Blogs.create(`${user}'s private blog`, org, `Get started`, groups, groups, groups, [], false, 'restricted', true, user)
-                            .then(() => {
-                                reply.continue();
-                            });
-                    } else {
-                        return reply.continue();
+            buildPostHandler({collection: Users.collection, method: 'createFirstBlog'}, (request, target) => {
+                let user = request.payload.email;
+                let org = request.payload.organisation;
+                let groups = [user];
+                return Blogs.create(`${user}'s private blog`, org, `Get started`, groups, groups, groups, [], false, 'restricted', true, user);
+            }),
+            buildPostHandler({collection: Users.collection, method: 'sendWelcomeEmail'}, (request, target) => {
+                const options = {
+                    subject: `Your  ${projectName} account`,
+                    to: {
+                        name: request.payload.email,
+                        address: request.payload.email
                     }
-                }
-            },
-            {
-                method(request, reply) {
-                    if (!request.response.isBoom) {
-                        const options = {
-                            subject: `Your  ${projectName} account`,
-                            to: {
-                                name: request.payload.email,
-                                address: request.payload.email
-                            }
-                        };
-                        Mailer.sendEmail(options, path.join(__dirname, '/templates/welcome.hbs.md'), request.payload)
-                            .then(() => {
-                                reply.continue();
-                            })
-                            .catch(err => {
-                                reply(logAndBoom(err));
-                            });
-                    } else {
-                        return reply.continue();
-                    }
-                }
-            }
+                };
+                return Mailer.sendEmail(options, path.join(__dirname, '/templates/welcome.hbs.md'), request.payload);
+            }),
+            hashCodeOn(Users)
         ]
     },
     find: {
         validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
         pre: [
-            canView(Users.collection)
+            canView(Users.collection),
+            buildMongoQuery(Users, schemas.controller.findOptions)
         ],
-        handler: buildFindHandler(Users, schemas.controller.findOptions)
+        handler: buildFindHandler(Users),
+        post: [
+            populateObject(Users),
+            hashCodeOn(Users)
+        ]
     },
     findOne: {
         pre: [
@@ -80,7 +67,11 @@ module.exports = {
             prePopulate(Users, 'id'),
             onlyOwner(Users)
         ],
-        handler: buildFindOneHandler(Users)
+        handler: buildFindOneHandler(Users),
+        post: [
+            populateObject(Users),
+            hashCodeOn(Users)
+        ]
     },
     update: {
         validate: schemas.controller.update,
@@ -89,7 +80,10 @@ module.exports = {
             canUpdate(Users.collection),
             onlyOwner(Users)
         ],
-        handler: buildUpdateHandler(Users, (usr, request, e) => usr._invalidateSession(ip(request), e).updateUser(request, e))
+        handler: buildUpdateHandler(Users, (usr, request, e) => usr._invalidateSession(ip(request), e).updateUser(request, e)),
+        post: [
+            hashCodeOn(Users)
+        ]
     },
     forgot: {
         validate: schemas.controller.forgot,
@@ -105,9 +99,7 @@ module.exports = {
                         return Mailer.sendEmail(options, path.join(__dirname, '/templates/forgot-password.hbs.md'), {key: user.resetPwd.token});
                     }
                 })
-                .then(() => {
-                    return {message: 'Success.'};
-                })
+                .then(() => ({message: 'Success.'}))
                 .catch(logAndBoom)
                 .then(reply);
         }
@@ -122,9 +114,7 @@ module.exports = {
                     }
                     return user._invalidateSession(ip(request), user.email).setPassword(request.payload.password, user.email).save();
                 })
-                .then(() => {
-                    return {message: 'Success.'};
-                })
+                .then(() => ({message: 'Success.'}))
                 .catch(logAndBoom)
                 .then(reply);
         }

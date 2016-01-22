@@ -21,11 +21,11 @@ module.exports = {
         organisation: Joi.string().required(),
         by: Joi.string().required(),
         on: Joi.date(),
-        change: Joi.array().items(Joi.object().keys({
+        change: Joi.array().items({
             action: Joi.string(),
             origValues: Joi.object(),
             newValues: Joi.object()
-        }))
+        })
     },
     controller: {
         find: shared.controller.find,

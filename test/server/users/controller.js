@@ -1,6 +1,4 @@
 'use strict';
-/*eslint-disable no-unused-expressions*/
-/*jshint -W079*/
 let Users = require('./../../../build/users/model');
 let Blogs = require('./../../../build/blogs/model');
 let Audit = require('./../../../build/audit/model');
@@ -436,31 +434,6 @@ describe('Users', () => {
                     done();
                 })
                 .catch(done);
-        });
-        it('returns a error when unable to send an email', (done) => {
-            Fs.renameSync('./build/users/templates/welcome.hbs.md', './build/users/templates/welcome2.hbs.md');
-            let request = {
-                method: 'POST',
-                url: '/users/signup',
-                payload: {
-                    email: 'two@second.com',
-                    organisation: 'silver lining',
-                    password: 'try becoming the first'
-                }
-            };
-            server.injectThen(request)
-                .then((response) => {
-                    Fs.renameSync('./build/users/templates/welcome2.hbs.md', './build/users/templates/welcome.hbs.md');
-                    expect(response.statusCode).to.equal(500);
-                    emails.push(request.payload.email);
-                    blogs.push(request.payload.email + '\'s private blog');
-                    done();
-                })
-                .catch((err)=> {
-                    emails.push(request.payload.email);
-                    blogs.push(request.payload.email + '\'s private blog');
-                    done(err);
-                });
         });
         it('creates a user succesfully if all validations are complete. The user has a valid session, user email is sent, and user audit shows signup, loginSuccess records and default preferences are setup and default private blog is created', (done) => {
             let request = {

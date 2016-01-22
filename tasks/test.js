@@ -28,7 +28,10 @@ module.exports = function (gulp, $, which, cvg) {
             })
             .on('end', () => {
                 cb();
-                process.exit();//https://github.com/sindresorhus/gulp-mocha/issues/1
+                let ct = setTimeout(() => {
+                    clearTimeout(ct);
+                    process.exit();//https://github.com/sindresorhus/gulp-mocha/issues/1
+                }, 5 * 1000);//let other tasks complete!, hopefully that will complete in 30s
             });
     };
     function coverage(which, cb) {

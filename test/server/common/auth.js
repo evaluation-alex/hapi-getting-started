@@ -1,6 +1,4 @@
 'use strict';
-/*eslint-disable no-unused-expressions*/
-/*jshint -W079*/
 let Users = require('./../../../build/users/model');
 let Bluebird = require('bluebird');
 let moment = require('moment');

@@ -10,10 +10,10 @@ let Users = require('./../../build/users/model');
 let UserGroups = require('./../../build/user-groups/model');
 let Audit = require('./../../build/audit/model');
 let Blogs = require('./../../build/blogs/model');
-let Posts = require('./../../build/blogs/posts/model');
-let AuthAttempts = require('./../../build/users/session/auth-attempts/model');
-let Roles = require('./../../build/users/roles/model');
-let Notifications = require('./../../build/users/notifications/model');
+let Posts = require('./../../build/posts/model');
+let AuthAttempts = require('./../../build/auth-attempts/model');
+let Roles = require('./../../build/roles/model');
+let Notifications = require('./../../build/notifications/model');
 module.exports.authorizationHeader = function authorizationHeader(user) {
     return 'Basic ' + (new Buffer(user.email + ':' + user.session[0].key)).toString('base64');
 };

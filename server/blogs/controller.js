@@ -6,9 +6,9 @@ const handlers = require('./../common/handlers');
 const post = require('./../common/posthandlers');
 const {upperFirst} = _;
 const {by, org, hasItems} = utils;
-const {findValidator, canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate} = pre;
+const {findValidator, canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate, buildMongoQuery} = pre;
 const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
-const {sendNotifications, cancelNotifications} = post;
+const {sendNotifications, cancelNotifications, hashCodeOn} = post;
 const schemas = require('./schemas');
 const Blogs = require('./model');
 module.exports = {
@@ -37,22 +37,30 @@ module.exports = {
                         'Blog {{title}} created and you have been designated owner by {{createdBy}}', {title, createdBy}
                     ]
                 };
-            })
+            }),
+            hashCodeOn(Blogs)
         ]
     },
     find: {
         validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
         pre: [
-            canView(Blogs.collection)
+            canView(Blogs.collection),
+            buildMongoQuery(Blogs, schemas.controller.findOptions)
         ],
-        handler: buildFindHandler(Blogs, schemas.controller.findOptions)
+        handler: buildFindHandler(Blogs),
+        post: [
+            hashCodeOn(Blogs)
+        ]
     },
     findOne: {
         pre: [
             canView(Blogs.collection),
             prePopulate(Blogs, 'id')
         ],
-        handler: buildFindOneHandler(Blogs)
+        handler: buildFindOneHandler(Blogs),
+        post: [
+            hashCodeOn(Blogs)
+        ]
     },
     update: {
         validate: schemas.controller.update,
@@ -85,7 +93,8 @@ module.exports = {
                     title: ['Blog {{title}} updated by {{updatedBy}}', {title, updatedBy}],
                     description: description
                 };
-            })
+            }),
+            hashCodeOn(Blogs)
         ]
     },
     delete: {
@@ -104,7 +113,8 @@ module.exports = {
                     title: ['Blog {{title}} deleted.', {title}],
                     description: ['Blog {{title}} deleted by {{updatedBy}}', {title, createdBy}]
                 };
-            })
+            }),
+            hashCodeOn(Blogs)
         ]
     },
     join: {
@@ -125,7 +135,8 @@ module.exports = {
                     action: blog.access === 'public' ? 'fyi' : 'approve',
                     priority: blog.access === 'restricted' ? 'medium' : 'low'
                 };
-            })
+            }),
+            hashCodeOn(Blogs)
         ]
     },
     leave: {
@@ -146,7 +157,8 @@ module.exports = {
                     action: 'fyi',
                     priority: 'low'
                 };
-            })
+            }),
+            hashCodeOn(Blogs)
         ]
     },
     approve: {
@@ -179,7 +191,8 @@ module.exports = {
                     }
                 });
                 return modified ? notification.save() : notification;
-            })
+            }),
+            hashCodeOn(Blogs)
         ]
     },
     reject: {
@@ -211,8 +224,8 @@ module.exports = {
                     }
                 });
                 return notification.save();
-            })
-
+            }),
+            hashCodeOn(Blogs)
         ]
     }
 };

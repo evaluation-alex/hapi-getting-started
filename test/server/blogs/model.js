@@ -1,6 +1,4 @@
 'use strict';
-/*eslint-disable no-unused-expressions*/
-/*jshint -W079*/
 let Blogs = require('./../../../build/blogs/model');
 let Audit = require('./../../../build/audit/model');
 let UserGroups = require('./../../../build/user-groups/model');

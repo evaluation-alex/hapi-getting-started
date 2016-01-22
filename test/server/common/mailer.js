@@ -1,6 +1,4 @@
 'use strict';
-/*eslint-disable no-unused-expressions*/
-/*jshint -W079*/
 let Config = require('./../../../build/config');
 let Mailer = require('./../../../build/common/plugins/mailer');
 let expect = require('chai').expect;

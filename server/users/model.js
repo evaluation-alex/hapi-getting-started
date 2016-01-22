@@ -8,10 +8,10 @@ import {UserNotFoundError, IncorrectPasswordError, UserNotLoggedInError,
 const {ip, secureHash, secureCompare, hasItems} = require('./../common/utils');
 const {build} = require('./../common/dao');
 const schemas = require('./schemas');
-const Session = require('./session/model');
-const Preferences = require('./preferences/model');
-const Profile = require('./profile/model');
-const Roles = require('./roles/model');
+const Session = require('./../session/model');
+const Preferences = require('./../preferences/model');
+const Profile = require('./../profile/model');
+const Roles = require('./../roles/model');
 const Users = function Users(attrs) {
     this.init(attrs);
     return this;

@@ -14,7 +14,7 @@ gulp.task('help', $.taskListing);
 gulp.task('deps:check', () => {
     return gulp.src('./package.json')
         .pipe($.david({error404: true, errorSCM: true, errorDepCount: 5}))
-        .pipe($.david.reporter);
+        .on('error', err => console.error(err));
 });
 gulp.task('deps:upgrade', () => {
     return gulp.src('package.json')

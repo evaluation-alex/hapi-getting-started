@@ -1,6 +1,6 @@
 'use strict';
 const fs = require('fs');
-const _ = require('lodash');
+const _ = require('./../../lodash');
 const Bluebird = require('bluebird');
 const hbs = require('handlebars');
 const Nodemailer = require('nodemailer');

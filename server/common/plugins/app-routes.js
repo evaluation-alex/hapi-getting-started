@@ -1,7 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const _ = require('lodash');
+const _ = require('./../../lodash');
 const {functions, flattenDeep} = _;
 function describeRoutes(routes) {
     return routes.map(route => `${route.method}  ${route.path}`).join('\n');

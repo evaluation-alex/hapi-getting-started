@@ -1,5 +1,6 @@
 'use strict';
-const {buildRESTRoutes, buildRoute} = require('./../common/routes');
+const routes = require('./../common/routes');
+const {buildRESTRoutes, buildRoute} = routes;
 const Controller = require('./controller');
 module.exports = [
     buildRESTRoutes('users', Controller),

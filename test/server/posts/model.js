@@ -501,6 +501,9 @@ describe('Posts DAO', () => {
                 .then((b) => {
                     return Posts.create(b._id, 'silver lining', 'test post.populate', 'published', 'public', false, false, ['testing', 'populate'], [], 'post', 'i have something to offer', 'test');
                 })
+                .then((p) => {
+                    return Posts.create(p.blogId, 'silver lining', 'test post.populate.meal', 'published', 'public', false, false, ['testing', 'populate'], [], 'meal', {recipes: [p._id]}, 'test');
+                })
                 .then(() => {
                     return UserGroups.create('test post.populate', 'silver lining', 'test posts.populate', 'by');
                 })
@@ -522,6 +525,28 @@ describe('Posts DAO', () => {
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist;
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should load content and meals recipes if post is contentType meal', (done) => {
+            let error = null;
+            Posts.findOne({title: 'test post.populate.meal'})
+                .then((post) => {
+                    return post.setAccess('public').save();
+                })
+                .then((p) => {
+                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
+                })
+                .then((p) => {
+                    expect(p.contentType).to.equal('meal');
+                    expect(p.content.recipes).to.exist;
+                    expect(p.content.recipes.length).to.equal(1);
                 })
                 .catch((err) => {
                     expect(err).to.not.exist;
@@ -690,6 +715,7 @@ describe('Posts DAO', () => {
         after((done) => {
             blogsToClear.push('test post.populate');
             postsToClear.push('test post.populate');
+            postsToClear.push('test post.populate.meal');
             userGroupsToClear.push('test post.populate');
             done();
         });

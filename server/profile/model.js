@@ -1,6 +1,7 @@
 'use strict';
-const {build} = require('./../common/dao');
+const build = require('./../common/dao').build;
 const schemas = require('./schemas');
+/*istanbul ignore next*/
 const Profile = function Profile() {};
 Profile.create = function create() {
     return {

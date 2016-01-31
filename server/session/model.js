@@ -1,10 +1,12 @@
 'use strict';
-const {remove, find, omit} = require('lodash');
+const _ = require('./../lodash');
+const {remove, find, omit, pick, merge} = _;
 const Uuid = require('node-uuid');
 const moment = require('moment');
-const {secureHash} = require('./../common/utils');
-const {build} = require('./../common/dao');
+const secureHash = require('./../common/utils').secureHash;
+const build = require('./../common/dao').build;
 const schemas = require('./schemas');
+/*istanbul ignore next*/
 const Session = function Session() {};
 Session.prototype = {
     _invalidateSession(ipaddress, by) {
@@ -36,13 +38,12 @@ Session.prototype = {
     },
     afterLogin(ipaddress) {
         const session = find(this.session, sesion => sesion.ipaddress === ipaddress);
-        return {
-            _id: this._id,
-            user: this.email,
-            session: omit(session, 'key'),
-            authHeader: `Basic ${new Buffer(`${this.email}:${session.key}`).toString('base64')}`,
-            preferences: this.preferences
-        };
+        return merge({},
+            {user: this.email},
+            pick(this, ['_id', 'organisation', 'preferences', 'profile']),
+            {session: omit(session, ['key'])},
+            {authHeader: `Basic ${new Buffer(`${this.email}:${session.key}`).toString('base64')}`}
+        );
     },
     loginFail(ipaddress, by) {
         return this.trackChanges('login fail', null, ipaddress, by);

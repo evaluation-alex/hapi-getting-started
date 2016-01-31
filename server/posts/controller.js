@@ -1,6 +1,6 @@
 'use strict';
 const moment = require('moment');
-const _ = require('lodash');
+const _ = require('./../lodash');
 const utils = require('./../common/utils');
 const pre = require('./../common/prereqs');
 const handlers = require('./../common/handlers');

@@ -13,6 +13,7 @@ describe('DAO', () => {
             .then((res) => {
                 let server = res.server;
                 server.start(() => {
+                    expect(Model.connect('app')).to.exist;
                     utils.dumpTimings();
                     server.stop({timeout: 100}, () => {
                         var ct = setTimeout(() => {

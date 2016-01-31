@@ -1,5 +1,5 @@
 'use strict';
-const _ = require('lodash');
+const _ = require('./../lodash');
 const utils = require('./utils');
 const errors = require('./errors');
 const Bluebird = require('bluebird');
@@ -25,9 +25,7 @@ function buildAreValid(Model, pldPropToLookup) {
                 })
                 .catch(logAndBoom)
                 .then(reply)
-                .finally(() => {
-                    timing('handler', tags, {elapsed: Date.now() - start});
-                });
+                .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
         } else {
             timing('handler', tags, {elapsed: Date.now() - start});
             reply(true);
@@ -101,9 +99,7 @@ const uniqueCheck = function uniqueCheck(Model, queryBuilder) {
                 .then(f => f ? Bluebird.reject(new ObjectAlreadyExistsError()) : true)
                 .catch(logAndBoom)
                 .then(reply)
-                .finally(() => {
-                    timing('handler', tags, {elapsed: Date.now() - start});
-                });
+                .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
         }
     };
 };
@@ -138,9 +134,7 @@ const prePopulate = function prePopulate(Model, idToUse) {
                     })) : obj)
                 .catch(logAndBoom)
                 .then(reply)
-                .finally(() => {
-                    timing('handler', tags, {elapsed: Date.now() - start});
-                });
+                .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
         }
     };
 };
@@ -154,9 +148,7 @@ const abuseDetected = function abuseDetected() {
                 .then(detected => detected ? Bluebird.reject(new AbusiveLoginAttemptsError()) : false)
                 .catch(logAndBoom)
                 .then(reply)
-                .finally(() => {
-                    timing('handler', tags, {elapsed: Date.now() - start});
-                });
+                .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
         }
     };
 };
@@ -181,9 +173,7 @@ const buildMongoQuery = function buildMongoQuery(Model, findOptions, builder) {
                 })
                 .catch(logAndBoom)
                 .then(reply)
-                .finally(() => {
-                    timing('handler', tags, {elapsed: Date.now() - start});
-                });
+                .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
         }
     }
 };

@@ -1,9 +1,12 @@
 'use strict';
 const path = require('path');
+const fs = require('fs');
+const LICENSE = '/**\n' + fs.readFileSync('./LICENSE').toString() + '**/';
 module.exports = function (gulp, $) {
     return function () {
         return $.mergeStream(
             gulp.src(['server/**/*.js'], {base: './server'})
+                .pipe($.licenser(LICENSE))
                 .pipe($.sourcemaps.init())
                 .pipe($.babel({
                     babelrc: false,//https://discuss.babeljs.io/t/disable-babelrc/63

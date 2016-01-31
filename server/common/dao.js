@@ -1,5 +1,5 @@
 'use strict';
-const _ = require('lodash');
+const _ = require('./../lodash');
 const Bluebird = require('bluebird');
 const mongodb = require('mongodb');
 const config = require('./../config');
@@ -87,11 +87,13 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
         upsert(obj) {
             const opts = {upsert: true, returnOriginal: false};
             return new Bluebird((resolve, reject) => {
-                obj.objectVersion = obj.objectVersion || 0;
-                obj.objectVersion++;
-                obj.schemaVersion = obj.schemaVersion || Dao.schemaVersion;
-                obj._id = obj._id || Dao.ObjectID();
-                Dao.clctn().findOneAndReplace({_id: obj._id}, obj, opts,
+                const toSave = merge({}, {
+                    objectVersion: 0,
+                    schemaVersion: Dao.schemaVersion,
+                    _id: Dao.ObjectID()
+                }, obj);
+                toSave.objectVersion++;
+                Dao.clctn().findOneAndReplace({_id: toSave._id}, toSave, opts,
                     defaultcb(doc => resolve(new Dao(doc.value)), reject, Dao.collection, 'upsert')
                 );
             });
@@ -130,8 +132,17 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
             },
             insertAndAudit(doc, by) {
                 const now = new Date();
-                merge(doc, {isActive: true, createdBy: by, createdOn: now, updatedBy: by, updatedOn: now});
-                return Dao.upsert(doc)
+                const toSave = merge({}, doc, {
+                    objectVersion: 0,
+                    schemaVersion: Dao.schemaVersion,
+                    _id: Dao.ObjectID(),
+                    isActive: true,
+                    createdBy: by,
+                    createdOn: now,
+                    updatedBy: by,
+                    updatedOn: now
+                });
+                return Dao.upsert(toSave)
                     .then(obj => {
                         /*istanbul ignore if: too lazy to write this test case*/
                         if (!obj) {
@@ -143,6 +154,8 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
                                     organisation: obj.organisation,
                                     by: by,
                                     on: now,
+                                    objectVersion: 1,
+                                    schemaVersion: Dao.schemaVersion,
                                     change: [{action: 'create', newValues: doc}]
                                 })
                                 .then(() => obj);
@@ -429,8 +442,8 @@ function withSave(model, saveAudit, idForAudit = '_id') {
                         objectChangedType: model.collection,
                         objectChangedId: this[idForAudit],
                         organisation: this.organisation,
-                        objectVersion: this.objectVersion || 1,
-                        schemaVersion: this.schemaVersion || model.schemaVersion,
+                        objectVersion: this.objectVersion,
+                        schemaVersion: this.schemaVersion,
                         change: []
                     };
                 this.audit.change.push({action, origValues, newValues});

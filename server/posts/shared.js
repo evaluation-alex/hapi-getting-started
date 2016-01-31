@@ -1,9 +1,9 @@
 'use strict';
 const Bluebird = require('bluebird');
-const _ = require('lodash');
+const _ = require('./../lodash');
 const {merge, pick} = _;
-const {org} = require('./../common/utils');
-const {ArchivedPostUpdateError} = require('./../common/errors');
+const org = require('./../common/utils').org;
+const ArchivedPostUpdateError = require('./../common/errors').ArchivedPostUpdateError;
 const newObjectFunc = function newObjectFunc(klass, contentType) {
     return function newObject(doc, by) {
         const blog = doc.pre.blogs;
@@ -22,7 +22,7 @@ const newObjectFunc = function newObjectFunc(klass, contentType) {
             doc.payload.needsReview,
             doc.payload.tags,
             doc.payload.attachments,
-            doc.payload.contentType || contentType,
+            contentType,
             doc.payload.content,
             by)
             .then(post => {

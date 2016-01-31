@@ -102,4 +102,8 @@ describe('Utils', () => {
         expect(utils.findopts('a b -c')).to.deep.equal({a: 1, b: 1, c: -1});
         done();
     });
+    it('should log and boom error', (done) => {
+        expect(utils.logAndBoom(new Error('testing logAndBoom')));
+        done();
+    });
 });

@@ -1,12 +1,14 @@
 'use strict';
+const Bluebird = require('bluebird');
 const pre = require('./../common/prereqs');
 const post = require('./../common/posthandlers');
 const utils = require('./../common/utils');
 const {ip, logAndBoom} = utils;
 const {abuseDetected} = pre;
-const {hashCodeOn} = post;
+const {buildPostHandler, hashCodeOn} = post;
 const Users = require('./../users/model');
 const AuthAttempts = require('./../auth-attempts/model');
+const Blogs = require('./../blogs/model');
 const schemas = require('./schemas');
 module.exports = {
     login: {
@@ -24,6 +26,16 @@ module.exports = {
                 .then(reply);
         },
         post: [
+            buildPostHandler({collection: Users.collection, method: 'populateMyBlogs'}, (request, user) => {
+                return Bluebird.join(
+                    Blogs.find({organisation: user.organisation, owners: user.user}),
+                    Blogs.find({organisation: user.organisation, contributors: user.user}),
+                    Blogs.find({organisation: user.organisation, subscribers: user.user}),
+                    (owned, contributed, subscribed) => {
+                        user.blogs = {owned, contributed, subscribed};
+                        return user;
+                    });
+            }),
             hashCodeOn(Users)
         ]
     },

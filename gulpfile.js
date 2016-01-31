@@ -1,5 +1,6 @@
 'use strict';
 const gulp = require('gulp');
+const exec = require('child_process').exec;
 const $ = require('gulp-load-plugins')({pattern: ['gulp-*', 'del', 'gutil', 'merge-stream', 'run-sequence']});
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 $.disableLinting = process.env.DISABLE_LINTING;
@@ -9,6 +10,26 @@ function task(task, ...rest) {
     return require('./tasks/' + task)(gulp, $, ...rest);
 }
 gulp.task('help', $.taskListing);
+//https://github.com/cedx/david.gulp/blob/master/example/gulpfile.js
+gulp.task('deps:check', () => {
+    return gulp.src('./package.json')
+        .pipe($.david({error404: true, errorSCM: true, errorDepCount: 5}))
+        .pipe($.david.reporter);
+});
+gulp.task('deps:upgrade', () => {
+    return gulp.src('package.json')
+        .pipe($.david({update: true}))
+        .pipe(gulp.dest('.'));
+});
+gulp.task('deps:update', ['deps:upgrade'], (cb) => {
+    exec('npm i', (err, stdout) => {
+        const output = stdout.trim();
+        if (output.length) {
+            console.log(output);
+        }
+        err ? cb(err) : cb();
+    });
+});
 /*server tasks*/
 gulp.task('server:lint', task('lint', ['server/**/*.js']));
 gulp.task('server:clean', task('clean', ['build/**/*.*', 'test/artifacts/server/**/*.*']));

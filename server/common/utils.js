@@ -1,5 +1,5 @@
 'use strict';
-const _ = require('lodash');
+const _ = require('./../lodash');
 const moment = require('moment');
 const bcrypt = require('bcrypt');
 const boom = require('boom');
@@ -48,9 +48,15 @@ const hasItems = function hasItems(arr) {
     return arr && arr.length > 0;
 };
 const queryBuilder = {
-    forID: p => isArray(p) ? {$in: p.map(objectID)} : objectID(p),
-    forExact: p => isArray(p) ? {$in: p} : p,
-    forPartial: p => isArray(p) ? {$in: p.map(op => new RegExp(`^.*?${op}.*$`, 'i'))} : {$regex: new RegExp(`^.*?${p}.*$`, 'i')},
+    forID: p => isArray(p) ?
+    {$in: p.map(objectID)} :
+        objectID(p),
+    forExact: p => isArray(p) ?
+    {$in: p} :
+        p,
+    forPartial: p => isArray(p) ?
+    {$in: p.map(op => new RegExp(`^.*?${op}.*$`, 'i'))} :
+    {$regex: new RegExp(`^.*?${p}.*$`, 'i')},
     forDateBefore: d => ({$lte: moment(d).toDate()}),
     forDateAfter: d => ({$gte: moment(d).toDate()})
 };
@@ -74,14 +80,17 @@ const findopts = function findopts(opts) {
         .map(each => (each[0] === '-') ? {[each.slice(1)]: -1} : {[each]: 1})
         .reduce((p, c) => merge(p, c), {});
 };
-//TODO: not the most efficient, but will do for now
 const hashCode = function hashCode(obj) {
-    let md5 = crypto.createHash('md5');
-    traverse(obj).map(function (x) {
-        if (this.isLeaf) {
-            md5.update(this.path.join('.')).update(String(x));
-        }
-    });
+    const md5 = crypto.createHash('md5');
+    traverse(obj)
+        .reduce(function (acc, x) {
+            if (this.isLeaf) {
+                acc.push(`${this.path.join('.')}#${String(x)}`);
+            }
+            return acc;
+        }, [])
+        .sort()
+        .forEach(k => md5.update(k));
     obj.__hashCode__ = md5.digest('hex');
     return obj;
 };

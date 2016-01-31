@@ -1,6 +1,6 @@
 'use strict';
-const {find} = require('lodash');
-const {build} = require('./../common/dao');
+const find = require('./../lodash').find;
+const build = require('./../common/dao').build;
 const schemas = require('./schemas');
 const Roles = function Roles(attrs) {
     this.init(attrs);

@@ -1,12 +1,14 @@
 'use strict';
-const {find} = require('lodash');
+const find = require('./../lodash').find;
 const Bluebird = require('bluebird');
 const moment = require('moment');
 const Uuid = require('node-uuid');
-import {UserNotFoundError, IncorrectPasswordError, UserNotLoggedInError,
-    SessionCredentialsNotMatchingError, SessionExpiredError} from './../common/errors';
-const {ip, secureHash, secureCompare, hasItems} = require('./../common/utils');
-const {build} = require('./../common/dao');
+const errors = require('./../common/errors');
+const {UserNotFoundError, IncorrectPasswordError, UserNotLoggedInError,
+    SessionCredentialsNotMatchingError, SessionExpiredError} = errors ;
+const utils = require('./../common/utils');
+const {ip, secureHash, secureCompare, hasItems} = utils;
+const build = require('./../common/dao').build;
 const schemas = require('./schemas');
 const Session = require('./../session/model');
 const Preferences = require('./../preferences/model');

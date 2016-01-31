@@ -1,6 +1,6 @@
 'use strict';
 const Bluebird = require('bluebird');
-const _ = require('lodash');
+const _ = require('./../lodash');
 const {merge, isFunction} = _;
 const utils = require('./utils');
 const {by, errback, hasItems, locale, timing, hashCode} = utils;
@@ -12,18 +12,19 @@ const buildPostHandler = function buildPostHandler(tags, cb) {
         method(request, reply) {
             const start = Date.now();
             if (!request.response.isBoom && request.response.source) {
-                return cbp(request, request.response.source)
+                const p = request.response.source.data ?
+                    Bluebird.all(request.response.source.data.map(item => cbp(request, item))) :
+                    cbp(request, request.response.source);
+                p
                     .then(() => {
                         reply.continue();
                         return null;
                     })
                     .catch(errback)
-                    .finally(() => {
-                        timing('handler', posthandlerTags, {elapsed: Date.now() - start});
-                    });
+                    .finally(() => timing('handler', posthandlerTags, {elapsed: Date.now() - start}));
             } else {
-                timing('handler', posthandlerTags, {elapsed: Date.now() - start});
                 reply.continue();
+                timing('handler', posthandlerTags, {elapsed: Date.now() - start});
             }
         }
     };
@@ -59,46 +60,36 @@ const cancelNotifications = function cancelNotifications(Model, action, cancelCb
             notification.setState('cancelled', by(request)).save()
     );
     const cancel = function cancel(request, target) {
-        return Notifications.find({
+        return Bluebird.all(Notifications.find({
                 objectType: Model.collection,
                 objectId: target._id,
                 state: 'unread',
                 action: action
             })
-            .then(notifications => notifications.map(notification => cancelcb(target, request, notification)).map(p => p.reflect()))
+            .then(notifications => notifications
+                .map(notification => cancelcb(target, request, notification))
+                .map(p => p.reflect())
+            ))
+            //http://bluebirdjs.com/docs/api/reflect.html
+            .map(p => p.isFulfilled() ? p.value() : /*istanbul ignore next*/p.reason());
     };
     return buildPostHandler(tags, cancel);
 };
 const i18n = function i18n(Model) {
     const tags = {collection: Model.collection, method: 'i18n'};
-    const internationalize = function internationalize(request, target) {
-        const lcl = locale(request);
-        return (hasItems(target.data)) ? target.data.forEach(d => d.i18n(lcl)) : target.i18n(lcl);
-    };
-    return buildPostHandler(tags, internationalize);
+    return buildPostHandler(tags, (request, target) =>
+        target.i18n ? target.i18n(locale(request)) : /*istanbul ignore next*/target
+    );
 };
 const hashCodeOn = function hashCodeOn(Model) {
     const tags = {collection: Model.collection, method: 'hashCode'};
-    const addHashCode = function addHashCode(request, target) {
-        return (hasItems(target.data)) ? target.data.map(hashCode) : hashCode(target);
-    };
-    return buildPostHandler(tags, addHashCode);
+    return buildPostHandler(tags, (request, target) => hashCode(target));
 };
 const populateObject = function populateObject(Model, id) {
     const tags = {collection: Model.collection, method: 'populateObject'};
-    const populateDep = function populateDep(request, target) {
-        const user = by(request);
-        if (hasItems(target.data)) {
-            return Bluebird.all(target.data.map(item => item.populate(user)))
-                .then(op => {
-                    target.data = op;
-                    return target;
-                });
-        } else {
-            return target.populate(user);
-        }
-    };
-    return buildPostHandler(tags, populateDep);
+    return buildPostHandler(tags, (request, target) =>
+        target.populate ? target.populate(by(request)) : /*istanbul ignore next*/target
+    );
 };
 module.exports = {
     buildPostHandler,

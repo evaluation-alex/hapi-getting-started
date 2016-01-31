@@ -1,5 +1,5 @@
 'use strict';
-const _ = require('lodash');
+const _ = require('./../lodash');
 const Bluebird = require('bluebird');
 const utils = require('./utils');
 const {isFunction, merge} = _;
@@ -11,9 +11,7 @@ const buildCreateHandler = function buildCreateHandler(Model) {
         Model.newObject(request, by(request))
             .catch(logAndBoom)
             .then(reply)
-            .finally(() => {
-                timing('handler', tags, {elapsed: Date.now() - start});
-            });
+            .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
     };
 };
 const buildFindHandler = function buildFindHandler(Model) {
@@ -25,9 +23,7 @@ const buildFindHandler = function buildFindHandler(Model) {
         Model.pagedFind(query, findopts(fields), findopts(sort), limit, page)
             .catch(logAndBoom)
             .then(reply)
-            .finally(() => {
-                timing('handler', tags, {elapsed: Date.now() - start});
-            });
+            .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
     };
 };
 const buildFindOneHandler = function buildFindOneHandler(Model) {
@@ -37,23 +33,24 @@ const buildFindOneHandler = function buildFindOneHandler(Model) {
         Bluebird.resolve(request.pre[Model.collection])
             .catch(logAndBoom)
             .then(reply)
-            .finally(() => {
-                timing('handler', tags, {elapsed: Date.now() - start});
-            });
+            .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
     };
 };
 const buildUpdateHandler = function buildUpdateHandler(Model, updateCb) {
     const tags = {collection: Model.collection, method: 'update', type: 'main'};
-    const update = Bluebird.method((u, request, by) => isFunction(updateCb) ? updateCb(u, request, by) : u[updateCb](request, by));
+    const update = Bluebird.method((u, request, by) =>
+        isFunction(updateCb) ?
+            updateCb(u, request, by) :
+            u[updateCb](request, by)
+    );
     return function updateHandler(request, reply) {
         const start = Date.now();
-        update(request.pre[Model.collection], request, by(request))
+        const toUpdate = request.pre[Model.collection];
+        update(toUpdate, request, by(request))
             .then(u => u.save())
             .catch(logAndBoom)
             .then(reply)
-            .finally(() => {
-                timing('handler', tags, {elapsed: Date.now() - start});
-            });
+            .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
     };
 };
 module.exports = {

@@ -1,6 +1,7 @@
 'use strict';
-const {org, hasItems} = require('./../common/utils');
-const {build} = require('./../common/dao');
+const utils = require('./../common/utils');
+const {org, hasItems} = utils;
+const build = require('./../common/dao').build;
 const schemas = require('./schemas');
 const Blogs = function Blogs(attrs) {
     this.init(attrs);

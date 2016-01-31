@@ -1,7 +1,8 @@
 'use strict';
-const {uniq, flatten, isArray} = require('lodash');
+const _ = require('./../lodash');
+const {uniq, flatten, isArray} = _;
 const Bluebird = require('bluebird');
-const {build} = require('./../common/dao');
+const build = require('./../common/dao').build;
 const schemas = require('./schemas');
 const Notifications = function Notifications(attrs) {
     this.init(attrs);

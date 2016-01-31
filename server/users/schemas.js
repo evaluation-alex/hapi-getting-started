@@ -1,8 +1,8 @@
 'use strict';
 const Joi = require('joi');
-const {model: session} = require('././schemas');
-const {model: preferences} = require('././schemas');
-const {model: profile} = require('././schemas');
+const session = require('././schemas').model;
+const preferences = require('././schemas').model;
+const profile = require('././schemas').model;
 const shared = require('./../../shared/users/validation');
 module.exports = {
     dao: {

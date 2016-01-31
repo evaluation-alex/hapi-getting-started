@@ -1,5 +1,5 @@
 'use strict';
-let pkg = require('./../package.json');
+const pkg = require('./../package.json');
 module.exports = function (gulp, $, src) {
     return function (cb) {
         return !$.disableLinting ? $.mergeStream(

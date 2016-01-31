@@ -1,7 +1,8 @@
 'use strict';
 const Bluebird = require('bluebird');
-const {org, hasItems} = require('./../common/utils');
-const {build} = require('./../common/dao');
+const utils = require('./../common/utils');
+const {org, hasItems} = utils;
+const build = require('./../common/dao').build;
 const UserGroups = require('./../user-groups/model');
 const Blogs = require('./../blogs/model');
 const schemas = require('./schemas');

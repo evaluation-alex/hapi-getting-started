@@ -1,5 +1,5 @@
 'use strict';
-const _ = require('lodash');
+const _ = require('./../lodash');
 const {filter, merge} = _;
 function path(pathPrefix, component) {
     return `${pathPrefix}/${component}`;

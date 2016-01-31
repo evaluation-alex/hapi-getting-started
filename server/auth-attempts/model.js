@@ -1,7 +1,7 @@
 'use strict';
 const Bluebird = require('bluebird');
 const config = require('./../config');
-const {build} = require('./../common/dao');
+const build = require('./../common/dao').build;
 const schemas = require('./schemas');
 const {authAttempts: limits} = config;
 const AuthAttempts = function AuthAttempts(attrs) {

@@ -519,29 +519,6 @@ describe('Users', () => {
                 })
                 .catch(done);
         });
-        it('gracefully handles errors and sends back boom message', (done) => {
-            let prev = Mailer.sendEmail;
-            Mailer.sendEmail = () => {
-                return Bluebird.reject(new Error('test'));
-            };
-            let request = {
-                method: 'PUT',
-                url: '/users/forgot',
-                payload: {
-                    email: 'test.users@test.api'
-                }
-            };
-            server.injectThen(request)
-                .then((response) => {
-                    expect(response.statusCode).to.equal(500);
-                    Mailer.sendEmail = prev;
-                    done();
-                })
-                .catch((err) => {
-                    Mailer.sendEmail = prev;
-                    done(err);
-                });
-        });
     });
     describe('PUT /users/reset', () => {
         it('returns an error when user does not exist', (done) => {

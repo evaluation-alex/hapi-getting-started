@@ -1,5 +1,5 @@
 'use strict';
-const _ = require('lodash');
+const _ = require('./../../lodash');
 const Bluebird = require('bluebird');
 const dao = require('./../dao');
 const {forIn} = _;

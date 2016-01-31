@@ -1,6 +1,6 @@
 'use strict';
-const {org} = require('./../common/utils');
-const {build} = require('./../common/dao');
+const org = require('./../common/utils').org;
+const build = require('./../common/dao').build;
 const schemas = require('./schemas');
 const UserGroups = function UserGroups(attrs) {
     this.init(attrs);

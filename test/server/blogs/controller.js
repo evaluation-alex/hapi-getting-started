@@ -24,7 +24,7 @@ describe('Blogs', () => {
         before((done) => {
             Blogs.create('test GET /blogs is active', 'silver lining', 'test GET /blogs', ['owner1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(() => {
-                    return Blogs.create('test GET /blogs is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
+                    return Blogs.create('test GET /blogs is active = false', 'silver lining', 'test GET /blogs', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
                 })
                 .then((p) => {
                     p.isActive = false;

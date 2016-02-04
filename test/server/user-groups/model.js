@@ -329,7 +329,7 @@ describe('UserGroups DAO', () => {
         });
         it('should do nothing if the user is not present as owner OR member and you remove as owner AND member', (done) => {
             let error = null;
-            UserGroups.create('removeUsersTest3', 'UserGroups.this.removeBothNotPresent', 'test4')
+            UserGroups.create('removeUsersTest3', 'silver lining' ,'UserGroups.this.removeBothNotPresent', 'test4')
                 .then((ug) => {
                     expect(ug.isPresentInMembers('neither')).to.be.false;
                     expect(ug.isPresentInOwners('neither')).to.be.false;

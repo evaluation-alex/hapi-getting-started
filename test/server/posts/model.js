@@ -1,5 +1,6 @@
 'use strict';
 let Posts = require('./../../../build/posts/model');
+let Meals = require('./../../../build/posts/model');
 let Blogs = require('./../../../build/blogs/model');
 let UserGroups = require('./../../../build/user-groups/model');
 let Audit = require('./../../../build/audit/model');
@@ -21,7 +22,7 @@ describe('Posts DAO', () => {
     describe('Posts.create', () => {
         it('should create a new document and audit entry when it succeeds', (done) => {
             let error = null;
-            //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
+            //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, contentType, content, by
             Posts.create(blogId, 'silver lining', 'newPost', 'draft', 'public', true, true, ['testing', 'unit testing'], [], 'post', 'content', 'test')
                 .then((post) => {
                     expect(post).to.exist;
@@ -62,7 +63,7 @@ describe('Posts DAO', () => {
             let error = null;
             let postId = '';
             let bogus = '';
-            Posts.create(blogId, 'silver lining', 'test Posts.areValid', 'draft', 'public', true, true, ['testing', 'unit testing', 'activate'], [], 'post', null, 'test')
+            Posts.create(blogId, 'silver lining', 'test Posts.areValid', 'draft', 'public', true, true, ['testing', 'unit testing', 'activate'], [], 'post', 'some content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     bogus = Posts.ObjectID().toString();
@@ -502,7 +503,7 @@ describe('Posts DAO', () => {
                     return Posts.create(b._id, 'silver lining', 'test post.populate', 'published', 'public', false, false, ['testing', 'populate'], [], 'post', 'i have something to offer', 'test');
                 })
                 .then((p) => {
-                    return Posts.create(p.blogId, 'silver lining', 'test post.populate.meal', 'published', 'public', false, false, ['testing', 'populate'], [], 'meal', {recipes: [p._id]}, 'test');
+                    return Meals.create(p.blogId, 'silver lining', 'test post.populate.meal', 'published', 'public', false, false, ['testing', 'populate'], [], 'meal', {recipes: [p._id]}, 'test');
                 })
                 .then(() => {
                     return UserGroups.create('test post.populate', 'silver lining', 'test posts.populate', 'by');

@@ -6,20 +6,20 @@ module.exports = {
             payload: {
                 blogId: Joi.string(),
                 title: Joi.string().required(),
-                state: Joi.string().only(['draft', 'pending review', 'published', 'archived']),
+                state: Joi.string().only(['draft', 'pending review', 'published', 'archived']).required(),
                 tags: Joi.array().items(Joi.string()).unique(),
-                attachments: Joi.array().items(Joi.object()).unique(),
+                attachments: Joi.array().items([Joi.object(), Joi.string()]).unique(),
                 access: Joi.string().only(['public', 'restricted']),
                 allowComments: Joi.boolean(),
                 needsReview: Joi.boolean(),
-                contentType: Joi.string().only(['post']).default('post'),
-                content: Joi.alternatives().try(Joi.string(), Joi.object())
+                contentType: Joi.string().only(['post']).default('post').required(),
+                content: [Joi.string(), Joi.object()]
             }
         },
         find: {
             query: {
                 title: Joi.string(),
-                blogId: Joi.string(),
+                blogId: [Joi.array().items(Joi.string()), Joi.string()],
                 blogTitle: Joi.string(),
                 tag: Joi.string(),
                 contentType: Joi.string().only(['post']).default('post'),

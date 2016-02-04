@@ -8,34 +8,28 @@ Preferences.create = function create(locale = 'en') {
             notifications: {
                 blogs: {
                     inapp: {
-                        frequency: 'immediate',
-                        lastSent: undefined
+                        frequency: 'immediate'
                     },
                     email: {
-                        frequency: 'daily',
-                        lastSent: undefined
+                        frequency: 'daily'
                     },
                     blocked: []
                 },
                 posts: {
                     inapp: {
-                        frequency: 'immediate',
-                        lastSent: undefined
+                        frequency: 'immediate'
                     },
                     email: {
-                        frequency: 'daily',
-                        lastSent: undefined
+                        frequency: 'daily'
                     },
                     blocked: []
                 },
                 userGroups: {
                     inapp: {
-                        frequency: 'immediate',
-                        lastSent: undefined
+                        frequency: 'immediate'
                     },
                     email: {
-                        frequency: 'daily',
-                        lastSent: undefined
+                        frequency: 'daily'
                     },
                     blocked: []
                 }

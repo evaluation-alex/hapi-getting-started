@@ -8,7 +8,7 @@ module.exports = {
     },
     model: Joi.array().items({
         ipaddress: Joi.string(),
-        key: Joi.object(),
+        key: Joi.string(),
         expires: Joi.date()
     }),
     controller: {

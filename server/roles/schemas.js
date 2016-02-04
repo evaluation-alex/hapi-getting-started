@@ -1,5 +1,8 @@
 'use strict';
 const Joi = require('joi');
+const common = require('./../common/schemas');
+const _ = require('./../lodash');
+const {merge, pick} = _;
 module.exports = {
     dao: {
         connection: 'app',
@@ -11,13 +14,11 @@ module.exports = {
         isReadonly: true,
         schemaVersion: 1
     },
-    model: {
-        _id: Joi.object(),
-        name: Joi.string().required(),
-        organisation: Joi.string().required(),
+    model: merge({}, {
+        name: Joi.string(),
         permissions: Joi.array().items({
-            action: Joi.string().only('view', 'update').required(),
-            object: Joi.string().required()
+            action: Joi.string().only('view', 'update'),
+            object: Joi.string()
         }).unique()
-    }
+    }, pick(common.model, ['_id', 'organisation', 'schemaVersion', 'objectVersion']))
 };

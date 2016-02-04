@@ -1,11 +1,12 @@
 'use strict';
 const _ = require('./../lodash');
 const Bluebird = require('bluebird');
+const Joi = require('joi');
 const mongodb = require('mongodb');
 const config = require('./../config');
 const utils = require('./utils');
 const errors = require('./errors');
-const {extend, upperFirst, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, assign} = _;
+const {extend, upperFirst, get, isUndefined, isEqual, set, find, remove, isArray, omit, merge, assign, filter} = _;
 const {MongoClient, ObjectID} = mongodb;
 const {errback, hasItems, timing} = utils;
 const {ObjectNotCreatedError} = errors;
@@ -67,6 +68,18 @@ function withSetupMethods(Dao, nonEnumerables) {
                 Object.defineProperty(this, ne, {writable: true, enumerable: false});
             });
             Object.defineProperty(this, '__isModified', {writable: true, enumerable: false});
+        },
+        validate() {
+            /*istanbul ignore if*/
+            /*istanbul ignore else*/
+            if (process.env.NODE_ENV !== 'production') {
+                const {error, value} = Joi.validate(this, Dao.modelSchema, {abortEarly: false, allowUnknown: false});
+                /*istanbul ignore if*/
+                /*istanbul ignore else*/
+                if (error) {
+                    console.log(error);
+                }
+            }
         }
     });
     return extend(Dao, {
@@ -144,6 +157,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
                 });
                 return Dao.upsert(toSave)
                     .then(obj => {
+                        obj.validate();
                         /*istanbul ignore if: too lazy to write this test case*/
                         if (!obj) {
                             return Bluebird.reject(new ObjectNotCreatedError({collection: Dao.collection}));
@@ -331,7 +345,7 @@ function withArrMethods(model, lists) {
                             list.push(memberToAdd);
                             this.trackChanges(`add ${name}`, null, memberToAdd, by);
                         }
-                    }, this);
+                    });
                     return this;
                 },
                 [removeMethod](toRemove, by) {
@@ -339,9 +353,10 @@ function withArrMethods(model, lists) {
                     toRemove.forEach(memberToRemove => {
                         const removed = remove(list, item => isEqual(item, memberToRemove));
                         if (hasItems(removed)) {
+                            set(this, path, filter(list));
                             this.trackChanges(`remove ${name}`, memberToRemove, null, by);
                         }
-                    }, this);
+                    });
                     return this;
                 }
             };
@@ -358,7 +373,7 @@ function withUpdate(model, props, arrs, updateMethod) {
                 if (!isUndefined(u)) {
                     this[method](u, by);
                 }
-            }, this);
+            });
             arrs.forEach(arr => {
                 let {removed: removedItems, removeMethod, added: addedItems, addMethod} = arr;
                 const toRemove = get(doc.payload, removedItems);
@@ -369,7 +384,7 @@ function withUpdate(model, props, arrs, updateMethod) {
                 if (!isUndefined(toAdd) && hasItems(toAdd)) {
                     this[addMethod](toAdd, by);
                 }
-            }, this);
+            });
             return this;
         }
     });
@@ -406,7 +421,7 @@ function withI18n(model, fields) {
                 if (isArray(this[field]) && this[field].length === 2) {
                     this[field] = i18n.__({phrase: this[field][0], locale}, this[field][1]);
                 }
-            }, this);
+            });
             return this;
         }
     });
@@ -418,7 +433,10 @@ function withSave(model, saveAudit, idForAudit = '_id') {
                 this.__isModified = false;
                 return model.saveChangeHistory(this.audit)
                     .then(() => {
-                        this.audit = undefined;
+                        if (this.audit) {
+                            this.audit = undefined;
+                        }
+                        this.validate();
                         return model.upsert(this);
                     });
             } else {

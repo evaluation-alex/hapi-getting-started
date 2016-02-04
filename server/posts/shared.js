@@ -34,7 +34,7 @@ const newObjectFunc = function newObjectFunc(klass, contentType) {
 const createFunc = function createFunc(klass) {
     return function create(blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, contentType, content, by) {
         const now = new Date();
-        return klass.insertAndAudit({
+        const toCreate = {
             organisation,
             blogId,
             state,
@@ -46,17 +46,19 @@ const createFunc = function createFunc(klass) {
             attachments,
             contentType,
             content,
-            publishedBy: by,
-            publishedOn: state === 'published' ? now : null,
-            reviewedBy: state === 'published' ? by : null,
-            reviewedOn: state === 'published' ? now : null
-        }, by);
+            publishedBy: by
+        };
+        if (state === 'published') {
+            toCreate.publishedOn = now;
+            toCreate.reviewedBy = by;
+            toCreate.reviewedOn = now;
+        }
+        return klass.insertAndAudit(toCreate, by);
     };
 };
 const updateFunc = function updateFunc(updateMethod) {
     return function update(doc, by) {
         if (this.state !== 'archived') {
-            this.blog = doc.pre.blog;
             return this[updateMethod](doc, by);
         } else {
             return Bluebird.reject(new ArchivedPostUpdateError());

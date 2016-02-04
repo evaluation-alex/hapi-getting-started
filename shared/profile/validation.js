@@ -8,9 +8,9 @@ module.exports = {
                     firstName: Joi.string(),
                     lastName: Joi.string(),
                     preferredName: Joi.string(),
-                    facebook: Joi.object(),
-                    google: Joi.object(),
-                    twitter: Joi.object()
+                    facebook: Joi.any(),
+                    google: Joi.any(),
+                    twitter: Joi.any()
                 }
             }
         }

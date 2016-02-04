@@ -1,9 +1,12 @@
 'use strict';
 const Joi = require('joi');
-const session = require('././schemas').model;
-const preferences = require('././schemas').model;
-const profile = require('././schemas').model;
+const session = require('./../session/schemas').model;
+const preferences = require('./../preferences/schemas').model;
+const profile = require('./../profile/schemas').model;
 const shared = require('./../../shared/users/validation');
+const common = require('./../common/schemas');
+const _ = require('./../lodash');
+const {merge} = _;
 module.exports = {
     dao: {
         connection: 'app',
@@ -24,25 +27,18 @@ module.exports = {
         nonEnumerables: ['audit', '_roles'],
         schemaVersion: 1
     },
-    model: {
-        _id: Joi.object(),
+    model: merge({}, {
         email: Joi.string().required(),
         password: Joi.string().required(),
-        organisation: Joi.string().required(),
         roles: Joi.array().items(Joi.string()).unique(),
         resetPwd: {
-            token: Joi.string().required(),
-            expires: Joi.date().required()
+            token: Joi.string(),
+            expires: Joi.date()
         },
         session: session,
         preferences: preferences,
-        profile: profile,
-        isActive: Joi.boolean().default(true),
-        createdBy: Joi.string(),
-        createdOn: Joi.date(),
-        updatedBy: Joi.string(),
-        updatedOn: Joi.date()
-    },
+        profile: profile
+    }, common.model),
     controller: {
         signup: shared.controller.signup,
         find: shared.controller.find,

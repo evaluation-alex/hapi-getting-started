@@ -1,6 +1,9 @@
 'use strict';
 const Joi = require('joi');
 const shared = require('./../../shared/blogs/validation');
+const common = require('./../common/schemas');
+const _ = require('./../lodash');
+const {merge} = _;
 module.exports = {
     dao: {
         connection: 'app',
@@ -36,10 +39,8 @@ module.exports = {
         nonEnumerables: ['audit'],
         schemaVersion: 1
     },
-    model: {
-        _id: Joi.object(),
-        title: Joi.string().required(),
-        organisation: Joi.string().required(),
+    model: merge({}, {
+        title: Joi.string(),
         description: Joi.string(),
         owners: Joi.array().items(Joi.string()).unique(),
         contributors: Joi.array().items(Joi.string()).unique(),
@@ -48,13 +49,8 @@ module.exports = {
         needsApproval: Joi.array().items(Joi.string()).unique(),
         needsReview: Joi.boolean().default(false),
         access: Joi.string().only(['public', 'restricted']),
-        allowComments: Joi.boolean().default(true),
-        isActive: Joi.boolean().default(true),
-        createdBy: Joi.string(),
-        createdOn: Joi.date(),
-        updatedBy: Joi.string(),
-        updatedOn: Joi.date()
-    },
+        allowComments: Joi.boolean().default(true)
+    }, common.model),
     controller: {
         create: shared.controller.create,
         find: shared.controller.find,

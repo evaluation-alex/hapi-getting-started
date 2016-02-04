@@ -130,7 +130,7 @@ const prePopulate = function prePopulate(Model, idToUse) {
                 .then(obj => !obj ?
                     Bluebird.reject(new ObjectNotFoundError({
                         type: upperFirst(Model.collection),
-                        idstr: id.toString()
+                        idstr: id ? id.toString() : 'No id passed'
                     })) : obj)
                 .catch(logAndBoom)
                 .then(reply)

@@ -2,12 +2,12 @@
 const Joi = require('joi');
 const channel = {
     frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly'),
-    lastSent: Joi.date()
+    lastSent: Joi.date().optional()
 };
 const notificationPref = {
     inapp: channel,
     email: channel,
-    blocked: Joi.array().items(Joi.object())
+    blocked: Joi.array().items([Joi.object(), Joi.string()]).optional()
 };
 const updateChannel = {
     frequency: Joi.string().only('none', 'immediate', 'daily', 'weekly')
@@ -15,8 +15,8 @@ const updateChannel = {
 const notificationUpdatePref = {
     inapp: updateChannel,
     email: updateChannel,
-    addedBlocked: Joi.array().items(Joi.object()),
-    removedBlocked: Joi.array().items(Joi.object())
+    addedBlocked: Joi.array().items([Joi.object(), Joi.string()]).optional(),
+    removedBlocked: Joi.array().items([Joi.object(), Joi.string()]).optional()
 };
 module.exports = {
     channel: channel,

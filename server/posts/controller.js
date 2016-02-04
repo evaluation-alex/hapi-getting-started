@@ -9,7 +9,7 @@ const {filter, flatten} = _;
 const {lookupParamsOrPayloadOrQuery, org, buildQuery} = utils;
 const {canView, canUpdate, prePopulate, isMemberOf, uniqueCheck, findValidator, buildMongoQuery} = pre;
 const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
-const {sendNotifications, cancelNotifications, hashCodeOn, populateObject} = post;
+const {sendNotifications, cancelNotifications, hashCodeOn, populateObject, buildPostHandler} = post;
 const UserGroups = require('./../user-groups/model');
 const Blogs = require('./../blogs/model');
 const schemas = require('./schemas');
@@ -132,6 +132,10 @@ module.exports = {
         ],
         handler: buildUpdateHandler(Posts, 'update'),
         post: [
+            buildPostHandler({collection: Posts.collection, method: 'populateBlog'}, (request, post) => {
+                post.blog = request.pre.blogs;
+                return post;
+            }),
             hashCodeOn(Posts)
         ]
     },
@@ -147,6 +151,10 @@ module.exports = {
         post: [
             sendNotifications(Posts, (post, request) => sendNotificationsWhen[post.state](post, request)),
             cancelNotifications(Posts, 'review'),
+            buildPostHandler({collection: Posts.collection, method: 'populateBlog'}, (request, post) => {
+                post.blog = request.pre.blogs;
+                return post;
+            }),
             hashCodeOn(Posts)
         ]
     },
@@ -162,6 +170,10 @@ module.exports = {
         post: [
             sendNotifications(Posts, (post, request) => sendNotificationsWhen[post.state](post, request)),
             cancelNotifications(Posts, 'review'),
+            buildPostHandler({collection: Posts.collection, method: 'populateBlog'}, (request, post) => {
+                post.blog = request.pre.blogs;
+                return post;
+            }),
             hashCodeOn(Posts)
         ]
     },
@@ -174,6 +186,10 @@ module.exports = {
         ],
         handler: buildUpdateHandler(Posts, 'del'),
         post: [
+            buildPostHandler({collection: Posts.collection, method: 'populateBlog'}, (request, post) => {
+                post.blog = request.pre.blogs;
+                return post;
+            }),
             hashCodeOn(Posts)
         ]
     }

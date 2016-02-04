@@ -26,7 +26,6 @@ Posts.prototype = {
                 this.reviewedOn = this.publishedOn = new Date();
             }
         }
-        this.blog = blog;
         return this;
     },
     reject(doc, by) {
@@ -35,7 +34,6 @@ Posts.prototype = {
             this.reviewedBy = by;
             this.reviewedOn = new Date();
         }
-        this.blog = doc.pre.blog;
         return this;
     },
     populate(user) {

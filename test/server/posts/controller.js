@@ -28,7 +28,7 @@ describe('Posts', () => {
         let blogId = null;
         before((done) => {
             let b1 = Blogs.create('test GET /posts1', 'silver lining', 'test GET /blogs', null, null, null, null, false, 'public', true, 'test');
-            let b2 = Blogs.create('test GET /posts2 is active = false', 'silver lining', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
+            let b2 = Blogs.create('test GET /posts2 is active = false', 'silver lining', 'test GET /blogs', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
             Bluebird.join(b1, b2)
                 .then((b) => {
                     let b11 = b[0];
@@ -255,7 +255,7 @@ describe('Posts', () => {
                 .then((b) => {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-                    return Posts.create(b._id, 'silver lining', 'GET /posts/{id}', 'draft', 'public', true, true, 'testing', ['testing', 'controller testing'], [], 'post', 'something to say, something to listen', 'test');
+                    return Posts.create(b._id, 'silver lining', 'GET /posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'something to say, something to listen', 'test');
                 })
                 .then((p) => {
                     id = p._id.toString();
@@ -1072,6 +1072,7 @@ describe('Posts', () => {
                             title: 'test POST unique',
                             state: 'draft',
                             content: 'something. anything will do.',
+                            contentType: 'post',
                             tags: ['testing'],
                             attachments: []
                         }
@@ -1106,6 +1107,7 @@ describe('Posts', () => {
                             title: 'test POST blog owner',
                             state: 'draft',
                             content: 'something. anything will do.',
+                            contentType: 'post',
                             tags: ['testing'],
                             attachments: []
                         }
@@ -1143,6 +1145,7 @@ describe('Posts', () => {
                             title: 'test POST needsReview and publish',
                             state: 'published',
                             content: 'something. anything will do.',
+                            contentType: 'post',
                             tags: ['testing'],
                             attachments: [],
                             needsReview: false
@@ -1187,6 +1190,7 @@ describe('Posts', () => {
                             title: 'test POST needsReview and pending review',
                             state: 'published',
                             content: 'something. anything will do.',
+                            contentType: 'post',
                             tags: ['testing'],
                             attachments: [],
                             needsReview: true
@@ -1231,6 +1235,7 @@ describe('Posts', () => {
                             title: 'test POST draft',
                             state: 'draft',
                             content: 'something. anything will do.',
+                            contentType: 'post',
                             tags: ['testing'],
                             attachments: [],
                             needsReview: true
@@ -1275,6 +1280,7 @@ describe('Posts', () => {
                             title: 'test POST needsReview, owner and published',
                             state: 'published',
                             content: 'something. anything will do.',
+                            contentType: 'post',
                             tags: ['testing'],
                             attachments: [],
                             needsReview: true,
@@ -1321,6 +1327,7 @@ describe('Posts', () => {
                             title: 'test POST needsReview, access, allowComments',
                             state: 'published',
                             content: 'something. anything will do.',
+                            contentType: 'post',
                             tags: ['testing'],
                             attachments: []
                         }

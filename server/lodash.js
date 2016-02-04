@@ -31,6 +31,7 @@ const set = require('lodash/set');
 const uniq = require('lodash/uniq');
 const uniqBy = require('lodash/uniqBy');
 const upperFirst = require('lodash/upperFirst');
+const values = require('lodash/values');
 module.exports = {
     assign,
     clone,
@@ -63,5 +64,6 @@ module.exports = {
     set: set,
     uniq,
     uniqBy,
-    upperFirst
+    upperFirst,
+    values
 };

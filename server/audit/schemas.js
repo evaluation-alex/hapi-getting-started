@@ -1,6 +1,9 @@
 'use strict';
 const Joi = require('joi');
 const shared = require('./../../shared/audit/validation');
+const common = require('./../common/schemas');
+const _ = require('./../lodash');
+const {merge, pick} = _;
 module.exports = {
     dao: {
         connection: 'app',
@@ -14,19 +17,17 @@ module.exports = {
         isReadonly: true,
         schemaVersion: 1
     },
-    model: {
-        _id: Joi.object(),
-        objectChangedType: Joi.string().required(),
-        objectChangedId: Joi.string().required(),
-        organisation: Joi.string().required(),
-        by: Joi.string().required(),
+    model: merge({}, {
+        objectChangedType: Joi.string(),
+        objectChangedId: [Joi.object(), Joi.string().regex(/^[0-9a-fA-F]{24}$/), Joi.string()],
+        by: Joi.string(),
         on: Joi.date(),
         change: Joi.array().items({
             action: Joi.string(),
-            origValues: Joi.object(),
-            newValues: Joi.object()
+            origValues: Joi.any(),
+            newValues: Joi.any()
         })
-    },
+    }, pick(common.model, ['_id', 'organisation', 'objectVersion', 'schemaVersion'])),
     controller: {
         find: shared.controller.find,
         findDefaults: {sort: '-on', limit: 5, page: 1},

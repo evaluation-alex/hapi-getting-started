@@ -1,3 +1,4 @@
+'use strict';
 const audit = require('./audit/validation');
 const blogs = require('./blogs/validation');
 const posts = require('./posts/validation');

@@ -5,9 +5,9 @@ const schemas = require('./schemas');
 const Profile = function Profile() {};
 Profile.create = function create() {
     return {
-        firstName: '',
-        lastName: '',
-        preferredName: '',
+        firstName: '.',
+        lastName: '.',
+        preferredName: '.',
         facebook: {},
         google: {},
         twitter: {}

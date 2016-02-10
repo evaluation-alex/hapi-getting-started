@@ -11,16 +11,15 @@ const {MongoClient, ObjectID} = mongodb;
 const {errback, hasItems, timing} = utils;
 const {ObjectNotCreatedError} = errors;
 const {i18n, logger} = config;
-let connections = {};
+const connections = {};
 function gatherStats(collection, method, query, start, err) {
     const elapsed = Date.now() - start;
     err = !!err;
     const fields = {elapsed, err};
-    const tags = {collection, method};
     if (query) {
         fields.query = Object.keys(query).sort().join('|');
     }
-    timing('dao', tags, fields);
+    timing('dao', {collection, method}, fields);
 }
 function defaultcb(resolve, reject, collection, method, query) {
     const start = Date.now();
@@ -40,7 +39,8 @@ const connect = function connect(name, cfg) {
         if (connections[name]) {
             resolve(connections[name]);
         } else {
-            MongoClient.connect(cfg.url, cfg.options,
+            const {url, options} = cfg;
+            MongoClient.connect(url, options,
                 defaultcb(db => {
                     connections[name] = db;
                     resolve(db);
@@ -70,15 +70,10 @@ function withSetupMethods(Dao, nonEnumerables) {
             Object.defineProperty(this, '__isModified', {writable: true, enumerable: false});
         },
         validate() {
-            /*istanbul ignore if*/
-            /*istanbul ignore else*/
-            if (process.env.NODE_ENV !== 'production') {
-                const {error, value} = Joi.validate(this, Dao.modelSchema, {abortEarly: false, allowUnknown: false});
-                /*istanbul ignore if*/
-                /*istanbul ignore else*/
-                if (error) {
-                    console.log(error);
-                }
+            const {error, value} = Joi.validate(this, Dao.modelSchema, {abortEarly: false, allowUnknown: false});
+            /*istanbul ignore next*/
+            if (error) {
+                console.log(error);
             }
         }
     });
@@ -87,9 +82,9 @@ function withSetupMethods(Dao, nonEnumerables) {
             return db(Dao.connection).collection(Dao.collection);
         },
         createIndexes() {
-            return Bluebird.all(Dao.indexes.map(index => {
+            return Bluebird.all(Dao.indexes.map(({fields, options} = index) => {
                 return new Bluebird((resolve, reject) => {
-                    Dao.clctn().createIndex(index.fields, index.options || {}, defaultcb(resolve, reject, Dao.collection, 'createIndex'));
+                    Dao.clctn().createIndex(fields, options || {}, defaultcb(resolve, reject, Dao.collection, 'createIndex'));
                 });
             }));
         }
@@ -143,17 +138,18 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
                     }
                 });
             },
-            insertAndAudit(doc, by) {
+            insertAndAudit(doc, by, organisation = 'silver lining') {
                 const now = new Date();
                 const toSave = merge({}, doc, {
-                    objectVersion: 0,
-                    schemaVersion: Dao.schemaVersion,
                     _id: Dao.ObjectID(),
+                    organisation,
                     isActive: true,
                     createdBy: by,
                     createdOn: now,
                     updatedBy: by,
-                    updatedOn: now
+                    updatedOn: now,
+                    objectVersion: 0,
+                    schemaVersion: Dao.schemaVersion
                 });
                 return Dao.upsert(toSave)
                     .then(obj => {
@@ -190,8 +186,8 @@ function withFindMethods(Dao, areValidProperty) {
         find(query, fields, sort, limit, skip) {
             return new Bluebird((resolve, reject) => {
                 const start = Date.now();
-                let cursor = Dao.clctn().find(query, {fields, sort, limit, skip});
-                let results = [];
+                const cursor = Dao.clctn().find(query, {fields, sort, limit, skip});
+                const results = [];
                 /*istanbul ignore next*/
                 function handleError(err) {
                     errback(err);
@@ -264,7 +260,7 @@ function withFindMethods(Dao, areValidProperty) {
                 if (!hasItems(toCheck) || !areValidProperty) {
                     return Bluebird.resolve({});
                 } else {
-                    let conditions = {isActive: true, organisation};
+                    const conditions = {isActive: true, organisation};
                     /*istanbul ignore if*/
                     if (areValidProperty === '_id') {
                         toCheck = toCheck.map(id => Dao.ObjectID(id));
@@ -272,7 +268,7 @@ function withFindMethods(Dao, areValidProperty) {
                     conditions[areValidProperty] = {$in: toCheck};
                     return Dao.find(conditions)
                         .then(docs => {
-                            let results = {};
+                            const results = {};
                             docs.forEach(doc => results[doc[areValidProperty]] = true);
                             toCheck.forEach(e => results[e] = !!results[e]);
                             return results;
@@ -295,9 +291,9 @@ function propDescriptors(properties) {
 function arrDescriptors(lists) {
     return lists.map(l => {
         const methodSuffix = l.split('.').map(upperFirst).join('');
-        let pathadd = l.split('.');
+        const pathadd = l.split('.');
         pathadd[pathadd.length - 1] = `added${upperFirst(pathadd[pathadd.length - 1])}`;
-        let pathrem = l.split('.');
+        const pathrem = l.split('.');
         pathrem[pathrem.length - 1] = `removed${upperFirst(pathrem[pathrem.length - 1])}`;
         return {
             name: l,
@@ -313,8 +309,7 @@ function arrDescriptors(lists) {
 }
 function withSetMethods(model, properties) {
     properties
-        .map(p => {
-            const {method, path, name} = p;
+        .map(({method, path, name} = p) => {
             return {
                 [method](newValue, by) {
                     const origval = get(this, path);
@@ -331,8 +326,7 @@ function withSetMethods(model, properties) {
 }
 function withArrMethods(model, lists) {
     lists
-        .map(role => {
-            const {path, name, isPresentIn, addMethod, removeMethod} = role;
+        .map(({path, name, isPresentIn, addMethod, removeMethod} = role) => {
             return {
                 [isPresentIn](toCheck) {
                     return !!find(get(this, path), item => isEqual(item, toCheck));
@@ -367,15 +361,13 @@ function withArrMethods(model, lists) {
 function withUpdate(model, props, arrs, updateMethod) {
     extend(model.prototype, {
         [updateMethod](doc, by) {
-            props.forEach(p => {
-                let {method, path} = p;
+            props.forEach(({method, path} = p) => {
                 const u = get(doc.payload, path);
                 if (!isUndefined(u)) {
                     this[method](u, by);
                 }
             });
-            arrs.forEach(arr => {
-                let {removed: removedItems, removeMethod, added: addedItems, addMethod} = arr;
+            arrs.forEach(({removed: removedItems, removeMethod, added: addedItems, addMethod} = arr) => {
                 const toRemove = get(doc.payload, removedItems);
                 if (!isUndefined(toRemove) && hasItems(toRemove)) {
                     this[removeMethod](toRemove, by);
@@ -393,7 +385,7 @@ function withUpdate(model, props, arrs, updateMethod) {
 function withApproveRejectJoinLeave(model, affectedRole, needsApproval) {
     const needsApprovalMethodSuffix = needsApproval.split('.').map(upperFirst).join('');
     const affectedRoleMethodSuffix = affectedRole.split('.').map(upperFirst).join('');
-    let toAdd = affectedRole.split('.');
+    const toAdd = affectedRole.split('.');
     toAdd[toAdd.length - 1] = `added${upperFirst(toAdd[toAdd.length - 1])}`;
     extend(model.prototype, {
         join(doc, by) {

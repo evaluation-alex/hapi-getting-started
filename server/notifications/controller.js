@@ -17,7 +17,7 @@ module.exports = {
         pre: [
             canView(Notifications.collection),
             buildMongoQuery(Notifications, schemas.controller.findOptions, (request, findOptions) => {
-                let query = merge(
+                const query = merge(
                     {email: by(request)},
                     buildQuery(request, findOptions)
                 );

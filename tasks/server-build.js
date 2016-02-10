@@ -12,6 +12,7 @@ module.exports = function (gulp, $) {
                     babelrc: false,//https://discuss.babeljs.io/t/disable-babelrc/63
                     presets: ['es2015-node5']
                 }))
+                //https://github.com/gotwarlost/istanbul/blob/master/ignoring-code-for-coverage.md
                 .pipe($.replace(/(\s+)_classCallCheck\(this/, '/*istanbul ignore next: dont mess up my coverage*/\n$1_classCallCheck(this'))
                 .pipe($.replace(/function _defineProperty/, '/*istanbul ignore next: dont mess up my coverage*/\nfunction _defineProperty'))
                 .pipe($.replace(/function _classCallCheck/, '/*istanbul ignore next: dont mess up my coverage*/\nfunction _classCallCheck'))
@@ -19,6 +20,8 @@ module.exports = function (gulp, $) {
                 .pipe($.replace(/function _inherits/, '/*istanbul ignore next: dont mess up my coverage*/\nfunction _inherits'))
                 .pipe($.replace(/function _typeof/, '/*istanbul ignore next: dont mess up my coverage*/\nfunction _typeof'))
                 .pipe($.replace(/function _toConsumableArray/, '/*istanbul ignore next: dont mess up my coverage*/\nfunction _toConsumableArray'))
+                .pipe($.replace(/arguments.length/g, '/*istanbul ignore next: dont mess up my coverage*/arguments.length'))
+                .pipe($.replace(/ === undefined \? (.*) : arguments/g, ' === undefined ? /*istanbul ignore next: dont mess up my coverage*/$1 : /*istanbul ignore next: dont mess up my coverage*/arguments'))
                 .pipe($.relativeSourcemapsSource({dest: 'build'}))
                 .pipe($.sourcemaps.write('.', {includeContent: false, sourceRoot: '.'})) //http://stackoverflow.com/questions/29440811/debug-compiled-es6-nodejs-app-in-webstorm
                 .pipe(gulp.dest('build')),

@@ -15,7 +15,7 @@ describe('Profile DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setProfileFirstName', 'silver lining', 'password', 'hi')
+            Users.create('setProfileFirstName', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.profile.firstName = 'ksheth';
@@ -72,7 +72,7 @@ describe('Profile DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setProfileLastName', 'silver lining', 'password', 'hi')
+            Users.create('setProfileLastName', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.profile.lastName = 'seth';
@@ -129,7 +129,7 @@ describe('Profile DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setProfilePreferredName', 'silver lining', 'password', 'hi')
+            Users.create('setProfilePreferredName', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.profile.preferredName = 'kumar';
@@ -186,7 +186,7 @@ describe('Profile DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setProfileFacebook', 'silver lining', 'password', 'hi')
+            Users.create('setProfileFacebook', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.profile.facebook = {fbid: 1, graph: 'whatever'};
@@ -243,7 +243,7 @@ describe('Profile DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setProfileGoogle', 'silver lining', 'password', 'hi')
+            Users.create('setProfileGoogle', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.profile.google = {gid: 1, graph: 'whatever'};
@@ -300,7 +300,7 @@ describe('Profile DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setProfileTwitter', 'silver lining', 'password', 'hi')
+            Users.create('setProfileTwitter', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.profile.twitter = {tid: 1, followers: 'whatever'};

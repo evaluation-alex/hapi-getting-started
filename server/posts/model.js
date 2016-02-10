@@ -1,7 +1,7 @@
 'use strict';
 const Bluebird = require('bluebird');
 const utils = require('./../common/utils');
-const {org, hasItems} = utils;
+const {hasItems} = utils;
 const build = require('./../common/dao').build;
 const UserGroups = require('./../user-groups/model');
 const Blogs = require('./../blogs/model');
@@ -57,7 +57,6 @@ Posts.prototype = {
                     res.canSee :
                     UserGroups.count({
                         members: user.email,
-                        organisation: user.organisation,
                         name: {$in: res.blog.subscriberGroups}
                     }).then(count => count > 0))
             .then(canSee => {

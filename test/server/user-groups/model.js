@@ -14,7 +14,7 @@ describe('UserGroups DAO', () => {
     describe('UserGroups.create', () => {
         it('should create a new document when it succeeds, the creator should be owner and member and have appropriate audit entries', (done) => {
             let error = null;
-            UserGroups.create('test.group@test.api', 'silver lining', 'creating groups', 'test')
+            UserGroups.create('test.group@test.api', 'creating groups', 'test')
                 .then((userGroup) => {
                     expect(userGroup).to.exist;
                     expect(userGroup).to.be.an.instanceof(UserGroups);
@@ -37,9 +37,9 @@ describe('UserGroups DAO', () => {
         });
         it('should not allow two groups with the name', (done) => {
             let error = null;
-            UserGroups.create('test.dupe@test.api', 'silver lining', 'testing dupes', 'test')
+            UserGroups.create('test.dupe@test.api', 'testing dupes', 'test')
                 .then(() => {
-                    return UserGroups.create('test.dupe@test.api', 'silver lining', 'testing dupes', 'test')
+                    return UserGroups.create('test.dupe@test.api', 'testing dupes', 'test')
                         .then((dupeGroup) => {
                             expect(dupeGroup).to.not.exist;
                         })
@@ -75,7 +75,7 @@ describe('UserGroups DAO', () => {
         });
         it('should return an object with as many entries as names sent, appropriately populated', (done) => {
             let error = null;
-            UserGroups.create('test UserGroups.areValid', 'silver lining', 'test', 'test')
+            UserGroups.create('test UserGroups.areValid', 'test', 'test')
                 .then(() => {
                     return UserGroups.areValid(['test UserGroups.areValid', 'bogus'], 'silver lining');
                 })
@@ -97,7 +97,7 @@ describe('UserGroups DAO', () => {
     describe('UserGroups.this.addUsers', () => {
         it('should do nothing if the user is already present as a member and you add user as a member', (done) => {
             let error = null;
-            UserGroups.create('addUsersTest1', 'silver lining', 'UserGroups.this.addMemberAlreadyPresent', 'test3')
+            UserGroups.create('addUsersTest1', 'UserGroups.this.addMemberAlreadyPresent', 'test3')
                 .then((ug) => {
                     ug.members.push('alreadyMember');
                     ug.__isModified = true;
@@ -124,7 +124,7 @@ describe('UserGroups DAO', () => {
         });
         it('should do nothing if the user is already present as a owner and you add user as a owner', (done) => {
             let error = null;
-            UserGroups.create('addUsersTest2', 'silver lining', 'UserGroups.this.addOwnerAlreadyPresent', 'test3')
+            UserGroups.create('addUsersTest2', 'UserGroups.this.addOwnerAlreadyPresent', 'test3')
                 .then((ug) => {
                     ug.owners.push('alreadyOwner');
                     ug.__isModified = true;
@@ -151,7 +151,7 @@ describe('UserGroups DAO', () => {
         });
         it('should do nothing if the user is already present as owner AND member and you add as owner AND member', (done) => {
             let error = null;
-            UserGroups.create('addUsersTest3', 'silver lining', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
+            UserGroups.create('addUsersTest3', 'UserGroups.this.addOwnerAndMemberAlreadyPresent', 'test3')
                 .then((ug) => {
                     return ug.addOwners(['test3'], 'test4').addMembers(['test3'], 'test4').save();
                 })
@@ -177,7 +177,7 @@ describe('UserGroups DAO', () => {
         });
         it('should add the user as a owner who was not already present and added with the owner role', (done) => {
             let error = null;
-            UserGroups.create('addUsersTest4', 'silver lining', 'UserGroups.this.addOwnerNotPresent', 'test3')
+            UserGroups.create('addUsersTest4', 'UserGroups.this.addOwnerNotPresent', 'test3')
                 .then((ug) => {
                     return ug.addOwners(['newOwner'], 'test3').save();
                 })
@@ -201,7 +201,7 @@ describe('UserGroups DAO', () => {
         });
         it('should add the user as a member who was not already present and added with the member role', (done) => {
             let error = null;
-            UserGroups.create('addUsersTest5', 'silver lining', 'UserGroups.this.addMemberNotPresent', 'test3')
+            UserGroups.create('addUsersTest5', 'UserGroups.this.addMemberNotPresent', 'test3')
                 .then((ug) => {
                     return ug.addMembers(['newMember'], 'test3').save();
                 })
@@ -225,7 +225,7 @@ describe('UserGroups DAO', () => {
         });
         it('should add the user as a member and owner who was not already present and added with the member and owner / both role', (done) => {
             let error = null;
-            UserGroups.create('addUsersTest6.0', 'silver lining', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
+            UserGroups.create('addUsersTest6.0', 'UserGroups.this.addMemberOwnerNotPresent', 'test3')
                 .then((ug) => {
                     return ug.addOwners(['newMemberOwner'], 'test3').addMembers(['newMemberOwner'], 'test3').save();
                 })
@@ -240,7 +240,7 @@ describe('UserGroups DAO', () => {
                     expect(ugaudit[0].change[1].newValues).to.equal('newMemberOwner');
                 })
                 .then(() => {
-                    return UserGroups.create('addUsersTest6.1', 'silver lining', 'UserGroups.this.addBothNotPresent', 'test3');
+                    return UserGroups.create('addUsersTest6.1', 'UserGroups.this.addBothNotPresent', 'test3');
                 })
                 .then((ug) => {
                     return ug.addOwners(['newBoth'], 'test3').addMembers(['newBoth'], 'test3').save();
@@ -269,7 +269,7 @@ describe('UserGroups DAO', () => {
     describe('UserGroups.this.removeUsers', () => {
         it('should do nothing if the user is not already present as a member and you remove user as a member', (done) => {
             let error = null;
-            UserGroups.create('removeUsersTest1', 'silver lining', 'UserGroups.this.removeMemberNotPresent', 'test4')
+            UserGroups.create('removeUsersTest1', 'UserGroups.this.removeMemberNotPresent', 'test4')
                 .then((ug) => {
                     ug.owners.push('notMemberButOwner');
                     ug.__isModified = true;
@@ -299,7 +299,7 @@ describe('UserGroups DAO', () => {
         });
         it('should do nothing if the user is not already present as a owner and you remove user as a owner', (done) => {
             let error = null;
-            UserGroups.create('removeUsersTest2', 'silver lining', 'UserGroups.this.removeOwnerNotPresent', 'test4')
+            UserGroups.create('removeUsersTest2', 'UserGroups.this.removeOwnerNotPresent', 'test4')
                 .then((ug) => {
                     ug.members.push('notOwnerButMember');
                     ug.__isModified = true;
@@ -329,7 +329,7 @@ describe('UserGroups DAO', () => {
         });
         it('should do nothing if the user is not present as owner OR member and you remove as owner AND member', (done) => {
             let error = null;
-            UserGroups.create('removeUsersTest3', 'silver lining' ,'UserGroups.this.removeBothNotPresent', 'test4')
+            UserGroups.create('removeUsersTest3', 'UserGroups.this.removeBothNotPresent', 'test4')
                 .then((ug) => {
                     expect(ug.isPresentInMembers('neither')).to.be.false;
                     expect(ug.isPresentInOwners('neither')).to.be.false;
@@ -354,7 +354,7 @@ describe('UserGroups DAO', () => {
         });
         it('should remove the users owner role if already present the owner role', (done) => {
             let error = null;
-            UserGroups.create('removeUsersTest4.0', 'silver lining', 'UserGroups.this.removeOwner', 'test4')
+            UserGroups.create('removeUsersTest4.0', 'UserGroups.this.removeOwner', 'test4')
                 .then((ug) => {
                     ug.owners.push('owners');
                     ug.__isModified = true;
@@ -386,7 +386,7 @@ describe('UserGroups DAO', () => {
         });
         it('should deactivate the user as a member if already present with the member role', (done) => {
             let error = null;
-            UserGroups.create('removeUsersTest5.0', 'silver lining', 'UserGroups.this.removeMember', 'test4')
+            UserGroups.create('removeUsersTest5.0', 'UserGroups.this.removeMember', 'test4')
                 .then((ug) => {
                     ug.members.push('members');
                     ug.__isModified = true;
@@ -420,7 +420,7 @@ describe('UserGroups DAO', () => {
     describe('UserGroups.this.activate/deactivate', () => {
         it('should do nothing if the user group is already inactive/active and you deactivate/activate', (done) => {
             let error = null;
-            UserGroups.create('activateGroupDoNothing', 'silver lining', 'UserGroups.this.activate', 'test5')
+            UserGroups.create('activateGroupDoNothing', 'UserGroups.this.activate', 'test5')
                 .then((ug) => {
                     return ug.reactivate('test5').save();
                 })
@@ -432,7 +432,7 @@ describe('UserGroups DAO', () => {
                     expect(ugaudit.length).to.equal(0);
                 })
                 .then(() => {
-                    return UserGroups.create('deactivateGroupDoNothing', 'silver lining', 'UserGroups.this.deactivate', 'test5');
+                    return UserGroups.create('deactivateGroupDoNothing', 'UserGroups.this.deactivate', 'test5');
                 })
                 .then((ug) => {
                     ug.isActive = false;
@@ -461,7 +461,7 @@ describe('UserGroups DAO', () => {
         });
         it('should mark the group as inactive / active when you deactivate / activate', (done) => {
             let error = null;
-            UserGroups.create('deactivateGroup', 'silver lining', 'UserGroups.this.deactivate', 'test5')
+            UserGroups.create('deactivateGroup', 'UserGroups.this.deactivate', 'test5')
                 .then((ug) => {
                     return ug.deactivate('test5').save();
                 })
@@ -474,7 +474,7 @@ describe('UserGroups DAO', () => {
                     expect(ugaudit[0].change[0].action).to.equal('isActive');
                 })
                 .then(() => {
-                    return UserGroups.create('activateGroup', 'silver lining', 'UserGroups.this.reactivate', 'test5');
+                    return UserGroups.create('activateGroup', 'UserGroups.this.reactivate', 'test5');
                 })
                 .then((ug) => {
                     ug.isActive = false;
@@ -506,7 +506,7 @@ describe('UserGroups DAO', () => {
     describe('UserGroups.this.setDescription', () => {
         it('should do nothing if there is no change in the description', (done) => {
             let error = null;
-            UserGroups.create('updateDesc1', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
+            UserGroups.create('updateDesc1', 'UserGroups.this.updateDesc', 'test6')
                 .then((ug) => {
                     return ug.setDescription(ug.description, 'test6').save();
                 })
@@ -528,7 +528,7 @@ describe('UserGroups DAO', () => {
         });
         it('should update to the new description', (done) => {
             let error = null;
-            UserGroups.create('updateDesc2', 'silver lining', 'UserGroups.this.updateDesc', 'test6')
+            UserGroups.create('updateDesc2', 'UserGroups.this.updateDesc', 'test6')
                 .then((ug) => {
                     return ug.setDescription(ug.description + 'new', 'test6').save();
                 })
@@ -553,7 +553,7 @@ describe('UserGroups DAO', () => {
     describe('UserGroups.this.setAccess', () => {
         it('should do nothing if there is no change in the access', (done) => {
             let error = null;
-            UserGroups.create('updateAccess1', 'silver lining', 'UserGroups.this.setAccess', 'test6')
+            UserGroups.create('updateAccess1', 'UserGroups.this.setAccess', 'test6')
                 .then((ug) => {
                     return ug.setAccess('restricted', 'test6').save();
                 })
@@ -575,7 +575,7 @@ describe('UserGroups DAO', () => {
         });
         it('should update to the new access control', (done) => {
             let error = null;
-            UserGroups.create('updateAccess2', 'silver lining', 'UserGroups.this.setAccess', 'test6')
+            UserGroups.create('updateAccess2', 'UserGroups.this.setAccess', 'test6')
                 .then((ug) => {
                     return ug.setAccess('public', 'test6').save();
                 })

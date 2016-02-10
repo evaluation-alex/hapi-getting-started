@@ -8,35 +8,28 @@ const Notifications = function Notifications(attrs) {
     this.init(attrs);
     return this;
 };
-Notifications.createOne = function createOne(email, organisation, objectType, objectId, title, state, action, priority, content, by) {
-    let now = new Date();
-    return Notifications.upsert({
+Notifications.createOne = function createOne(email, objectType, objectId, title, state, action, priority, content, by, organisation) {
+    return Notifications.insertAndAudit({
         email,
-        organisation,
         objectType,
         objectId,
         title,
         state,
         action,
         priority,
-        content,
-        isActive: true,
-        createdBy: by,
-        createdOn: now,
-        updatedBy: by,
-        updatedOn: now
-    });
+        content
+    }, by, organisation);
 };
-Notifications.createMany = function createMany(email, organisation, objectType, objectId, title, state, action, priority, content, by) {
+Notifications.createMany = function createMany(email, objectType, objectId, title, state, action, priority, content, by, organisation) {
     return Bluebird.all(uniq(flatten(email)).map(e =>
-        Notifications.createOne(e, organisation, objectType, objectId, title, state, action, priority, content, by))
+        Notifications.createOne(e, objectType, objectId, title, state, action, priority, content, by, organisation))
     );
 };
-Notifications.create = function create(email, organisation, objectType, objectId, title, state, action, priority, content, by) {
+Notifications.create = function create(email, objectType, objectId, title, state, action, priority, content, by, organisation) {
     if (isArray(email)) {
-        return Notifications.createMany(email, organisation, objectType, objectId, title, state, action, priority, content, by);
+        return Notifications.createMany(email, objectType, objectId, title, state, action, priority, content, by, organisation);
     } else {
-        return Notifications.createOne(email, organisation, objectType, objectId, title, state, action, priority, content, by);
+        return Notifications.createOne(email, objectType, objectId, title, state, action, priority, content, by, organisation);
     }
 };
 module.exports = build(Notifications, schemas.dao, schemas.model);

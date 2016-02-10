@@ -18,12 +18,12 @@ describe('Audit', () => {
     describe('GET /audit', () => {
         describe('users', () => {
             before((done) => {
-                Users.create('test.users@test.api', 'silver lining', 'password123', 'en')
+                Users.create('test.users@test.api', 'password123', 'en')
                     .then((newUser) => {
                         return newUser.loginSuccess('test', 'test').save();
                     })
                     .then(() => {
-                        return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
+                        return Users.create('test.users2@test.api', 'password123', 'en');
                     })
                     .then((newUser2) => {
                         return newUser2.loginSuccess('test', 'test').save();

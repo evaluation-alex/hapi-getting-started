@@ -15,7 +15,7 @@ describe('Notifications DAO', () => {
         it('should create a new document per user passed', (done) => {
             let error = null;
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
-            Notifications.create(['one', 'two', 'three'], 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test')
+            Notifications.create(['one', 'two', 'three'], 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test')
                 .then((notifications) => {
                     expect(notifications).to.exist;
                     expect(notifications.length).to.equal(3);
@@ -37,8 +37,8 @@ describe('Notifications DAO', () => {
         let deactivated = null;
         before((done) => {
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
-            let p1 = Notifications.create('activated', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');
-            let p2 = Notifications.create('deactivated', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');
+            let p1 = Notifications.create('activated', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');
+            let p2 = Notifications.create('deactivated', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test');
             Bluebird.join(p1, p2, (p11, p12) => {
                 activated = p11;
                 deactivated = p12;
@@ -118,7 +118,7 @@ describe('Notifications DAO', () => {
         let testnotification = null;
         before((done) => {
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
-            Notifications.create('setState', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test')
+            Notifications.create('setState', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'test')
                 .then((p) => {
                     testnotification = p;
                     done();
@@ -169,7 +169,7 @@ describe('Notifications DAO', () => {
         it('should update the field with the new localised strings and do nothing if alread localised', (done) => {
             let error = null;
             //email, organisation, objectType, objectId, title, state, action, priority, content, by
-            Notifications.create('i18n', 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', ['New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}', {
+            Notifications.create('i18n', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', ['New Post {{postTitle}} in Blog {{blogTitle}} published by {{publishedBy}}', {
                 postTitle: 'test post',
                 blogTitle: 'test blog',
                 publishedBy: 'test author'

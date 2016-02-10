@@ -125,6 +125,11 @@ const timing = function timing(key, tags, fields) {
         influxdb.udpClient.send(message, 0, message.length, influxdb.udpport, influxdb.host, errback);
     });
 };
+const profile = function profile(key, tags) {
+    return function proxiedTiming(start) {
+        timing(key, tags, {elapsed: Date.now() - start});
+    };
+};
 const dumpTimings = function dumpTimings() {
     influxdb.udpClient.close();
 };
@@ -144,5 +149,6 @@ module.exports = {
     secureCompare,
     hashCode,
     timing,
+    profile,
     dumpTimings
 };

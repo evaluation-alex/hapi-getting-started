@@ -1,15 +1,14 @@
 'use strict';
 const utils = require('./../common/utils');
-const {org, hasItems} = utils;
+const {hasItems} = utils;
 const build = require('./../common/dao').build;
 const schemas = require('./schemas');
 const Blogs = function Blogs(attrs) {
     this.init(attrs);
     return this;
 };
-Blogs.newObject = function newObject(doc, by) {
+Blogs.newObject = function newObject(doc, by, org) {
     return Blogs.create(doc.payload.title,
-        org(doc),
         doc.payload.description,
         doc.payload.owners,
         doc.payload.contributors,
@@ -18,12 +17,12 @@ Blogs.newObject = function newObject(doc, by) {
         doc.payload.needsReview,
         doc.payload.access,
         doc.payload.allowComments,
-        by);
+        by,
+        org);
 };
-Blogs.create = function create(title, organisation, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by) {
+Blogs.create = function create(title, description, owners, contributors, subscribers, subscriberGroups, needsReview, access, allowComments, by, organisation) {
     return Blogs.insertAndAudit({
         title,
-        organisation,
         description,
         owners: hasItems(owners) ? owners : [by],
         contributors: hasItems(contributors) ? contributors : [by],
@@ -33,6 +32,6 @@ Blogs.create = function create(title, organisation, description, owners, contrib
         needsReview,
         access,
         allowComments
-    }, by);
+    }, by, organisation);
 };
 module.exports = build(Blogs, schemas.dao, schemas.model);

@@ -52,23 +52,22 @@ Users.prototype = {
             });
     }
 };
-Users.newObject = function newObject(doc) {
+Users.newObject = function newObject(doc, by, org) {
     const {email, password, organisation, locale} = doc.payload;
     const ipadrs = ip(doc);
-    return Users.create(email, organisation, password, locale)
+    return Users.create(email, password, locale, organisation)
         .then(user => user.loginSuccess(ipadrs, user.email).save())
         .then(user => user.afterLogin(ipadrs));
 };
-Users.create = function create(email, organisation, password, locale) {
+Users.create = function create(email, password, locale, organisation) {
     return Users.insertAndAudit({
         email,
         password: secureHash(password),
-        organisation,
         roles: ['readonly'],
         session: [],
         preferences: Preferences.create(locale),
         profile: Profile.create()
-    }, email);
+    }, email, organisation);
 };
 Users.findByCredentials = function findByCredentials(email, password) {
     return Users.findOne({email, isActive: true})

@@ -21,11 +21,9 @@ describe('Notifications', () => {
     });
     describe('GET /notifications', () => {
         before((done) => {
-            /*jshint unused:false*/
-            //email, organisation, objectType, objectId, title, state, action, priority, content, by
-            let n1 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root');
-            let n2 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abc1234', 'titles dont matter', 'starred', 'fyi', 'low', 'content is useful', 'root');
-            let n3 = Notifications.create(['root', 'one@first.com'], 'silver lining', 'user-groups', 'abcd1234', 'titles dont matter', 'cancelled', 'fyi', 'low', 'content is useful', 'root');
+            let n1 = Notifications.create(['root', 'one@first.com'], 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root');
+            let n2 = Notifications.create(['root', 'one@first.com'], 'user-groups', 'abc1234', 'titles dont matter', 'starred', 'fyi', 'low', 'content is useful', 'root');
+            let n3 = Notifications.create(['root', 'one@first.com'], 'user-groups', 'abcd1234', 'titles dont matter', 'cancelled', 'fyi', 'low', 'content is useful', 'root');
             Bluebird.join(n1, n2, n3, (n11, n21, n31) => {
                 n31[0].deactivate('test');
                 n31[0].__isModified = true;
@@ -39,7 +37,6 @@ describe('Notifications', () => {
                     done();
                 })
                 .catch(done);
-            /*jshint unused:true*/
         });
         it('should give active notifications when isactive = true is sent', (done) => {
             let request = {
@@ -203,7 +200,7 @@ describe('Notifications', () => {
         });
         it('should return forbidden if someone other than the owner of the notification tries to change it', (done) => {
             let id = null;
-            Notifications.create('root', 'silver lining', 'blogs', 'xyz123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
+            Notifications.create('root', 'blogs', 'xyz123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
                 .then((n) => {
                     id = n._id.toString();
                     return tu.findAndLogin('one@first.com');
@@ -230,7 +227,7 @@ describe('Notifications', () => {
         });
         it('should deactivate notification and have changes audited', (done) => {
             let id = '';
-            Notifications.create('root', 'silver lining', 'blogs', 'pqr123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
+            Notifications.create('root', 'blogs', 'pqr123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
                 .then((n) => {
                     id = n._id.toString();
                     let request = {
@@ -262,7 +259,7 @@ describe('Notifications', () => {
     });
     it('should update state and have changes audited', (done) => {
         let id = '';
-        Notifications.create('root', 'silver lining', 'blogs', 'def123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
+        Notifications.create('root', 'blogs', 'def123', 'titles dont matter', 'unread', 'fyi', 'low', 'content is useful', 'root')
             .then((n) => {
                 id = n._id.toString();
                 let request = {

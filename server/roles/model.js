@@ -6,12 +6,11 @@ const Roles = function Roles(attrs) {
     this.init(attrs);
     return this;
 };
-Roles.create = function create(name, organisation, permissions) {
-    return Roles.upsert({
+Roles.create = function create(name, permissions, organisation) {
+    return Roles.insertAndAudit({
         name,
-        organisation,
         permissions
-    });
+    }, 'root', organisation);
 };
 Roles.prototype = {
     hasPermissionsTo(performAction, onObject) {

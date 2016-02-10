@@ -2,10 +2,9 @@
 const Bluebird = require('bluebird');
 const _ = require('./../lodash');
 const {merge, pick} = _;
-const org = require('./../common/utils').org;
 const ArchivedPostUpdateError = require('./../common/errors').ArchivedPostUpdateError;
 const newObjectFunc = function newObjectFunc(klass, contentType) {
-    return function newObject(doc, by) {
+    return function newObject(doc, by, org) {
         const blog = doc.pre.blogs;
         merge(doc.payload, pick(blog, ['access', 'allowComments', 'needsReview']));
         if (doc.payload.state === 'published') {
@@ -14,7 +13,6 @@ const newObjectFunc = function newObjectFunc(klass, contentType) {
             }
         }
         return klass.create(blog._id,
-            org(doc),
             doc.payload.title,
             doc.payload.state,
             doc.payload.access,
@@ -24,7 +22,8 @@ const newObjectFunc = function newObjectFunc(klass, contentType) {
             doc.payload.attachments,
             contentType,
             doc.payload.content,
-            by)
+            by,
+            org)
             .then(post => {
                 post.blog = blog;
                 return post;
@@ -32,10 +31,9 @@ const newObjectFunc = function newObjectFunc(klass, contentType) {
     };
 };
 const createFunc = function createFunc(klass) {
-    return function create(blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, contentType, content, by) {
+    return function create(blogId, title, state, access, allowComments, needsReview, tags, attachments, contentType, content, by, organisation) {
         const now = new Date();
-        const toCreate = {
-            organisation,
+        const toCreate = merge({}, {
             blogId,
             state,
             access,
@@ -47,13 +45,12 @@ const createFunc = function createFunc(klass) {
             contentType,
             content,
             publishedBy: by
-        };
-        if (state === 'published') {
-            toCreate.publishedOn = now;
-            toCreate.reviewedBy = by;
-            toCreate.reviewedOn = now;
-        }
-        return klass.insertAndAudit(toCreate, by);
+        }, state === 'published' ? {
+            publishedOn: now,
+            reviewedBy: by,
+            reviewedOn: now
+        } : {});
+        return klass.insertAndAudit(toCreate, by, organisation);
     };
 };
 const updateFunc = function updateFunc(updateMethod) {

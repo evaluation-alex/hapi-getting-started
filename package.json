@@ -100,6 +100,7 @@
         "merge-stream": "1.x.x",
         "mocha": "2.x.x",
         "nodemon": "1.x.x",
+        "nopt": "3.x.x",
         "promptly": "1.x.x",
         "run-sequence": "1.x.x"
     },

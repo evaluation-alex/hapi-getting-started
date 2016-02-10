@@ -14,7 +14,7 @@ describe('Auth', () => {
                 server = res.server;
             })
             .then(() => {
-                return Users.create(email, 'silver lining', 'auth123', 'en');
+                return Users.create(email, 'auth123', 'en');
             })
             .then(() => {
                 return tu.findAndLogin(email);

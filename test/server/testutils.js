@@ -1,5 +1,4 @@
 'use strict';
-/*eslint-disable no-unused-expressions*/
 let Bluebird = require('bluebird');
 Bluebird.longStackTraces();
 let server;
@@ -21,22 +20,22 @@ module.exports.authorizationHeader2 = function authorizationHeader2(user, passwo
     return 'Basic ' + (new Buffer(user + ':' + password)).toString('base64');
 };
 function setupRootRole() {
-    return Roles.findOne({name: 'root', organisation: 'silver lining'})
+    return Roles.findOne({name: 'root'})
         .then((found) =>
-            found ? found : Roles.create('root', 'silver lining', [
+            found ? found : Roles.create('root', [
                 {action: 'update', object: '*'}, {action: 'view', object: '*'}
             ]));
 }
 function setupReadonlyRole() {
-    return Roles.findOne({name: 'readonly', organisation: 'silver lining'})
+    return Roles.findOne({name: 'readonly'})
         .then((found) =>
-            found ? found : Roles.create('readonly', 'silver lining', [{action: 'view', object: '*'}]));
+            found ? found : Roles.create('readonly', [{action: 'view', object: '*'}]));
 }
 function setupRootUser() {
     return Users.findOne({email: 'root'})
         .then((found) =>
             found ? found.setRoles(['root'], 'testSetup').resetPrefs().resetProfile().save()
-                : Users.create('root', 'silver lining', 'password123', 'en')
+                : Users.create('root', 'password123', 'en')
                 .then((rt) => rt.setRoles(['root'], 'testSetup').save())
     );
 }
@@ -44,7 +43,7 @@ function setupFirstUser() {
     return Users.findOne({email: 'one@first.com'})
         .then((found) =>
             found ? found.resetPrefs().resetProfile().save()
-                : Users.create('one@first.com', 'silver lining', 'password', 'en')
+                : Users.create('one@first.com', 'password', 'en')
     );
 }
 module.exports.setupRolesAndUsers =  function setupRolesAndUsers() {
@@ -53,7 +52,9 @@ module.exports.setupRolesAndUsers =  function setupRolesAndUsers() {
 module.exports.findAndLogin = function findAndLogin(user, roles) {
     return Users.findOne({email: user})
         .then((foundUser) => roles ? foundUser.setRoles(roles, 'test') : foundUser)
-        .then((foundUser) => foundUser.loginSuccess('127.0.0.1', 'test').save())
+        .then((foundUser) => {
+            return foundUser.loginSuccess('127.0.0.1', 'test').save()
+        })
         .then((loggedin) => {
             return {user: loggedin, authheader: module.exports.authorizationHeader(loggedin)};
         });

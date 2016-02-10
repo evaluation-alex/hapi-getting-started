@@ -18,7 +18,7 @@ describe('Users', () => {
             })
             .then(() => {
                 emails.push('test.users@test.api');
-                return Users.create('test.users@test.api', 'silver lining', 'password123', 'en');
+                return Users.create('test.users@test.api', 'password123', 'en');
             })
             .then((newUser) => {
                 return newUser.loginSuccess('127.0.0.1', 'test').save();
@@ -96,7 +96,7 @@ describe('Users', () => {
             tu.findAndLogin('one@first.com')
                 .then((u) => {
                     authheader = u.authheader;
-                    return Users.create('test.users2@test.api', 'silver lining', 'password123', 'en');
+                    return Users.create('test.users2@test.api', 'password123', 'en');
                 })
                 .then((newUser) => {
                     return newUser.loginSuccess('127.0.0.1', 'test').save();
@@ -255,7 +255,7 @@ describe('Users', () => {
                 .then((u) => {
                     authheader = u.authheader;
                     emails.push('test.users3@test.api');
-                    return Users.create('test.users3@test.api', 'silver lining', 'password123', 'en');
+                    return Users.create('test.users3@test.api', 'password123', 'en');
                 })
                 .then((newUser) => {
                     id = newUser._id.toString();

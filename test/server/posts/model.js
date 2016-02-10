@@ -23,7 +23,7 @@ describe('Posts DAO', () => {
         it('should create a new document and audit entry when it succeeds', (done) => {
             let error = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, contentType, content, by
-            Posts.create(blogId, 'silver lining', 'newPost', 'draft', 'public', true, true, ['testing', 'unit testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'newPost', 'draft', 'public', true, true, ['testing', 'unit testing'], [], 'post', 'content', 'test')
                 .then((post) => {
                     expect(post).to.exist;
                     expect(post).to.be.instanceof(Posts);
@@ -63,7 +63,7 @@ describe('Posts DAO', () => {
             let error = null;
             let postId = '';
             let bogus = '';
-            Posts.create(blogId, 'silver lining', 'test Posts.areValid', 'draft', 'public', true, true, ['testing', 'unit testing', 'activate'], [], 'post', 'some content', 'test')
+            Posts.create(blogId, 'test Posts.areValid', 'draft', 'public', true, true, ['testing', 'unit testing', 'activate'], [], 'post', 'some content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     bogus = Posts.ObjectID().toString();
@@ -89,8 +89,8 @@ describe('Posts DAO', () => {
         let deactivated = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            let p1 = Posts.create(blogId, 'silver lining', 'activate', 'draft', 'public', true, true, ['testing', 'unit testing', 'activate'], [], 'post', 'content', 'test');
-            let p2 = Posts.create(blogId, 'silver lining', 'deactivate', 'published', 'public', true, true, ['testing', 'unit testing', 'deactivate'], [], 'post', 'content', 'test');
+            let p1 = Posts.create(blogId, 'activate', 'draft', 'public', true, true, ['testing', 'unit testing', 'activate'], [], 'post', 'content', 'test');
+            let p2 = Posts.create(blogId, 'deactivate', 'published', 'public', true, true, ['testing', 'unit testing', 'deactivate'], [], 'post', 'content', 'test');
             Bluebird.join(p1, p2, (p11, p12) => {
                 activated = p11;
                 deactivated = p12;
@@ -172,7 +172,7 @@ describe('Posts DAO', () => {
         let testpost = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'post.updateTitle', 'draft', 'public', true, true, ['testing', 'unit testing', 'setTitle'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'post.updateTitle', 'draft', 'public', true, true, ['testing', 'unit testing', 'setTitle'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
                     done();
@@ -225,7 +225,7 @@ describe('Posts DAO', () => {
         let testpost = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'post.setAccess', 'draft', 'public', true, true, ['testing', 'unit testing', 'setAccess'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'post.setAccess', 'draft', 'public', true, true, ['testing', 'unit testing', 'setAccess'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
                     done();
@@ -277,7 +277,7 @@ describe('Posts DAO', () => {
         let testpost = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'post.setAllowComments', 'draft', 'public', true, true, ['testing', 'unit testing', 'setAllowComments'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'post.setAllowComments', 'draft', 'public', true, true, ['testing', 'unit testing', 'setAllowComments'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
                     done();
@@ -329,7 +329,7 @@ describe('Posts DAO', () => {
         let testpost = null;
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'post.needsReview', 'draft', 'public', true, true, ['testing', 'unit testing', 'setNeedsReview'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'post.needsReview', 'draft', 'public', true, true, ['testing', 'unit testing', 'setNeedsReview'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
                     done();
@@ -380,15 +380,15 @@ describe('Posts DAO', () => {
     describe('Posts.this.addTags', () => {
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            let p1 = Posts.create(blogId, 'silver lining', 'addTags1', 'draft', 'public', true, true, ['testing', 'unit testing', 'addTags'], [], 'post', 'content', 'test');
-            let p2 = Posts.create(blogId, 'silver lining', 'addTags2', 'draft', 'public', true, true, ['testing', 'unit testing', 'addTags'], [], 'post', 'content', 'test');
+            let p1 = Posts.create(blogId, 'addTags1', 'draft', 'public', true, true, ['testing', 'unit testing', 'addTags'], [], 'post', 'content', 'test');
+            let p2 = Posts.create(blogId, 'addTags2', 'draft', 'public', true, true, ['testing', 'unit testing', 'addTags'], [], 'post', 'content', 'test');
             Bluebird.join(p1, p2).then(() => {
                 done();
             });
         });
         it('should add a new entry to tags when a tag is newly added', (done) => {
             let error = null;
-            Posts.findOne({title: 'addTags1', organisation: 'silver lining'})
+            Posts.findOne({title: 'addTags1'})
                 .then((found) => {
                     return found.addTags(['newTag'], 'test').save();
                 })
@@ -410,7 +410,7 @@ describe('Posts DAO', () => {
         });
         it('should do nothing if the tag is already active in the group', (done) => {
             let error = null;
-            Posts.findOne({title: 'addTags2', organisation: 'silver lining'})
+            Posts.findOne({title: 'addTags2'})
                 .then((found) => {
                     return found.addTags(['testing'], 'test').save();
                 })
@@ -438,15 +438,15 @@ describe('Posts DAO', () => {
     describe('Posts.this.removeTags', () => {
         before((done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            let p1 = Posts.create(blogId, 'silver lining', 'removeTags1', 'draft', 'public', true, true, ['testing', 'unit testing', 'removeTags'], [], 'post', 'content', 'test');
-            let p2 = Posts.create(blogId, 'silver lining', 'removeTags2', 'draft', 'public', true, true, ['testing', 'unit testing', 'removeTags'], [], 'post', 'content', 'test');
+            let p1 = Posts.create(blogId, 'removeTags1', 'draft', 'public', true, true, ['testing', 'unit testing', 'removeTags'], [], 'post', 'content', 'test');
+            let p2 = Posts.create(blogId, 'removeTags2', 'draft', 'public', true, true, ['testing', 'unit testing', 'removeTags'], [], 'post', 'content', 'test');
             Bluebird.join(p1, p2).then(() => {
                 done();
             });
         });
         it('should do nothing if the tag is not present in the group', (done) => {
             let error = null;
-            Posts.findOne({title: 'removeTags1', organisation: 'silver lining'})
+            Posts.findOne({title: 'removeTags1'})
                 .then((found) => {
                     return found.removeTags(['unknownTag'], 'test').save();
                 })
@@ -467,7 +467,7 @@ describe('Posts DAO', () => {
         });
         it('should remove tag if present', (done) => {
             let error = null;
-            Posts.findOne({title: 'removeTags2', organisation: 'silver lining'})
+            Posts.findOne({title: 'removeTags2'})
                 .then((found) => {
                     return found.removeTags(['removeTags'], 'test').save();
                 })
@@ -495,18 +495,18 @@ describe('Posts DAO', () => {
     });
     describe('Posts.this.populate', () => {
         before((done) => {
-            Blogs.create('test post.populate', 'silver lining', 'test.post.populate', [], [], [], [], 'true', 'public', false, 'test')
+            Blogs.create('test post.populate', 'test.post.populate', [], [], [], [], 'true', 'public', false, 'test')
                 .then((b) => {
                     return b.removeOwners(['test'], 'test').removeContributors(['test'], 'test').removeSubscribers(['test'], 'test').removeSubscriberGroups(['test'], 'test').save();
                 })
                 .then((b) => {
-                    return Posts.create(b._id, 'silver lining', 'test post.populate', 'published', 'public', false, false, ['testing', 'populate'], [], 'post', 'i have something to offer', 'test');
+                    return Posts.create(b._id, 'test post.populate', 'published', 'public', false, false, ['testing', 'populate'], [], 'post', 'i have something to offer', 'test');
                 })
                 .then((p) => {
-                    return Meals.create(p.blogId, 'silver lining', 'test post.populate.meal', 'published', 'public', false, false, ['testing', 'populate'], [], 'meal', {recipes: [p._id]}, 'test');
+                    return Meals.create(p.blogId, 'test post.populate.meal', 'published', 'public', false, false, ['testing', 'populate'], [], 'meal', {recipes: [p._id]}, 'test');
                 })
                 .then(() => {
-                    return UserGroups.create('test post.populate', 'silver lining', 'test posts.populate', 'by');
+                    return UserGroups.create('test post.populate', 'test posts.populate', 'by');
                 })
                 .then((g) => {
                     return g.removeOwners(['test'], 'test').removeMembers(['test'], 'test').addMembers(['one@first.com'], 'test').save();
@@ -522,7 +522,7 @@ describe('Posts DAO', () => {
                     return post.setAccess('public').save();
                 })
                 .then((p) => {
-                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -542,7 +542,7 @@ describe('Posts DAO', () => {
                     return post.setAccess('public').save();
                 })
                 .then((p) => {
-                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com'});
                 })
                 .then((p) => {
                     expect(p.contentType).to.equal('meal');
@@ -570,7 +570,7 @@ describe('Posts DAO', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -596,7 +596,7 @@ describe('Posts DAO', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -622,7 +622,7 @@ describe('Posts DAO', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -648,7 +648,7 @@ describe('Posts DAO', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -674,7 +674,7 @@ describe('Posts DAO', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('i have something to offer');
@@ -700,7 +700,7 @@ describe('Posts DAO', () => {
                     return post.setAccess('restricted').save();
                 })
                 .then((p) => {
-                    return p.populate({email: 'one@first.com', organisation: 'silver lining'});
+                    return p.populate({email: 'one@first.com'});
                 })
                 .then((p) => {
                     expect(p.content).to.equal('restricted because you are not an owner, contributor or subscriber to this blog and it is not a public post');

@@ -11,7 +11,7 @@ const {clone, merge} = _;
 const transport = Bluebird.promisifyAll(Nodemailer.createTransport(clone(config.nodemailer)));
 transport.use('compile', markdown({useEmbeddedImages: true}));
 const readFile = Bluebird.promisify(fs.readFile);
-let cache = {};
+const cache = {};
 const renderTemplate = Bluebird.method(function(template, context) {
     context.projectName = config.projectName;
     if (cache[template]) {

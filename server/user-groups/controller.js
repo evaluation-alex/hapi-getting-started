@@ -73,7 +73,7 @@ module.exports = {
         handler: buildUpdateHandler(UserGroups, schemas.dao.updateMethod.method),
         post: [
             sendNotifications(UserGroups, (ug, request) => {
-                let description = {};
+                const description = {};
                 let shouldNotify = false;
                 ['owners', 'members'].forEach(toInspect => {
                     ['added', 'removed'].forEach(t => {

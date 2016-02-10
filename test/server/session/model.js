@@ -13,10 +13,10 @@ describe('Session DAO', () => {
     before((done) => {
         tu.setupRolesAndUsers()
             .then(() => {
-                return Users.create(firstEmail, 'silver lining', 'passwor', 'en');
+                return Users.create(firstEmail, 'passwor', 'en');
             })
             .then(() => {
-                return Users.create(secondEmail, 'silver lining', 'passwor', 'en');
+                return Users.create(secondEmail, 'passwor', 'en');
             })
             .then(() => {
                 done();

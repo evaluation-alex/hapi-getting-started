@@ -18,7 +18,7 @@ describe('Blogs DAO', () => {
     describe('Blogs.create', () => {
         it('should create a new document and audit entry when it succeeds', (done) => {
             let error = null;
-            Blogs.create('newBlog', 'silver lining', 'Blog.create testing', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('newBlog', 'Blog.create testing', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     expect(p).to.exist;
                     expect(p).to.be.an.instanceof(Blogs);
@@ -40,13 +40,13 @@ describe('Blogs DAO', () => {
         });
         it('should not allow two objects with the same title', (done) => {
             let error = null;
-            Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('dupeBlog', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     expect(p).to.exist;
                     expect(p).to.be.an.instanceof(Blogs);
                 })
                 .then(() => {
-                    return Blogs.create('dupeBlog', 'silver lining', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
+                    return Blogs.create('dupeBlog', 'Blog.create dupe test', [], [], [], [], false, 'public', true, 'test')
                         .then((p) => {
                             expect(p).to.not.exist;
                         })
@@ -66,15 +66,15 @@ describe('Blogs DAO', () => {
     });
     describe('Blogs.this.addUsers', () => {
         before((done) => {
-            UserGroups.create('testBlogAddUsers', 'silver lining', 'testing blog.addUsers', 'test')
+            UserGroups.create('testBlogAddUsers', 'testing blog.addUsers', 'test')
                 .then(() => {
-                    return Blogs.create('addUsers1', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
+                    return Blogs.create('addUsers1', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
                 })
                 .then(() => {
-                    return Blogs.create('addUsers2', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
+                    return Blogs.create('addUsers2', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
                 })
                 .then(() => {
-                    return Blogs.create('addUsers3', 'silver lining', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
+                    return Blogs.create('addUsers3', 'blog.addUsers test', ['directlyadded'], [], [], ['testBlogAddUsers'], false, 'public', true, 'test');
                 })
                 .then(() => {
                     done();
@@ -83,7 +83,7 @@ describe('Blogs DAO', () => {
         });
         it('should add a new entry to users when user/group is newly added', (done) => {
             let error = null;
-            Blogs.findOne({title: 'addUsers1', organisation: 'silver lining'})
+            Blogs.findOne({title: 'addUsers1'})
                 .then((found) => {
                     return found.addSubscriberGroups(['newUserGroup'], 'test').save();
                 })
@@ -94,7 +94,7 @@ describe('Blogs DAO', () => {
                 .then((paudit) => {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.match(/^add subscriberGroup/);
-                    return Blogs.findOne({title: 'addUsers1', organisation: 'silver lining'});
+                    return Blogs.findOne({title: 'addUsers1'});
                 })
                 .then((found) => {
                     return found.addSubscribers(['newSubscriber'], 'test').save();
@@ -117,7 +117,7 @@ describe('Blogs DAO', () => {
         });
         it('should do nothing if the user/group is already active in the group', (done) => {
             let error = null;
-            Blogs.findOne({title: 'addUsers2', organisation: 'silver lining'})
+            Blogs.findOne({title: 'addUsers2'})
                 .then((found) => {
                     return found.addSubscriberGroups(['testBlogAddUsers'], 'test').save();
                 })
@@ -127,7 +127,7 @@ describe('Blogs DAO', () => {
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
-                    return Blogs.findOne({title: 'addUsers2', organisation: 'silver lining'});
+                    return Blogs.findOne({title: 'addUsers2'});
                 })
                 .then((found) => {
                     return found.addOwners(['directlyadded'], 'test').save();
@@ -157,7 +157,7 @@ describe('Blogs DAO', () => {
     });
     describe('Blogs.this.removeUsers', () => {
         before((done) => {
-            Blogs.create('removeUsers1', 'silver lining', 'blog.removeUsers', ['directlyadded'], [], [], ['testBlogsRemoveUsers'], false, 'public', true, 'test')
+            Blogs.create('removeUsers1', 'blog.removeUsers', ['directlyadded'], [], [], ['testBlogsRemoveUsers'], false, 'public', true, 'test')
                 .then(() => {
                     done();
                 })
@@ -165,7 +165,7 @@ describe('Blogs DAO', () => {
         });
         it('should do nothing if the user/group is not present in the group', (done) => {
             let error = null;
-            Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
+            Blogs.findOne({title: 'removeUsers1'})
                 .then((found) => {
                     return found.removeSubscriberGroups(['unknownGroup'], 'test').save();
                 })
@@ -175,7 +175,7 @@ describe('Blogs DAO', () => {
                 })
                 .then((paudit) => {
                     expect(paudit.length).to.equal(0);
-                    return Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'});
+                    return Blogs.findOne({title: 'removeUsers1'});
                 })
                 .then((found) => {
                     return found.removeSubscribers(['unknownUser'], 'test').save();
@@ -197,7 +197,7 @@ describe('Blogs DAO', () => {
         });
         it('should remove user/group if present', (done) => {
             let error = null;
-            Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'})
+            Blogs.findOne({title: 'removeUsers1'})
                 .then((found) => {
                     return found.removeSubscriberGroups(['testBlogsRemoveUsers'], 'test').save();
                 })
@@ -208,7 +208,7 @@ describe('Blogs DAO', () => {
                 .then((paudit) => {
                     expect(paudit.length).to.equal(1);
                     expect(paudit[0].change[0].action).to.match(/^remove subscriberGroup/);
-                    return Blogs.findOne({title: 'removeUsers1', organisation: 'silver lining'});
+                    return Blogs.findOne({title: 'removeUsers1'});
                 })
                 .then((found) => {
                     return found.removeOwners(['directlyadded'], 'test').save();
@@ -238,8 +238,8 @@ describe('Blogs DAO', () => {
         let activated = null;
         let deactivated = null;
         before((done) => {
-            let p1 = Blogs.create('activated', 'silver lining', 'blog.activate, deactivate', [], [], [], [], false, 'public', true, 'test');
-            let p2 = Blogs.create('deactivated', 'silver lining', 'blog.deactive, activate', [], [], [], [], false, 'public', true, 'test');
+            let p1 = Blogs.create('activated', 'blog.activate, deactivate', [], [], [], [], false, 'public', true, 'test');
+            let p2 = Blogs.create('deactivated', 'blog.deactive, activate', [], [], [], [], false, 'public', true, 'test');
             Bluebird.join(p1, p2, (p11, p12) => {
                 activated = p11;
                 deactivated = p12;
@@ -320,7 +320,7 @@ describe('Blogs DAO', () => {
     describe('Blogs.this.setDescription', () => {
         let testblog = null;
         before((done) => {
-            Blogs.create('updateDesc1', 'silver lining', 'blog.updateDesc', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('updateDesc1', 'blog.updateDesc', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     testblog = p;
                     done();
@@ -372,7 +372,7 @@ describe('Blogs DAO', () => {
     describe('Blogs.this.setAccess', () => {
         let testblog = null;
         before((done) => {
-            Blogs.create('setAccess', 'silver lining', 'blog.setAccess', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('setAccess', 'blog.setAccess', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     testblog = p;
                     done();
@@ -423,7 +423,7 @@ describe('Blogs DAO', () => {
     describe('Blogs.this.needsReview', () => {
         let testblog = null;
         before((done) => {
-            Blogs.create('needsReview', 'silver lining', 'blog.setNeedsReview', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('needsReview', 'blog.setNeedsReview', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     testblog = p;
                     done();
@@ -474,7 +474,7 @@ describe('Blogs DAO', () => {
     describe('Blogs.this.allowComments', () => {
         let testblog = null;
         before((done) => {
-            Blogs.create('allowComments', 'silver lining', 'blog.allowComments', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('allowComments', 'blog.allowComments', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     testblog = p;
                     done();

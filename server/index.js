@@ -4,13 +4,14 @@ const Bluebird = require('bluebird');
 const path = require('path');
 const config = require('./config');
 const manifest = config.manifest;
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 process.title = 'hgs-server-' + process.env.NODE_ENV;
 function start(server) {
     server.start(() => {
         console.log(`engage ${JSON.stringify(server.connections.map(c => c.info))}`);
     });
 }
-let server = new Hapi.Server(manifest.server);
+const server = new Hapi.Server(manifest.server);
 manifest.connections.forEach(connection => {
     server.connection(connection);
 });

@@ -1,5 +1,4 @@
 'use strict';
-/*eslint-disable no-unused-expressions*/
 let Bluebird = require('bluebird');
 let Hapi = require('hapi');
 let path = require('path');

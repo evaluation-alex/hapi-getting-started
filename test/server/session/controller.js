@@ -16,7 +16,7 @@ describe('Session', () => {
             })
             .then(() => {
                 emails.push('test.users@test.api');
-                return Users.create('test.users@test.api', 'silver lining', 'password123', 'en');
+                return Users.create('test.users@test.api', 'password123', 'en');
             })
             .then((newUser) => {
                 return newUser.loginSuccess('test', 'test').save();

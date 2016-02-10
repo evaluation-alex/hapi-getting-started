@@ -22,9 +22,9 @@ describe('Blogs', () => {
     });
     describe('GET /blogs', () => {
         before((done) => {
-            Blogs.create('test GET /blogs is active', 'silver lining', 'test GET /blogs', ['owner1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
+            Blogs.create('test GET /blogs is active', 'test GET /blogs', ['owner1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(() => {
-                    return Blogs.create('test GET /blogs is active = false', 'silver lining', 'test GET /blogs', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
+                    return Blogs.create('test GET /blogs is active = false', 'test GET /blogs', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
                 })
                 .then((p) => {
                     p.isActive = false;
@@ -119,7 +119,7 @@ describe('Blogs', () => {
     describe('GET /blogs/{id}', () => {
         let id = '';
         before((done) => {
-            Blogs.create('test GET /blogs/id', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
+            Blogs.create('test GET /blogs/id', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then((p) => {
                     id = p._id.toString();
                     done();
@@ -179,7 +179,7 @@ describe('Blogs', () => {
                 .catch(done);
         });
         it('should send back error if any of the users to be added are not valid', (done) => {
-            Blogs.create('test PUT /blogs invalidusers', 'silver lining', 'test PUT /blogs invalidusers', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs invalidusers', 'test PUT /blogs invalidusers', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     let id = p._id.toString();
                     let request = {
@@ -206,7 +206,7 @@ describe('Blogs', () => {
                 });
         });
         it('should send back error if any of the groups to be added are not valid', (done) => {
-            Blogs.create('test PUT /blogs invalidgroups', 'silver lining', 'test PUT /blogs invalidgroups', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs invalidgroups', 'test PUT /blogs invalidgroups', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     let id = p._id.toString();
                     let request = {
@@ -234,7 +234,7 @@ describe('Blogs', () => {
         });
         it('should send back forbidden error when you try to modify a blog you are not an owner of', (done) => {
             let id = '';
-            Blogs.create('testPutBlogNotOwner', 'silver lining', 'test PUT /blogs not owner', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('testPutBlogNotOwner', 'test PUT /blogs not owner', [], [], [], [], false, 'public', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return tu.findAndLogin('one@first.com', ['root']);
@@ -264,7 +264,7 @@ describe('Blogs', () => {
         });
         it('should activate blogs and have changes audited', (done) => {
             let id = '';
-            Blogs.create('test PUT /blogs isActive=true', 'silver lining', 'test PUT /blogs isActive=true', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs isActive=true', 'test PUT /blogs isActive=true', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     p.isActive = false;
                     p.__isModified = true;
@@ -306,7 +306,7 @@ describe('Blogs', () => {
         });
         it('should deactivate blogs and have changes audited', (done) => {
             let id = '';
-            Blogs.create('test PUT /blogs isActive=false', 'silver lining', 'test PUT /blogs isActive=false', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs isActive=false', 'test PUT /blogs isActive=false', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     id = p._id.toString();
                     let request = {
@@ -341,9 +341,9 @@ describe('Blogs', () => {
         });
         it('should add subscriber / subscriber groups and have changes audited', (done) => {
             let id = '';
-            UserGroups.create('testBlogsAddGroup', 'silver lining', 'test PUT /blogs', 'test')
+            UserGroups.create('testBlogsAddGroup', 'test PUT /blogs', 'test')
                 .then(() => {
-                    return Blogs.create('test PUT /blogs add subscribers and subscriber groups', 'silver lining', 'test PUT /blogs add subscribers and subscriber groups', [], [], [], [], false, 'public', true, 'test');
+                    return Blogs.create('test PUT /blogs add subscribers and subscriber groups', 'test PUT /blogs add subscribers and subscriber groups', [], [], [], [], false, 'public', true, 'test');
                 })
                 .then((p) => {
                     id = p._id.toString();
@@ -386,7 +386,7 @@ describe('Blogs', () => {
         });
         it('should remove subscribers / subscriber groups and have changes audited', (done) => {
             let id = '';
-            Blogs.create('test PUT /blogs remove subscribers and sub groups', 'silver lining', 'test PUT /blogs remove subscribers and sub groups', [], [], ['toRemove'], ['toRemove'], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs remove subscribers and sub groups', 'test PUT /blogs remove subscribers and sub groups', [], [], ['toRemove'], ['toRemove'], false, 'public', true, 'test')
                 .then((p) => {
                     id = p._id.toString();
                     let request = {
@@ -426,7 +426,7 @@ describe('Blogs', () => {
         });
         it('should add/remove subscribers / owners and have changes audited and notifications sent to owners', (done) => {
             let id = '';
-            Blogs.create('test PUT /blogs add remove subscribers and owners', 'silver lining', 'test PUT /blogs add remove subscribers and owners', ['one@first.com'], [], ['root'], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs add remove subscribers and owners', 'test PUT /blogs add remove subscribers and owners', ['one@first.com'], [], ['root'], [], false, 'public', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     expect(b.isPresentInSubscribers('root')).to.be.true;
@@ -494,7 +494,7 @@ describe('Blogs', () => {
         });
         it('should update description and have changes audited', (done) => {
             let id = '';
-            Blogs.create('test PUT /blogs update desc', 'silver lining', 'test PUT /blogs update desc', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs update desc', 'test PUT /blogs update desc', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     id = p._id.toString();
                     let request = {
@@ -533,7 +533,7 @@ describe('Blogs', () => {
         });
         it('should update access and have changes audited', (done) => {
             let id = '';
-            Blogs.create('test PUT /blogs access', 'silver lining', 'test PUT /blogs access', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs access', 'test PUT /blogs access', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     id = p._id.toString();
                     let request = {
@@ -570,7 +570,7 @@ describe('Blogs', () => {
         });
         it('should update needsReview and have changes audited', (done) => {
             let id = '';
-            Blogs.create('test PUT /blogs needsReview', 'silver lining', 'test PUT /blogs needsReview', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs needsReview', 'test PUT /blogs needsReview', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     id = p._id.toString();
                     let request = {
@@ -607,7 +607,7 @@ describe('Blogs', () => {
         });
         it('should update allowComments and have changes audited', (done) => {
             let id = '';
-            Blogs.create('test PUT /blogs allowComments', 'silver lining', 'test PUT /blogs allowComments', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs allowComments', 'test PUT /blogs allowComments', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     id = p._id.toString();
                     let request = {
@@ -666,7 +666,7 @@ describe('Blogs', () => {
         });
         it('should add user who has joined to the needsApproval list and create notifications for all the owners to approve', (done) => {
             let id = '';
-            Blogs.create('testPutSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
+            Blogs.create('testPutSubscribeGroupAddUser', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return tu.findAndLogin('one@first.com');
@@ -722,7 +722,7 @@ describe('Blogs', () => {
         });
         it('should add to members if the group access is public and have changes audited and notifications sent to owners as fyi', (done) => {
             let id = '';
-            Blogs.create('testPutSubscribePublicGroupAddUser', 'silver lining', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'public', true, 'test')
+            Blogs.create('testPutSubscribePublicGroupAddUser', 'test PUT /blogs/subscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'public', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return tu.findAndLogin('one@first.com');
@@ -800,7 +800,7 @@ describe('Blogs', () => {
         });
         it('should send an error when user leaving is not a subscriber', (done) => {
             let id = '';
-            Blogs.create('testPutUnSubscribeGroupNotPart', 'silver lining', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
+            Blogs.create('testPutUnSubscribeGroupNotPart', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return tu.findAndLogin('one@first.com');
@@ -829,7 +829,7 @@ describe('Blogs', () => {
         });
         it('should remove user from subscribers list and create notifications for all the owners', (done) => {
             let id = '';
-            Blogs.create('testPutUnSubscribeGroupAddUser', 'silver lining', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], ['one@first.com'], [], false, 'restricted', true, 'test')
+            Blogs.create('testPutUnSubscribeGroupAddUser', 'test PUT /blogs/unsubscribe', ['owner1', 'owner2', 'owner3'], [], ['one@first.com'], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return tu.findAndLogin('one@first.com');
@@ -909,7 +909,7 @@ describe('Blogs', () => {
         });
         it('should send back error if any of the users being approved to subscribe are not valid', (done) => {
             let id = '';
-            Blogs.create('testBlogUserExistPUTApprove', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
+            Blogs.create('testBlogUserExistPUTApprove', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     let request = {
@@ -936,18 +936,18 @@ describe('Blogs', () => {
         });
         it('should add users who have been approved to the subscribers list and cancel the approval notifications for that user only', (done) => {
             let id = '';
-            Blogs.create('testBlogPutApproveAddUser', 'silver lining', 'test PUT /blogs/approve', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
+            Blogs.create('testBlogPutApproveAddUser', 'test PUT /blogs/approve', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return b.addNeedsApproval(['one@first.com', 'someotherguytoo'], 'test').save();
                 })
                 .then(() => {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
                 .then(() => {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguytoo'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguytoo'}, 'test');
                 })
                 .then(() => {
                     let request = {
@@ -1004,7 +1004,7 @@ describe('Blogs', () => {
         });
         it('should do nothing if the approved list is empty', (done) => {
             let id = '';
-            Blogs.create('testBlogPutApproveAddUserEmpty', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
+            Blogs.create('testBlogPutApproveAddUserEmpty', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return b.addNeedsApproval(['one@first.com', 'someotherguytoo'], 'test').save();
@@ -1044,7 +1044,7 @@ describe('Blogs', () => {
         });
         it('should send error if the user approving is not an owner of the blog', (done) => {
             let id = '';
-            Blogs.create('testPutApproveBlogNotOwner', 'silver lining', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
+            Blogs.create('testPutApproveBlogNotOwner', 'test PUT /blogs/approve', [], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return b.addNeedsApproval(['one@first.com'], 'test').save();
@@ -1114,7 +1114,7 @@ describe('Blogs', () => {
         });
         it('should send back error if any of the users being rejected to join are not valid', (done) => {
             let id = '';
-            Blogs.create('testBlogUserExistPUTReject', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
+            Blogs.create('testBlogUserExistPUTReject', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     let request = {
@@ -1141,14 +1141,14 @@ describe('Blogs', () => {
         });
         it('should remove users who have been rejected from the needsApproval list and cancel the approval notifications', (done) => {
             let id = '';
-            Blogs.create('testPutRejectBlogAddUser', 'silver lining', 'test PUT /blogs/reject', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
+            Blogs.create('testPutRejectBlogAddUser', 'test PUT /blogs/reject', ['owner1', 'owner2', 'owner3'], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return b.addNeedsApproval(['one@first.com'], 'test').save();
                 })
                 .then(() => {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectBlogAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectBlogAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
                 .then(() => {
                     let request = {
@@ -1204,7 +1204,7 @@ describe('Blogs', () => {
         });
         it('should do nothing if the reject list is empty', (done) => {
             let id = '';
-            Blogs.create('testPutRejectBlogAddUserEmpty', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
+            Blogs.create('testPutRejectBlogAddUserEmpty', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return b.addNeedsApproval(['one@first.com'], 'test').save();
@@ -1243,7 +1243,7 @@ describe('Blogs', () => {
         });
         it('should send error if the user rejecting is not an owner of the blog', (done) => {
             let id = '';
-            Blogs.create('testPutRejectBlogNotOwner', 'silver lining', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
+            Blogs.create('testPutRejectBlogNotOwner', 'test PUT /blogs/reject', [], [], [], [], false, 'restricted', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return b.addNeedsApproval(['one@first.com'], 'test').save();
@@ -1286,7 +1286,7 @@ describe('Blogs', () => {
     });
     describe('POST /blogs', () => {
         it('should send back conflict when you try to create a blog with a title that already exists', (done) => {
-            Blogs.create('test POST /blogs dupe', 'silver lining', 'test POST /blogs dupe', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test POST /blogs dupe', 'test POST /blogs dupe', [], [], [], [], false, 'public', true, 'test')
                 .then(() => {
                     let request = {
                         method: 'POST',
@@ -1372,7 +1372,7 @@ describe('Blogs', () => {
                 });
         });
         it('should create blog successfully', (done) => {
-            UserGroups.create('test post /blogs', 'silver lining', 'success', 'test')
+            UserGroups.create('test post /blogs', 'success', 'test')
                 .then(() => {
                     let request = {
                         method: 'POST',
@@ -1433,7 +1433,7 @@ describe('Blogs', () => {
         });
         it('should send back forbidden error when you try to delete a blog you are not an owner of', (done) => {
             let id = '';
-            Blogs.create('testDelBlogNotOwner', 'silver lining', 'test DELETE /blogs', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('testDelBlogNotOwner', 'test DELETE /blogs', [], [], [], [], false, 'public', true, 'test')
                 .then((b) => {
                     id = b._id.toString();
                     return tu.findAndLogin('one@first.com', ['root']);
@@ -1461,7 +1461,7 @@ describe('Blogs', () => {
         });
         it('should deactivate blog and have changes audited', (done) => {
             let id = '';
-            Blogs.create('test DELETE /blogs/id', 'silver lining', 'test DELETE /blogs/id', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test DELETE /blogs/id', 'test DELETE /blogs/id', [], [], [], [], false, 'public', true, 'test')
                 .then((p) => {
                     id = p._id.toString();
                     let request = {

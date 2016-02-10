@@ -16,7 +16,7 @@ describe('Users DAO', () => {
     describe('Users.create', () => {
         it('should create a new instance when create succeeds', (done) => {
             let error = null;
-            Users.create(firstEmail, 'silver lining', 'test123', 'en')
+            Users.create(firstEmail, 'test123', 'en')
                 .then((result) => {
                     expect(result).to.be.an.instanceof(Users);
                     expect(result.roles).to.be.an.instanceof(Array);
@@ -31,7 +31,7 @@ describe('Users DAO', () => {
                 });
         });
         it('should throw an error when create fails if you try to create with the same email', (done) => {
-            Users.create(firstEmail, 'silver lining', 'test123', 'en')
+            Users.create(firstEmail, 'test123', 'en')
                 .then((result) => {
                     expect(result).to.not.exist;
                 })
@@ -46,7 +46,7 @@ describe('Users DAO', () => {
     describe('Users.findByCredentials', () => {
         it('should returns a result when finding by login and by credentials correctly', (done) => {
             let error = null;
-            Users.create(secondEmail, 'silver lining', 'test1234', 'en')
+            Users.create(secondEmail, 'test1234', 'en')
                 .then((user) => {
                     return Users.findOne({email: user.email});
                 })

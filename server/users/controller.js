@@ -31,10 +31,10 @@ module.exports = {
         handler: buildCreateHandler(Users),
         post: [
             buildPostHandler({collection: Users.collection, method: 'createFirstBlog'}, (request, target) => {
-                let user = request.payload.email;
-                let org = request.payload.organisation;
-                let groups = [user];
-                return Blogs.create(`${user}'s private blog`, org, `Get started`, groups, groups, groups, [], false, 'restricted', true, user);
+                const user = request.payload.email;
+                const org = request.payload.organisation;
+                const groups = [user];
+                return Blogs.create(`${user}'s private blog`, `Get started`, groups, groups, groups, [], false, 'restricted', true, user, org);
             }),
             buildPostHandler({collection: Users.collection, method: 'sendWelcomeEmail'}, (request, target) => {
                 const options = {

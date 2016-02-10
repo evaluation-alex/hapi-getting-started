@@ -5,7 +5,7 @@ const errors = require('./errors');
 const Bluebird = require('bluebird');
 const Joi = require('joi');
 const {get, flatten, filter, upperFirst, find, isFunction} = _;
-const {hasItems, org, logAndBoom, user, by, lookupParamsOrPayloadOrQuery, ip, timing, buildQuery} = utils;
+const {hasItems, org, logAndBoom, user, by, lookupParamsOrPayloadOrQuery, ip, buildQuery, profile} = utils;
 const {NotValidUsersOrGroupsError, NoPermissionsForActionError, NotAMemberOfValidGroupError,
     ObjectAlreadyExistsError, NotObjectOwnerError, ObjectNotFoundError, AbusiveLoginAttemptsError} = errors;
 const Users = require('./../users/model');
@@ -13,10 +13,10 @@ const AuthAttempts = require('./../auth-attempts/model');
 const UserGroups = require('./../user-groups/model');
 const Posts = require('./../posts/model');
 function buildAreValid(Model, pldPropToLookup) {
-    const tags = {collection: Model.collection, method: 'areValid', type: 'pre'};
+    const timing = profile('handler', {collection: Model.collection, method: 'areValid', type: 'pre'});
     return function areValid(request, reply) {
         const start = Date.now();
-        let toLookup = filter(flatten(pldPropToLookup.map(pldProp => get(request.payload, pldProp.split('.')))));
+        const toLookup = filter(flatten(pldPropToLookup.map(pldProp => get(request.payload, pldProp.split('.')))));
         if (hasItems(toLookup)) {
             Model.areValid(toLookup, org(request))
                 .then(validated => {
@@ -25,10 +25,10 @@ function buildAreValid(Model, pldPropToLookup) {
                 })
                 .catch(logAndBoom)
                 .then(reply)
-                .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
+                .finally(() => timing(start));
         } else {
-            timing('handler', tags, {elapsed: Date.now() - start});
             reply(true);
+            timing(start);
         }
     };
 }
@@ -51,7 +51,7 @@ const areValidPosts = function areValidPosts(payloadPropertiesToLookup) {
     };
 };
 function ensurePermissions(action, object) {
-    const tags = {collection: object, method: 'ensurePermissions', type: 'pre'};
+    const timing = profile('handler', {collection: object, method: 'ensurePermissions', type: 'pre'});
     return {
         assign: 'ensurePermissions',
         method(request, reply) {
@@ -61,7 +61,7 @@ function ensurePermissions(action, object) {
                     new NoPermissionsForActionError({action, object, user: by(request)}) :
                     true
             );
-            timing('handler', tags, {elapsed: Date.now() - start});
+            timing(start);
         }
     };
 }
@@ -72,7 +72,7 @@ const canUpdate = function canUpdate(object) {
     return ensurePermissions('update', object);
 };
 const isMemberOf = function isMemberOf(Model, groups) {
-    const tags = {collection: Model.collection, method: 'isMemberOf', type: 'pre'};
+    const timing = profile('handler', {collection: Model.collection, method: 'isMemberOf', type: 'pre'});
     return {
         assign: `isMemberOf${upperFirst(Model.collection)}(${groups.join(',')})`,
         method(request, reply) {
@@ -84,13 +84,13 @@ const isMemberOf = function isMemberOf(Model, groups) {
             } else {
                 reply(new NotAMemberOfValidGroupError({owners: JSON.stringify(groups)}));
             }
-            timing('handler', tags, {elapsed: Date.now() - start});
+            timing(start);
             return {message: 'not permitted'};
         }
     };
 };
 const uniqueCheck = function uniqueCheck(Model, queryBuilder) {
-    const tags = {collection: Model.collection, method: 'uniqueCheck', type: 'pre'};
+    const timing = profile('handler', {collection: Model.collection, method: 'uniqueCheck', type: 'pre'});
     return {
         assign: 'uniqueCheck',
         method(request, reply) {
@@ -99,12 +99,12 @@ const uniqueCheck = function uniqueCheck(Model, queryBuilder) {
                 .then(f => f ? Bluebird.reject(new ObjectAlreadyExistsError()) : true)
                 .catch(logAndBoom)
                 .then(reply)
-                .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
+                .finally(() => timing(start));
         }
     };
 };
 const onlyOwner = function onlyOwner(Model) {
-    const tags = {collection: Model.collection, method: 'onlyOwner', type: 'pre'};
+    const timing = profile('handler', {collection: Model.collection, method: 'onlyOwner', type: 'pre'});
     return {
         assign: 'allowedToViewOrEditPersonalInfo',
         method(request, reply) {
@@ -115,12 +115,12 @@ const onlyOwner = function onlyOwner(Model) {
             } else {
                 reply(new NotObjectOwnerError({email: u}));
             }
-            timing('handler', tags, {elapsed: Date.now() - start});
+            timing(start);
         }
     };
 };
 const prePopulate = function prePopulate(Model, idToUse) {
-    const tags = {collection: Model.collection, method: 'prePopulate', type: 'pre'};
+    const timing = profile('handler', {collection: Model.collection, method: 'prePopulate', type: 'pre'});
     return {
         assign: Model.collection,
         method(request, reply) {
@@ -130,16 +130,16 @@ const prePopulate = function prePopulate(Model, idToUse) {
                 .then(obj => !obj ?
                     Bluebird.reject(new ObjectNotFoundError({
                         type: upperFirst(Model.collection),
-                        idstr: id ? id.toString() : 'No id passed'
+                        idstr: id ? id.toString() : /*istanbul ignore next*/'No id passed'
                     })) : obj)
                 .catch(logAndBoom)
                 .then(reply)
-                .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
+                .finally(() => timing(start));
         }
     };
 };
 const abuseDetected = function abuseDetected() {
-    const tags = {collection: 'User', method: 'abuseDetected', type: 'pre'};
+    const timing = profile('handler', {collection: 'User', method: 'abuseDetected', type: 'pre'});
     return {
         assign: 'abuseDetected',
         method(request, reply) {
@@ -148,12 +148,12 @@ const abuseDetected = function abuseDetected() {
                 .then(detected => detected ? Bluebird.reject(new AbusiveLoginAttemptsError()) : false)
                 .catch(logAndBoom)
                 .then(reply)
-                .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
+                .finally(() => timing(start));
         }
     };
 };
 const buildMongoQuery = function buildMongoQuery(Model, findOptions, builder) {
-    const tags = {collection: Model.collection, method: 'buildMongoQuery', type: 'pre'};
+    const timing = profile('handler', {collection: Model.collection, method: 'buildMongoQuery', type: 'pre'});
     const buildP = Bluebird.method((request) => {
         return (builder && isFunction(builder)) ?
             builder(request, findOptions) :
@@ -173,12 +173,11 @@ const buildMongoQuery = function buildMongoQuery(Model, findOptions, builder) {
                 })
                 .catch(logAndBoom)
                 .then(reply)
-                .finally(() => timing('handler', tags, {elapsed: Date.now() - start}));
+                .finally(() => timing(start));
         }
     }
 };
-const findValidator = function findValidator(validator, defaults) {
-    const {sort, limit, page} = defaults;
+const findValidator = function findValidator(validator, {sort, limit, page} = defaults) {
     validator.query.fields = Joi.string();
     validator.query.sort = Joi.string().default(sort);
     validator.query.limit = Joi.number().default(limit);

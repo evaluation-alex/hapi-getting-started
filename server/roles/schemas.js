@@ -2,7 +2,7 @@
 const Joi = require('joi');
 const common = require('./../common/schemas');
 const _ = require('./../lodash');
-const {merge, pick} = _;
+const {merge} = _;
 module.exports = {
     dao: {
         connection: 'app',
@@ -11,7 +11,7 @@ module.exports = {
             {fields: {name: 1, organisation: 1}, options: {unique: true}}
         ],
         saveAudit: false,
-        isReadonly: true,
+        isReadonly: false,
         schemaVersion: 1
     },
     model: merge({}, {
@@ -20,5 +20,5 @@ module.exports = {
             action: Joi.string().only('view', 'update'),
             object: Joi.string()
         }).unique()
-    }, pick(common.model, ['_id', 'organisation', 'schemaVersion', 'objectVersion']))
+    }, common.model)
 };

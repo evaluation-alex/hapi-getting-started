@@ -1,16 +1,15 @@
 'use strict';
-const org = require('./../common/utils').org;
 const build = require('./../common/dao').build;
 const schemas = require('./schemas');
 const UserGroups = function UserGroups(attrs) {
     this.init(attrs);
     return this;
 };
-UserGroups.newObject = function newObject(doc, by) {
+UserGroups.newObject = function newObject(doc, by, org) {
     return UserGroups.create(doc.payload.name,
-        org(doc),
         doc.payload.description,
-        by)
+        by,
+        org)
         .then(userGroup => {
             return userGroup
                 .addMembers(doc.payload.members, by)
@@ -19,16 +18,15 @@ UserGroups.newObject = function newObject(doc, by) {
                 .save();
         });
 };
-UserGroups.create = function create(name, organisation, description, owner) {
+UserGroups.create = function create(name, description, owner, organisation) {
     return UserGroups.insertAndAudit({
         name,
-        organisation,
         description,
         members: [owner],
         owners: [owner],
         needsApproval: [],
         access: 'restricted'
-    }, owner);
+    }, owner, organisation);
 };
 module.exports = build(UserGroups, schemas.dao, schemas.model, [], 'name');
 

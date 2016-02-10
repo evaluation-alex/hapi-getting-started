@@ -6,23 +6,17 @@ const devnull = require('dev-null');
 const bunyan = require('bunyan');
 const {createLogger} = bunyan;
 const args = JSON.parse(fs.readFileSync('./build/options.json'));
-let nodemailer = {};
-/* istanbul ignore else  */
-if (!args.sendemails) {
-    nodemailer = {
+const nodemailer = (!args.sendemails) ? {
         name: 'minimal',
         version: '0.1.0',
         send(mail, cb) {
-            let input = mail.message.createReadStream();
+            const input = mail.message.createReadStream();
             input.pipe(devnull());
             input.on('end', () => {
                 cb(null, true);
             });
         }
-    };
-} else {
-    nodemailer = args.nodemailer;
-}
+    } : args.nodemailer;
 i18n.configure(args.i18n);
 const logger = createLogger(args.bunyan);
 const influxdb = args.influxdb;

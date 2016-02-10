@@ -3,10 +3,10 @@ const Bluebird = require('bluebird');
 const _ = require('./../lodash');
 const {merge, isFunction} = _;
 const utils = require('./utils');
-const {by, user, errback, hasItems, locale, timing, hashCode} = utils;
+const {by, user, errback, hasItems, locale, hashCode, profile} = utils;
 const Notifications = require('./../notifications/model');
 const buildPostHandler = function buildPostHandler(tags, cb) {
-    const posthandlerTags = merge({}, tags, {type: 'post'});
+    const timing = profile('handler', merge({}, tags, {type: 'post'}));
     const cbp = Bluebird.method((request, target) => cb(request, target));
     return {
         method(request, reply) {
@@ -21,10 +21,10 @@ const buildPostHandler = function buildPostHandler(tags, cb) {
                         return null;
                     })
                     .catch(errback)
-                    .finally(() => timing('handler', posthandlerTags, {elapsed: Date.now() - start}));
+                    .finally(() => timing(start));
             } else {
                 reply.continue();
-                timing('handler', posthandlerTags, {elapsed: Date.now() - start});
+                timing(start);
             }
         }
     };
@@ -37,7 +37,6 @@ const sendNotifications = function sendNotifications(Model, notifyCb) {
             .then(args => {
                 if (hasItems(args.to)) {
                     return Notifications.create(args.to,
-                        target.organisation,
                         Model.collection,
                         target._id,
                         args.title,
@@ -45,7 +44,8 @@ const sendNotifications = function sendNotifications(Model, notifyCb) {
                         args.action ? args.action : 'fyi',
                         args.priority ? args.priority : 'low',
                         args.description,
-                        by(request));
+                        by(request),
+                        target.organisation);
                 }
                 return null;
             })

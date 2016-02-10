@@ -27,17 +27,17 @@ describe('Posts', () => {
     describe('GET /blogs/{blogId}/posts, GET /posts', () => {
         let blogId = null;
         before((done) => {
-            let b1 = Blogs.create('test GET /posts1', 'silver lining', 'test GET /blogs', null, null, null, null, false, 'public', true, 'test');
-            let b2 = Blogs.create('test GET /posts2 is active = false', 'silver lining', 'test GET /blogs', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
+            let b1 = Blogs.create('test GET /posts1', 'test GET /blogs', null, null, null, null, false, 'public', true, 'test');
+            let b2 = Blogs.create('test GET /posts2 is active = false', 'test GET /blogs', ['owner2'], ['contributor2'], ['subscriber2'], ['subscriberGroup2'], false, 'public', true, 'test');
             Bluebird.join(b1, b2)
                 .then((b) => {
                     let b11 = b[0];
                     let b21 = b[1];
                     blogId = b11._id;
                     //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, contentType, content, by
-                    let p1 = Posts.create(b11._id, 'silver lining', 'searchByTitle', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'p[0]', 'test');
-                    let p2 = Posts.create(b11._id, 'silver lining', 'searchByTitle2', 'published', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'p[1]', 'test');
-                    let p3 = Posts.create(b21._id, 'silver lining', 'search3', 'do not publish', 'public', true, true, ['testing', 'search testing'], [], 'post', 'p[2]', 'test');
+                    let p1 = Posts.create(b11._id, 'searchByTitle', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'p[0]', 'test');
+                    let p2 = Posts.create(b11._id, 'searchByTitle2', 'published', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'p[1]', 'test');
+                    let p3 = Posts.create(b21._id, 'search3', 'do not publish', 'public', true, true, ['testing', 'search testing'], [], 'post', 'p[2]', 'test');
                     return Bluebird.join(p1, p2, p3);
                 })
                 .then((p) => {
@@ -251,11 +251,11 @@ describe('Posts', () => {
         let id = '';
         let blogId = '';
         before((done) => {
-            Blogs.create('test GET /blogs/{blogId}/posts/{id}', 'silver lining', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
+            Blogs.create('test GET /blogs/{blogId}/posts/{id}', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-                    return Posts.create(b._id, 'silver lining', 'GET /posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'something to say, something to listen', 'test');
+                    return Posts.create(b._id, 'GET /posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'something to say, something to listen', 'test');
                 })
                 .then((p) => {
                     id = p._id.toString();
@@ -337,11 +337,11 @@ describe('Posts', () => {
         let blogId = null;
         let postId = null;
         before((done) => {
-            Blogs.create('test PUT /blogs/{blogId}/posts/{id}', 'silver lining', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs/{blogId}/posts/{id}', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-                    return Posts.create(blogId, 'silver lining', 'test PUT', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test');
+                    return Posts.create(blogId, 'test PUT', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test');
                 })
                 .then((p) => {
                     postId = p._id.toString();
@@ -600,10 +600,10 @@ describe('Posts', () => {
     describe('PUT /blogs/{blogId}/posts/{id}/publish', () => {
         let blogId = null;
         before((done) => {
-            Blogs.create('test PUT /blogs/{blogId}/posts/{id}/publish', 'silver lining', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/publish'], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs/{blogId}/posts/{id}/publish', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/publish'], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
-                    return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/publish', 'silver lining', 'test notifications', 'test');
+                    return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/publish', 'test notifications', 'test');
                 })
                 .then((ug) => {
                     return ug.removeMembers(['test'], 'test').addMembers(['subscriber1', 'subscriber2'], 'test').save();
@@ -615,7 +615,7 @@ describe('Posts', () => {
         });
         it('should publish draft / pending review posts', (done) => {
             let postId = null;
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'test PUT publish', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return tu.findAndLogin('one@first.com');
@@ -667,7 +667,7 @@ describe('Posts', () => {
         });
         it('should allow root to publish draft / pending review posts', (done) => {
             let postId = null;
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'test PUT publish', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return tu.findAndLogin('root');
@@ -720,7 +720,7 @@ describe('Posts', () => {
         it('should fail to publish draft / pending review posts if user is not an owner/contributor of the blog', (done) => {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'test PUT publish', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -756,7 +756,7 @@ describe('Posts', () => {
         it('should move draft to pending review posts if user is contributor, but not owner of the blog', (done) => {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'test PUT publish', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -807,7 +807,7 @@ describe('Posts', () => {
         it('should move draft to published posts if user is contributor, and needsReview is false', (done) => {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'draft', 'public', true, false, ['testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'test PUT publish', 'draft', 'public', true, false, ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -858,7 +858,7 @@ describe('Posts', () => {
         it('should do nothing if the post is already published / archived', (done) => {
             let postId = null;
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'test PUT publish', 'archived', 'restricted', true, true, ['testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'test PUT publish', 'archived', 'restricted', true, true, ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -901,10 +901,10 @@ describe('Posts', () => {
     describe('PUT /blogs/{blogId}/posts/{id}/reject', () => {
         let blogId = null;
         before((done) => {
-            Blogs.create('test PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/reject'], false, 'public', true, 'test')
+            Blogs.create('test PUT /blogs/{blogId}/posts/{id}/reject', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/reject'], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
-                    return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/reject', 'silver lining', 'test notifications', 'test');
+                    return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/reject', 'test notifications', 'test');
                 })
                 .then((ug) => {
                     return ug.removeMembers(['test'], 'test').addMembers(['subscriber1', 'subscriber2'], 'test').save();
@@ -916,11 +916,11 @@ describe('Posts', () => {
         });
         it('should update reject draft / pending review posts and cancel review notifications', (done) => {
             let postId = null;
-            Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'test PUT reject', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['one@first.com', 'subscriber1', 'subscriber2'], 'silver lining', 'posts', p._id, 'titles dont matter', 'unread', 'review', 'medium', 'content is king', 'test');
+                    return Notifications.create(['one@first.com', 'subscriber1', 'subscriber2'], 'posts', p._id, 'titles dont matter', 'unread', 'review', 'medium', 'content is king', 'test');
                 })
                 .then(() => {
                     return tu.findAndLogin('one@first.com');
@@ -967,7 +967,7 @@ describe('Posts', () => {
         });
         it('should fail reject draft / pending review posts if user is not an owner of the blog', (done) => {
             let postId = null;
-            Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'test PUT reject', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -1003,7 +1003,7 @@ describe('Posts', () => {
         });
         it('should do nothing if the post is already published / archived', (done) => {
             let postId = null;
-            Posts.create(blogId, 'silver lining', 'test PUT reject', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'test PUT reject', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
                 .then((p) => {
                     postId = p._id.toString();
                     return Blogs.findOne({_id: Posts.ObjectID(blogId)});
@@ -1051,7 +1051,7 @@ describe('Posts', () => {
     describe('POST /blogs/{blogId}/posts', () => {
         let blogId = null;
         before((done) => {
-            Blogs.create('test POST /blogs/{blogId}/posts', 'silver lining', 'test POST /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test POST /blogs/{blogId}/posts', 'test POST /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
                 .then((blog) => {
                     blogId = blog._id.toString();
                     done();
@@ -1060,7 +1060,7 @@ describe('Posts', () => {
         });
         it('should send back conflict when you try to create a post with a title that you just created', (done) => {
             //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-            Posts.create(blogId, 'silver lining', 'test POST unique', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
+            Posts.create(blogId, 'test POST unique', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test')
                 .then(() => {
                     let request = {
                         method: 'POST',
@@ -1378,11 +1378,11 @@ describe('Posts', () => {
         it('should send back forbidden error when you try to delete a post from a blog you are not an owner of', (done) => {
             let blogId = '';
             let postId = '';
-            Blogs.create('testDelPostNotOwner', 'silver lining', 'test DELETE /posts', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('testDelPostNotOwner', 'test DELETE /posts', [], [], [], [], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-                    return Posts.create(b._id, 'silver lining', 'DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'content', 'test');
+                    return Posts.create(b._id, 'DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'content', 'test');
                 })
                 .then((p) => {
                     postId = p._id.toString();
@@ -1414,11 +1414,11 @@ describe('Posts', () => {
         it('should deactivate blog and have changes audited', (done) => {
             let blogId = '';
             let postId = '';
-            Blogs.create('testDelPost', 'silver lining', 'test DELETE /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
+            Blogs.create('testDelPost', 'test DELETE /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
                     //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
-                    return Posts.create(b._id, 'silver lining', 'success DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'content', 'test');
+                    return Posts.create(b._id, 'success DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'content', 'test');
                 })
                 .then((p) => {
                     postId = p._id.toString();

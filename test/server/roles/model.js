@@ -13,7 +13,7 @@ describe('Roles DAO', () => {
     describe('Roles.create', () => {
         it('should create a new document', (done) => {
             let error = null;
-            Roles.create('newRole', 'silver lining', [{
+            Roles.create('newRole', [{
                 action: 'view',
                 object: 'self'
             }, {
@@ -36,7 +36,7 @@ describe('Roles DAO', () => {
         it('should not allow two objects with the same name', (done) => {
             let error = null;
             Roles.createIndexes()
-                .then(() => Roles.create('newRole', 'silver lining', [{
+                .then(() => Roles.create('newRole', [{
                     action: 'view',
                     object: 'self'
                 }, {
@@ -58,7 +58,7 @@ describe('Roles DAO', () => {
     describe('Roles.this.hasPermissionsTo', () => {
         let role = null;
         before((done) => {
-            Roles.create('hasPermissions', 'silver lining', [{
+            Roles.create('hasPermissions', [{
                 action: 'view',
                 object: 'test'
             }, {
@@ -103,7 +103,7 @@ describe('Roles DAO', () => {
             }
         });
         it('should return true if you have permissions permissions on *', (done) => {
-            Roles.find({name: 'root', organisation: 'silver lining'})
+            Roles.find({name: 'root'})
                 .then((root) => {
                     expect(root[0].hasPermissionsTo('view', 'test3')).to.be.true;
                     expect(root[0].hasPermissionsTo('update', 'test3')).to.be.true;

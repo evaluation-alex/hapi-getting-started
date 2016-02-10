@@ -41,7 +41,7 @@ module.exports = {
     },
     logout: {
         handler(request, reply) {
-            let user = request.auth.credentials.user;
+            const user = request.auth.credentials.user;
             user.logout(ip(request), user.email).save()
                 .then(() => ({message: 'Success.'}))
                 .then(reply);

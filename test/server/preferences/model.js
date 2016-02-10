@@ -17,7 +17,7 @@ describe('Preferences DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setLocale', 'silver lining', 'password', 'hi')
+            Users.create('setLocale', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     done();
@@ -69,7 +69,7 @@ describe('Preferences DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setPreferencesNotificationsBlogsInappFrequency', 'silver lining', 'password', 'en')
+            Users.create('setPreferencesNotificationsBlogsInappFrequency', 'password', 'en')
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.blogs.inapp.frequency = 'daily';
@@ -126,7 +126,7 @@ describe('Preferences DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setPreferencesNotificationsBlogsInappLastSent', 'silver lining', 'password', 'hi')
+            Users.create('setPreferencesNotificationsBlogsInappLastSent', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.blogs.inapp.lastSent = new Date(2015, 2, 23, 0, 0, 0, 0);
@@ -181,14 +181,14 @@ describe('Preferences DAO', () => {
     });
     describe('Preferences.this.addNotificationsBlogsBlocked', () => {
         before((done) => {
-            Users.create('addNotificationsBlogsBlocked1', 'silver lining', 'password', 'en')
+            Users.create('addNotificationsBlogsBlocked1', 'password', 'en')
                 .then((p1) => {
                     p1.preferences.notifications.blogs.blocked.push('blocked1');
                     p1.__isModified = true;
                     return p1.save();
                 })
                 .then(() => {
-                    return Users.create('addNotificationsBlogsBlocked2', 'silver lining', 'password', 'en');
+                    return Users.create('addNotificationsBlogsBlocked2', 'password', 'en');
                 })
                 .then((p2) => {
                     p2.preferences.notifications.blogs.blocked.push('blocked1');
@@ -202,7 +202,7 @@ describe('Preferences DAO', () => {
         });
         it('should add a new entry to blocked when an item is newly blocked', (done) => {
             let error = null;
-            Users.findOne({email: 'addNotificationsBlogsBlocked1', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsBlogsBlocked1'})
                 .then((found) => {
                     return found.addPreferencesNotificationsBlogsBlocked(['newBlocked'], 'test').save();
                 })
@@ -224,7 +224,7 @@ describe('Preferences DAO', () => {
         });
         it('should do nothing if the item is already in the blocked list', (done) => {
             let error = null;
-            Users.findOne({email: 'addNotificationsBlogsBlocked2', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsBlogsBlocked2'})
                 .then((found) => {
                     return found.addPreferencesNotificationsBlogsBlocked(['blocked1'], 'test').save();
                 })
@@ -251,7 +251,7 @@ describe('Preferences DAO', () => {
     });
     describe('Preferences.this.removeNotificationsBlogsBlocked', () => {
         before((done) => {
-            Users.create('removeNotificationsBlogsBlocked', 'silver lining', 'password', 'en')
+            Users.create('removeNotificationsBlogsBlocked', 'password', 'en')
                 .then((p) => {
                     p.preferences.notifications.blogs.blocked.push('toBeRemoved');
                     p.__isModified = true;
@@ -264,7 +264,7 @@ describe('Preferences DAO', () => {
         });
         it('should do nothing if the item is not present in the blocked list', (done) => {
             let error = null;
-            Users.findOne({email: 'removeNotificationsBlogsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsBlogsBlocked'})
                 .then((found) => {
                     return found.removePreferencesNotificationsBlogsBlocked(['unknownBlog'], 'test').save();
                 })
@@ -285,7 +285,7 @@ describe('Preferences DAO', () => {
         });
         it('should remove item if present in the blocked list and audit changes', (done) => {
             let error = null;
-            Users.findOne({email: 'removeNotificationsBlogsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsBlogsBlocked'})
                 .then((found) => {
                     return found.removePreferencesNotificationsBlogsBlocked(['toBeRemoved'], 'test').save();
                 })
@@ -314,7 +314,7 @@ describe('Preferences DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setPreferencesNotificationsPostsInappFrequency', 'silver lining', 'password', 'hi')
+            Users.create('setPreferencesNotificationsPostsInappFrequency', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.posts.inapp.frequency = 'daily';
@@ -371,7 +371,7 @@ describe('Preferences DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setPreferencesNotificationsPostsInappLastSent', 'silver lining', 'password', 'hi')
+            Users.create('setPreferencesNotificationsPostsInappLastSent', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.posts.inapp.lastSent = new Date(2015, 2, 23, 0, 0, 0, 0);
@@ -426,14 +426,14 @@ describe('Preferences DAO', () => {
     });
     describe('Preferences.this.addNotificationsPostsBlocked', () => {
         before((done) => {
-            Users.create('addNotificationsPostsBlocked1', 'silver lining', 'password', 'en')
+            Users.create('addNotificationsPostsBlocked1', 'password', 'en')
                 .then((p1) => {
                     p1.preferences.notifications.posts.blocked.push('blocked1');
                     p1.__isModified = true;
                     return p1.save();
                 })
                 .then(() => {
-                    return Users.create('addNotificationsPostsBlocked2', 'silver lining', 'password', 'en');
+                    return Users.create('addNotificationsPostsBlocked2', 'password', 'en');
                 })
                 .then((p2) => {
                     p2.preferences.notifications.posts.blocked.push('blocked1');
@@ -447,7 +447,7 @@ describe('Preferences DAO', () => {
         });
         it('should add a new entry to blocked when an item is newly blocked', (done) => {
             let error = null;
-            Users.findOne({email: 'addNotificationsPostsBlocked1', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsPostsBlocked1'})
                 .then((found) => {
                     return found.addPreferencesNotificationsPostsBlocked(['newBlocked'], 'test').save();
                 })
@@ -469,7 +469,7 @@ describe('Preferences DAO', () => {
         });
         it('should do nothing if the item is already in the blocked list', (done) => {
             let error = null;
-            Users.findOne({email: 'addNotificationsPostsBlocked2', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsPostsBlocked2'})
                 .then((found) => {
                     return found.addPreferencesNotificationsPostsBlocked(['blocked1'], 'test').save();
                 })
@@ -496,7 +496,7 @@ describe('Preferences DAO', () => {
     });
     describe('Preferences.this.removeNotificationsPostsBlocked', () => {
         before((done) => {
-            Users.create('removeNotificationsPostsBlocked', 'silver lining', 'password', 'en')
+            Users.create('removeNotificationsPostsBlocked', 'password', 'en')
                 .then((p) => {
                     p.preferences.notifications.posts.blocked.push('toBeRemoved');
                     p.__isModified = true;
@@ -509,7 +509,7 @@ describe('Preferences DAO', () => {
         });
         it('should do nothing if the item is not present in the blocked list', (done) => {
             let error = null;
-            Users.findOne({email: 'removeNotificationsPostsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsPostsBlocked'})
                 .then((found) => {
                     return found.removePreferencesNotificationsPostsBlocked(['unknownBlog'], 'test').save();
                 })
@@ -530,7 +530,7 @@ describe('Preferences DAO', () => {
         });
         it('should remove item if present in the blocked list and audit changes', (done) => {
             let error = null;
-            Users.findOne({email: 'removeNotificationsPostsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsPostsBlocked'})
                 .then((found) => {
                     return found.removePreferencesNotificationsPostsBlocked(['toBeRemoved'], 'test').save();
                 })
@@ -559,7 +559,7 @@ describe('Preferences DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setPreferencesNotificationsUserGroupsInappFrequency', 'silver lining', 'password', 'hi')
+            Users.create('setPreferencesNotificationsUserGroupsInappFrequency', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.userGroups.inapp.frequency = 'daily';
@@ -617,7 +617,7 @@ describe('Preferences DAO', () => {
         let testpref = null;
         before((done) => {
             //email, organisation, locale, by
-            Users.create('setPreferencesNotificationsUserGroupsInappLastSent', 'silver lining', 'password', 'hi')
+            Users.create('setPreferencesNotificationsUserGroupsInappLastSent', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
                     testpref.preferences.notifications.userGroups.inapp.lastSent = new Date(2015, 2, 23, 0, 0, 0, 0);
@@ -672,14 +672,14 @@ describe('Preferences DAO', () => {
     });
     describe('Preferences.this.addNotificationsUserGroupsBlocked', () => {
         before((done) => {
-            Users.create('addNotificationsUserGroupsBlocked1', 'silver lining', 'password', 'hi')
+            Users.create('addNotificationsUserGroupsBlocked1', 'password', 'hi')
                 .then((p1) => {
                     p1.preferences.notifications.userGroups.blocked.push('blocked1');
                     p1.__isModified = true;
                     return p1.save();
                 })
                 .then(() => {
-                    return Users.create('addNotificationsUserGroupsBlocked2', 'silver lining', 'password', 'hi');
+                    return Users.create('addNotificationsUserGroupsBlocked2', 'password', 'hi');
                 })
                 .then((p2) => {
                     p2.preferences.notifications.userGroups.blocked.push('blocked1');
@@ -693,7 +693,7 @@ describe('Preferences DAO', () => {
         });
         it('should add a new entry to blocked when an item is newly blocked', (done) => {
             let error = null;
-            Users.findOne({email: 'addNotificationsUserGroupsBlocked1', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsUserGroupsBlocked1'})
                 .then((found) => {
                     return found.addPreferencesNotificationsUserGroupsBlocked(['newBlocked'], 'test').save();
                 })
@@ -715,7 +715,7 @@ describe('Preferences DAO', () => {
         });
         it('should do nothing if the item is already in the blocked list', (done) => {
             let error = null;
-            Users.findOne({email: 'addNotificationsUserGroupsBlocked2', organisation: 'silver lining'})
+            Users.findOne({email: 'addNotificationsUserGroupsBlocked2'})
                 .then((found) => {
                     return found.addPreferencesNotificationsUserGroupsBlocked(['blocked1'], 'test').save();
                 })
@@ -742,7 +742,7 @@ describe('Preferences DAO', () => {
     });
     describe('Preferences.this.removeNotificationsUserGroupsBlocked', () => {
         before((done) => {
-            Users.create('removeNotificationsUserGroupsBlocked', 'silver lining', 'password', 'en')
+            Users.create('removeNotificationsUserGroupsBlocked', 'password', 'en')
                 .then((p) => {
                     p.preferences.notifications.userGroups.blocked.push('toBeRemoved');
                     p.__isModified = true;
@@ -755,7 +755,7 @@ describe('Preferences DAO', () => {
         });
         it('should do nothing if the item is not present in the blocked list', (done) => {
             let error = null;
-            Users.findOne({email: 'removeNotificationsUserGroupsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsUserGroupsBlocked'})
                 .then((found) => {
                     return found.removePreferencesNotificationsUserGroupsBlocked(['unknownBlog'], 'test').save();
                 })
@@ -776,7 +776,7 @@ describe('Preferences DAO', () => {
         });
         it('should remove item if present in the blocked list and audit changes', (done) => {
             let error = null;
-            Users.findOne({email: 'removeNotificationsUserGroupsBlocked', organisation: 'silver lining'})
+            Users.findOne({email: 'removeNotificationsUserGroupsBlocked'})
                 .then((found) => {
                     return found.removePreferencesNotificationsUserGroupsBlocked(['toBeRemoved'], 'test').save();
                 })

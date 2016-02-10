@@ -19,21 +19,21 @@ describe('UserGroups', () => {
     });
     describe('GET /user-groups', () => {
         before((done) => {
-            UserGroups.create('GetUserGroupsTestName', 'silver lining', 'GET /user-groups', 'root')
+            UserGroups.create('GetUserGroupsTestName', 'GET /user-groups', 'root')
                 .then(() => {
-                    return UserGroups.create('GetUserGroupsTestMemberActive', 'silver lining', 'GET /user-groups', 'root');
+                    return UserGroups.create('GetUserGroupsTestMemberActive', 'GET /user-groups', 'root');
                 })
                 .then((g2) => {
                     return g2.addMembers(['user1', 'user2'], 'root').save();
                 })
                 .then(() => {
-                    return UserGroups.create('GetUserGroupsTestMemberInactive', 'silver lining', 'GET /user-groups', 'root');
+                    return UserGroups.create('GetUserGroupsTestMemberInactive', 'GET /user-groups', 'root');
                 })
                 .then((g3) => {
                     return g3.addMembers(['user4'], 'root').save();
                 })
                 .then(() => {
-                    return UserGroups.create('GetUserGroupsTestInactive', 'silver lining', 'GET /user-groups', 'root');
+                    return UserGroups.create('GetUserGroupsTestInactive', 'GET /user-groups', 'root');
                 })
                 .then((g4) => {
                     return g4.deactivate('root').save();
@@ -145,7 +145,7 @@ describe('UserGroups', () => {
     describe('GET /user-groups/{id}', () => {
         let id = '';
         before((done) => {
-            UserGroups.create('testGetByID', 'silver lining', 'GET /user-groups/id', 'root')
+            UserGroups.create('testGetByID', 'GET /user-groups/id', 'root')
                 .then((ug) => {
                     id = ug._id.toString();
                     done();
@@ -211,7 +211,7 @@ describe('UserGroups', () => {
         });
         it('should send back error if any of the users or owners to be added are not valid', (done) => {
             let id = '';
-            UserGroups.create('testGroupUserExistPUT', 'silver lining', 'test PUT /user-groups', 'test')
+            UserGroups.create('testGroupUserExistPUT', 'test PUT /user-groups', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     let request = {
@@ -239,7 +239,7 @@ describe('UserGroups', () => {
         });
         it('should send back forbidden error when you try to modify a group you are not an owner of', (done) => {
             let id = '';
-            UserGroups.create('testPutGroupNotOwner', 'silver lining', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupNotOwner', 'test PUT /user-groups', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return tu.findAndLogin('one@first.com', ['root']);
@@ -270,7 +270,7 @@ describe('UserGroups', () => {
         });
         it('should deactivate group and have changes audited', (done) => {
             let id = '';
-            UserGroups.create('testPutGroupDeActivate', 'silver lining', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupDeActivate', 'test PUT /user-groups', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     let request = {
@@ -307,7 +307,7 @@ describe('UserGroups', () => {
         });
         it('should activate group and have changes audited', (done) => {
             let id = '';
-            UserGroups.create('testPutGroupActivate', 'silver lining', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupActivate', 'test PUT /user-groups', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     ug.isActive = false;
@@ -349,7 +349,7 @@ describe('UserGroups', () => {
         });
         it('should add users / owners and have changes audited', (done) => {
             let id = '';
-            UserGroups.create('testPutGroupAddUserOwner', 'silver lining', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupAddUserOwner', 'test PUT /user-groups', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     let request = {
@@ -389,7 +389,7 @@ describe('UserGroups', () => {
         });
         it('should remove members / owners and have changes audited', (done) => {
             let id = '';
-            UserGroups.create('testPutGroupRemoveUserOwner', 'silver lining', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupRemoveUserOwner', 'test PUT /user-groups', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     ug.members.push('root');
@@ -437,7 +437,7 @@ describe('UserGroups', () => {
         });
         it('should add/remove members / owners and have changes audited and notifications sent to owners', (done) => {
             let id = '';
-            UserGroups.create('testPutGroupAddRemoveUserOwner', 'silver lining', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupAddRemoveUserOwner', 'test PUT /user-groups', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     ug.members[0] = 'root';
@@ -511,7 +511,7 @@ describe('UserGroups', () => {
         });
         it('should update description and have changes audited', (done) => {
             let id = '';
-            UserGroups.create('testPutGroupChangeDesc', 'silver lining', 'test PUT /user-groups', 'test')
+            UserGroups.create('testPutGroupChangeDesc', 'test PUT /user-groups', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     let request = {
@@ -569,7 +569,7 @@ describe('UserGroups', () => {
         });
         it('should add user who has joined to the needsApproval list and notify the owners', (done) => {
             let id = '';
-            UserGroups.create('testPutJoinGroupAddUser', 'silver lining', 'test PUT /user-groups/join', 'test')
+            UserGroups.create('testPutJoinGroupAddUser', 'test PUT /user-groups/join', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return ug.addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
@@ -627,7 +627,7 @@ describe('UserGroups', () => {
         });
         it('should add to members if the group access is public and have changes audited', (done) => {
             let id = '';
-            UserGroups.create('testPutJoinPublicGroupAddUser', 'silver lining', 'test PUT /user-groups/join', 'test')
+            UserGroups.create('testPutJoinPublicGroupAddUser', 'test PUT /user-groups/join', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return ug.setAccess('public').addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
@@ -706,7 +706,7 @@ describe('UserGroups', () => {
         });
         it('should send error when you leave a group you are not part of', (done) => {
             let id = '';
-            UserGroups.create('testPutLeaveGroupNotPart', 'silver lining', 'test PUT /user-groups/leave', 'test')
+            UserGroups.create('testPutLeaveGroupNotPart', 'test PUT /user-groups/leave', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return ug.addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
@@ -737,7 +737,7 @@ describe('UserGroups', () => {
         });
         it('should leave members list and notify the owners', (done) => {
             let id = '';
-            UserGroups.create('testPutLeaveGroupAddUser', 'silver lining', 'test PUT /user-groups/leave', 'test')
+            UserGroups.create('testPutLeaveGroupAddUser', 'test PUT /user-groups/leave', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return ug.addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').addMembers(['one@first.com'], 'test').save();
@@ -817,7 +817,7 @@ describe('UserGroups', () => {
         });
         it('should send back error if any of the users being approved to join are not valid', (done) => {
             let id = '';
-            UserGroups.create('testGroupUserExistPUTApprove', 'silver lining', 'test PUT /user-groups/approve', 'test')
+            UserGroups.create('testGroupUserExistPUTApprove', 'test PUT /user-groups/approve', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     let request = {
@@ -844,18 +844,18 @@ describe('UserGroups', () => {
         });
         it('should add users who have been approved to the members list and cancel the remaining approval notifications for that user only', (done) => {
             let id = '';
-            UserGroups.create('testPutApproveGroupAddUser', 'silver lining', 'test PUT /user-groups/approve', 'test')
+            UserGroups.create('testPutApproveGroupAddUser', 'test PUT /user-groups/approve', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return ug.addNeedsApproval(['one@first.com', 'someotherguy'], 'test').addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
                 })
                 .then(() => {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
                 .then(() => {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguy'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguy'}, 'test');
                 })
                 .then(() => {
                     let request = {
@@ -912,7 +912,7 @@ describe('UserGroups', () => {
         });
         it('should do nothing if the approved list is empty', (done) => {
             let id = '';
-            UserGroups.create('testPutApproveGroupAddUserEmpty', 'silver lining', 'test PUT /user-groups/approve', 'test')
+            UserGroups.create('testPutApproveGroupAddUserEmpty', 'test PUT /user-groups/approve', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return ug.addNeedsApproval(['one@first.com', 'someotherguy'], 'test').removeOwners(['test'], 'test').save();
@@ -952,7 +952,7 @@ describe('UserGroups', () => {
         });
         it('should send error if the user approving is not an owner of the list', (done) => {
             let id = '';
-            UserGroups.create('testPutApproveGroupNotOwner', 'silver lining', 'test PUT /user-groups/approve', 'test')
+            UserGroups.create('testPutApproveGroupNotOwner', 'test PUT /user-groups/approve', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return ug.addNeedsApproval(['one@first.com'], 'test').save();
@@ -1020,7 +1020,7 @@ describe('UserGroups', () => {
         });
         it('should send back error if any of the users being rejected to join are not valid', (done) => {
             let id = '';
-            UserGroups.create('testGroupUserExistPUTReject', 'silver lining', 'test PUT /user-groups/reject', 'test')
+            UserGroups.create('testGroupUserExistPUTReject', 'test PUT /user-groups/reject', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     let request = {
@@ -1047,14 +1047,14 @@ describe('UserGroups', () => {
         });
         it('should remove users who have been rejected from the needsApproval list and cancel the approval notifications', (done) => {
             let id = '';
-            UserGroups.create('testPutRejectGroupAddUser', 'silver lining', 'test PUT /user-groups/reject', 'test')
+            UserGroups.create('testPutRejectGroupAddUser', 'test PUT /user-groups/reject', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return ug.addNeedsApproval(['one@first.com'], 'test').addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
                 })
                 .then(() => {
                     //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'silver lining', 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
                 })
                 .then(() => {
                     let request = {
@@ -1110,7 +1110,7 @@ describe('UserGroups', () => {
         });
         it('should do nothing when the reject list is empty', (done) => {
             let id = '';
-            UserGroups.create('testPutRejectGroupAddUserEmpty', 'silver lining', 'test PUT /user-groups/reject', 'test')
+            UserGroups.create('testPutRejectGroupAddUserEmpty', 'test PUT /user-groups/reject', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return ug.addNeedsApproval(['one@first.com'], 'test').removeOwners(['test'], 'test').save();
@@ -1149,7 +1149,7 @@ describe('UserGroups', () => {
         });
         it('should send error if the user rejecting is not an owner of the list', (done) => {
             let id = '';
-            UserGroups.create('testPutRejectGroupNotOwner', 'silver lining', 'test PUT /user-groups/reject', 'test')
+            UserGroups.create('testPutRejectGroupNotOwner', 'test PUT /user-groups/reject', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return ug.addNeedsApproval(['one@first.com'], 'test').save();
@@ -1192,7 +1192,7 @@ describe('UserGroups', () => {
     });
     describe('POST /user-groups', () => {
         it('should send back conflict when you try to create a group with name that already exists', (done) => {
-            UserGroups.create('testDupeGroup', 'silver lining', 'test POST /user-groups', 'root')
+            UserGroups.create('testDupeGroup', 'test POST /user-groups', 'root')
                 .then(() => {
                     let request = {
                         method: 'POST',
@@ -1236,7 +1236,7 @@ describe('UserGroups', () => {
             server.injectThen(request)
                 .then((response) => {
                     expect(response.statusCode).to.equal(422);
-                    return UserGroups.findOne({name: 'testGroupUserExist', organisation: 'silver lining'});
+                    return UserGroups.findOne({name: 'testGroupUserExist'});
                 })
                 .then((ug) => {
                     expect(ug).to.be.undefined;
@@ -1265,7 +1265,7 @@ describe('UserGroups', () => {
             server.injectThen(request)
                 .then((response) => {
                     expect(response.statusCode).to.equal(200);
-                    return UserGroups.findOne({name: 'testUserGroupCreate', organisation: 'silver lining'});
+                    return UserGroups.findOne({name: 'testUserGroupCreate'});
                 })
                 .then((ug) => {
                     expect(ug).to.exist;
@@ -1303,7 +1303,7 @@ describe('UserGroups', () => {
         });
         it('should send back forbidden error when you try to modify a group you are not an owner of', (done) => {
             let id = '';
-            UserGroups.create('testDelGroupNotOwner', 'silver lining', 'test POST /user-groups', 'test')
+            UserGroups.create('testDelGroupNotOwner', 'test POST /user-groups', 'test')
                 .then((ug) => {
                     id = ug._id.toString();
                     return tu.findAndLogin('one@first.com', ['root']);
@@ -1330,7 +1330,7 @@ describe('UserGroups', () => {
                 });
         });
         it('should deactivate group and have changes audited', (done) => {
-            UserGroups.create('testDelGroup', 'silver lining', 'test POST /user-groups', 'root')
+            UserGroups.create('testDelGroup', 'test POST /user-groups', 'root')
                 .then((ug) => {
                     let id = ug._id.toString();
                     let request = {
@@ -1344,7 +1344,7 @@ describe('UserGroups', () => {
                 })
                 .then((response) => {
                     expect(response.statusCode).to.equal(200);
-                    return UserGroups.findOne({name: 'testDelGroup', organisation: 'silver lining'});
+                    return UserGroups.findOne({name: 'testDelGroup'});
                 })
                 .then((found) => {
                     expect(found.isActive).to.be.false;

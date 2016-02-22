@@ -3,6 +3,7 @@ coverage/**/*.*
 logs/*
 .idea/*
 npm-debug.log
-server/.secure/*
+src/server/.secure/*
 public/*
 build/*
+src/server/options.json

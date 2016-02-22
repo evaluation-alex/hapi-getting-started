@@ -50,9 +50,8 @@ gulp.task('server:test:nocov', task('test', 'server', 'no-cov'));
 gulp.task('server:test:cov', task('test', 'server', 'cov'));
 gulp.task('server:test', (cb) => {
     $.runSequence(
-        ['server:clean', 'shared:clean', 'server:test:clean'],
+        ['server:test:clean'],
         ['server:lint', 'shared:lint'],
-        ['server:build', 'shared:build'],
         $.disableCoverage ? 'server:test:nocov' : 'server:test:cov',
         cb
     );

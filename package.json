@@ -30,7 +30,7 @@
         "bcrypt": "0.8.x",
         "bluebird": "3.3.x",
         "boom": "3.1.x",
-        "bunyan": "1.6.x",
+        "bunyan": "1.7.x",
         "dev-null": "0.1.x",
         "handlebars": "4.0.x",
         "hapi": "13.x.x",

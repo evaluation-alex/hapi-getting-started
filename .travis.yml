@@ -25,9 +25,9 @@ before_install:
   - dpkg-deb -x influxdb_0.9.4.2_amd64.deb $HOME
 before_script:
   - $HOME/opt/influxdb/versions/0.9.4.2/influxd -config $HOME/build/k-sheth/hapi-getting-started/influxdb.conf > $HOME/logs/influx.log 2>&1 &
-  - npm run server:build:clean
+  - npm run server:build
   - npm run server:setup
-  - mkdir ./test/artifacts
+  - mkdir ./coverage
   - mkdir ./logs
 after_script:
   - cat $HOME/logs/influx.log

@@ -1,8 +1,8 @@
 'use strict';
 let tu = require('./../testutils');
 let MongoClient = require('mongodb').MongoClient;
-let opts = require('./../../../server/options.json');
-let mongourl = opts.manifest.plugins['./build/common/plugins/connections'].mongo.app.url;
+let opts = require('./../../../src/server/options.json');
+let mongourl = opts.manifest.plugins['./plugins/connections'].mongo.app.url2;
 describe('cleanup', () => {
     it('should drop all tables', (done) => {
         MongoClient.connect(mongourl)
@@ -10,12 +10,16 @@ describe('cleanup', () => {
                 return dbconn.collections();
             })
             .then(collections => {
-                return collections
-                    .filter(collection => !collection.collectionName.startsWith('system'))
-                    .map(collection => {
-                        console.log('[test:clean] dropping ' + collection.collectionName);
-                        return collection.drop();
-                    });
+                return Bluebird.all(
+                    collections
+                        .filter(collection => !collection.collectionName.startsWith('system'))
+                        .map(collection => {
+                            return new Bluebird((resolve, reject) => {
+                                console.log('[test:clean] dropping ' + collection.collectionName);
+                                collection.drop((err, res) => err ? reject(err) : resolve(res));
+                            });
+                        })
+                );
             })
             .then(() => done())
             .catch(err => done());

@@ -1,6 +1,6 @@
 'use strict';
 let Hapi = require('hapi');
-let MetricsPlugin = require('./../../../build/common/plugins/metrics');
+let MetricsPlugin = require('./../../../build/server/plugins/metrics');
 describe('Metrics', () => {
     let server = null;
     before((done) => {

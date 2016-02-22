@@ -1,6 +1,6 @@
 'use strict';
 let tu = require('./../testutils');
-let Users = require('./../../../build/users/model');
+let Users = require('./../../../build/server/users/model');
 let expect = require('chai').expect;
 describe('Audit', () => {
     let authheader = '';

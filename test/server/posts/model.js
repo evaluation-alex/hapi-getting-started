@@ -1,9 +1,9 @@
 'use strict';
-let Posts = require('./../../../build/posts/model');
-let Meals = require('./../../../build/posts/model');
-let Blogs = require('./../../../build/blogs/model');
-let UserGroups = require('./../../../build/user-groups/model');
-let Audit = require('./../../../build/audit/model');
+let Posts = require('./../../../build/server/posts/model');
+let Meals = require('./../../../build/server/posts/model');
+let Blogs = require('./../../../build/server/blogs/model');
+let UserGroups = require('./../../../build/server/user-groups/model');
+let Audit = require('./../../../build/server/audit/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
 let Bluebird = require('bluebird');
@@ -22,7 +22,6 @@ describe('Posts DAO', () => {
     describe('Posts.create', () => {
         it('should create a new document and audit entry when it succeeds', (done) => {
             let error = null;
-            //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, contentType, content, by
             Posts.create(blogId, 'newPost', 'draft', 'public', true, true, ['testing', 'unit testing'], [], 'post', 'content', 'test')
                 .then((post) => {
                     expect(post).to.exist;
@@ -88,7 +87,6 @@ describe('Posts DAO', () => {
         let activated = null;
         let deactivated = null;
         before((done) => {
-            //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
             let p1 = Posts.create(blogId, 'activate', 'draft', 'public', true, true, ['testing', 'unit testing', 'activate'], [], 'post', 'content', 'test');
             let p2 = Posts.create(blogId, 'deactivate', 'published', 'public', true, true, ['testing', 'unit testing', 'deactivate'], [], 'post', 'content', 'test');
             Bluebird.join(p1, p2, (p11, p12) => {
@@ -171,7 +169,6 @@ describe('Posts DAO', () => {
     describe('Posts.this.setTitle', () => {
         let testpost = null;
         before((done) => {
-            //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
             Posts.create(blogId, 'post.updateTitle', 'draft', 'public', true, true, ['testing', 'unit testing', 'setTitle'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
@@ -224,7 +221,6 @@ describe('Posts DAO', () => {
     describe('Posts.this.setAccess', () => {
         let testpost = null;
         before((done) => {
-            //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
             Posts.create(blogId, 'post.setAccess', 'draft', 'public', true, true, ['testing', 'unit testing', 'setAccess'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
@@ -276,7 +272,6 @@ describe('Posts DAO', () => {
     describe('Posts.this.allowComments', () => {
         let testpost = null;
         before((done) => {
-            //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
             Posts.create(blogId, 'post.setAllowComments', 'draft', 'public', true, true, ['testing', 'unit testing', 'setAllowComments'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
@@ -328,7 +323,6 @@ describe('Posts DAO', () => {
     describe('Posts.this.needsReview', () => {
         let testpost = null;
         before((done) => {
-            //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
             Posts.create(blogId, 'post.needsReview', 'draft', 'public', true, true, ['testing', 'unit testing', 'setNeedsReview'], [], 'post', 'content', 'test')
                 .then((p) => {
                     testpost = p;
@@ -379,7 +373,6 @@ describe('Posts DAO', () => {
     });
     describe('Posts.this.addTags', () => {
         before((done) => {
-            //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
             let p1 = Posts.create(blogId, 'addTags1', 'draft', 'public', true, true, ['testing', 'unit testing', 'addTags'], [], 'post', 'content', 'test');
             let p2 = Posts.create(blogId, 'addTags2', 'draft', 'public', true, true, ['testing', 'unit testing', 'addTags'], [], 'post', 'content', 'test');
             Bluebird.join(p1, p2).then(() => {
@@ -437,7 +430,6 @@ describe('Posts DAO', () => {
     });
     describe('Posts.this.removeTags', () => {
         before((done) => {
-            //blogId, organisation, title, state, access, allowComments, needsReview, tags, attachments, by
             let p1 = Posts.create(blogId, 'removeTags1', 'draft', 'public', true, true, ['testing', 'unit testing', 'removeTags'], [], 'post', 'content', 'test');
             let p2 = Posts.create(blogId, 'removeTags2', 'draft', 'public', true, true, ['testing', 'unit testing', 'removeTags'], [], 'post', 'content', 'test');
             Bluebird.join(p1, p2).then(() => {

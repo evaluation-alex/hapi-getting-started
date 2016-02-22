@@ -1,7 +1,0 @@
---harmony
---recursive
---ui bdd
---reporter spec
---slow 60
---timeout 6000000
---colors

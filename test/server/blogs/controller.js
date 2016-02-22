@@ -1,8 +1,8 @@
 'use strict';
-let Blogs = require('./../../../build/blogs/model');
-let UserGroups = require('./../../../build/user-groups/model');
-let Audit = require('./../../../build/audit/model');
-let Notifications = require('./../../../build/notifications/model');
+let Blogs = require('./../../../build/server/blogs/model');
+let UserGroups = require('./../../../build/server/user-groups/model');
+let Audit = require('./../../../build/server/audit/model');
+let Notifications = require('./../../../build/server/notifications/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
@@ -942,12 +942,10 @@ describe('Blogs', () => {
                     return b.addNeedsApproval(['one@first.com', 'someotherguytoo'], 'test').save();
                 })
                 .then(() => {
-                    //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', false, {join: 'one@first.com'}, 'test');
                 })
                 .then(() => {
-                    //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguytoo'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testBlogPutApproveAddUser'}], 'unread', 'approve', 'medium', false, {join: 'someotherguytoo'}, 'test');
                 })
                 .then(() => {
                     let request = {
@@ -1147,8 +1145,7 @@ describe('Blogs', () => {
                     return b.addNeedsApproval(['one@first.com'], 'test').save();
                 })
                 .then(() => {
-                    //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectBlogAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'blogs', Blogs.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectBlogAddUser'}], 'unread', 'approve', 'medium', false, {join: 'one@first.com'}, 'test');
                 })
                 .then(() => {
                     let request = {

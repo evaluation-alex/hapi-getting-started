@@ -1,6 +1,6 @@
 'use strict';
-let Config = require('./../../../build/config');
-let Mailer = require('./../../../build/common/plugins/mailer');
+let Config = require('./../../../build/server/config');
+let Mailer = require('./../../../build/server/plugins/mailer');
 let expect = require('chai').expect;
 describe('Mailer', () => {
     it('returns error when read file fails', (done) => {
@@ -26,12 +26,12 @@ describe('Mailer', () => {
             email: 'email',
             password: 'password'
         };
-        Mailer.sendEmail(options, 'server/users/templates/welcome.hbs.md', payload)
+        Mailer.sendEmail(options, 'src/server/users/templates/welcome.hbs.md', payload)
             .then((info) => {
                 expect(info).to.exist;
             })
             .then(() => {
-                return Mailer.sendEmail(options, 'server/users/templates/welcome.hbs.md', payload);
+                return Mailer.sendEmail(options, 'src/server/users/templates/welcome.hbs.md', payload);
             })
             .then((info) => {
                 expect(info).to.exist;

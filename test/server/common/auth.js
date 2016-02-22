@@ -1,5 +1,5 @@
 'use strict';
-let Users = require('./../../../build/users/model');
+let Users = require('./../../../build/server/users/model');
 let Bluebird = require('bluebird');
 let moment = require('moment');
 let tu = require('./../testutils');

@@ -1,5 +1,5 @@
 'use strict';
-let AuthAttempts = require('./../../../build/auth-attempts/model');
+let AuthAttempts = require('./../../../build/server/auth-attempts/model');
 let Bluebird = require('bluebird');
 let tu = require('./../testutils');
 let expect = require('chai').expect;

@@ -1,7 +1,7 @@
 'use strict';
-let Blogs = require('./../../../build/blogs/model');
-let Audit = require('./../../../build/audit/model');
-let UserGroups = require('./../../../build/user-groups/model');
+let Blogs = require('./../../../build/server/blogs/model');
+let Audit = require('./../../../build/server/audit/model');
+let UserGroups = require('./../../../build/server/user-groups/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
 let Bluebird = require('bluebird');

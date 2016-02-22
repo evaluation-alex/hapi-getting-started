@@ -1,16 +1,44 @@
 'use strict';
-const pkg = require('./../package.json');
-module.exports = function (gulp, $, src) {
+const eslintOptions = {
+    'parserOptions': {
+        'ecmaVersion': 6,
+        'ecmaFeatures': {
+            'experimentalObjectRestSpread': true
+        }
+    },
+    'env': {
+        'node': true,
+        'mocha': true,
+        'es6': true
+    },
+    'globals': {
+        'expect': true,
+        'describe': true,
+        'it': true,
+        'window': true
+    },
+    'parser': 'babel-eslint',
+    'extends': 'eslint:recommended',
+    'rules': {
+        'quotes': [2, 'single'],
+        'no-console': 0,
+        'no-unused-vars': [2, {'args': 'none'}]
+    }
+};
+const src = {
+    server: ['src/server/**/*.js'],
+    shared: ['src/shared/**/*.js']
+};
+const dest = {
+    server: 'build/server',
+    shared: 'build/shared'
+};
+module.exports = function (gulp, $, which) {
     return function (cb) {
-        return !$.disableLinting ? $.mergeStream(
-            gulp.src(src)
-                .pipe($.eslint(pkg.eslintConfig))
-                .pipe($.eslint.format())
-                .pipe($.eslint.failOnError()),
-            gulp.src(src)
-                .pipe($.jscs(pkg.jscsConfig))
-                .pipe($.jscs.reporter())
-                .pipe($.jscs.reporter('fail'))
-        ) : cb();
+        return !$.disableLinting ?
+            gulp.src(src[which])
+                .pipe($.eslint(eslintOptions))
+                .pipe($.eslint.format()) :
+            cb();
     }
 };

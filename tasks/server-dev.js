@@ -3,10 +3,11 @@ module.exports = function (gulp, $) {
     return function () {
         //https://github.com/remy/nodemon/blob/master/doc/arch.md
         $.nodemon({
-            exec: 'node --harmony ',
-            script: './build/index.js',
-            watch: ['build/index.js'],
-            ignore: ['**/node_modules/**/*', 'public/**/*.*', 'test/**/*.*', '.git/**/*.*'],
+            env: {NODE_ENV: 'development'},
+            nodeArgs: ['--harmony'],
+            script: './build/server/index.js',
+            watch: ['build/server/index.js', 'build/shared/**/*'],
+            ignore: ['**/node_modules/**/*', 'test/**/*.*', '.git/**/*.*'],
             tasks: ['server:build'],
             delay: '20000ms'
         });

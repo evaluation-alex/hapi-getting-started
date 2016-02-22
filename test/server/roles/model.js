@@ -1,5 +1,5 @@
 'use strict';
-let Roles = require('./../../../build/roles/model');
+let Roles = require('./../../../build/server/roles/model');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
 describe('Roles DAO', () => {

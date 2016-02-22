@@ -24,7 +24,7 @@ const tests = {
     './blogs/controller': true,
     './posts/model': true,
     './posts/controller': true,
-    './web/contact/controller': true,
+    './contact/controller': true,
     './common/metrics': true,
     './common/utils': true,
     './z/clean': true,

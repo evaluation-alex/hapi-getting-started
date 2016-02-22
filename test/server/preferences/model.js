@@ -1,6 +1,6 @@
 'use strict';
-let Users = require('./../../../build/users/model');
-let Audit = require('./../../../build/audit/model');
+let Users = require('./../../../build/server/users/model');
+let Audit = require('./../../../build/server/audit/model');
 let moment = require('moment');
 let _ = require('lodash');
 let tu = require('./../testutils');
@@ -16,7 +16,6 @@ describe('Preferences DAO', () => {
     describe('Preferences.this.setLocale', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setLocale', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
@@ -68,7 +67,6 @@ describe('Preferences DAO', () => {
     describe('Preferences.this.preferences.notifications.blogs.inapp.frequency', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setPreferencesNotificationsBlogsInappFrequency', 'password', 'en')
                 .then((p) => {
                     testpref = p;
@@ -125,7 +123,6 @@ describe('Preferences DAO', () => {
     describe('Preferences.this.preferences.notifications.blogs.inapp.lastSent', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setPreferencesNotificationsBlogsInappLastSent', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
@@ -313,7 +310,6 @@ describe('Preferences DAO', () => {
     describe('Preferences.this.preferences.notifications.posts.inapp.frequency', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setPreferencesNotificationsPostsInappFrequency', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
@@ -370,7 +366,6 @@ describe('Preferences DAO', () => {
     describe('Preferences.this.preferences.notifications.posts.inapp.lastSent', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setPreferencesNotificationsPostsInappLastSent', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
@@ -558,7 +553,6 @@ describe('Preferences DAO', () => {
     describe('Preferences.this.preferences.notifications.userGroups.inapp.frequency', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setPreferencesNotificationsUserGroupsInappFrequency', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
@@ -616,7 +610,6 @@ describe('Preferences DAO', () => {
     describe('Preferences.this.preferences.notifications.userGroups.inapp.lastSent', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setPreferencesNotificationsUserGroupsInappLastSent', 'password', 'hi')
                 .then((p) => {
                     testpref = p;

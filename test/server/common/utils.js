@@ -1,6 +1,6 @@
 'use strict';
-let utils = require('./../../../build/common/utils');
-let Config = require('./../../../build/config');
+let utils = require('./../../../build/server/common/utils');
+let Config = require('./../../../build/server/config');
 let expect = require('chai').expect;
 describe('Utils', () => {
     it('should log when errback called with', (done) => {

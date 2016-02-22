@@ -2,19 +2,18 @@
 let Bluebird = require('bluebird');
 let Hapi = require('hapi');
 let path = require('path');
-let config = require('./../../build/config');
+let config = require('./../../build/server/config');
 let manifest = config.manifest;
 module.exports = function () {
-    manifest.plugins['./build/common/plugins/app-routes'].prependRoute = '';
+    manifest.plugins['./plugins/app-routes'].prependRoute = '';
+    //manifest.plugins['./plugins/connections'].mongo.app.url = manifest.plugins['./plugins/connections'].mongo.app.url2;
     return new Bluebird((resolve, reject) => {
         let server = new Hapi.Server(manifest.server);
         server.connection(manifest.connections[0]);
         Bluebird.all(Object.keys(manifest.plugins).map((plugin) => {
-            let options = manifest.plugins[plugin];
-            let module = plugin[0] === '.' ? path.join(__dirname, '/../../', plugin) : plugin;
-            let register = require(module);
+            let module = plugin[0] === '.' ? path.join(__dirname, '/../../build/server/', plugin) : plugin;
             return new Bluebird((resolve1, reject1) => {
-                server.register({register: register, options: options}, (err) => {
+                server.register({register: require(module), options: manifest.plugins[plugin]}, (err) => {
                     err ? reject1(err) : resolve1();
                 });
             });
@@ -26,12 +25,11 @@ module.exports = function () {
                         self.inject(options, resolve);
                     });
                 }
-
                 if (!server.injectThen) {
                     server.decorate('server', 'injectThen', injectThen);
                 }
                 server.register({
-                    register: require('./../../build/common/plugins/dbindexes'),
+                    register: require('./../../build/server/plugins/dbindexes'),
                     options: {
                         'modules': [
                             'users',

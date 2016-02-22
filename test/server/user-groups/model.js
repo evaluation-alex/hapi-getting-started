@@ -1,6 +1,6 @@
 'use strict';
-let UserGroups = require('./../../../build/user-groups/model');
-let Audit = require('./../../../build/audit/model');
+let UserGroups = require('./../../../build/server/user-groups/model');
+let Audit = require('./../../../build/server/audit/model');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
 describe('UserGroups DAO', () => {

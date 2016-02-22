@@ -1,7 +1,7 @@
 'use strict';
-let Users = require('./../../../build/users/model');
-let Audit = require('./../../../build/audit/model');
-let Roles = require('./../../../build/roles/model');
+let Users = require('./../../../build/server/users/model');
+let Audit = require('./../../../build/server/audit/model');
+let Roles = require('./../../../build/server/roles/model');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
 describe('Users DAO', () => {

@@ -1,16 +1,14 @@
 'use strict';
 //https://gist.github.com/yannickcr/6129327b31b27b14efc5
 const isparta = require('isparta');
-require('babel-register');
+const babelConfig = require('./babel-config');
+const src = {
+    server: ['build/server/**/*.js']
+};
+const requires = {
+    server: []
+};
 module.exports = function (gulp, $, which, cvg) {
-    const src = {
-        server: ['build/**/*.js'],
-        client: ['client/**/*.js']
-    };
-    const req = {
-        server: [],
-        client: [`./test/client/setup`]
-    };
     const test = function test(which) {
         return gulp.src([`test/${which}/index.js`], {read: false})
             .pipe($.mocha({
@@ -18,7 +16,7 @@ module.exports = function (gulp, $, which, cvg) {
                 ui: 'bdd',
                 harmony: true,
                 timeout: 2000000,
-                require: req[which]
+                require: requires[which]
             }));
     };
     const handleErrEnd = function handleErrEnd(pipe, which, cb) {
@@ -41,13 +39,14 @@ module.exports = function (gulp, $, which, cvg) {
             .once('finish', () => {
                 handleErrEnd(test(which)
                     .pipe($.istanbul.writeReports({
-                        dir: `./test/artifacts/${which}`,
+                        dir: `./coverage/${which}`,
                         reporters: ['lcov', 'html', 'text', 'text-summary'],
-                        reportOpts: {dir: `./test/artifacts/${which}`}
+                        reportOpts: {dir: `./coverage/${which}`}
                     })), which, cb);
             });
     };
     return function (cb) {
+        require('babel-register')(babelConfig[which]);
         cvg === 'cov' ? coverage(which, cb) : handleErrEnd(test(which), which, cb);
     }
 };

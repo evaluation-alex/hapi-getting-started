@@ -1,6 +1,6 @@
 'use strict';
-let Users = require('./../../../build/users/model');
-let Audit = require('./../../../build/audit/model');
+let Users = require('./../../../build/server/users/model');
+let Audit = require('./../../../build/server/audit/model');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
 describe('Profile DAO', () => {
@@ -14,7 +14,6 @@ describe('Profile DAO', () => {
     describe('Profile.this.setFirstName', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setProfileFirstName', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
@@ -71,7 +70,6 @@ describe('Profile DAO', () => {
     describe('Profile.this.setLastName', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setProfileLastName', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
@@ -128,7 +126,6 @@ describe('Profile DAO', () => {
     describe('Profile.this.setPreferredName', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setProfilePreferredName', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
@@ -185,7 +182,6 @@ describe('Profile DAO', () => {
     describe('Profile.this.setFacebook', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setProfileFacebook', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
@@ -242,7 +238,6 @@ describe('Profile DAO', () => {
     describe('Profile.this.setGoogle', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setProfileGoogle', 'password', 'hi')
                 .then((p) => {
                     testpref = p;
@@ -299,7 +294,6 @@ describe('Profile DAO', () => {
     describe('Profile.this.setTwitter', () => {
         let testpref = null;
         before((done) => {
-            //email, organisation, locale, by
             Users.create('setProfileTwitter', 'password', 'hi')
                 .then((p) => {
                     testpref = p;

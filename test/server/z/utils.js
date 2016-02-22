@@ -1,8 +1,8 @@
 'use strict';
 let Bluebird = require('bluebird');
 let tu = require('./../testutils');
-let Model = require('./../../../build/common/dao');
-let utils = require('./../../../build/common/utils');
+let Model = require('./../../../build/server/common/dao');
+let utils = require('./../../../build/server/common/utils');
 let expect = require('chai').expect;
 describe('DAO', () => {
     it('should disconnect when the server stops', (done) => {

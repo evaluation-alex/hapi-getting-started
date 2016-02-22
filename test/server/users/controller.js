@@ -1,8 +1,8 @@
 'use strict';
-let Users = require('./../../../build/users/model');
-let Blogs = require('./../../../build/blogs/model');
-let Audit = require('./../../../build/audit/model');
-let Mailer = require('./../../../build/common/plugins/mailer');
+let Users = require('./../../../build/server/users/model');
+let Blogs = require('./../../../build/server/blogs/model');
+let Audit = require('./../../../build/server/audit/model');
+let Mailer = require('./../../../build/server/plugins/mailer');
 let Bluebird = require('bluebird');
 let Fs = require('fs');
 let tu = require('./../testutils');

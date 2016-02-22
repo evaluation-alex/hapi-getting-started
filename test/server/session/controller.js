@@ -1,9 +1,9 @@
 'use strict';
 let Bluebird = require('bluebird');
-let Config = require('./../../../build/config');
-let Users = require('./../../../build/users/model');
-let Audit = require('./../../../build/audit/model');
-let AuthAttempts = require('./../../../build/auth-attempts/model');
+let Config = require('./../../../build/server/config');
+let Users = require('./../../../build/server/users/model');
+let Audit = require('./../../../build/server/audit/model');
+let AuthAttempts = require('./../../../build/server/auth-attempts/model');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
 describe('Session', () => {

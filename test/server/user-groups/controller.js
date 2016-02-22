@@ -1,7 +1,7 @@
 'use strict';
-let UserGroups = require('./../../../build/user-groups/model');
-let Notifications = require('./../../../build/notifications/model');
-let Audit = require('./../../../build/audit/model');
+let UserGroups = require('./../../../build/server/user-groups/model');
+let Notifications = require('./../../../build/server/notifications/model');
+let Audit = require('./../../../build/server/audit/model');
 let tu = require('./../testutils');
 let expect = require('chai').expect;
 describe('UserGroups', () => {
@@ -850,12 +850,10 @@ describe('UserGroups', () => {
                     return ug.addNeedsApproval(['one@first.com', 'someotherguy'], 'test').addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
                 })
                 .then(() => {
-                    //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', false, {join: 'one@first.com'}, 'test');
                 })
                 .then(() => {
-                    //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'someotherguy'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutApproveGroupAddUser'}], 'unread', 'approve', 'medium', false, {join: 'someotherguy'}, 'test');
                 })
                 .then(() => {
                     let request = {
@@ -1053,8 +1051,7 @@ describe('UserGroups', () => {
                     return ug.addNeedsApproval(['one@first.com'], 'test').addOwners(['owner1', 'owner2', 'owner3'], 'test').removeOwners(['test'], 'test').save();
                 })
                 .then(() => {
-                    //email, organisation, objectType, objectId, title, state, action, priority, content, by
-                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectGroupAddUser'}], 'unread', 'approve', 'medium', {join: 'one@first.com'}, 'test');
+                    return Notifications.create(['owner1', 'owner2', 'owner3'], 'user-groups', UserGroups.ObjectID(id), ['{{title}} has new subscribers that need approval', {title: 'testPutRejectGroupAddUser'}], 'unread', 'approve', 'medium', false, {join: 'one@first.com'}, 'test');
                 })
                 .then(() => {
                     let request = {

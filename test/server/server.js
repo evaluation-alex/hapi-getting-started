@@ -6,7 +6,7 @@ let config = require('./../../build/server/config');
 let manifest = config.manifest;
 module.exports = function () {
     manifest.plugins['./plugins/app-routes'].prependRoute = '';
-    //manifest.plugins['./plugins/connections'].mongo.app.url = manifest.plugins['./plugins/connections'].mongo.app.url2;
+    manifest.plugins['./plugins/connections'].mongo.app.url = manifest.plugins['./plugins/connections'].mongo.app.url2;
     return new Bluebird((resolve, reject) => {
         let server = new Hapi.Server(manifest.server);
         server.connection(manifest.connections[0]);

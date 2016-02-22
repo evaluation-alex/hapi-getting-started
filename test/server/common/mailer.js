@@ -26,12 +26,12 @@ describe('Mailer', () => {
             email: 'email',
             password: 'password'
         };
-        Mailer.sendEmail(options, 'src/server/users/templates/welcome.hbs.md', payload)
+        Mailer.sendEmail(options, 'build/server/users/templates/welcome.hbs.md', payload)
             .then((info) => {
                 expect(info).to.exist;
             })
             .then(() => {
-                return Mailer.sendEmail(options, 'src/server/users/templates/welcome.hbs.md', payload);
+                return Mailer.sendEmail(options, 'build/server/users/templates/welcome.hbs.md', payload);
             })
             .then((info) => {
                 expect(info).to.exist;

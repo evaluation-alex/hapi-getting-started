@@ -2,7 +2,7 @@
 let _ = require('lodash');
 let fs = require('fs');
 let Bluebird = require('bluebird');
-let config = require('./../../../src/server/options.json');
+let config = require('./../../../build/server/options.json');
 let influxdb = Bluebird.promisifyAll(require('influx')({
     host: config.influxdb.host,
     port: config.influxdb.httpport,

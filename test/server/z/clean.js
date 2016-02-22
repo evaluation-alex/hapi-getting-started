@@ -1,7 +1,7 @@
 'use strict';
 let tu = require('./../testutils');
 let MongoClient = require('mongodb').MongoClient;
-let opts = require('./../../../src/server/options.json');
+let opts = require('./../../../build/server/options.json');
 let mongourl = opts.manifest.plugins['./plugins/connections'].mongo.app.url2;
 describe('cleanup', () => {
     it('should drop all tables', (done) => {

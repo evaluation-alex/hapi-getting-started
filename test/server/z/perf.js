@@ -3,7 +3,7 @@ let _ = require('lodash');
 let fs = require('fs');
 let Bluebird = require('bluebird');
 let json2csv = Bluebird.promisify(require('json2csv'));
-let config = require('./../../../src/server/options.json');
+let config = require('./../../../build/server/options.json');
 let influxdb = Bluebird.promisifyAll(require('influx')({
     host: config.influxdb.host,
     port: config.influxdb.httpport,

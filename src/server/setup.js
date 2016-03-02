@@ -158,7 +158,10 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                 }
             }
         };
-        fs.writeFileSync('./build/server/options.json', JSON.stringify(opts, null, 4));
+        if (fs.existsSync('./src/server/options.json')) {
+            fs.renameSync('./src/server/options.json', './src/server/options.json.old');
+        }
+        fs.writeFileSync('./src/server/options.json', JSON.stringify(opts, null, 4));
         console.log(`options.json - ${JSON.stringify(opts, null, 4)}`);
         return results;
     })

@@ -4,8 +4,21 @@ const {hasItems} = utils;
 const build = require('./../common/dao').build;
 const UserGroups = require('./../user-groups/model');
 const Blogs = require('./../blogs/model');
-const schemas = require('./schemas');
 const shared = require('./shared');
+const modelSchema = require('./../../shared/model')(require('joi'), require('./../lodash')).posts;
+const daoOptions = {
+    connection: 'app',
+    collection: 'posts',
+    indexes: [
+        {fields: {organisation: 1, title: 1, blogId: 1, publishedOn: 1}},
+        {fields: {tags: 1}},
+        {fields: {state: 1, publishedOn: 1}}
+    ],
+    updateMethod: shared.daoOptions.updateMethod,
+    saveAudit: true,
+    nonEnumerables: ['audit'],
+    schemaVersion: 1
+};
 const Posts = function Posts(attrs) {
     this.init(attrs);
     return this;
@@ -75,4 +88,4 @@ Posts.prototype = {
             });
     }
 };
-module.exports = build(Posts, schemas.dao, schemas.model, [], '_id');
+module.exports = build(Posts, daoOptions, modelSchema, [], '_id');

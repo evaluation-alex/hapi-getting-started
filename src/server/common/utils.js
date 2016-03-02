@@ -4,18 +4,22 @@ const moment = require('moment');
 const bcrypt = require('bcrypt');
 const boom = require('boom');
 const mongodb = require('mongodb');
-const traverse = require('traverse');
-const crypto = require('crypto');
 const config = require('./../config');
-const {get, isArray, isBoolean, isString, isNumber, merge} = _;
+const {get, isArray, isBoolean, isString, isNumber, merge, isUndefined, values} = _;
 const {ObjectID: objectID} = mongodb;
-const {logger, influxdb} = config;
+const {logger, influxdb, enableConsole} = config;
 const logAndBoom = function logAndBoom(err) {
-    logger.error({error: err, stack: err.stack});
+    errback(err);
     return err.canMakeBoomError ? err : boom.badImplementation(err);
 };
 const errback = function errback(err) {
     if (err) {
+        /*istanbul ignore else*/
+        /*istanbul ignore if*/
+        if (enableConsole) {
+            console.log('err', err);
+            console.log(err.stack);
+        }
         logger.error({error: err, stack: err.stack});
     }
 };
@@ -31,68 +35,59 @@ const org = function org(request) {
 const user = function user(request) {
     return get(request, ['auth', 'credentials', 'user'], undefined);
 };
-// TODO: if not found in user prefs, figure out from request headers - tbd
 const locale = function locale(request) {
     return get(request, ['auth', 'credentials', 'user', 'preferences', 'locale'], 'en');
 };
-const lookupParamsOrPayloadOrQuery = function lookupParamsOrPayloadOrQuery(request, field, defaultVal) {
-    return get(request, ['params', field],
-        get(request, ['payload', field],
-            get(request, ['query', field],
-                get(request, ['headers', field], defaultVal)
-            )
-        )
-    );
+const lookupParamsOrPayloadOrQuery = function lookupParamsOrPayloadOrQuery(request, field, defaultVal, paths) {
+    const toRet = (paths || [['params'], ['payload'], ['query'], ['headers']])
+        .map(path => path.concat(field))
+        .reduce((found, pathToLookup) => isUndefined(found) ? get(request, pathToLookup) : found, undefined);
+    return !isUndefined(toRet) ? toRet : defaultVal;
 };
 const hasItems = function hasItems(arr) {
     return arr && arr.length > 0;
 };
 const queryBuilder = {
-    forID: p => isArray(p) ?
-    {$in: p.map(objectID)} :
-        objectID(p),
-    forExact: p => isArray(p) ?
-    {$in: p} :
-        p,
-    forPartial: p => isArray(p) ?
-    {$in: p.map(op => new RegExp(`^.*?${op}.*$`, 'i'))} :
-    {$regex: new RegExp(`^.*?${p}.*$`, 'i')},
+    forID: p => isArray(p) ? {$in: p.map(objectID)} : objectID(p),
+    forExact: p => isArray(p) ? {$in: p} : p,
+    forPartial: p => isArray(p) ? {$in: p.map(op => new RegExp(`^.*?${op}.*$`, 'i'))} : {$regex: new RegExp(`^.*?${p}.*$`, 'i')},
     forDateBefore: d => ({$lte: moment(d).toDate()}),
     forDateAfter: d => ({$gte: moment(d).toDate()})
 };
-function buildQueryFor(type, request, fields) {
-    const builder = queryBuilder[type];
+const buildQueryFor = function buildQueryFor(type, request, fields, paths) {
     return fields
-        .map(pair => {
-            const p = lookupParamsOrPayloadOrQuery(request, pair[0]);
-            return p ? {[pair[1]]: builder(p)} : {};
-        })
-        .reduce((p, c) => merge(p, c), {});
+        .map(([fieldToLookup, fieldInMongo]) => [lookupParamsOrPayloadOrQuery(request, fieldToLookup, undefined, paths), fieldInMongo])
+        .filter(([valueFromRequest, fieldInMongo]) => !!valueFromRequest)
+        .map(([valueFromRequest, fieldInMongo]) => ({[fieldInMongo]: queryBuilder[type](valueFromRequest)}))
+        .reduce((mongoDocForType, queryFragmentForField) => merge(mongoDocForType, queryFragmentForField), {});
 }
 const buildQuery = function buildQuery(request, options) {
-    return ['forPartial', 'forExact', 'forID', 'forDateBefore', 'forDateAfter']
-        .map(type => hasItems(options[type]) ? buildQueryFor(type, request, options[type]) : {})
-        .reduce((p, c) => merge(p, c), {});
+    const andOr = {
+        and: {
+            paths: [['payload'], ['query']],
+            reducer: (mongoQuery, queryForField) => merge(mongoQuery, queryForField),
+            reduceInitial: {}
+        },
+        or: {
+            paths: [['payload', '$or'], ['query', '$or']],
+            reducer: (mongoQueryOr, queryForFields) => mongoQueryOr.concat(Object.keys(queryForFields).map(k => ({[k]: queryForFields[k]}))),
+            reduceInitial: []
+        }
+    };
+    const [and, $or] = values(andOr)
+        .map(({paths, reducer, reduceInitial}) =>
+            Object.keys(queryBuilder)
+            .filter(type => hasItems(options[type]))//only do query formation for query types setup for this handler
+            .map(type =>  buildQueryFor(type, request, options[type], paths))//buildquery for each type using the default paths
+            .reduce(reducer, reduceInitial)
+        );
+    return merge({}, and, hasItems($or) ? {$or} : {});
 };
 const findopts = function findopts(opts) {
     return (!opts || opts === '') ? undefined
         : opts.split(/\s+/)
         .map(each => (each[0] === '-') ? {[each.slice(1)]: -1} : {[each]: 1})
         .reduce((p, c) => merge(p, c), {});
-};
-const hashCode = function hashCode(obj) {
-    const md5 = crypto.createHash('md5');
-    traverse(obj)
-        .reduce(function (acc, x) {
-            if (this.isLeaf) {
-                acc.push(`${this.path.join('.')}#${String(x)}`);
-            }
-            return acc;
-        }, [])
-        .sort()
-        .forEach(k => md5.update(k));
-    obj.__hashCode__ = md5.digest('hex');
-    return obj;
 };
 const secureHash = function secureHash(password) {
     return bcrypt.hashSync(password, 10);
@@ -147,7 +142,6 @@ module.exports = {
     findopts,
     secureHash,
     secureCompare,
-    hashCode,
     timing,
     profile,
     dumpTimings

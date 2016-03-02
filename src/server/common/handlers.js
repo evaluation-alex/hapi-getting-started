@@ -2,7 +2,9 @@
 const _ = require('./../lodash');
 const Bluebird = require('bluebird');
 const utils = require('./utils');
-const {isFunction} = _;
+const config = require('./../config');
+const {enableConsole} = config;
+const {isFunction, omit} = _;
 const {org, by, logAndBoom, findopts, profile} = utils;
 const buildCreateHandler = function buildCreateHandler(Model) {
     const timing = profile('handler', {collection: Model.collection, method: 'create', type: 'main'});
@@ -18,8 +20,21 @@ const buildFindHandler = function buildFindHandler(Model) {
     const timing = profile('handler', {collection: Model.collection, method: 'find', type: 'main'});
     return function findHandler(request, reply) {
         const start = Date.now();
-        const {fields, sort, limit, page} = request.query;
+        const {fields, sort, limit, page} = request.payload;
         const query = request.pre.mongoQuery;
+        /*istanbul ignore else*/
+        /*istanbul ignore if*/
+        if (enableConsole) {
+            console.log('+-+-+-+-+-+-+-+-+-+-+-+-+-+-+');
+            console.log('collection:', Model.collection);
+            console.log('query.and :', omit(query, ['$or']));
+            console.log('query.or  :', query.$or);
+            console.log('sort      :', sort);
+            console.log('limit     :', limit);
+            console.log('page      :', page);
+            console.log('fields    :', fields);
+            console.log('+-+-+-+-+-+-+-+-+-+-+-+-+-+-+');
+        }
         Model.pagedFind(query, findopts(fields), findopts(sort), limit, page)
             .catch(logAndBoom)
             .then(reply)

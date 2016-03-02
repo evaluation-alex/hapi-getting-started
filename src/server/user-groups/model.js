@@ -1,6 +1,33 @@
 'use strict';
 const build = require('./../common/dao').build;
-const schemas = require('./schemas');
+const modelSchema = require('./../../shared/model')(require('joi'), require('./../lodash'))['user-groups'];
+const daoOptions = {
+    connection: 'app',
+    collection: 'user-groups',
+    indexes: [
+        {fields: {name: 1, organisation: 1}, options: {unique: true}}
+    ],
+    updateMethod: {
+        method: 'update',
+        props: [
+            'isActive',
+            'description',
+            'access'
+        ],
+        arrProps: [
+            'owners',
+            'members',
+            'needsApproval'
+        ]
+    },
+    saveAudit: true,
+    joinApproveRejectLeave: {
+        affectedRole: 'members',
+        needsApproval: 'needsApproval'
+    },
+    nonEnumerables: ['audit'],
+    schemaVersion: 1
+};
 const UserGroups = function UserGroups(attrs) {
     this.init(attrs);
     return this;
@@ -28,5 +55,5 @@ UserGroups.create = function create(name, description, owner, organisation) {
         access: 'restricted'
     }, owner, organisation);
 };
-module.exports = build(UserGroups, schemas.dao, schemas.model, [], 'name');
+module.exports = build(UserGroups, daoOptions, modelSchema, [], 'name');
 

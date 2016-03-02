@@ -20,7 +20,7 @@ describe('Blogs', () => {
             })
             .catch(done);
     });
-    describe('GET /blogs', () => {
+    describe('POST /blogs/search', () => {
         before((done) => {
             Blogs.create('test GET /blogs is active', 'test GET /blogs', ['owner1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then(() => {
@@ -35,8 +35,11 @@ describe('Blogs', () => {
         });
         it('should give blogs when isactive = true is sent', (done) => {
             let request = {
-                method: 'GET',
-                url: '/blogs?isActive="true"',
+                method: 'POST',
+                url: '/blogs/search',
+                payload: {
+                    isActive: true
+                },
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -54,8 +57,9 @@ describe('Blogs', () => {
         });
         it('should give inactive blogs when isactive = false is sent', (done) => {
             let request = {
-                method: 'GET',
-                url: '/blogs?isActive="false"',
+                method: 'POST',
+                url: '/blogs/search',
+                payload: {isActive: false},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -73,8 +77,8 @@ describe('Blogs', () => {
         });
         it('should give the blogs where the user sent is a member of the owners list', (done) => {
             let request = {
-                method: 'GET',
-                url: '/blogs?owner=owner1',
+                method: 'POST',
+                url: '/blogs/search', payload: {owner: 'owner1'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -91,21 +95,6 @@ describe('Blogs', () => {
                         });
                         expect(match).to.be.true;
                     });
-                    done();
-                })
-                .catch(done);
-        });
-        it('should return both inactive and active blogs when nothing is sent', (done) => {
-            let request = {
-                method: 'GET',
-                url: '/blogs',
-                headers: {
-                    Authorization: rootAuthHeader
-                }
-            };
-            server.injectThen(request)
-                .then((response) => {
-                    expect(response.statusCode).to.equal(200);
                     done();
                 })
                 .catch(done);

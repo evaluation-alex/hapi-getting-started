@@ -6,14 +6,14 @@ const handlers = require('./../common/handlers');
 const post = require('./../common/posthandlers');
 const {upperFirst} = _;
 const {by, org, hasItems} = utils;
-const {findValidator, canUpdate, canView, areValidUsers, isMemberOf, uniqueCheck, prePopulate, buildMongoQuery} = pre;
+const {canUpdate, canView, areValidUsers, isMemberOf, uniqueCheck, prePopulate, buildMongoQuery} = pre;
 const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
 const {sendNotifications, cancelNotifications, hashCodeOn} = post;
-const schemas = require('./schemas');
 const UserGroups = require('./model');
+const schema = require('./../../shared/rest-api')(require('joi'), _)['user-groups'];
 module.exports = {
     new: {
-        validate: schemas.controller.create,
+        validate: schema.create,
         pre: [
             canUpdate(UserGroups.collection),
             uniqueCheck(UserGroups, request => {
@@ -42,10 +42,10 @@ module.exports = {
         ]
     },
     find: {
-        validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
+        validate: schema.find,
         pre: [
             canView(UserGroups.collection),
-            buildMongoQuery(UserGroups, schemas.controller.findOptions)
+            buildMongoQuery(UserGroups, schema.findOptions)
         ],
         handler: buildFindHandler(UserGroups),
         post: [
@@ -53,6 +53,7 @@ module.exports = {
         ]
     },
     findOne: {
+        validate: schema.findOne,
         pre: [
             canView(UserGroups.collection),
             prePopulate(UserGroups, 'id')
@@ -63,14 +64,14 @@ module.exports = {
         ]
     },
     update: {
-        validate: schemas.controller.update,
+        validate: schema.update,
         pre: [
             canUpdate(UserGroups.collection),
             prePopulate(UserGroups, 'id'),
             areValidUsers(['addedOwners', 'addedMembers']),
             isMemberOf(UserGroups, ['owners'])
         ],
-        handler: buildUpdateHandler(UserGroups, schemas.dao.updateMethod.method),
+        handler: buildUpdateHandler(UserGroups, 'update'),
         post: [
             sendNotifications(UserGroups, (ug, request) => {
                 const description = {};
@@ -97,6 +98,7 @@ module.exports = {
         ]
     },
     delete: {
+        validate: schema.delete,
         pre: [
             canUpdate(UserGroups.collection),
             prePopulate(UserGroups, 'id'),
@@ -117,6 +119,7 @@ module.exports = {
         ]
     },
     join: {
+        validate: schema.join,
         pre: [
             canView(UserGroups.collection),
             prePopulate(UserGroups, 'id')
@@ -139,6 +142,7 @@ module.exports = {
         ]
     },
     leave: {
+        validate: schema.leave,
         pre: [
             canView(UserGroups.collection),
             prePopulate(UserGroups, 'id'),
@@ -161,7 +165,7 @@ module.exports = {
         ]
     },
     approve: {
-        validate: schemas.controller.approve,
+        validate: schema.approve,
         pre: [
             canUpdate(UserGroups.collection),
             prePopulate(UserGroups, 'id'),
@@ -195,7 +199,7 @@ module.exports = {
         ]
     },
     reject: {
-        validate: schemas.controller.approve,
+        validate: schema.approve,
         pre: [
             canUpdate(UserGroups.collection),
             prePopulate(UserGroups, 'id'),

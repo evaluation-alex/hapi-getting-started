@@ -1,5 +1,4 @@
 'use strict';
-const find = require('./../lodash').find;
 const Bluebird = require('bluebird');
 const moment = require('moment');
 const Uuid = require('node-uuid');
@@ -9,18 +8,37 @@ const {UserNotFoundError, IncorrectPasswordError, UserNotLoggedInError,
 const utils = require('./../common/utils');
 const {ip, secureHash, secureCompare, hasItems} = utils;
 const build = require('./../common/dao').build;
-const schemas = require('./schemas');
 const Session = require('./../session/model');
 const Preferences = require('./../preferences/model');
 const Profile = require('./../profile/model');
 const Roles = require('./../roles/model');
+const modelSchema = require('./../../shared/model')(require('joi'), require('./../lodash')).users;
+const daoOptions =  {
+    connection: 'app',
+    collection: 'users',
+    idForAudit: 'email',
+    indexes: [
+        {fields: {email: 1}, options: {unique: true}},
+        {fields: {email: 1, organisation: 1}, options: {unique: true}}
+    ],
+    updateMethod: {
+        method: 'updateUser',
+        props: [
+            'isActive',
+            'roles'
+        ]
+    },
+    saveAudit: true,
+    nonEnumerables: ['audit', '_roles'],
+    schemaVersion: 1
+};
 const Users = function Users(attrs) {
     this.init(attrs);
     return this;
 };
 Users.prototype = {
     hasPermissionsTo(performAction, onObject) {
-        return !!find(this._roles, role => role.hasPermissionsTo(performAction, onObject));
+        return !!this._roles.find(role => role.hasPermissionsTo(performAction, onObject));
     },
     resetPasswordSent(by) {
         this.resetPwd = {
@@ -90,7 +108,7 @@ Users.findBySessionCredentials = function findBySessionCredentials(email, key) {
             if (!hasItems(user.session)) {
                 return Bluebird.reject(new UserNotLoggedInError({email}));
             }
-            const matchingSession = find(user.session, session => secureCompare(key, session.key));
+            const matchingSession = user.session.find(session => secureCompare(key, session.key));
             if (!matchingSession) {
                 return Bluebird.reject(new SessionCredentialsNotMatchingError({email}));
             }
@@ -100,4 +118,4 @@ Users.findBySessionCredentials = function findBySessionCredentials(email, key) {
             return user._populate();
         });
 };
-module.exports = build(Users, schemas.dao, schemas.model, [Session, Preferences, Profile], 'email');
+module.exports = build(Users, daoOptions, modelSchema, [Session, Preferences, Profile], 'email');

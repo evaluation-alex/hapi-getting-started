@@ -3,7 +3,7 @@ const Bluebird = require('bluebird');
 const _ = require('./../lodash');
 const {merge} = _;
 const utils = require('./utils');
-const {by, user, errback, hasItems, locale, hashCode, profile} = utils;
+const {by, user, errback, hasItems, locale, profile} = utils;
 const Notifications = require('./../notifications/model');
 const buildPostHandler = function buildPostHandler(tags, cb) {
     const timing = profile('handler', merge({}, tags, {type: 'post'}));
@@ -89,7 +89,11 @@ const i18n = function i18n(Model) {
 };
 const hashCodeOn = function hashCodeOn(Model) {
     const tags = {collection: Model.collection, method: 'hashCode'};
-    return buildPostHandler(tags, (request, target) => hashCode(target));
+    return buildPostHandler(tags, (request, target) =>
+        target.hashCode ?
+            target.hashCode() :/*istanbul ignore next*/
+            target
+    );
 };
 const populateObject = function populateObject(Model) {
     const tags = {collection: Model.collection, method: 'populateObject'};

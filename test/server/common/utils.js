@@ -74,7 +74,12 @@ describe('Utils', () => {
             payload: {
                 a: 'a1',
                 b: ['b1', 'b2'],
-                id: ['54c894fe1d1d4ab4032ed94e', '54c894fe1d1d4ab4032ed94e']
+                id: ['54c894fe1d1d4ab4032ed94e', '54c894fe1d1d4ab4032ed94e'],
+                $or: {
+                    a: 'a2',
+                    b: ['b3', 'b4'],
+                    id: ['54c894fe1d1d4ab4032ed94e', '54c894fe1d1d4ab4032ed94e']
+                }
             }
         };
         let query = utils.buildQuery(request, {forPartial: fields});
@@ -83,14 +88,23 @@ describe('Utils', () => {
         expect(query.b.$in.length).to.equal(2);
         expect(query.b.$in[0]).to.be.an.instanceof(RegExp);
         expect(query.b.$in[1]).to.be.an.instanceof(RegExp);
+        expect(query.$or[0].a.$regex).to.exist;
+        expect(query.$or[1].b.$in).to.exist;
+        expect(query.$or[1].b.$in.length).to.equal(2);
+        expect(query.$or[1].b.$in[0]).to.be.an.instanceof(RegExp);
+        expect(query.$or[1].b.$in[1]).to.be.an.instanceof(RegExp);
         let query2 = utils.buildQuery(request, {forExact: fields});
         expect(query2.a).to.exist;
-        expect(query2.b.$in).to.exist;
-        expect(query2.b.$in.length).to.equal(2);
+        expect(query2.$or[0].a).to.exist;
+        expect(query2.$or[1].b.$in).to.exist;
+        expect(query2.$or[1].b.$in.length).to.equal(2);
         let query3 = utils.buildQuery(request, {forID: [['id', 'id']]});
         expect(query3.id).to.exist;
         expect(query3.id.$in).to.exist;
         expect(query3.id.$in.length).to.equal(2);
+        expect(query3.$or[0].id).to.exist;
+        expect(query3.$or[0].id.$in).to.exist;
+        expect(query3.$or[0].id.$in.length).to.equal(2);
         done();
     });
     it('should form the proper object for findopts', (done) => {

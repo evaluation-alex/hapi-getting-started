@@ -62,8 +62,27 @@ const updateFunc = function updateFunc(updateMethod) {
         }
     };
 };
+const daoOptions = {
+    updateMethod: {
+        method: 'updatePost',
+        props: [
+            'isActive',
+            'state',
+            'title',
+            'access',
+            'allowComments',
+            'needsReview',
+            'content'
+        ],
+        arrProps: [
+            'tags',
+            'attachments'
+        ]
+    }
+};
 module.exports = {
     newObjectFunc,
     createFunc,
-    updateFunc
+    updateFunc,
+    daoOptions
 };

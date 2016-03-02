@@ -15,7 +15,7 @@ describe('Audit', () => {
             })
             .catch(done);
     });
-    describe('GET /audit', () => {
+    describe('POST /audit/search', () => {
         describe('users', () => {
             before((done) => {
                 Users.create('test.users@test.api', 'password123', 'en')
@@ -44,8 +44,12 @@ describe('Audit', () => {
             });
             it('should give audit of only the user whose email is sent in the parameter', (done) => {
                 let request = {
-                    method: 'GET',
-                    url: '/audit?objectChangedId=test.users2@test.api&objectType=users',
+                    method: 'POST',
+                    url: '/audit/search',
+                    payload: {
+                        objectChangedId: 'test.users2@test.api',
+                        objectType: 'users'
+                    },
                     headers: {
                         Authorization: authheader
                     }
@@ -60,8 +64,12 @@ describe('Audit', () => {
             });
             it('should give audit of all changes done by user', (done) => {
                 let request = {
-                    method: 'GET',
-                    url: '/audit?by=test&objectType=users',
+                    method: 'POST',
+                    url: '/audit/search',
+                    payload: {
+                        by: 'test',
+                        objectType: 'users'
+                    },
                     headers: {
                         Authorization: authheader
                     }
@@ -75,8 +83,8 @@ describe('Audit', () => {
             });
             it('should give audit of all changes', (done) => {
                 let request = {
-                    method: 'GET',
-                    url: '/audit',
+                    method: 'POST',
+                    url: '/audit/search', payload: {},
                     headers: {
                         Authorization: authheader
                     }
@@ -89,8 +97,11 @@ describe('Audit', () => {
             });
             it('should give nothing if no search criterion satisfied', (done) => {
                 let request = {
-                    method: 'GET',
-                    url: '/audit?by=xxxxx',
+                    method: 'POST',
+                    url: '/audit/search',
+                    payload: {
+                        by: 'xxxxx'
+                    },
                     headers: {
                         Authorization: authheader
                     }

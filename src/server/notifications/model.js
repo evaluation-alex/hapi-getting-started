@@ -3,7 +3,27 @@ const _ = require('./../lodash');
 const {uniq, flatten, isArray} = _;
 const Bluebird = require('bluebird');
 const build = require('./../common/dao').build;
-const schemas = require('./schemas');
+const modelSchema = require('./../../shared/model')(require('joi'), _).notifications;
+const daoOptions = {
+    connection: 'app',
+    collection: 'notifications',
+    indexes: [
+        {fields: {objectType: 1, objectId: 1, state: 1, action: 1}},
+        {fields: {email: 1, objectType: 1, objectId: 1, createdOn: 1}}
+    ],
+    updateMethod: {
+        method: 'update',
+        props: [
+            'state',
+            'isActive',
+            'starred'
+        ]
+    },
+    saveAudit: true,
+    i18n: ['title', 'content'],
+    nonEnumerables: [],
+    schemaVersion: 1
+};
 const Notifications = function Notifications(attrs) {
     this.init(attrs);
     return this;
@@ -33,4 +53,4 @@ Notifications.create = function create(email, objectType, objectId, title, state
         return Notifications.createOne(email, objectType, objectId, title, state, action, priority, starred, content, by, organisation);
     }
 };
-module.exports = build(Notifications, schemas.dao, schemas.model);
+module.exports = build(Notifications, daoOptions, modelSchema);

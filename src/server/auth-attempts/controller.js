@@ -5,18 +5,18 @@ const pre = require('./../common/prereqs');
 const handlers = require('./../common/handlers');
 const {merge} = _;
 const {buildQuery} = utils;
-const {canView, findValidator, buildMongoQuery} = pre;
+const {canView, buildMongoQuery} = pre;
 const {buildFindHandler} = handlers;
-const schemas = require('./schemas');
+const schema = require('./../../shared/rest-api')(require('joi'), require('./../lodash'))['auth-attempts'];
 const AuthAttempts = require('./model');
 module.exports = {
     find: {
-        validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
+        validate: schema.find,
         pre: [
             canView(AuthAttempts.collection),
-            buildMongoQuery(AuthAttempts, schemas.controller.findOptions, (request, findOptions) => {
-                return merge({organisation: '*'}, buildQuery(request, findOptions))
-            })
+            buildMongoQuery(AuthAttempts, schema.findOptions, (request, findOptions) =>
+                merge({organisation: '*'}, buildQuery(request, findOptions))
+            )
         ],
         handler: buildFindHandler(AuthAttempts)
     }

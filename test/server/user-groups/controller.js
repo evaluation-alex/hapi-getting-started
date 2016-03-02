@@ -17,7 +17,7 @@ describe('UserGroups', () => {
             })
             .catch(done);
     });
-    describe('GET /user-groups', () => {
+    describe('POST /user-groups/search', () => {
         before((done) => {
             UserGroups.create('GetUserGroupsTestName', 'GET /user-groups', 'root')
                 .then(() => {
@@ -45,8 +45,8 @@ describe('UserGroups', () => {
         });
         it('should give active groups when isactive = true is sent', (done) => {
             let request = {
-                method: 'GET',
-                url: '/user-groups?isActive="true"',
+                method: 'POST',
+                url: '/user-groups/search', payload: {isActive: true},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -65,8 +65,8 @@ describe('UserGroups', () => {
         });
         it('should give inactive groups when isactive = false is sent', (done) => {
             let request = {
-                method: 'GET',
-                url: '/user-groups?isActive="false"',
+                method: 'POST',
+                url: '/user-groups/search', payload: {isActive: false},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -83,8 +83,8 @@ describe('UserGroups', () => {
         });
         it('should give only the groups whose name is sent in the parameter', (done) => {
             let request = {
-                method: 'GET',
-                url: '/user-groups?groupName=GetUserGroupsTestName',
+                method: 'POST',
+                url: '/user-groups/search', payload: {groupName: 'GetUserGroupsTestName'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -101,8 +101,8 @@ describe('UserGroups', () => {
         });
         it('should give the groups where the user is a member when user id is sent in the parameters', (done) => {
             let request = {
-                method: 'GET',
-                url: '/user-groups?email=user2',
+                method: 'POST',
+                url: '/user-groups/search', payload: {email: 'user2'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -113,23 +113,6 @@ describe('UserGroups', () => {
                     let p = JSON.parse(response.payload);
                     expect(p.data.length).to.equal(1);
                     expect(p.data[0].name).to.match(/GetUserGroupsTestMemberActive/);
-                    done();
-                })
-                .catch(done);
-        });
-        it('should return both inactive and active groups when nothing is sent', (done) => {
-            let request = {
-                method: 'GET',
-                url: '/user-groups',
-                headers: {
-                    Authorization: rootAuthHeader
-                }
-            };
-            server.injectThen(request)
-                .then((response) => {
-                    expect(response.statusCode).to.equal(200);
-                    let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(4);
                     done();
                 })
                 .catch(done);

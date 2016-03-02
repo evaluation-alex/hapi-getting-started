@@ -6,16 +6,16 @@ const {canUpdate, prePopulate, onlyOwner} = pre;
 const {buildUpdateHandler} = handlers;
 const {hashCodeOn} = post;
 const Users = require('./../users/model');
-const schemas = require('./schemas');
+const schema = require('./../../shared/rest-api')(require('joi'), require('./../lodash')).profile;
 module.exports = {
     update: {
-        validate: schemas.controller.update,
+        validate: schema.update,
         pre: [
             canUpdate(Users.collection),
             prePopulate(Users, 'id'),
             onlyOwner(Users)
         ],
-        handler: buildUpdateHandler(Users, schemas.dao.updateMethod.method),
+        handler: buildUpdateHandler(Users, 'updateProfile'),
         post: [
             hashCodeOn(Users)
         ]

@@ -3,6 +3,8 @@ const _ = require('./../lodash');
 const Bluebird = require('bluebird');
 const Joi = require('joi');
 const mongodb = require('mongodb');
+const traverse = require('traverse');
+const crypto = require('crypto');
 const config = require('./../config');
 const utils = require('./utils');
 const errors = require('./errors');
@@ -31,12 +33,11 @@ function defaultcb(resolve, reject, collection, method, query) {
         }
     };
 }
-const connect = function connect(name, cfg) {
+const connect = function connect(name, {url, options}) {
     return new Bluebird((resolve, reject) => {
         if (connections[name]) {
             resolve(connections[name]);
         } else {
-            const {url, options} = cfg;
             MongoClient.connect(url, options,
                 defaultcb(db => {
                     connections[name] = db;
@@ -72,8 +73,7 @@ function withSetupMethods(Dao, nonEnumerables) {
             return db(Dao.connection).collection(Dao.collection);
         },
         createIndexes() {
-            return Bluebird.all(Dao.indexes.map(index => {
-                const {fields, options} = index;
+            return Bluebird.all(Dao.indexes.map(({fields, options}) => {
                 return new Bluebird((resolve, reject) => {
                     Dao.clctn().createIndex(fields, options || {}, defaultcb(resolve, reject, Dao.collection, 'createIndex'));
                 });
@@ -83,7 +83,9 @@ function withSetupMethods(Dao, nonEnumerables) {
             const {error} = Joi.validate(obj, Dao.modelSchema, {abortEarly: false, allowUnknown: false});
             /*istanbul ignore next*/
             if (error) {
-                console.log(error);
+                console.log('model:', Dao.collection);
+                console.log('obj to validate:', obj);
+                console.log('error:', error);
             }
         }
     });
@@ -231,9 +233,9 @@ function withFindMethods(Dao, areValidProperty) {
             return Bluebird.join(
                 Dao.find(query, fields, sort, limit, (page - 1) * limit),
                 Dao.count(query),
-                (results, count) => {
+                (data, count) => {
                     return {
-                        data: results,
+                        data,
                         pages: {
                             current: page,
                             prev: page - 1,
@@ -310,69 +312,61 @@ function arrDescriptors(lists) {
 }
 function withSetMethods(Dao, properties) {
     properties
-        .map(p => {
-            const {method, path, name} = p;
-            return {
-                [method](newValue, by) {
-                    const origval = get(this, path);
-                    if (!isUndefined(newValue) && !isEqual(origval, newValue)) {
-                        this.trackChanges(name, origval, newValue, by);
-                        set(this, path, newValue);
-                    }
-                    return this;
+        .map(({method, path, name}) => ({
+            [method](newValue, by) {
+                const origval = get(this, path);
+                if (!isUndefined(newValue) && !isEqual(origval, newValue)) {
+                    this.trackChanges(name, origval, newValue, by);
+                    set(this, path, newValue);
                 }
-            };
-        })
+                return this;
+            }
+        }))
         .map(setMethod => extend(Dao.prototype, setMethod));
     return Dao;
 }
 function withArrMethods(Dao, lists) {
     lists
-        .map(role => {
-            const {path, name, isPresentIn, addMethod, removeMethod} = role;
-            return {
-                [isPresentIn](toCheck) {
-                    return !!find(get(this, path), item => isEqual(item, toCheck));
-                },
-                [addMethod](toAdd, by) {
-                    const list = get(this, path);
-                    toAdd.forEach(memberToAdd => {
-                        const found = find(list, item => isEqual(item, memberToAdd));
-                        if (!found) {
-                            list.push(memberToAdd);
-                            this.trackChanges(`add ${name}`, null, memberToAdd, by);
-                        }
-                    });
-                    return this;
-                },
-                [removeMethod](toRemove, by) {
-                    const list = get(this, path);
-                    toRemove.forEach(memberToRemove => {
-                        const removed = remove(list, item => isEqual(item, memberToRemove));
-                        if (hasItems(removed)) {
-                            set(this, path, filter(list));
-                            this.trackChanges(`remove ${name}`, memberToRemove, null, by);
-                        }
-                    });
-                    return this;
-                }
-            };
-        })
+        .map(({path, name, isPresentIn, addMethod, removeMethod}) => ({
+            [isPresentIn](toCheck) {
+                return !!find(get(this, path), item => isEqual(item, toCheck));
+            },
+            [addMethod](toAdd, by) {
+                const list = get(this, path);
+                toAdd.forEach(memberToAdd => {
+                    const found = find(list, item => isEqual(item, memberToAdd));
+                    if (!found) {
+                        list.push(memberToAdd);
+                        this.trackChanges(`add ${name}`, null, memberToAdd, by);
+                    }
+                });
+                return this;
+            },
+            [removeMethod](toRemove, by) {
+                const list = get(this, path);
+                toRemove.forEach(memberToRemove => {
+                    const removed = remove(list, item => isEqual(item, memberToRemove));
+                    if (hasItems(removed)) {
+                        set(this, path, filter(list));
+                        this.trackChanges(`remove ${name}`, memberToRemove, null, by);
+                    }
+                });
+                return this;
+            }
+        }))
         .map(arrMethods => extend(Dao.prototype, arrMethods));
     return Dao;
 }
 function withUpdate(Dao, props, arrs, updateMethod) {
     extend(Dao.prototype, {
         [updateMethod](doc, by) {
-            props.forEach(p => {
-                const {method, path} = p;
+            props.forEach(({method, path}) => {
                 const u = get(doc.payload, path);
                 if (!isUndefined(u)) {
                     this[method](u, by);
                 }
             });
-            arrs.forEach(arr => {
-                const {removed: removedItems, removeMethod, added: addedItems, addMethod} = arr;
+            arrs.forEach(({removed: removedItems, removeMethod, added: addedItems, addMethod}) => {
                 const toRemove = get(doc.payload, removedItems);
                 if (!isUndefined(toRemove) && hasItems(toRemove)) {
                     this[removeMethod](toRemove, by);
@@ -419,6 +413,25 @@ function withI18n(Dao, fields) {
                     this[field] = i18n.__({phrase: this[field][0], locale}, this[field][1]);
                 }
             });
+            return this;
+        }
+    });
+    return Dao;
+}
+function withHashCode(Dao) {
+    extend(Dao.prototype, {
+        hashCode() {
+            const md5 = crypto.createHash('md5');
+            traverse(this)
+                .reduce(function (acc, x) {
+                    if (this.isLeaf) {
+                        acc.push(`${this.path.join('.')}#${String(x)}`);
+                    }
+                    return acc;
+                }, [])
+                .sort()
+                .forEach(k => md5.update(k));
+            this.__hashCode__ = md5.digest('hex');
             return this;
         }
     });
@@ -480,6 +493,7 @@ const build = function build(toBuild, schema, model, extendModels, areValidPrope
         withSetupMethods(toBuild, schema.nonEnumerables || []);
         withModifyMethods(toBuild, schema.isReadonly, schema.saveAudit, schema.idForAudit);
         withFindMethods(toBuild, areValidProperty);
+        withHashCode(toBuild);
     }
     if (schema.updateMethod) {
         const props = propDescriptors(schema.updateMethod.props);

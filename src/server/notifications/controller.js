@@ -6,17 +6,17 @@ const handlers = require('./../common/handlers');
 const post = require('./../common/posthandlers');
 const {filter, flatten, merge} = _;
 const {buildQuery, by, user, hasItems} = utils;
-const {findValidator, canView, canUpdate, prePopulate, onlyOwner, buildMongoQuery} = pre;
+const {canView, canUpdate, prePopulate, onlyOwner, buildMongoQuery} = pre;
 const {buildFindHandler, buildUpdateHandler} = handlers;
 const {i18n, hashCodeOn} = post;
-const schemas = require('./schemas');
 const Notifications = require('./model');
+const schema = require('./../../shared/rest-api')(require('joi'), _).notifications;
 module.exports = {
     find: {
-        validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
+        validate: schema.find,
         pre: [
             canView(Notifications.collection),
-            buildMongoQuery(Notifications, schemas.controller.findOptions, (request, findOptions) => {
+            buildMongoQuery(Notifications, schema.findOptions, (request, findOptions) => {
                 const query = merge(
                     {email: by(request)},
                     buildQuery(request, findOptions)
@@ -40,13 +40,13 @@ module.exports = {
         ]
     },
     update: {
-        validate: schemas.controller.update,
+        validate: schema.update,
         pre: [
             canUpdate(Notifications.collection),
             prePopulate(Notifications, 'id'),
             onlyOwner(Notifications)
         ],
-        handler: buildUpdateHandler(Notifications, schemas.dao.updateMethod.method),
+        handler: buildUpdateHandler(Notifications, 'update'),
         post: [
             i18n(Notifications),
             hashCodeOn(Notifications)

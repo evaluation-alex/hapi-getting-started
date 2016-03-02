@@ -16,7 +16,8 @@ const nodemailer = (!args.sendemails) ? {
                 cb(null, true);
             });
         }
-    } : args.nodemailer;
+    } : /*istanbul ignore next*/
+    args.nodemailer;
 i18n.configure(args.i18n);
 const logger = createLogger(args.bunyan);
 const influxdb = args.influxdb;
@@ -39,6 +40,7 @@ manifest.connections.forEach(connection => {
 });
 manifest.plugins['hapi-bunyan'].logger = logger;
 module.exports = {
+    enableConsole: args.enableConsole,
     projectName: args.project,
     authAttempts: {
         forIp: 500,

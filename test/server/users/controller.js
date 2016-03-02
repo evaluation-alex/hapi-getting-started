@@ -37,8 +37,8 @@ describe('Users', () => {
             })
             .then(() => {
                 let request = {
-                    method: 'GET',
-                    url: '/users',
+                    method: 'POST',
+                    url: '/users/search',
                     headers: {
                         Authorization: authheader
                     }
@@ -56,8 +56,8 @@ describe('Users', () => {
             .then((u) => {
                 let authheader = u.authheader;
                 let request = {
-                    method: 'GET',
-                    url: '/users',
+                    method: 'POST',
+                    url: '/users/search', payload: {},
                     headers: {
                         Authorization: authheader
                     }
@@ -75,8 +75,8 @@ describe('Users', () => {
             .then((u) => {
                 let authheader = u.authheader;
                 let request = {
-                    method: 'GET',
-                    url: '/users',
+                    method: 'POST',
+                    url: '/users/search', payload: {},
                     headers: {
                         Authorization: authheader
                     }
@@ -90,7 +90,7 @@ describe('Users', () => {
             })
             .catch(done);
     });
-    describe('GET /users', () => {
+    describe('POST /users/search', () => {
         let authheader = '';
         before((done) => {
             tu.findAndLogin('one@first.com')
@@ -111,8 +111,8 @@ describe('Users', () => {
         });
         it('should give active users when isactive = true is sent', (done) => {
             let request = {
-                method: 'GET',
-                url: '/users?isActive="true"',
+                method: 'POST',
+                url: '/users/search', payload: {isActive: true},
                 headers: {
                     Authorization: authheader
                 }
@@ -128,8 +128,8 @@ describe('Users', () => {
         });
         it('should give inactive users when isactive = false is sent', (done) => {
             let request = {
-                method: 'GET',
-                url: '/users?isActive="false"',
+                method: 'POST',
+                url: '/users/search', payload: {isActive: false},
                 headers: {
                     Authorization: authheader
                 }
@@ -145,8 +145,8 @@ describe('Users', () => {
         });
         it('should give only the user whose email is sent in the parameter', (done) => {
             let request = {
-                method: 'GET',
-                url: '/users?email=one@first.com',
+                method: 'POST',
+                url: '/users/search', payload: {email: 'one@first.com'},
                 headers: {
                     Authorization: authheader
                 }
@@ -156,24 +156,6 @@ describe('Users', () => {
                     expect(response.statusCode).to.equal(200);
                     expect(response.payload).to.exist;
                     expect(response.payload).to.not.contain('test.users2@test.api');
-                    expect(response.payload).to.contain('one@first.com');
-                    done();
-                })
-                .catch(done);
-        });
-        it('should return both inactive and active users when nothing is sent', (done) => {
-            let request = {
-                method: 'GET',
-                url: '/users',
-                headers: {
-                    Authorization: authheader
-                }
-            };
-            server.injectThen(request)
-                .then((response) => {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.payload).to.exist;
-                    expect(response.payload).to.contain('test.users2@test.api');
                     expect(response.payload).to.contain('one@first.com');
                     done();
                 })

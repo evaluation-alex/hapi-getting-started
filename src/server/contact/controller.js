@@ -4,10 +4,10 @@ const config = require('./../config');
 const utils = require('./../common/utils');
 const {logAndBoom} = utils;
 const Mailer = require('./../plugins/mailer');
-const schemas = require('./schemas');
+const schema = require('./../../shared/rest-api')(require('joi'), require('./../lodash')).contact;
 module.exports = {
     contact: {
-        validate: schemas.controller.contact,
+        validate: schema.contact,
         handler(request, reply) {
             const options = {
                 subject: config.projectName + ' contact form',

@@ -1,16 +1,16 @@
 'use strict';
 const pre = require('./../common/prereqs');
 const handlers = require('./../common/handlers');
-const {canView, findValidator, buildMongoQuery} = pre;
+const {canView, buildMongoQuery} = pre;
 const {buildFindHandler} = handlers;
-const schemas = require('./schemas');
+const schema = require('./../../shared/rest-api')(require('joi'), require('./../lodash')).audit;
 const Audit = require('./model');
 module.exports = {
     find: {
-        validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
+        validate: schema.find,
         pre: [
             canView(Audit.collection),
-            buildMongoQuery(Audit, schemas.controller.findOptions)
+            buildMongoQuery(Audit, schema.findOptions)
         ],
         handler: buildFindHandler(Audit)
     }

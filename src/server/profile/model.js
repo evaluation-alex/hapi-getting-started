@@ -1,6 +1,21 @@
 'use strict';
 const build = require('./../common/dao').build;
-const schemas = require('./schemas');
+const modelSchema = require('./../../shared/model')(require('joi'), require('./../lodash')).profile;
+const daoOptions = {
+    isVirtualModel: true,
+    updateMethod: {
+        method: 'updateProfile',
+        props: [
+            'profile.firstName',
+            'profile.lastName',
+            'profile.preferredName',
+            'profile.facebook',
+            'profile.google',
+            'profile.twitter'
+        ]
+    },
+    schemaVersion: 1
+};
 /*istanbul ignore next*/
 const Profile = function Profile() {};
 Profile.create = function create() {
@@ -19,4 +34,4 @@ Profile.prototype = {
         return this;
     }
 };
-module.exports = build(Profile, schemas.dao, schemas.model);
+module.exports = build(Profile, daoOptions, modelSchema);

@@ -7,13 +7,13 @@ const handlers = require('./../common/handlers');
 const post = require('./../common/posthandlers');
 const {filter, flatten} = _;
 const {lookupParamsOrPayloadOrQuery, org, buildQuery} = utils;
-const {canView, canUpdate, prePopulate, isMemberOf, uniqueCheck, findValidator, buildMongoQuery} = pre;
+const {canView, canUpdate, prePopulate, isMemberOf, uniqueCheck, buildMongoQuery} = pre;
 const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
-const {sendNotifications, cancelNotifications, hashCodeOn, populateObject, buildPostHandler} = post;
+const {sendNotifications, cancelNotifications, hashCodeOn, populateObject} = post;
 const UserGroups = require('./../user-groups/model');
 const Blogs = require('./../blogs/model');
-const schemas = require('./schemas');
 const Posts = require('./model');
+const schema = require('./../../shared/rest-api')(require('joi'), _).posts;
 /*jshint unused:false*/
 /*eslint-disable no-unused-vars*/
 const sendNotificationsWhen = {
@@ -79,7 +79,7 @@ const buildQueryBuilder = function buildQueryBuilder() {
 module.exports = {
     buildQueryBuilder,
     new: {
-        validate: schemas.controller.create,
+        validate: schema.create,
         pre: [
             canUpdate(Posts.collection),
             uniqueCheck(Posts, request => {
@@ -100,10 +100,10 @@ module.exports = {
         ]
     },
     find: {
-        validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
+        validate: schema.find,
         pre: [
             canView(Posts.collection),
-            buildMongoQuery(Posts, schemas.controller.findOptions, buildQueryBuilder())
+            buildMongoQuery(Posts, schema.findOptions, buildQueryBuilder())
         ],
         handler: buildFindHandler(Posts),
         post: [
@@ -112,6 +112,7 @@ module.exports = {
         ]
     },
     findOne: {
+        validate: schema.findOne,
         pre: [
             canView(Posts.collection),
             prePopulate(Posts, 'id')
@@ -123,7 +124,7 @@ module.exports = {
         ]
     },
     update: {
-        validate: schemas.controller.update,
+        validate: schema.update,
         pre: [
             canUpdate(Posts.collection),
             prePopulate(Posts, 'id'),
@@ -132,15 +133,12 @@ module.exports = {
         ],
         handler: buildUpdateHandler(Posts, 'update'),
         post: [
-            buildPostHandler({collection: Posts.collection, method: 'populateBlog'}, (request, post) => {
-                post.blog = request.pre.blogs;
-                return post;
-            }),
+            populateObject(Posts),
             hashCodeOn(Posts)
         ]
     },
     publish: {
-        validate: schemas.controller.publish,
+        validate: schema.publish,
         pre: [
             canUpdate(Posts.collection),
             prePopulate(Posts, 'id'),
@@ -151,15 +149,12 @@ module.exports = {
         post: [
             sendNotifications(Posts, (post, request) => sendNotificationsWhen[post.state](post, request)),
             cancelNotifications(Posts, 'review'),
-            buildPostHandler({collection: Posts.collection, method: 'populateBlog'}, (request, post) => {
-                post.blog = request.pre.blogs;
-                return post;
-            }),
+            populateObject(Posts),
             hashCodeOn(Posts)
         ]
     },
     reject: {
-        validate: schemas.controller.reject,
+        validate: schema.reject,
         pre: [
             canUpdate(Posts.collection),
             prePopulate(Posts, 'id'),
@@ -170,14 +165,12 @@ module.exports = {
         post: [
             sendNotifications(Posts, (post, request) => sendNotificationsWhen[post.state](post, request)),
             cancelNotifications(Posts, 'review'),
-            buildPostHandler({collection: Posts.collection, method: 'populateBlog'}, (request, post) => {
-                post.blog = request.pre.blogs;
-                return post;
-            }),
+            populateObject(Posts),
             hashCodeOn(Posts)
         ]
     },
     delete: {
+        validate: schema.delete,
         pre: [
             canUpdate(Posts.collection),
             prePopulate(Posts, 'id'),
@@ -186,10 +179,7 @@ module.exports = {
         ],
         handler: buildUpdateHandler(Posts, 'del'),
         post: [
-            buildPostHandler({collection: Posts.collection, method: 'populateBlog'}, (request, post) => {
-                post.blog = request.pre.blogs;
-                return post;
-            }),
+            populateObject(Posts),
             hashCodeOn(Posts)
         ]
     }

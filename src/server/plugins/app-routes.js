@@ -33,7 +33,8 @@ const register = function register(server, options, next) {
         path: '/public/{param*}',
         handler: {
             directory: {
-                path: process.env.NODE_ENV !== 'production' ? 'public' : 'dist',
+                path: process.env.NODE_ENV !== 'production' ? 'public' :/*istanbul ignore next*/
+                    'dist',
                 listing: true
             }
         }

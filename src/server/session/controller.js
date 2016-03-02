@@ -10,10 +10,10 @@ const Users = require('./../users/model');
 const AuthAttempts = require('./../auth-attempts/model');
 const Blogs = require('./../blogs/model');
 const Notifications = require('./../notifications/model');
-const schemas = require('./schemas');
+const schema = require('./../../shared/rest-api')(require('joi'), require('./../lodash')).session;
 module.exports = {
     login: {
-        validate: schemas.controller.login,
+        validate: schema.login,
         pre: [
             abuseDetected()
         ],

@@ -15,13 +15,17 @@ describe('AuthAttempts', () => {
             })
             .catch(done);
     });
-    describe('GET /auth-attempts', () => {
+    describe('POST /auth-attempts/search', () => {
         it('should give auth-attempts of only the ip and email sent in the parameters', (done) => {
             AuthAttempts.create('127.0.0.2', 'test.abuse.find@auth.attempts')
                 .then(() => {
                     let request = {
-                        method: 'GET',
-                        url: '/auth-attempts?ip=127.0.0.2&email=test.abuse.find',
+                        method: 'POST',
+                        url: '/auth-attempts/search',
+                        payload: {
+                            ip: '127.0.0.2',
+                            email: 'test.abuse.find'
+                        },
                         headers: {
                             Authorization: authheader
                         }
@@ -46,8 +50,8 @@ describe('AuthAttempts', () => {
             Bluebird.all(authSpam)
                 .then(() => {
                     let request = {
-                        method: 'GET',
-                        url: '/auth-attempts',
+                        method: 'POST',
+                        url: '/auth-attempts/search', payload: {},
                         headers: {
                             Authorization: authheader
                         }

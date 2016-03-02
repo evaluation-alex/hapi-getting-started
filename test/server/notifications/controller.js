@@ -19,10 +19,10 @@ describe('Notifications', () => {
             })
             .catch(done);
     });
-    describe('GET /notifications', () => {
+    describe('POST /notifications/search', () => {
         before((done) => {
             let n1 = Notifications.create(['root', 'one@first.com'], 'user-groups', 'abc123', 'titles dont matter', 'unread', 'fyi', 'low', false, 'content is useful', 'root');
-            let n2 = Notifications.create(['root', 'one@first.com'], 'user-groups', 'abc1234', 'titles dont matter', 'starred', 'fyi', 'low', false, 'content is useful', 'root');
+            let n2 = Notifications.create(['root', 'one@first.com'], 'user-groups', 'abc1234', 'titles dont matter', 'read', 'fyi', 'low', false, 'content is useful', 'root');
             let n3 = Notifications.create(['root', 'one@first.com'], 'user-groups', 'abcd1234', 'titles dont matter', 'cancelled', 'fyi', 'low', false, 'content is useful', 'root');
             Bluebird.join(n1, n2, n3, (n11, n21, n31) => {
                 n31[0].deactivate('test');
@@ -40,8 +40,8 @@ describe('Notifications', () => {
         });
         it('should give active notifications when isactive = true is sent', (done) => {
             let request = {
-                method: 'GET',
-                url: '/notifications?isActive="true"&objectType=user-groups',
+                method: 'POST',
+                url: '/notifications/search', payload: {isActive: true, objectType: 'user-groups'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -59,8 +59,8 @@ describe('Notifications', () => {
         });
         it('should give inactive notifications when isactive = false is sent', (done) => {
             let request = {
-                method: 'GET',
-                url: '/notifications?isActive="false"&objectType=user-groups',
+                method: 'POST',
+                url: '/notifications/search', payload: {isActive: false, objectType: 'user-groups'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -77,8 +77,8 @@ describe('Notifications', () => {
         });
         it('should give only the notifications whose state is sent in the parameter', (done) => {
             let request = {
-                method: 'GET',
-                url: '/notifications?state=unread&objectType=user-groups',
+                method: 'POST',
+                url: '/notifications/search', payload: {state: 'unread', objectType: 'user-groups'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -95,8 +95,8 @@ describe('Notifications', () => {
         });
         it('should give only the notifications of the user making the query', (done) => {
             let request = {
-                method: 'GET',
-                url: '/notifications?objectType=user-groups',
+                method: 'POST',
+                url: '/notifications/search', payload: {objectType: 'user-groups'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -105,18 +105,17 @@ describe('Notifications', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(200);
                     let p = JSON.parse(response.payload);
-                    expect(p.data.length).to.equal(3);
+                    expect(p.data.length).to.equal(2);
                     expect(p.data[0].email).to.match(/root/);
                     expect(p.data[1].email).to.match(/root/);
-                    expect(p.data[2].email).to.match(/root/);
                     done();
                 })
                 .catch(done);
         });
         it('should give all notifications in a given time period', (done) => {
             let request = {
-                method: 'GET',
-                url: '/notifications?createdOnBefore=2015-02-15&createdOnAfter=2015-02-13&objectType=user-groups',
+                method: 'POST',
+                url: '/notifications/search', payload: {createdOnBefore: '2015-02-15', createdOnAfter: '2015-02-13', objectType: 'user-groups'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -134,8 +133,8 @@ describe('Notifications', () => {
         });
         it('should give all posts in a given time period2', (done) => {
             let request = {
-                method: 'GET',
-                url: '/notifications?createdOnAfter=2015-02-13&objectType=user-groups',
+                method: 'POST',
+                url: '/notifications/search', payload: {createdOnAfter: '2015-02-13', objectType: 'user-groups'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -162,8 +161,8 @@ describe('Notifications', () => {
                 })
                 .then(() => {
                     let request = {
-                        method: 'GET',
-                        url: '/notifications?objectType=user-groups',
+                        method: 'POST',
+                        url: '/notifications/search', payload: {objectType: 'user-groups'},
                         headers: {
                             Authorization: authHeader
                         }

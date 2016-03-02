@@ -3,8 +3,7 @@ const _ = require('./../lodash');
 const utils = require('./utils');
 const errors = require('./errors');
 const Bluebird = require('bluebird');
-const Joi = require('joi');
-const {get, flatten, filter, upperFirst, find, isFunction} = _;
+const {get, flatten, filter, upperFirst, find, isFunction, merge} = _;
 const {hasItems, org, logAndBoom, user, by, lookupParamsOrPayloadOrQuery, ip, buildQuery, profile} = utils;
 const {NotValidUsersOrGroupsError, NoPermissionsForActionError, NotAMemberOfValidGroupError,
     ObjectAlreadyExistsError, NotObjectOwnerError, ObjectNotFoundError, AbusiveLoginAttemptsError} = errors;
@@ -166,26 +165,18 @@ const buildMongoQuery = function buildMongoQuery(Model, findOptions, builder) {
         method(request, reply) {
             const start = Date.now();
             buildP(request)
-                .then(query => {
-                    query.organisation = query.organisation || org(request);
-                    if (request.query.isActive) {
-                        query.isActive = request.query.isActive === '"true"';
-                    }
-                    return query;
-                })
+                .then(query =>
+                    merge({},
+                        query,
+                        {organisation: query.organisation || org(request)},
+                        {isActive: lookupParamsOrPayloadOrQuery(request, 'isActive')}
+                    )
+                )
                 .catch(logAndBoom)
                 .then(reply)
                 .finally(() => timing(start));
         }
     }
-};
-const findValidator = function findValidator(validator, defaults) {
-    const {sort, limit, page} = defaults;
-    validator.query.fields = Joi.string();
-    validator.query.sort = Joi.string().default(sort);
-    validator.query.limit = Joi.number().default(limit);
-    validator.query.page = Joi.number().default(page);
-    return validator;
 };
 module.exports = {
     areValidUsers,
@@ -198,6 +189,5 @@ module.exports = {
     onlyOwner,
     prePopulate,
     abuseDetected,
-    findValidator,
     buildMongoQuery
 };

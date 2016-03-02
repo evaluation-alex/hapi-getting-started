@@ -6,14 +6,14 @@ const handlers = require('./../common/handlers');
 const post = require('./../common/posthandlers');
 const {upperFirst} = _;
 const {by, org, hasItems} = utils;
-const {findValidator, canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate, buildMongoQuery} = pre;
+const { canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate, buildMongoQuery} = pre;
 const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
 const {sendNotifications, cancelNotifications, hashCodeOn} = post;
-const schemas = require('./schemas');
+const schema = require('./../../shared/rest-api')(require('joi'), _).blogs;
 const Blogs = require('./model');
 module.exports = {
     new: {
-        validate: schemas.controller.create,
+        validate: schema.create,
         pre: [
             canUpdate(Blogs.collection),
             uniqueCheck(Blogs, request => {
@@ -42,10 +42,10 @@ module.exports = {
         ]
     },
     find: {
-        validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
+        validate: schema.find,
         pre: [
             canView(Blogs.collection),
-            buildMongoQuery(Blogs, schemas.controller.findOptions)
+            buildMongoQuery(Blogs, schema.findOptions)
         ],
         handler: buildFindHandler(Blogs),
         post: [
@@ -63,7 +63,7 @@ module.exports = {
         ]
     },
     update: {
-        validate: schemas.controller.update,
+        validate: schema.update,
         pre: [
             canUpdate(Blogs.collection),
             prePopulate(Blogs, 'id'),
@@ -71,7 +71,7 @@ module.exports = {
             areValidGroups(['addedSubscriberGroups']),
             isMemberOf(Blogs, ['owners'])
         ],
-        handler: buildUpdateHandler(Blogs, schemas.dao.updateMethod.method),
+        handler: buildUpdateHandler(Blogs, 'update'),
         post: [
             sendNotifications(Blogs, (blog, request) => {
                 let description = {};
@@ -98,6 +98,7 @@ module.exports = {
         ]
     },
     delete: {
+        validate: schema.delete,
         pre: [
             canUpdate(Blogs.collection),
             prePopulate(Blogs, 'id'),
@@ -118,6 +119,7 @@ module.exports = {
         ]
     },
     join: {
+        validate: schema.join,
         pre: [
             canView(Blogs.collection),
             prePopulate(Blogs, 'id')
@@ -140,6 +142,7 @@ module.exports = {
         ]
     },
     leave: {
+        validate: schema.leave,
         pre: [
             canView(Blogs.collection),
             prePopulate(Blogs, 'id'),
@@ -162,7 +165,7 @@ module.exports = {
         ]
     },
     approve: {
-        validate: schemas.controller.approve,
+        validate: schema.approve,
         pre: [
             canUpdate(Blogs.collection),
             prePopulate(Blogs, 'id'),
@@ -196,7 +199,7 @@ module.exports = {
         ]
     },
     reject: {
-        validate: schemas.controller.approve,
+        validate: schema.reject,
         pre: [
             canUpdate(Blogs.collection),
             prePopulate(Blogs, 'id'),

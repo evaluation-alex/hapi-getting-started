@@ -10,16 +10,16 @@ const handlers = require('./../common/handlers');
 const post = require('./../common/posthandlers');
 const {PasswordResetError} = errors;
 const {ip, logAndBoom} = utils;
-const {uniqueCheck, findValidator, canView, canUpdate, onlyOwner, prePopulate, buildMongoQuery} = pre;
+const {uniqueCheck, canView, canUpdate, onlyOwner, prePopulate, buildMongoQuery} = pre;
 const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
 const {buildPostHandler, hashCodeOn, populateObject} = post;
-const schemas = require('./schemas');
 const Users = require('./model');
 const Blogs = require('./../blogs/model');
+const schema = require('./../../shared/rest-api')(require('joi'), require('./../lodash')).users;
 const {projectName} = config;
 module.exports = {
     signup: {
-        validate: schemas.controller.signup,
+        validate: schema.signup,
         pre: [
             uniqueCheck(Users, request => {
                 return {
@@ -50,10 +50,10 @@ module.exports = {
         ]
     },
     find: {
-        validate: findValidator(schemas.controller.find, schemas.controller.findDefaults),
+        validate: schema.find,
         pre: [
             canView(Users.collection),
-            buildMongoQuery(Users, schemas.controller.findOptions)
+            buildMongoQuery(Users, schema.findOptions)
         ],
         handler: buildFindHandler(Users),
         post: [
@@ -62,6 +62,7 @@ module.exports = {
         ]
     },
     findOne: {
+        validate: schema.findOne,
         pre: [
             canView(Users.collection),
             prePopulate(Users, 'id'),
@@ -74,7 +75,7 @@ module.exports = {
         ]
     },
     update: {
-        validate: schemas.controller.update,
+        validate: schema.update,
         pre: [
             prePopulate(Users, 'id'),
             canUpdate(Users.collection),
@@ -86,7 +87,7 @@ module.exports = {
         ]
     },
     forgot: {
-        validate: schemas.controller.forgot,
+        validate: schema.forgot,
         handler(request, reply) {
             Users.findOne({email: request.payload.email})
                 .then(user => user ? user.resetPasswordSent(user.email).save() : user)
@@ -105,7 +106,7 @@ module.exports = {
         }
     },
     reset: {
-        validate: schemas.controller.reset,
+        validate: schema.reset,
         handler(request, reply) {
             Users.findOne({email: request.payload.email, 'resetPwd.expires': {$gt: Date.now()}})
                 .then(user => {

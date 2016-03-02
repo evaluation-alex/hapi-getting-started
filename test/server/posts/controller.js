@@ -24,7 +24,7 @@ describe('Posts', () => {
             })
             .catch(done);
     });
-    describe('GET /blogs/{blogId}/posts, GET /posts', () => {
+    describe('POST /posts/search', () => {
         let blogId = null;
         before((done) => {
             let b1 = Blogs.create('test GET /posts1', 'test GET /blogs', null, null, null, null, false, 'public', true, 'test');
@@ -57,8 +57,8 @@ describe('Posts', () => {
         });
         it('should give posts when isactive = true is sent', (done) => {
             let request = {
-                method: 'GET',
-                url: '/posts?isActive="true"',
+                method: 'POST',
+                url: '/posts/search', payload: {isActive: true},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -76,8 +76,8 @@ describe('Posts', () => {
         });
         it('should give inactive posts when isactive = false is sent', (done) => {
             let request = {
-                method: 'GET',
-                url: '/posts?isActive="false"',
+                method: 'POST',
+                url: '/posts/search', payload: {isActive: false},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -95,8 +95,8 @@ describe('Posts', () => {
         });
         it('should give the posts where the title matches or partially matches the query', (done) => {
             let request = {
-                method: 'GET',
-                url: '/posts?title=search',
+                method: 'POST',
+                url: '/posts/search', payload: {title: 'search'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -117,8 +117,8 @@ describe('Posts', () => {
         });
         it('should give the posts where any tag in the post matches or partially matches the query', (done) => {
             let request = {
-                method: 'GET',
-                url: '/posts?tag=controller',
+                method: 'POST',
+                url: '/posts/search', payload: {tag: 'controller'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -141,8 +141,8 @@ describe('Posts', () => {
         });
         it('should give all posts for a given blog', (done) => {
             let request = {
-                method: 'GET',
-                url: '/posts?blogId=' + blogId.toString(),
+                method: 'POST',
+                url: '/posts/search', payload: {blogId: blogId.toString()},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -160,11 +160,11 @@ describe('Posts', () => {
         });
         it('should give all posts for a given blog2', (done) => {
             let request = {
-                method: 'GET',
-                url: '/blogs/' + blogId.toString() + '/posts?isActive="true"',
+                method: 'POST',
+                url: '/posts/search', payload: {blogId: blogId.toString(), isActive: true},
                 headers: {
                     Authorization: rootAuthHeader
-                }
+                },
             };
             server.injectThen(request)
                 .then((response) => {
@@ -179,8 +179,8 @@ describe('Posts', () => {
         });
         it('should give all posts for a given blog3', (done) => {
             let request = {
-                method: 'GET',
-                url: '/posts?blogTitle=GET',
+                method: 'POST',
+                url: '/posts/search', payload: {blogTitle: 'GET'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -201,8 +201,8 @@ describe('Posts', () => {
         });
         it('should give all posts in a given time period', (done) => {
             let request = {
-                method: 'GET',
-                url: '/posts?publishedOnBefore=2015-02-15&publishedOnAfter=2015-02-13',
+                method: 'POST',
+                url: '/posts/search', payload: {publishedOnBefore: '2015-02-15', publishedOnAfter: '2015-02-13'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -220,8 +220,8 @@ describe('Posts', () => {
         });
         it('should give all posts in a given time period2', (done) => {
             let request = {
-                method: 'GET',
-                url: '/posts?publishedOnAfter=2015-02-13',
+                method: 'POST',
+                url: '/posts/search', payload: {publishedOnAfter: '2015-02-13'},
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -246,11 +246,11 @@ describe('Posts', () => {
             done();
         });
     });
-    describe('GET /blogs/{blogId}/posts/{id}, GET /posts/{id}', () => {
+    describe('GET /posts/{id}', () => {
         let id = '';
         let blogId = '';
         before((done) => {
-            Blogs.create('test GET /blogs/{blogId}/posts/{id}', 'test GET /blogs/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
+            Blogs.create('test GET /posts/{id}', 'test GET /posts/id', ['user1'], ['contributor1'], ['subscriber1'], ['subscriberGroup1'], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
                     return Posts.create(b._id, 'GET /posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'something to say, something to listen', 'test');
@@ -281,7 +281,7 @@ describe('Posts', () => {
         it('should only send back post with the id, blogId in params', (done) => {
             let request = {
                 method: 'GET',
-                url: '/blogs/' + blogId + '/posts/' + id,
+                url: '/posts/' + id,
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -313,7 +313,7 @@ describe('Posts', () => {
         it('should send back not found when the post with the blogId, id in params is not found', (done) => {
             let request = {
                 method: 'GET',
-                url: '/blogs/54d4430eed61ad701cc7a721/posts/54d4430eed61ad701cc7a721',
+                url: '/posts/54d4430eed61ad701cc7a721',
                 headers: {
                     Authorization: rootAuthHeader
                 }
@@ -326,16 +326,16 @@ describe('Posts', () => {
                 .catch(done);
         });
         after((done) => {
-            blogsToClear.push('test GET /blogs/{blogId}/posts/{id}');
+            blogsToClear.push('test GET /posts/{id}');
             postsToClear.push('GET /posts/{id}');
             done();
         });
     });
-    describe('PUT /blogs/{blogId}/posts/{id}, PUT /posts/{id}', () => {
+    describe('PUT /posts/{id}', () => {
         let blogId = null;
         let postId = null;
         before((done) => {
-            Blogs.create('test PUT /blogs/{blogId}/posts/{id}', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test PUT /posts/{id}', 'test PUT /posts', [], [], [], [], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
                     return Posts.create(blogId, 'test PUT', 'draft', 'public', true, true, ['testing'], [], 'post', 'content', 'test');
@@ -349,11 +349,13 @@ describe('Posts', () => {
         it('should send back not found error when you try to modify non existent posts', (done) => {
             let request = {
                 method: 'PUT',
-                url: '/blogs/54d4430eed61ad701cc7a721/posts/54d4430eed61ad701cc7a721',
+                url: '/posts/54d4430eed61ad701cc7a721',
                 headers: {
                     Authorization: rootAuthHeader
                 },
-                payload: {}
+                payload: {
+                    blogId: blogId
+                }
             };
             server.injectThen(request)
                 .then((response) => {
@@ -384,11 +386,12 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId,
+                        url: '/posts/' + postId,
                         headers: {
                             Authorization: authHeader
                         },
                         payload: {
+                            blogId: blogId,
                             title: '    test PUT /posts/{id}'
                         }
                     };
@@ -403,11 +406,12 @@ describe('Posts', () => {
         it('should activate posts and have changes audited', (done) => {
             let request = {
                 method: 'PUT',
-                url: '/blogs/' + blogId + '/posts/' + postId,
+                url: '/posts/' + postId,
                 headers: {
                     Authorization: rootAuthHeader
                 },
                 payload: {
+                    blogId: blogId,
                     isActive: false
                 }
             };
@@ -434,11 +438,12 @@ describe('Posts', () => {
         it('should deactivate posts and have changes audited', (done) => {
             let request = {
                 method: 'PUT',
-                url: '/blogs/' + blogId + '/posts/' + postId,
+                url: '/posts/' + postId,
                 headers: {
                     Authorization: rootAuthHeader
                 },
                 payload: {
+                    blogId: blogId,
                     isActive: true
                 }
             };
@@ -465,11 +470,12 @@ describe('Posts', () => {
         it('should add add/remove tags and have changes audited', (done) => {
             let request = {
                 method: 'PUT',
-                url: '/blogs/' + blogId + '/posts/' + postId,
+                url: '/posts/' + postId,
                 headers: {
                     Authorization: rootAuthHeader
                 },
                 payload: {
+                    blogId: blogId,
                     addedTags: ['add some'],
                     removedTags: ['testing']
                 }
@@ -498,11 +504,12 @@ describe('Posts', () => {
         it('should update content and have changes persisted on disk', (done) => {
             let request = {
                 method: 'PUT',
-                url: '/blogs/' + blogId + '/posts/' + postId,
+                url: '/posts/' + postId,
                 headers: {
                     Authorization: rootAuthHeader
                 },
                 payload: {
+                    blogId: blogId,
                     content: 'updated'
                 }
             };
@@ -529,11 +536,12 @@ describe('Posts', () => {
         it('should update access, allowComments, needsReview and have changes audited', (done) => {
             let request = {
                 method: 'PUT',
-                url: '/blogs/' + blogId + '/posts/' + postId,
+                url: '/posts/' + postId,
                 headers: {
                     Authorization: rootAuthHeader
                 },
                 payload: {
+                    blogId: blogId,
                     access: 'restricted',
                     allowComments: false,
                     needsReview: false
@@ -573,11 +581,12 @@ describe('Posts', () => {
                 .then(() => {
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId,
+                        url: '/posts/' + postId,
                         headers: {
                             Authorization: rootAuthHeader
                         },
                         payload: {
+                            blogId: blogId,
                             content: 'if its archived, its done'
                         }
                     };
@@ -589,18 +598,18 @@ describe('Posts', () => {
                 .catch(done);
         });
         after((done) => {
-            blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}');
+            blogsToClear.push('test PUT /posts/{id}');
             postsToClear.push('test PUT');
             done();
         });
     });
-    describe('PUT /blogs/{blogId}/posts/{id}/publish', () => {
+    describe('PUT /posts/{id}/publish', () => {
         let blogId = null;
         before((done) => {
-            Blogs.create('test PUT /blogs/{blogId}/posts/{id}/publish', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/publish'], false, 'public', true, 'test')
+            Blogs.create('test PUT /posts/{id}/publish', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /posts/{id}/publish'], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
-                    return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/publish', 'test notifications', 'test');
+                    return UserGroups.create('test Group PUT /posts/{id}/publish', 'test notifications', 'test');
                 })
                 .then((ug) => {
                     return ug.removeMembers(['test'], 'test').addMembers(['subscriber1', 'subscriber2'], 'test').save();
@@ -620,11 +629,13 @@ describe('Posts', () => {
                 .then((u) => {
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        url: '/posts/' + postId + '/publish',
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {}
+                        payload: {
+                            blogId: blogId
+                        }
                     };
                     return server.injectThen(request);
                 })
@@ -672,11 +683,13 @@ describe('Posts', () => {
                 .then((u) => {
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        url: '/posts/' + postId + '/publish',
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {}
+                        payload: {
+                            blogId: blogId
+                        }
                     };
                     return server.injectThen(request);
                 })
@@ -728,11 +741,13 @@ describe('Posts', () => {
                 .then((u) => {
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        url: '/posts/' + postId + '/publish',
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {}
+                        payload: {
+                            blogId: blogId
+                        }
                     };
                     return server.injectThen(request);
                 })
@@ -763,11 +778,13 @@ describe('Posts', () => {
                 .then((u) => {
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        url: '/posts/' + postId + '/publish',
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {}
+                        payload: {
+                            blogId: blogId
+                        }
                     };
                     return server.injectThen(request);
                 })
@@ -813,11 +830,13 @@ describe('Posts', () => {
                 .then((u) => {
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        url: '/posts/' + postId + '/publish',
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {}
+                        payload: {
+                            blogId: blogId
+                        }
                     };
                     return server.injectThen(request);
                 })
@@ -863,11 +882,13 @@ describe('Posts', () => {
                 .then((u) => {
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/publish',
+                        url: '/posts/' + postId + '/publish',
                         headers: {
                             Authorization: u.authheader
                         },
-                        payload: {}
+                        payload: {
+                            blogId: blogId
+                        }
                     };
                     return server.injectThen(request);
                 })
@@ -885,19 +906,19 @@ describe('Posts', () => {
                 .catch(done);
         });
         after((done) => {
-            blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}/publish');
+            blogsToClear.push('test PUT /posts/{id}/publish');
             postsToClear.push('test PUT publish');
-            groupsToClear.push('test Group PUT /blogs/{blogId}/posts/{id}/publish');
+            groupsToClear.push('test Group PUT /posts/{id}/publish');
             done();
         });
     });
-    describe('PUT /blogs/{blogId}/posts/{id}/reject', () => {
+    describe('PUT /posts/{id}/reject', () => {
         let blogId = null;
         before((done) => {
-            Blogs.create('test PUT /blogs/{blogId}/posts/{id}/reject', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /blogs/{blogId}/posts/{id}/reject'], false, 'public', true, 'test')
+            Blogs.create('test PUT /posts/{id}/reject', 'test PUT /posts', ['one@first.com'], [], ['subscriber1'], ['test Group PUT /posts/{id}/reject'], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
-                    return UserGroups.create('test Group PUT /blogs/{blogId}/posts/{id}/reject', 'test notifications', 'test');
+                    return UserGroups.create('test Group PUT /posts/{id}/reject', 'test notifications', 'test');
                 })
                 .then((ug) => {
                     return ug.removeMembers(['test'], 'test').addMembers(['subscriber1', 'subscriber2'], 'test').save();
@@ -921,11 +942,13 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
+                        url: '/posts/' + postId + '/reject',
                         headers: {
                             Authorization: authHeader
                         },
-                        payload: {}
+                        payload: {
+                            blogId: blogId
+                        }
                     };
                     return server.injectThen(request);
                 })
@@ -972,11 +995,13 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
+                        url: '/posts/' + postId + '/reject',
                         headers: {
                             Authorization: authHeader
                         },
-                        payload: {}
+                        payload: {
+                            blogId: blogId
+                        }
                     };
                     return server.injectThen(request);
                 })
@@ -1012,11 +1037,13 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'PUT',
-                        url: '/blogs/' + blogId + '/posts/' + postId + '/reject',
+                        url: '/posts/' + postId + '/reject',
                         headers: {
                             Authorization: authHeader
                         },
-                        payload: {}
+                        payload: {
+                            blogId: blogId
+                        }
                     };
                     return server.injectThen(request);
                 })
@@ -1034,16 +1061,16 @@ describe('Posts', () => {
                 .catch(done);
         });
         after((done) => {
-            blogsToClear.push('test PUT /blogs/{blogId}/posts/{id}/reject');
+            blogsToClear.push('test PUT /posts/{id}/reject');
             postsToClear.push('test PUT reject');
-            groupsToClear.push('test Group PUT /blogs/{blogId}/posts/{id}/reject');
+            groupsToClear.push('test Group PUT /posts/{id}/reject');
             done();
         });
     });
-    describe('POST /blogs/{blogId}/posts', () => {
+    describe('POST /posts', () => {
         let blogId = null;
         before((done) => {
-            Blogs.create('test POST /blogs/{blogId}/posts', 'test POST /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
+            Blogs.create('test POST /posts', 'test POST /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
                 .then((blog) => {
                     blogId = blog._id.toString();
                     done();
@@ -1055,11 +1082,12 @@ describe('Posts', () => {
                 .then(() => {
                     let request = {
                         method: 'POST',
-                        url: '/blogs/' + blogId + '/posts',
+                        url: '/posts',
                         headers: {
                             Authorization: rootAuthHeader
                         },
                         payload: {
+                            blogId: blogId,
                             title: 'test POST unique',
                             state: 'draft',
                             content: 'something. anything will do.',
@@ -1090,11 +1118,12 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
-                        url: '/blogs/' + blogId + '/posts',
+                        url: '/posts',
                         headers: {
                             Authorization: authHeader
                         },
                         payload: {
+                            blogId: blogId,
                             title: 'test POST blog owner',
                             state: 'draft',
                             content: 'something. anything will do.',
@@ -1128,11 +1157,12 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
-                        url: '/blogs/' + blogId + '/posts',
+                        url: '/posts',
                         headers: {
                             Authorization: authHeader
                         },
                         payload: {
+                            blogId: blogId,
                             title: 'test POST needsReview and publish',
                             state: 'published',
                             content: 'something. anything will do.',
@@ -1173,11 +1203,12 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
-                        url: '/blogs/' + blogId + '/posts',
+                        url: '/posts',
                         headers: {
                             Authorization: authHeader
                         },
                         payload: {
+                            blogId: blogId,
                             title: 'test POST needsReview and pending review',
                             state: 'published',
                             content: 'something. anything will do.',
@@ -1218,11 +1249,12 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
-                        url: '/blogs/' + blogId + '/posts',
+                        url: '/posts',
                         headers: {
                             Authorization: authHeader
                         },
                         payload: {
+                            blogId: blogId,
                             title: 'test POST draft',
                             state: 'draft',
                             content: 'something. anything will do.',
@@ -1263,11 +1295,12 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
-                        url: '/blogs/' + blogId + '/posts',
+                        url: '/posts',
                         headers: {
                             Authorization: authHeader
                         },
                         payload: {
+                            blogId: blogId,
                             title: 'test POST needsReview, owner and published',
                             state: 'published',
                             content: 'something. anything will do.',
@@ -1310,11 +1343,12 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'POST',
-                        url: '/blogs/' + blogId + '/posts',
+                        url: '/posts',
                         headers: {
                             Authorization: authHeader
                         },
                         payload: {
+                            blogId: blogId,
                             title: 'test POST needsReview, access, allowComments',
                             state: 'published',
                             content: 'something. anything will do.',
@@ -1346,17 +1380,20 @@ describe('Posts', () => {
                 });
         });
         after((done) => {
-            blogsToClear.push('test POST /blogs/{blogId}/posts');
+            blogsToClear.push('test POST /posts');
             done();
         });
     });
-    describe('DELETE /blogs/{blogId}/posts/{id}', () => {
+    describe('DELETE /posts/{id}', () => {
         it('should send back not found error when you try to modify a non existent post', (done) => {
             let request = {
                 method: 'DELETE',
-                url: '/blogs/54d4430eed61ad701cc7a721/posts/54d4430eed61ad701cc7a721',
+                url: '/posts/54d4430eed61ad701cc7a721',
                 headers: {
                     Authorization: rootAuthHeader
+                },
+                payload: {
+                    blogId: '54d4430eed61ad701cc7a721'
                 }
             };
             server.injectThen(request)
@@ -1372,7 +1409,7 @@ describe('Posts', () => {
             Blogs.create('testDelPostNotOwner', 'test DELETE /posts', [], [], [], [], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
-                    return Posts.create(b._id, 'DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'content', 'test');
+                    return Posts.create(b._id, 'DELETE /posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'content', 'test');
                 })
                 .then((p) => {
                     postId = p._id.toString();
@@ -1382,9 +1419,12 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'DELETE',
-                        url: '/blogs/' + blogId + '/posts/' + postId,
+                        url: '/posts/' + postId,
                         headers: {
                             Authorization: authHeader
+                        },
+                        payload: {
+                            blogId: blogId
                         }
                     };
                     return server.injectThen(request);
@@ -1392,12 +1432,12 @@ describe('Posts', () => {
                 .then((response) => {
                     expect(response.statusCode).to.equal(401);
                     blogsToClear.push('testDelPostNotOwner');
-                    postsToClear.push('DELETE /blogs/{blogId}/posts/{id}');
+                    postsToClear.push('DELETE /posts/{id}');
                     done();
                 })
                 .catch((err) => {
                     blogsToClear.push('testDelPostNotOwner');
-                    postsToClear.push('DELETE /blogs/{blogId}/posts/{id}');
+                    postsToClear.push('DELETE /posts/{id}');
                     done(err);
                 });
         });
@@ -1407,7 +1447,7 @@ describe('Posts', () => {
             Blogs.create('testDelPost', 'test DELETE /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')
                 .then((b) => {
                     blogId = b._id.toString();
-                    return Posts.create(b._id, 'success DELETE /blogs/{blogId}/posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'content', 'test');
+                    return Posts.create(b._id, 'success DELETE /posts/{id}', 'draft', 'public', true, true, ['testing', 'controller testing'], [], 'post', 'content', 'test');
                 })
                 .then((p) => {
                     postId = p._id.toString();
@@ -1417,9 +1457,12 @@ describe('Posts', () => {
                     let authHeader = u.authheader;
                     let request = {
                         method: 'DELETE',
-                        url: '/blogs/' + blogId + '/posts/' + postId,
+                        url: '/posts/' + postId,
                         headers: {
                             Authorization: authHeader
+                        },
+                        payload: {
+                            blogId: blogId
                         }
                     };
                     return server.injectThen(request);
@@ -1439,12 +1482,12 @@ describe('Posts', () => {
                 })
                 .then(() => {
                     blogsToClear.push('testDelPost');
-                    postsToClear.push('success DELETE /blogs/{blogId}/posts/{id}');
+                    postsToClear.push('success DELETE /posts/{id}');
                     done();
                 })
                 .catch((err) => {
                     blogsToClear.push('testDelPost');
-                    postsToClear.push('success DELETE /blogs/{blogId}/posts/{id}');
+                    postsToClear.push('success DELETE /posts/{id}');
                     done(err);
                 });
         });

@@ -8,8 +8,8 @@ const src = {
 const requires = {
     server: []
 };
-module.exports = function (gulp, $, which, cvg) {
-    const test = function test(which) {
+module.exports = function (gulp, $, which) {
+    const runTest = function runTest(which) {
         return gulp.src([`test/${which}/index.js`], {read: false})
             .pipe($.mocha({
                 reporter: 'spec',
@@ -32,12 +32,12 @@ module.exports = function (gulp, $, which, cvg) {
                 }, 5 * 1000);//let other tasks complete!, hopefully that will complete in 30s
             });
     };
-    const coverage = function coverage(which, cb) {
+    const gatherCoverage = function gatherCoverage(which, cb) {
         return gulp.src(src[which])
             .pipe($.istanbul({instrumenter: isparta.Instrumenter}))
             .pipe($.istanbul.hookRequire())
             .once('finish', () => {
-                handleErrEnd(test(which)
+                handleErrEnd(runTest(which)
                     .pipe($.istanbul.writeReports({
                         dir: `./coverage/${which}`,
                         reporters: ['lcov', 'html', 'text', 'text-summary'],
@@ -45,8 +45,8 @@ module.exports = function (gulp, $, which, cvg) {
                     })), which, cb);
             });
     };
-    return function (cb) {
+    return function test(cb) {
         require('babel-register')(babelConfig[which]);
-        cvg === 'cov' ? coverage(which, cb) : handleErrEnd(test(which), which, cb);
+        $.disableCoverage ?  handleErrEnd(runTest(which), which, cb) : gatherCoverage(which, cb);
     }
 };

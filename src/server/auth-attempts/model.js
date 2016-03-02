@@ -2,8 +2,19 @@
 const Bluebird = require('bluebird');
 const config = require('./../config');
 const build = require('./../common/dao').build;
-const schemas = require('./schemas');
 const {authAttempts: limits} = config;
+const modelSchema = require('./../../shared/model')(require('joi'), require('./../lodash'))['auth-attempts'];
+const daoOptions = {
+    connection: 'app',
+    collection: 'auth-attempts',
+    indexes: [
+        {fields: {ip: 1, email: 1}},
+        {fields: {email: 1}}
+    ],
+    saveAudit: false,
+    isReadonly: true,
+    schemaVersion: 1
+};
 const AuthAttempts = function AuthAttempts(attrs) {
     this.init(attrs);
 };
@@ -19,9 +30,8 @@ AuthAttempts.abuseDetected = function abuseDetected(ip, email) {
     return Bluebird.join(
         AuthAttempts.count({ip}),
         AuthAttempts.count({ip, email}),
-        (attemptsFromIp, attemptsFromIpUser) => {
-            return attemptsFromIp >= limits.forIp || attemptsFromIpUser >= limits.forIpAndUser;
-        });
+        (attemptsFromIp, attemptsFromIpUser) =>
+            attemptsFromIp >= limits.forIp || attemptsFromIpUser >= limits.forIpAndUser
+        );
 };
-module.exports = build(AuthAttempts, schemas.dao, schemas.model);
-
+module.exports = build(AuthAttempts, daoOptions, modelSchema);

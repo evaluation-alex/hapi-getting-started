@@ -82,6 +82,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                     level: 'debug'
                 }]
             },
+            enableConsole: false,
             influxdb: {
                 host: results.influxdbHost,
                 httpport: results.influxdbHttpPort,

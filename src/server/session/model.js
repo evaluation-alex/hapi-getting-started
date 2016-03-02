@@ -5,7 +5,11 @@ const Uuid = require('node-uuid');
 const moment = require('moment');
 const secureHash = require('./../common/utils').secureHash;
 const build = require('./../common/dao').build;
-const schemas = require('./schemas');
+const modelSchema = require('./../../shared/model')(require('joi'), _).session;
+const daoOptions = {
+    isVirtualModel: true,
+    schemaVersion: 1
+};
 /*istanbul ignore next*/
 const Session = function Session() {};
 Session.prototype = {
@@ -53,4 +57,4 @@ Session.prototype = {
         return this;
     }
 };
-module.exports = build(Session, schemas.dao, schemas.model);
+module.exports = build(Session, daoOptions, modelSchema);

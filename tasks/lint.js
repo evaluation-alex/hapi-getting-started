@@ -3,10 +3,12 @@ const eslintOptions = {
     'parserOptions': {
         'ecmaVersion': 6,
         'ecmaFeatures': {
+            'jsx': true,
             'experimentalObjectRestSpread': true
         }
     },
     'env': {
+        'browser': true,
         'node': true,
         'mocha': true,
         'es6': true
@@ -22,8 +24,9 @@ const eslintOptions = {
     'rules': {
         'quotes': [2, 'single'],
         'no-console': 0,
-        'no-unused-vars': [2, {'args': 'none'}]
-    }
+        'no-unused-vars': [2, {'args': 'none'}],
+    },
+    'plugins': []
 };
 const src = {
     server: ['src/server/**/*.js'],
@@ -34,7 +37,7 @@ const dest = {
     shared: 'build/shared'
 };
 module.exports = function (gulp, $, which) {
-    return function (cb) {
+    return function lint(cb) {
         return !$.disableLinting ?
             gulp.src(src[which])
                 .pipe($.eslint(eslintOptions))

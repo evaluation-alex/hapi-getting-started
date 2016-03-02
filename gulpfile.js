@@ -10,26 +10,6 @@ const task = function task(task, ...rest) {
     return require('./tasks/' + task)(gulp, $, ...rest);
 };
 gulp.task('help', $.taskListing);
-//https://github.com/cedx/david.gulp/blob/master/example/gulpfile.js
-gulp.task('deps:check', () => {
-    return gulp.src('./package.json')
-        .pipe($.david({error404: true, errorSCM: true, errorDepCount: 5}))
-        .on('error', err => console.error(err));
-});
-gulp.task('deps:upgrade', () => {
-    return gulp.src('package.json')
-        .pipe($.david({update: true}))
-        .pipe(gulp.dest('.'));
-});
-gulp.task('deps:update', ['deps:upgrade'], (cb) => {
-    exec('npm i', (err, stdout) => {
-        const output = stdout.trim();
-        if (output.length) {
-            console.log(output);
-        }
-        err ? cb(err) : cb();
-    });
-});
 gulp.task('nsp', (cb) => {
     $.nsp({package: __dirname + '/package.json', stopOnError: false}, cb);
 });
@@ -43,16 +23,16 @@ gulp.task('server:lint', task('lint', 'server'));
 gulp.task('server:clean', task('clean', ['build/server/**/*.*']));
 gulp.task('server:build', task('build', 'server'));
 gulp.task('server:watch', task('watch', ['src/server/**/*.js'], ['server:lint', 'server:build']));
-gulp.task('server:dev', ['server:clean', 'shared:clean', 'server:build', 'shared:build', 'server:watch'], task('server-dev'));
+gulp.task('server:dev', task('server-dev'));
 /*server test tasks*/
 gulp.task('server:test:clean', task('clean', ['coverage/server/**/*.*']));
-gulp.task('server:test:nocov', task('test', 'server', 'no-cov'));
-gulp.task('server:test:cov', task('test', 'server', 'cov'));
+gulp.task('server:test:run', task('test', 'server'));
 gulp.task('server:test', (cb) => {
     $.runSequence(
-        ['server:test:clean'],
+        ['server:clean', 'shared:clean', 'server:test:clean'],
         ['server:lint', 'shared:lint'],
-        $.disableCoverage ? 'server:test:nocov' : 'server:test:cov',
+        ['server:build', 'shared:build'],
+        'server:test:run',
         cb
     );
 });
@@ -61,7 +41,7 @@ gulp.task('clean', ['server:clean', 'server:test:clean', 'shared:clean']);
 gulp.task('build', ['server:build', 'shared:build']);
 gulp.task('lint', ['server:lint', 'shared:lint']);
 gulp.task('watch', ['server:watch', 'shared:watch']);
-gulp.task('default', (cb) => {
+gulp.task('bg', (cb) => {
     $.runSequence(
         'clean',
         'lint',
@@ -70,4 +50,26 @@ gulp.task('default', (cb) => {
         cb
     );
 });
-gulp.task('test', ['server:test']);
+gulp.task('dev', (cb) => {
+    $.isWatching = true;
+    $.runSequence(
+        'server:dev',
+        cb
+    );
+});
+gulp.task('default', (cb) => {
+    $.runSequence(
+        'clean',
+        'lint',
+        'build',
+        'watch',
+        'server:dev',
+        cb
+    );
+});
+gulp.task('test', (cb) => {
+    $.runSequence(
+        'server:test',
+        cb
+    );
+});

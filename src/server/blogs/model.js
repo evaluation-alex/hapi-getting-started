@@ -2,7 +2,41 @@
 const utils = require('./../common/utils');
 const {hasItems} = utils;
 const build = require('./../common/dao').build;
-const schemas = require('./schemas');
+const modelSchema = require('./../../shared/model')(require('joi'), require('./../lodash')).blogs;
+const daoOptions = {
+    connection: 'app',
+    collection: 'blogs',
+    idForAudit: undefined,
+    indexes: [
+        {fields: {title: 1, organisation: 1}, options: {unique: true}},
+        {fields: {description: 1}}
+    ],
+    updateMethod: {
+        method: 'update',
+        props: [
+            'isActive',
+            'description',
+            'needsReview',
+            'access',
+            'allowComments',
+            'title'
+        ],
+        arrProps: [
+            'owners',
+            'contributors',
+            'subscribers',
+            'subscriberGroups',
+            'needsApproval'
+        ]
+    },
+    joinApproveRejectLeave: {
+        affectedRole: 'subscribers',
+        needsApproval: 'needsApproval'
+    },
+    saveAudit: true,
+    nonEnumerables: ['audit'],
+    schemaVersion: 1
+};
 const Blogs = function Blogs(attrs) {
     this.init(attrs);
     return this;
@@ -34,4 +68,4 @@ Blogs.create = function create(title, description, owners, contributors, subscri
         allowComments
     }, by, organisation);
 };
-module.exports = build(Blogs, schemas.dao, schemas.model);
+module.exports = build(Blogs, daoOptions, modelSchema);

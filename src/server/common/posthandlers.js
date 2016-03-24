@@ -11,10 +11,11 @@ const buildPostHandler = function buildPostHandler(tags, cb) {
     return {
         method(request, reply) {
             const start = Date.now();
-            if (!request.response.isBoom && request.response.source) {
-                const p = request.response.source.data ?
-                    Bluebird.all(request.response.source.data.map(item => cbp(request, item))) :
-                    cbp(request, request.response.source);
+            const {isBoom, source} = request.response;
+            if (!isBoom && source) {
+                const p = source.data ?
+                    Bluebird.all(source.data.map(item => cbp(request, item))) :
+                    cbp(request, source);
                 p
                     .then(() => {
                         reply.continue();
@@ -29,22 +30,22 @@ const buildPostHandler = function buildPostHandler(tags, cb) {
         }
     };
 };
-const sendNotifications = function sendNotifications(Model, notifyCb) {
-    const tags = {collection: Model.collection, method: 'sendNotifications'};
+const sendNotifications = function sendNotifications({collection}, notifyCb) {
+    const tags = {collection, method: 'sendNotifications'};
     const notifycb = Bluebird.method((target, request) => notifyCb(target, request));
     const notify = function notify(request, target) {
         return notifycb(target, request)
-            .then(args => {
-                if (hasItems(args.to)) {
-                    return Notifications.create(args.to,
-                        Model.collection,
+            .then(({to, title, action, priority, description}) => {
+                if (hasItems(to)) {
+                    return Notifications.create(to,
+                        collection,
                         target._id,
-                        args.title,
+                        title,
                         'unread',
-                        args.action ? args.action : 'fyi',
-                        args.priority ? args.priority : 'low',
+                        action || 'fyi',
+                        priority || 'low',
                         false,
-                        args.description,
+                        description,
                         by(request),
                         target.organisation);
                 }
@@ -53,8 +54,8 @@ const sendNotifications = function sendNotifications(Model, notifyCb) {
     };
     return buildPostHandler(tags, notify);
 };
-const cancelNotifications = function cancelNotifications(Model, action, cancelCb) {
-    const tags = {collection: Model.collection, method: 'cancelNotifications'};
+const cancelNotifications = function cancelNotifications({collection}, action, cancelCb) {
+    const tags = {collection, method: 'cancelNotifications'};
     const cancelcb = Bluebird.method((target, request, notification) =>
         cancelCb ?
             cancelCb(target, request, notification) :
@@ -62,10 +63,10 @@ const cancelNotifications = function cancelNotifications(Model, action, cancelCb
     );
     const cancel = function cancel(request, target) {
         return Bluebird.all(Notifications.find({
-                objectType: Model.collection,
+                objectType: collection,
                 objectId: target._id,
                 state: 'unread',
-                action: action
+                action
             })
             .then(notifications => notifications
                 .map(notification => cancelcb(target, request, notification))
@@ -79,24 +80,24 @@ const cancelNotifications = function cancelNotifications(Model, action, cancelCb
     };
     return buildPostHandler(tags, cancel);
 };
-const i18n = function i18n(Model) {
-    const tags = {collection: Model.collection, method: 'i18n'};
+const i18n = function i18n({collection}) {
+    const tags = {collection, method: 'i18n'};
     return buildPostHandler(tags, (request, target) =>
         target.i18n ?
             target.i18n(locale(request)) :/*istanbul ignore next*/
             target
     );
 };
-const hashCodeOn = function hashCodeOn(Model) {
-    const tags = {collection: Model.collection, method: 'hashCode'};
+const hashCodeOn = function hashCodeOn({collection}) {
+    const tags = {collection, method: 'hashCode'};
     return buildPostHandler(tags, (request, target) =>
         target.hashCode ?
             target.hashCode() :/*istanbul ignore next*/
             target
     );
 };
-const populateObject = function populateObject(Model) {
-    const tags = {collection: Model.collection, method: 'populateObject'};
+const populateObject = function populateObject({collection}) {
+    const tags = {collection, method: 'populateObject'};
     return buildPostHandler(tags, (request, target) =>
         target.populate ?
             target.populate(user(request)) :/*istanbul ignore next*/

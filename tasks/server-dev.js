@@ -12,5 +12,5 @@ module.exports = function (gulp, $) {
                 delay: '20000ms'
             })
             .on('restart', () => $.gutil.log('restarted'));
-    }
+    };
 };

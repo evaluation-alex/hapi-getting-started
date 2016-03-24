@@ -5,6 +5,7 @@ let path = require('path');
 let config = require('./../../build/server/config');
 let manifest = config.manifest;
 module.exports = function () {
+    config.enableConsole = true;
     manifest.plugins['./plugins/app-routes'].prependRoute = '';
     manifest.plugins['./plugins/connections'].mongo.app.url = manifest.plugins['./plugins/connections'].mongo.app.url2;
     return new Bluebird((resolve, reject) => {
@@ -39,6 +40,7 @@ module.exports = function () {
                             'user-groups',
                             'blogs',
                             'posts',
+                            'posts-stats',
                             'audit'
                         ]
                     }

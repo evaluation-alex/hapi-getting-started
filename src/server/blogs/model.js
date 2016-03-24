@@ -1,8 +1,10 @@
 'use strict';
+const _ = require('./../lodash');
+const {merge} = _;
 const utils = require('./../common/utils');
 const {hasItems} = utils;
 const build = require('./../common/dao').build;
-const modelSchema = require('./../../shared/model')(require('joi'), require('./../lodash')).blogs;
+const modelSchema = require('./../../shared/model')(require('joi'), _).blogs;
 const daoOptions = {
     connection: 'app',
     collection: 'blogs',
@@ -67,5 +69,23 @@ Blogs.create = function create(title, description, owners, contributors, subscri
         access,
         allowComments
     }, by, organisation);
+};
+Blogs.prototype = {
+    populate(user) {
+        const me = user.email;
+        const isOwner = this.owners.indexOf(me) !== -1;
+        const isSubscriber = this.subscribers.indexOf(me) !== -1;
+        const isContributor = this.contributors.indexOf(me) !== -1;
+        return merge(this, {
+            isOwner,
+            isSubscriber,
+            isContributor,
+            canCreatePosts: isOwner || isSubscriber,
+            canJoin: !isSubscriber,
+            canLeave: isSubscriber,
+            canEdit: isOwner,
+            canDelete: isOwner
+        });
+    }
 };
 module.exports = build(Blogs, daoOptions, modelSchema);

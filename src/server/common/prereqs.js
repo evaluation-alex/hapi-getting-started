@@ -70,13 +70,13 @@ const canView = function canView(object) {
 const canUpdate = function canUpdate(object) {
     return ensurePermissions('update', object);
 };
-const isMemberOf = function isMemberOf(Model, groups) {
-    const timing = profile('handler', {collection: Model.collection, method: 'isMemberOf', type: 'pre'});
+const isMemberOf = function isMemberOf({collection}, groups) {
+    const timing = profile('handler', {collection, method: 'isMemberOf', type: 'pre'});
     return {
-        assign: `isMemberOf${upperFirst(Model.collection)}(${groups.join(',')})`,
+        assign: `isMemberOf${upperFirst(collection)}(${groups.join(',')})`,
         method(request, reply) {
             const start = Date.now();
-            const obj = request.pre[Model.collection];
+            const obj = request.pre[collection];
             const user = by(request);
             if (user === 'root' || !!find(groups, role => obj[`isPresentIn${role.split('.').map(upperFirst).join('')}`](user))) {
                 reply(true);
@@ -102,14 +102,14 @@ const uniqueCheck = function uniqueCheck(Model, queryBuilder) {
         }
     };
 };
-const onlyOwner = function onlyOwner(Model) {
-    const timing = profile('handler', {collection: Model.collection, method: 'onlyOwner', type: 'pre'});
+const onlyOwner = function onlyOwner({collection}) {
+    const timing = profile('handler', {collection, method: 'onlyOwner', type: 'pre'});
     return {
         assign: 'allowedToViewOrEditPersonalInfo',
         method(request, reply) {
             const start = Date.now();
             const u = by(request);
-            if ((request.pre[Model.collection].email === u) || (u === 'root')) {
+            if ((request.pre[collection].email === u) || (u === 'root')) {
                 reply(true);
             } else {
                 reply(new NotObjectOwnerError({email: u}));
@@ -153,8 +153,8 @@ const abuseDetected = function abuseDetected() {
         }
     };
 };
-const buildMongoQuery = function buildMongoQuery(Model, findOptions, builder) {
-    const timing = profile('handler', {collection: Model.collection, method: 'buildMongoQuery', type: 'pre'});
+const buildMongoQuery = function buildMongoQuery({collection}, findOptions, builder) {
+    const timing = profile('handler', {collection, method: 'buildMongoQuery', type: 'pre'});
     const buildP = Bluebird.method((request) => {
         return (builder && isFunction(builder)) ?
             builder(request, findOptions) :

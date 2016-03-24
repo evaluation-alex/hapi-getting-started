@@ -1,11 +1,15 @@
 'use strict';
+const Bluebird = require('bluebird');
+const _ = require('lodash');
+const {merge} = _;
 const utils = require('./../common/utils');
 const {hasItems} = utils;
 const build = require('./../common/dao').build;
 const UserGroups = require('./../user-groups/model');
 const Blogs = require('./../blogs/model');
+const PostsStats = require('./../posts-stats/model');
 const shared = require('./shared');
-const modelSchema = require('./../../shared/model')(require('joi'), require('./../lodash')).posts;
+const modelSchema = require('./../../shared/model')(require('joi'), _).posts;
 const daoOptions = {
     connection: 'app',
     collection: 'posts',
@@ -52,6 +56,35 @@ Posts.prototype = {
         return Blogs.findOne({_id: Blogs.ObjectID(this.blogId)})
             .then(blog => {
                 this.blog = blog;
+                this.blog.populate(user);
+                const isOwner = this.blog.isOwner;
+                const isSubscriber = this.blog.isSubscriber;
+                const isContributor = this.blog.isContributor;
+                const isAuthor = this.publishedBy === user.email;
+                const isDraft = this.state === 'draft';
+                const isPublished = this.state === 'published';
+                const isArchived = this.state === 'archived';
+                const isDoNotPublish = this.state === 'do not publish';
+                merge(this, {
+                    isOwner,
+                    isSubscriber,
+                    isContributor,
+                    isAuthor,
+                    isDraft,
+                    isPublished,
+                    isArchived,
+                    isDoNotPublish,
+                    canEdit: isAuthor,
+                    canDelete: isAuthor || isOwner,
+                    canPublish: this.needsReview ? isDraft && !isAuthor && isOwner : isDraft && isAuthor,
+                    canSaveDraft: isDraft && isAuthor,
+                    canArchive: isPublished && (isAuthor || isOwner),
+                    canReject: this.needsReview ? isDraft && !isAuthor && isOwner : isDraft && isAuthor,
+                    canMakePublic: this.access === 'restricted' && isOwner,
+                    canMakePrivate: this.access === 'public' && isOwner,
+                    canStopComments: this.allowComments && isOwner,
+                    canAllowComments: !this.allowComments && isOwner
+                });
                 return {canSee: this.access === 'public', blog: this.blog};
             })
             .then(res => res.canSee ? res : res.blog)
@@ -59,9 +92,9 @@ Posts.prototype = {
                 blog.canSee ?
                     blog : {
                     canSee: blog.access === 'public' ||
-                    blog.isPresentInOwners(user.email) ||
-                    blog.isPresentInContributors(user.email) ||
-                    blog.isPresentInSubscribers(user.email),
+                    blog.isOwner ||
+                    blog.isContributor ||
+                    blog.isSubscriber,
                     blog: blog
                 })
             .then(res =>
@@ -79,12 +112,34 @@ Posts.prototype = {
                     if (this.contentType === 'meal' && hasItems(this.content.recipes)) {
                         return Posts.find({_id: {$in: this.content.recipes.map(recipe => Posts.ObjectID(recipe))}})
                             .then(recipes => {
-                                this.content.recipes = recipes;
-                                return this;
+                                return Bluebird.all(recipes.map(recipe => recipe.populate(user).reflect()))
+                                    .then((populatedRecipes) => {
+                                        this.content.recipes = recipes;
+                                        return this;
+                                    });
                             });
                     }
                 }
                 return this;
+            })
+            .then(() => {
+                return PostsStats.find({postId: this._id})
+                    .then(stats => {
+                        const {viewedOn, rating, ratedOn} = stats.find(vc => vc.email === user.email) || {};
+                        return merge(this, {
+                            uniqueViews: stats.length,
+                            totalViews: stats.reduce((p, c) => p + c.viewCount, 1),
+                            totalLikes: stats.reduce((p, c) => p + (c.rating === 'like' ? 1 : 0), 0),
+                            totalLoves: stats.reduce((p, c) => p + (c.rating === 'love' ? 1 : 0), 0),
+                            viewedOn,
+                            rating,
+                            ratedOn,
+                            canLike: (rating || 'none') !== 'like',
+                            canUnlike: (rating || 'none') === 'like',
+                            canLove: (rating || 'none') !== 'love',
+                            canUnlove: (rating || 'none') === 'love'
+                        });
+                    });
             });
     }
 };

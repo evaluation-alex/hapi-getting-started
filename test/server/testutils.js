@@ -10,6 +10,7 @@ let UserGroups = require('./../../build/server/user-groups/model');
 let Audit = require('./../../build/server/audit/model');
 let Blogs = require('./../../build/server/blogs/model');
 let Posts = require('./../../build/server/posts/model');
+let PostsStats = require('./../../build/server/posts-stats/model');
 let AuthAttempts = require('./../../build/server/auth-attempts/model');
 let Roles = require('./../../build/server/roles/model');
 let Notifications = require('./../../build/server/notifications/model');
@@ -51,7 +52,9 @@ module.exports.setupRolesAndUsers =  function setupRolesAndUsers() {
 };
 module.exports.findAndLogin = function findAndLogin(user, roles) {
     return Users.findOne({email: user})
-        .then((foundUser) => roles ? foundUser.setRoles(roles, 'test') : foundUser)
+        .then((foundUser) => {
+            return roles ? foundUser.setRoles(roles, 'test') : foundUser
+        })
         .then((foundUser) => {
             return foundUser.loginSuccess('127.0.0.1', 'test').save()
         })
@@ -105,6 +108,9 @@ module.exports.cleanupAudit = function cleanupAudit() {
 module.exports.cleanupAuthAttempts = function cleanupAuthAttempts() {
     return AuthAttempts.remove({});
 };
+let cleanupPostsStats = function cleanupPostsStats() {
+    return PostsStats.remove({});
+};
 let cleanupRoles = Bluebird.method((roles) =>
         utils.hasItems(roles) ? Roles.remove({name: {$in: roles}}) : true
 );
@@ -118,6 +124,7 @@ module.exports.cleanup = function cleanup(toClear, cb) {
         cleanupRoles(toClear.roles),
         module.exports.cleanupAudit(),
         module.exports.cleanupAuthAttempts(),
+        cleanupPostsStats(),
         () => {
             cb();
         })

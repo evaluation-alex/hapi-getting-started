@@ -1,28 +1,21 @@
 'use strict';
 //https://gist.github.com/yannickcr/6129327b31b27b14efc5
 const isparta = require('isparta');
-const babelConfig = require('./babel-config');
-const src = {
-    server: ['build/server/**/*.js']
-};
-const requires = {
-    server: []
-};
-module.exports = function (gulp, $, which) {
-    const runTest = function runTest(which) {
-        return gulp.src([`test/${which}/index.js`], {read: false})
+module.exports = function (gulp, $, {src, testSrc, requires, babelConfig, coverageDir}) {
+    const runTest = function runTest() {
+        return gulp.src(testSrc, {read: false})
             .pipe($.mocha({
                 reporter: 'spec',
                 ui: 'bdd',
                 harmony: true,
                 timeout: 2000000,
-                require: requires[which]
+                require: requires
             }));
     };
-    const handleErrEnd = function handleErrEnd(pipe, which, cb) {
+    const handleErrEnd = function handleErrEnd(pipe, cb) {
         return pipe
             .on('error', (err) => {
-                $.gutil.log(`[${which}:test:cov]${err}`);
+                $.gutil.log(`[test:cov]${err}`);
             })
             .on('end', () => {
                 cb();
@@ -32,21 +25,23 @@ module.exports = function (gulp, $, which) {
                 }, 5 * 1000);//let other tasks complete!, hopefully that will complete in 30s
             });
     };
-    const gatherCoverage = function gatherCoverage(which, cb) {
-        return gulp.src(src[which])
+    const gatherCoverage = function gatherCoverage(cb) {
+        return gulp.src(src)
             .pipe($.istanbul({instrumenter: isparta.Instrumenter}))
             .pipe($.istanbul.hookRequire())
             .once('finish', () => {
-                handleErrEnd(runTest(which)
+                handleErrEnd(runTest()
                     .pipe($.istanbul.writeReports({
-                        dir: `./coverage/${which}`,
+                        dir: coverageDir,
                         reporters: ['lcov', 'html', 'text', 'text-summary'],
-                        reportOpts: {dir: `./coverage/${which}`}
-                    })), which, cb);
+                        reportOpts: {dir: coverageDir}
+                    })), cb);
             });
     };
     return function test(cb) {
-        require('babel-register')(babelConfig[which]);
-        $.disableCoverage ?  handleErrEnd(runTest(which), which, cb) : gatherCoverage(which, cb);
-    }
+        require('babel-register')(babelConfig);
+        $.disableCoverage ?
+            handleErrEnd(runTest(), cb) :
+            gatherCoverage(cb);
+    };
 };

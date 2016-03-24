@@ -8,7 +8,7 @@ const {upperFirst} = _;
 const {by, org, hasItems} = utils;
 const { canUpdate, canView, areValidUsers, areValidGroups, isMemberOf, uniqueCheck, prePopulate, buildMongoQuery} = pre;
 const {buildCreateHandler, buildFindHandler, buildFindOneHandler, buildUpdateHandler} = handlers;
-const {sendNotifications, cancelNotifications, hashCodeOn} = post;
+const {sendNotifications, cancelNotifications, hashCodeOn, populateObject} = post;
 const schema = require('./../../shared/rest-api')(require('joi'), _).blogs;
 const Blogs = require('./model');
 module.exports = {
@@ -38,6 +38,7 @@ module.exports = {
                     ]
                 };
             }),
+            populateObject(Blogs),
             hashCodeOn(Blogs)
         ]
     },
@@ -49,6 +50,7 @@ module.exports = {
         ],
         handler: buildFindHandler(Blogs),
         post: [
+            populateObject(Blogs),
             hashCodeOn(Blogs)
         ]
     },
@@ -59,6 +61,7 @@ module.exports = {
         ],
         handler: buildFindOneHandler(Blogs),
         post: [
+            populateObject(Blogs),
             hashCodeOn(Blogs)
         ]
     },
@@ -94,6 +97,7 @@ module.exports = {
                     description: description
                 };
             }),
+            populateObject(Blogs),
             hashCodeOn(Blogs)
         ]
     },
@@ -115,6 +119,7 @@ module.exports = {
                     description: ['Blog {{title}} deleted by {{updatedBy}}', {title, createdBy}]
                 };
             }),
+            populateObject(Blogs),
             hashCodeOn(Blogs)
         ]
     },
@@ -138,6 +143,7 @@ module.exports = {
                     priority: blog.access === 'restricted' ? 'medium' : 'low'
                 };
             }),
+            populateObject(Blogs),
             hashCodeOn(Blogs)
         ]
     },
@@ -161,6 +167,7 @@ module.exports = {
                     priority: 'low'
                 };
             }),
+            populateObject(Blogs),
             hashCodeOn(Blogs)
         ]
     },
@@ -195,6 +202,7 @@ module.exports = {
                 });
                 return modified ? notification.save() : notification;
             }),
+            populateObject(Blogs),
             hashCodeOn(Blogs)
         ]
     },
@@ -228,6 +236,7 @@ module.exports = {
                 });
                 return notification.save();
             }),
+            populateObject(Blogs),
             hashCodeOn(Blogs)
         ]
     }

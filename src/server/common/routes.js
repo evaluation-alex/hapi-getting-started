@@ -33,11 +33,11 @@ const buildRESTRoutes = function buildRESTRoutes(component, controller) {
         {method: 'update', args: ['PUT', path(component, '{id}'), controller.update]},
         {method: 'delete', args: ['DELETE', path(component, '{id}'), controller.delete]}
     ];
-    return restMethods.filter(rm => !!controller[rm.method]).map(rest => buildRoute(...rest.args));
+    return restMethods.filter(({method}) => !!controller[method]).map(({args}) => buildRoute(...args));
 };
-const buildRoutesForMethods = function buildRoutesForMethods(methods, component, controller) {
-    return methods.map(action =>
-        buildRoute('PUT', path(component, '{id}', action), controller[action])
+const buildRoutesForMethods = function buildRoutesForMethods(actions, component, controller, method = 'PUT') {
+    return actions.map(action =>
+        buildRoute(method, path(component, method === 'PUT' ? '{id}' : '', action), controller[action])
     );
 };
 module.exports = {

@@ -14,13 +14,13 @@ const {errback, hasItems, timing} = utils;
 const {ObjectNotCreatedError} = errors;
 const {i18n, logger} = config;
 const connections = {};
-function gatherStats(collection, method, query, start, err) {
+const gatherStats = function gatherStats(collection, method, query, start, err) {
     timing('dao',
         {collection, method},
         merge({elapsed: Date.now() - start, err: !!err}, query ? {query: Object.keys(query).sort().join('|')} : {})
     );
 }
-function defaultcb(resolve, reject, collection, method, query) {
+const defaultcb = function defaultcb(resolve, reject, collection, method, query) {
     const start = Date.now();
     return function cb(err, res) {
         if (err) {
@@ -270,10 +270,10 @@ function withFindMethods(Dao, areValidProperty) {
                         .then(docs => merge({},
                             toCheck
                                 .map(e => ({[e]: false}))
-                                .reduce((p, c) => merge(p, c), {}),
+                                .reduce(merge, {}),
                             docs
                                 .map(doc => ({[doc[areValidProperty]]: true}))
-                                .reduce((p, c) => merge(p, c), {})
+                                .reduce(merge, {})
                             )
                         );
                 }
@@ -283,13 +283,12 @@ function withFindMethods(Dao, areValidProperty) {
     return Dao;
 }
 function propDescriptors(properties) {
-    return properties.map(p => {
-        return {
+    return properties.map(p => ({
             name: p,
             path: p.split('.'),
             method: `set${p.split('.').map(upperFirst).join('')}`
-        };
-    });
+        })
+    );
 }
 function arrDescriptors(lists) {
     return lists.map(l => {
@@ -322,7 +321,7 @@ function withSetMethods(Dao, properties) {
                 return this;
             }
         }))
-        .map(setMethod => extend(Dao.prototype, setMethod));
+        .reduce(extend, Dao.prototype);
     return Dao;
 }
 function withArrMethods(Dao, lists) {
@@ -354,7 +353,7 @@ function withArrMethods(Dao, lists) {
                 return this;
             }
         }))
-        .map(arrMethods => extend(Dao.prototype, arrMethods));
+        .reduce(extend, Dao.prototype);
     return Dao;
 }
 function withUpdate(Dao, props, arrs, updateMethod) {

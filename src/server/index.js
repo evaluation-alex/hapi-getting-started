@@ -32,6 +32,7 @@ Bluebird.all(Object.keys(manifest.plugins).map(plugin =>
                         'user-groups',
                         'blogs',
                         'posts',
+                        'posts-stats',
                         'audit'
                     ]
                 }

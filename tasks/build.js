@@ -3,24 +3,16 @@ const fs = require('fs');
 const LICENSE = '/**\n' + fs.readFileSync('./LICENSE').toString() + '**/';
 const logRenderOptions = `'use strict';
 module.exports = {
-    exclude: ['ManagedInput', 'InputBase', 'Select', 'Head', 'InputOverride', 'RichTextarea']
+    exclude: ['RBControlledInput', 'Head', 'Spinner']
 };
-`;
-const src = {
-    server: ['src/server/**/*.js', 'src/server/**/*.json', 'src/server/**/*.md', 'src/server/.secure/*.pem'],
-    shared: ['src/shared/**/*.js']
-};
-const dest = {
-    server: 'build/server',
-    shared: 'build/shared'
-};
-const buildJS = function buildJS($, which) {
+`
+const buildJS = function buildJS($, dest, babelConfig) {
     return $.lazypipe()
-        .pipe($.changed, dest[which])
+        .pipe($.changed, dest)
         .pipe($.using)
         .pipe($.licenser, LICENSE)
         .pipe($.sourcemaps.init)
-        .pipe($.babel, babelConfig[which])
+        .pipe($.babel, babelConfig)
         //https://github.com/gotwarlost/istanbul/blob/master/ignoring-code-for-coverage.md
         .pipe($.replace, /function _interopRequireDefault/, '/*istanbul ignore next: ignore babel generated code*/\nfunction _interopRequireDefault')
         .pipe($.replace, /function _wrapComponent/, '/*istanbul ignore next: ignore babel generated code*/\nfunction _wrapComponent')
@@ -35,28 +27,27 @@ const buildJS = function buildJS($, which) {
         .pipe($.replace, /function _typeof/, '/*istanbul ignore next: ignore babel generated code*/\nfunction _typeof')
         .pipe($.replace, /function _toConsumableArray/, '/*istanbul ignore next: ignore babel generated code*/\nfunction _toConsumableArray')
         .pipe($.replace, /(\s+)_classCallCheck\(this/, '/*istanbul ignore next: ignore babel generated code*/\n$1_classCallCheck(this')
-        //.pipe($.replace, /var _slicedToArray = function/, 'var _slicedToArray = /*istanbul ignore next: ignore babel generated code*/\nfunction')
+        .pipe($.replace, /_slicedToArray = function/, '_slicedToArray = /*istanbul ignore next: ignore babel generated code*/\nfunction')
         .pipe($.replace, /arguments.length/g, '/*istanbul ignore next: ignore babel generated code*/\narguments.length')
         .pipe($.replace, / === undefined \? (.*) : /g, ' === undefined ? /*istanbul ignore next: ignore babel generated code*/\n$1 : ')
         .pipe($.replace, /arguments\[/g, '/*istanbul ignore next: ignore babel generated code*/\narguments[')
-        .pipe($.relativeSourcemapsSource, {dest: dest[which]})
+        .pipe($.relativeSourcemapsSource, {dest: dest})
         .pipe($.sourcemaps.write, '.', {includeContent: false, sourceRoot: '.'});//http://stackoverflow.com/questions/29440811/debug-compiled-es6-nodejs-app-in-webstorm
 };
-const copyOthers = function copyOthers($, which) {
+const copyOthers = function copyOthers($, dest) {
     return $.lazypipe()
-        .pipe($.changed, dest[which])
+        .pipe($.changed, dest)
         .pipe($.using);
 };
-const babelConfig = require('./babel-config');
-module.exports = function (gulp, $, which) {
+module.exports = function (gulp, $, {src, dest, babelConfig}) {
     return function build() {
-        return gulp.src(src[which])
+        return gulp.src(src)
             .pipe($.if(/\.js$/,
-                        buildJS($, which)(),
-                        copyOthers($, which)()
-                  )
+                        buildJS($, dest, babelConfig)(),
+                        copyOthers($, dest)()
+                 )
             )
             .on('error', (err) => $.gutil.log(err))
-            .pipe(gulp.dest(dest[which]));
-    }
+            .pipe(gulp.dest(dest));
+    };
 };

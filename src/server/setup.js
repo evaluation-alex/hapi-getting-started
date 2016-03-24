@@ -132,6 +132,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                             'user-groups',
                             'blogs',
                             'posts',
+                            'posts-stats',
                             'audit'
                         ]
                     }

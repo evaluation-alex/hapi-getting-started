@@ -5,7 +5,7 @@ const utils = require('./utils');
 const config = require('./../config');
 const {enableConsole} = config;
 const {isFunction, omit} = _;
-const {org, by, logAndBoom, findopts, profile} = utils;
+const {org, by, logAndBoom, optsToDoc, profile} = utils;
 const buildCreateHandler = function buildCreateHandler(Model) {
     const timing = profile('handler', {collection: Model.collection, method: 'create', type: 'main'});
     return function createHandler(request, reply) {
@@ -20,10 +20,9 @@ const buildFindHandler = function buildFindHandler(Model) {
     const timing = profile('handler', {collection: Model.collection, method: 'find', type: 'main'});
     return function findHandler(request, reply) {
         const start = Date.now();
-        const {fields, sort, limit, page} = request.payload;
+        const {fields, sort, limit, page} = request.payload.pagination || {};
         const query = request.pre.mongoQuery;
-        /*istanbul ignore else*/
-        /*istanbul ignore if*/
+        /*istanbul ignore if*//*istanbul ignore else*/
         if (enableConsole) {
             console.log('+-+-+-+-+-+-+-+-+-+-+-+-+-+-+');
             console.log('collection:', Model.collection);
@@ -35,24 +34,24 @@ const buildFindHandler = function buildFindHandler(Model) {
             console.log('fields    :', fields);
             console.log('+-+-+-+-+-+-+-+-+-+-+-+-+-+-+');
         }
-        Model.pagedFind(query, findopts(fields), findopts(sort), limit, page)
+        Model.pagedFind(query, optsToDoc(fields, 1, 0), optsToDoc(sort, 1, -1), limit, page)
             .catch(logAndBoom)
             .then(reply)
             .finally(() => timing(start));
     };
 };
-const buildFindOneHandler = function buildFindOneHandler(Model) {
-    const timing = profile('handler', {collection: Model.collection, method: 'findOne', type: 'main'});
+const buildFindOneHandler = function buildFindOneHandler({collection}) {
+    const timing = profile('handler', {collection, method: 'findOne', type: 'main'});
     return function findOneHandler(request, reply) {
         const start = Date.now();
-        Bluebird.resolve(request.pre[Model.collection])
+        Bluebird.resolve(request.pre[collection])
             .catch(logAndBoom)
             .then(reply)
             .finally(() => timing(start));
     };
 };
-const buildUpdateHandler = function buildUpdateHandler(Model, updateCb) {
-    const timing = profile('handler', {collection: Model.collection, method: 'update', type: 'main'});
+const buildUpdateHandler = function buildUpdateHandler({collection}, updateCb) {
+    const timing = profile('handler', {collection, method: 'update', type: 'main'});
     const update = Bluebird.method((u, request, by) =>
         isFunction(updateCb) ?
             updateCb(u, request, by) :
@@ -60,7 +59,7 @@ const buildUpdateHandler = function buildUpdateHandler(Model, updateCb) {
     );
     return function updateHandler(request, reply) {
         const start = Date.now();
-        const toUpdate = request.pre[Model.collection];
+        const toUpdate = request.pre[collection];
         update(toUpdate, request, by(request))
             .then(u => u.save())
             .catch(logAndBoom)

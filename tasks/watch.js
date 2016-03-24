@@ -1,7 +1,7 @@
 'use strict';
-module.exports = function (gulp, $, toWatch, toRun) {
+module.exports = function (gulp, $, {glob, runTasks}) {
     return function watch() {
         $.isWatching = true;
-        return gulp.watch(toWatch, toRun);
-    }
+        return gulp.watch(glob, runTasks);
+    };
 };

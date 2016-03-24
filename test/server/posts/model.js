@@ -3,6 +3,7 @@ let Posts = require('./../../../build/server/posts/model');
 let Meals = require('./../../../build/server/posts/model');
 let Blogs = require('./../../../build/server/blogs/model');
 let UserGroups = require('./../../../build/server/user-groups/model');
+let PostsStats = require('./../../../build/server/posts-stats/model');
 let Audit = require('./../../../build/server/audit/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
@@ -696,6 +697,44 @@ describe('Posts DAO', () => {
                 })
                 .then((p) => {
                     expect(p.content).to.equal('restricted because you are not an owner, contributor or subscriber to this blog and it is not a public post');
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist;
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should load uniqueViews, totalViews, rating', (done) => {
+            let error = null;
+            Posts.findOne({title: 'test post.populate'})
+                .then((post) => {
+                    return PostsStats.create(post._id, 'like', 'test', 'silver lining');
+                })
+                .then((vc) => {
+                    return PostsStats.create(vc.postId, 'love', 'root', 'silver lining');
+                })
+                .then((vc) => {
+                    return Posts.findOne({_id: vc.postId})
+                })
+                .then((p) => {
+                    return p.populate({email: 'one@first.com'});
+                })
+                .then((p) => {
+                    expect(p.uniqueViews).to.equal(2);
+                    expect(p.totalViews).to.equal(1);
+                    expect(p.totalLikes).to.equal(1);
+                    expect(p.totalLoves).to.equal(1);
+                    expect(p.viewedOn).to.not.exist;
+                    expect(p.rating).to.not.exist;
+                    expect(p.ratedOn).to.not.exist;
+                    return p.populate({email: 'test'});
+                })
+                .then((p) => {
+                    expect(p.viewedOn).to.exist;
+                    expect(p.rating).to.equal('like');
+                    expect(p.ratedOn).to.exist;
                 })
                 .catch((err) => {
                     expect(err).to.not.exist;

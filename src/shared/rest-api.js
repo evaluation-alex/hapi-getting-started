@@ -9,9 +9,12 @@ module.exports = function(Joi, _) {
         },
         findDefaults: {
             payload: {
-                sort: Joi.string().default('-updatedOn'),
-                limit: Joi.number().default(8),
-                page: Joi.number().default(1),
+                pagination: {
+                    fields: Joi.string(),
+                    sort: Joi.string().default('-updatedOn'),
+                    limit: Joi.number().default(8),
+                    page: Joi.number().default(1)
+                },
                 isActive: Joi.boolean().default(true)
             }
         },
@@ -43,7 +46,7 @@ module.exports = function(Joi, _) {
             }
         },
         findOptions: {
-            forExact: [['contentType', 'contentType'], ['state', 'state']],
+            forExact: [['contentType', 'contentType'], ['state', 'state'], ['access', 'access']],
             forPartial: [['title', 'title'], ['tag', 'tags'], ['publishedBy', 'publishedBy']],
             forDateBefore: [['publishedOnBefore', 'publishedOn']],
             forDateAfter: [['publishedOnAfter', 'publishedOn']],
@@ -57,10 +60,14 @@ module.exports = function(Joi, _) {
                 tag: [Joi.array().items(Joi.string()), Joi.string()],
                 contentType: Joi.string().only(['post']).default('post').notes(['exact match required']),
                 description: [Joi.array().items(Joi.string()), Joi.string()],
-                state: [Joi.array().items(Joi.string().only(subdocs.enums.posts.state)).notes(['exact match required']), Joi.string().only(['published', 'draft', 'archived', 'do not publish']).notes(['exact match required'])],
+                state: [Joi.array().items(Joi.string().only(subdocs.enums.posts.state)).notes(['exact match required']), Joi.string().only(subdocs.enums.posts.state).notes(['exact match required'])],
                 publishedBy: [Joi.array().items(Joi.string()), Joi.string()],
                 publishedOnBefore: Joi.date().format('YYYY-MM-DD'),
-                publishedOnAfter: Joi.date().format('YYYY-MM-DD')
+                publishedOnAfter: Joi.date().format('YYYY-MM-DD'),
+                $or: {
+                    blogId: [Joi.array().items(subdocs.mongoId), subdocs.mongoId],
+                    access: Joi.string().only(['public'])
+                }
             }
         }),
         findOne: common.findOne,
@@ -235,6 +242,22 @@ module.exports = function(Joi, _) {
             })
         },
         posts,
+        'posts-stats': {
+            incrementFindOptions: {
+                forID: [['postId', 'postId']]
+            },
+            incrementView: {
+                payload: {
+                    postId: subdocs.mongoId
+                }
+            },
+            rate: {
+                payload: {
+                    postId: subdocs.mongoId,
+                    rating: Joi.string().only(subdocs.enums.posts.rating)
+                }
+            }
+        },
         preferences: {
             update: _.merge({}, common.update, {
                 payload: {

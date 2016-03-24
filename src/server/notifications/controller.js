@@ -8,7 +8,7 @@ const {filter, flatten, merge} = _;
 const {buildQuery, by, user, hasItems} = utils;
 const {canView, canUpdate, prePopulate, onlyOwner, buildMongoQuery} = pre;
 const {buildFindHandler, buildUpdateHandler} = handlers;
-const {i18n, hashCodeOn} = post;
+const {i18n, populateObject, hashCodeOn} = post;
 const Notifications = require('./model');
 const schema = require('./../../shared/rest-api')(require('joi'), _).notifications;
 module.exports = {
@@ -36,6 +36,7 @@ module.exports = {
         handler: buildFindHandler(Notifications),
         post: [
             i18n(Notifications),
+            populateObject(Notifications),
             hashCodeOn(Notifications)
         ]
     },
@@ -49,6 +50,7 @@ module.exports = {
         handler: buildUpdateHandler(Notifications, 'update'),
         post: [
             i18n(Notifications),
+            populateObject(Notifications),
             hashCodeOn(Notifications)
         ]
     }

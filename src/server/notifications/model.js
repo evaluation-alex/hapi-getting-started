@@ -1,6 +1,6 @@
 'use strict';
 const _ = require('./../lodash');
-const {uniq, flatten, isArray} = _;
+const {uniq, flatten, isArray, merge} = _;
 const Bluebird = require('bluebird');
 const build = require('./../common/dao').build;
 const modelSchema = require('./../../shared/model')(require('joi'), _).notifications;
@@ -51,6 +51,16 @@ Notifications.create = function create(email, objectType, objectId, title, state
         return Notifications.createMany(email, objectType, objectId, title, state, action, priority, starred, content, by, organisation);
     } else {
         return Notifications.createOne(email, objectType, objectId, title, state, action, priority, starred, content, by, organisation);
+    }
+};
+Notifications.prototype = {
+    populate(user) {
+        return merge(this, {
+            canRead: (this.state === 'unread'),
+            canUnRead: this.state === 'read',
+            canStar: !(this.starred),
+            canUnStar: this.starred
+        });
     }
 };
 module.exports = build(Notifications, daoOptions, modelSchema);

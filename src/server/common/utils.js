@@ -13,9 +13,9 @@ const logAndBoom = function logAndBoom(err) {
     return err.canMakeBoomError ? err : boom.badImplementation(err);
 };
 const errback = function errback(err) {
+    /*istanbul ignore else*/
     if (err) {
         /*istanbul ignore else*/
-        /*istanbul ignore if*/
         if (enableConsole) {
             console.log('err', err);
             console.log(err.stack);
@@ -59,7 +59,7 @@ const buildQueryFor = function buildQueryFor(type, request, fields, paths) {
         .map(([fieldToLookup, fieldInMongo]) => [lookupParamsOrPayloadOrQuery(request, fieldToLookup, undefined, paths), fieldInMongo])
         .filter(([valueFromRequest, fieldInMongo]) => !!valueFromRequest)
         .map(([valueFromRequest, fieldInMongo]) => ({[fieldInMongo]: queryBuilder[type](valueFromRequest)}))
-        .reduce((mongoDocForType, queryFragmentForField) => merge(mongoDocForType, queryFragmentForField), {});
+        .reduce(merge, {});
 }
 const buildQuery = function buildQuery(request, options) {
     const andOr = {
@@ -83,11 +83,11 @@ const buildQuery = function buildQuery(request, options) {
         );
     return merge({}, and, hasItems($or) ? {$or} : {});
 };
-const findopts = function findopts(opts) {
+const optsToDoc = function optsToDoc(opts, val = 1, notVal = 0) {
     return (!opts || opts === '') ? undefined
         : opts.split(/\s+/)
-        .map(each => (each[0] === '-') ? {[each.slice(1)]: -1} : {[each]: 1})
-        .reduce((p, c) => merge(p, c), {});
+        .map(each => (each[0] === '-') ? {[each.slice(1)]: notVal} : {[each]: val})
+        .reduce(merge, {});
 };
 const secureHash = function secureHash(password) {
     return bcrypt.hashSync(password, 10);
@@ -139,7 +139,7 @@ module.exports = {
     lookupParamsOrPayloadOrQuery,
     hasItems,
     buildQuery,
-    findopts,
+    optsToDoc,
     secureHash,
     secureCompare,
     timing,

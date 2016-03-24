@@ -23,7 +23,8 @@ module.exports = function (Joi, _) {
         },
         posts: {
             state: ['draft', 'pending review', 'published', 'archived', 'do not publish'],
-            contentType: ['post', 'meal', 'recipe']
+            contentType: ['post', 'meal', 'recipe'],
+            rating: ['like', 'love', 'none']
         },
         preferences: {
             locale: ['en', 'hi']
@@ -131,6 +132,14 @@ module.exports = function (Joi, _) {
             audit: Joi.any()//stupid hack, dont know how to rid of it
         }, common.model),
         posts,
+        'posts-stats': _.merge({}, {
+            email: Joi.string(),
+            postId: [Joi.object(), mongoId],
+            viewCount: Joi.number(),
+            viewedOn: Joi.date(),
+            rating: Joi.string().only(enums.posts.rating),
+            ratedOn: Joi.date()
+        }, _.omit(common.model, ['createdBy', 'createdOn'])),
         preferences,
         profile,
         roles: _.merge({}, {

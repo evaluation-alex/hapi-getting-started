@@ -14,7 +14,6 @@ const UserGroups = require('./../user-groups/model');
 const Blogs = require('./../blogs/model');
 const Posts = require('./model');
 const schema = require('./../../shared/rest-api')(require('joi'), _).posts;
-/*jshint unused:false*/
 /*eslint-disable no-unused-vars*/
 const sendNotificationsWhen = {
     'published'(post, request) {
@@ -96,6 +95,7 @@ module.exports = {
         handler: buildCreateHandler(Posts),
         post: [
             sendNotifications(Posts, (post, request) => sendNotificationsWhen[post.state](post, request)),
+            populateObject(Posts),
             hashCodeOn(Posts)
         ]
     },

@@ -107,13 +107,13 @@ describe('Utils', () => {
         expect(query3.$or[0].id.$in.length).to.equal(2);
         done();
     });
-    it('should form the proper object for findopts', (done) => {
-        expect(utils.findopts('')).to.not.exist;
-        expect(utils.findopts(null)).to.not.exist;
-        expect(utils.findopts(undefined)).to.not.exist;
-        expect(utils.findopts('-updatedOn')).to.deep.equal({updatedOn: -1});
-        expect(utils.findopts('updatedOn')).to.deep.equal({updatedOn: 1});
-        expect(utils.findopts('a b -c')).to.deep.equal({a: 1, b: 1, c: -1});
+    it('should form the proper object for optsToDoc', (done) => {
+        expect(utils.optsToDoc('')).to.not.exist;
+        expect(utils.optsToDoc(null)).to.not.exist;
+        expect(utils.optsToDoc(undefined)).to.not.exist;
+        expect(utils.optsToDoc('-updatedOn', 1, -1)).to.deep.equal({updatedOn: -1});
+        expect(utils.optsToDoc('updatedOn')).to.deep.equal({updatedOn: 1});
+        expect(utils.optsToDoc('a b -c', 1, 0)).to.deep.equal({a: 1, b: 1, c: 0});
         done();
     });
     it('should log and boom error', (done) => {

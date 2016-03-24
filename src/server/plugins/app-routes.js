@@ -4,7 +4,7 @@ const path = require('path');
 const _ = require('./../lodash');
 const {functions, flattenDeep} = _;
 function describeRoutes(routes) {
-    return routes.map(route => `${route.method}  ${route.path}`).join('\n');
+    return routes.map(({method, path}) => `${method}  ${path}`).join('\n');
 }
 function describeModel(model) {
     if (fs.existsSync(model + '.js')) {

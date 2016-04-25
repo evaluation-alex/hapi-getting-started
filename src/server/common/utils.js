@@ -40,8 +40,7 @@ const locale = function locale(request) {
 };
 const lookupParamsOrPayloadOrQuery = function lookupParamsOrPayloadOrQuery(request, field, defaultVal, paths) {
     const toRet = (paths || [['params'], ['payload'], ['query'], ['headers']])
-        .map(path => path.concat(field))
-        .reduce((found, pathToLookup) => isUndefined(found) ? get(request, pathToLookup) : found, undefined);
+        .reduce((found, path) => isUndefined(found) ? get(request, path.concat(field)) : found, undefined);
     return !isUndefined(toRet) ? toRet : defaultVal;
 };
 const hasItems = function hasItems(arr) {
@@ -56,10 +55,11 @@ const queryBuilder = {
 };
 const buildQueryFor = function buildQueryFor(type, request, fields, paths) {
     return fields
-        .map(([fieldToLookup, fieldInMongo]) => [lookupParamsOrPayloadOrQuery(request, fieldToLookup, undefined, paths), fieldInMongo])
+        .map(([fieldToLookup, fieldInMongo]) =>
+            [lookupParamsOrPayloadOrQuery(request, fieldToLookup, undefined, paths), fieldInMongo])
         .filter(([valueFromRequest, fieldInMongo]) => !!valueFromRequest)
-        .map(([valueFromRequest, fieldInMongo]) => ({[fieldInMongo]: queryBuilder[type](valueFromRequest)}))
-        .reduce(merge, {});
+        .reduce((query, [valueFromRequest, fieldInMongo]) =>
+            merge(query, {[fieldInMongo]: queryBuilder[type](valueFromRequest)}), {});
 }
 const buildQuery = function buildQuery(request, options) {
     const andOr = {
@@ -81,13 +81,12 @@ const buildQuery = function buildQuery(request, options) {
             .map(type =>  buildQueryFor(type, request, options[type], paths))//buildquery for each type using the default paths
             .reduce(reducer, reduceInitial)
         );
-    return merge({}, and, hasItems($or) ? {$or} : {});
+    return merge(and, hasItems($or) ? {$or} : {});
 };
 const optsToDoc = function optsToDoc(opts, val = 1, notVal = 0) {
     return (!opts || opts === '') ? undefined
         : opts.split(/\s+/)
-        .map(each => (each[0] === '-') ? {[each.slice(1)]: notVal} : {[each]: val})
-        .reduce(merge, {});
+        .reduce((doc, each) => merge(doc, (each[0] === '-') ? {[each.slice(1)]: notVal} : {[each]: val}), {});
 };
 const secureHash = function secureHash(password) {
     return bcrypt.hashSync(password, 10);

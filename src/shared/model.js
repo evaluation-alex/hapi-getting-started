@@ -36,6 +36,9 @@ module.exports = function (Joi, _) {
         },
         roles: {
             action: ['view', 'update']
+        },
+        comments: {
+            status: ['approved', 'spam', 'pending']
         }
     };
     const channel = {
@@ -47,7 +50,7 @@ module.exports = function (Joi, _) {
         email: channel,
         blocked: Joi.array().items([Joi.object(), mongoId, Joi.string()]).optional()
     };
-    const posts = _.merge({}, {
+    const posts = _.merge({
         blogId: [Joi.object(), mongoId],
         access: Joi.string().only(enums.blogs.access).default('public'),
         allowComments: Joi.boolean().default(true),
@@ -101,13 +104,13 @@ module.exports = function (Joi, _) {
                 newValues: Joi.any()
             })
         }, _.pick(common.model, ['_id', 'organisation', 'objectVersion', 'schemaVersion'])),
-        'auth-attempts': _.merge({}, {
+        'auth-attempts': _.merge({
             email: Joi.string(),
             organisation: Joi.string().default('*'),
             ip: Joi.string(),
             time: Joi.date()
         }, _.pick(common.model, ['_id', 'organisation', 'schemaVersion', 'objectVersion'])),
-        blogs: _.merge({}, {
+        blogs: _.merge({
             title: Joi.string(),
             description: Joi.string(),
             owners: Joi.array().items(Joi.string()).unique(),
@@ -119,7 +122,7 @@ module.exports = function (Joi, _) {
             access: Joi.string().only(enums.blogs.access),
             allowComments: Joi.boolean().default(true)
         }, common.model),
-        notifications: _.merge({}, {
+        notifications: _.merge({
             email: Joi.string(),
             objectType: Joi.string().only(enums.notifications.objectType),
             objectId: [Joi.object(), mongoId, Joi.string()],
@@ -132,7 +135,7 @@ module.exports = function (Joi, _) {
             audit: Joi.any()//stupid hack, dont know how to rid of it
         }, common.model),
         posts,
-        'posts-stats': _.merge({}, {
+        'posts-stats': _.merge({
             email: Joi.string(),
             postId: [Joi.object(), mongoId],
             viewCount: Joi.number(),
@@ -140,9 +143,16 @@ module.exports = function (Joi, _) {
             rating: Joi.string().only(enums.posts.rating),
             ratedOn: Joi.date()
         }, _.omit(common.model, ['createdBy', 'createdOn'])),
+        'posts-comments': _.merge({
+            email: Joi.string(),
+            postId: [Joi.object(), mongoId],
+            comment: Joi.string(),
+            status: Joi.string().only(enums.comments.status),
+            replyTo: [Joi.object(), mongoId]
+        }, common.model),
         preferences,
         profile,
-        roles: _.merge({}, {
+        roles: _.merge({
             name: Joi.string(),
             permissions: Joi.array().items({
                 action: Joi.string().only(enums.roles.action),
@@ -150,7 +160,7 @@ module.exports = function (Joi, _) {
             }).unique()
         }, common.model),
         session,
-        'user-groups': _.merge({}, {
+        'user-groups': _.merge({
             name: Joi.string(),
             description: Joi.string(),
             members: Joi.array().items(Joi.string()).unique(),
@@ -158,7 +168,7 @@ module.exports = function (Joi, _) {
             needsApproval: Joi.array().items(Joi.string()).unique(),
             access: Joi.string().only(enums.blogs.access).default('restricted')
         }, common.model),
-        users: _.merge({}, {
+        users: _.merge({
             email: Joi.string().required(),
             password: Joi.string().required(),
             roles: Joi.array().items(Joi.string()).unique(),

@@ -166,8 +166,7 @@ const buildMongoQuery = function buildMongoQuery({collection}, findOptions, buil
             const start = Date.now();
             buildP(request)
                 .then(query =>
-                    merge({},
-                        query,
+                    merge(query,
                         {organisation: query.organisation || org(request)},
                         {isActive: lookupParamsOrPayloadOrQuery(request, 'isActive')}
                     )

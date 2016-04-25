@@ -1,11 +1,6 @@
 'use strict';
 const fs = require('fs');
 const LICENSE = '/**\n' + fs.readFileSync('./LICENSE').toString() + '**/';
-const logRenderOptions = `'use strict';
-module.exports = {
-    exclude: ['RBControlledInput', 'Head', 'Spinner']
-};
-`
 const buildJS = function buildJS($, dest, babelConfig) {
     return $.lazypipe()
         .pipe($.changed, dest)

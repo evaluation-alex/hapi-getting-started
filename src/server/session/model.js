@@ -42,8 +42,7 @@ Session.prototype = {
     },
     afterLogin(ipaddress) {
         const session = find(this.session, sesion => sesion.ipaddress === ipaddress);
-        return merge({},
-            {user: this.email},
+        return merge({user: this.email},
             pick(this, ['_id', 'organisation', 'preferences', 'profile']),
             {session: omit(session, ['key'])},
             {authHeader: `Basic ${new Buffer(`${this.email}:${session.key}`).toString('base64')}`}

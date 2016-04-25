@@ -27,7 +27,7 @@ const renderTemplate = Bluebird.method(function(template, context) {
 const sendEmail = function sendEmail(options, template, context) {
     return renderTemplate(template, context)
         .then(content =>
-            transport.sendMailAsync(merge({}, options, {from: config.system.fromAddress, markdown: content}))
+            transport.sendMailAsync(merge({from: config.system.fromAddress, markdown: content}, options))
         );
 };
 module.exports = {

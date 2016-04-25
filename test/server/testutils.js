@@ -11,6 +11,7 @@ let Audit = require('./../../build/server/audit/model');
 let Blogs = require('./../../build/server/blogs/model');
 let Posts = require('./../../build/server/posts/model');
 let PostsStats = require('./../../build/server/posts-stats/model');
+let Comments = require('./../../build/server/posts-comments/model');
 let AuthAttempts = require('./../../build/server/auth-attempts/model');
 let Roles = require('./../../build/server/roles/model');
 let Notifications = require('./../../build/server/notifications/model');
@@ -111,6 +112,9 @@ module.exports.cleanupAuthAttempts = function cleanupAuthAttempts() {
 let cleanupPostsStats = function cleanupPostsStats() {
     return PostsStats.remove({});
 };
+let cleanupComments = function cleanupComments() {
+    return Comments.remove({});
+};
 let cleanupRoles = Bluebird.method((roles) =>
         utils.hasItems(roles) ? Roles.remove({name: {$in: roles}}) : true
 );
@@ -125,6 +129,7 @@ module.exports.cleanup = function cleanup(toClear, cb) {
         module.exports.cleanupAudit(),
         module.exports.cleanupAuthAttempts(),
         cleanupPostsStats(),
+        cleanupComments(),
         () => {
             cb();
         })

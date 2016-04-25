@@ -133,6 +133,7 @@ fromStdIn({}, 'projectName', 'Project name: (hapistart) ', {'default': 'hapistar
                             'blogs',
                             'posts',
                             'posts-stats',
+                            'posts-comments',
                             'audit'
                         ]
                     }

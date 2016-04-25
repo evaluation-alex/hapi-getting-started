@@ -95,7 +95,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
         upsert(obj) {
             const opts = {upsert: true, returnOriginal: false};
             return new Bluebird((resolve, reject) => {
-                const toSave = merge({}, {
+                const toSave = merge({
                     objectVersion: 0,
                     schemaVersion: Dao.schemaVersion,
                     _id: Dao.ObjectID()
@@ -140,7 +140,7 @@ function withModifyMethods(Dao, isReadonly, saveAudit, idForAudit = '_id') {
             },
             insertAndAudit(doc, by, organisation = 'silver lining') {
                 const now = new Date();
-                const toSave = merge({}, doc, {
+                const toSave = merge(doc, {
                     _id: Dao.ObjectID(),
                     organisation,
                     isActive: true,
@@ -269,11 +269,9 @@ function withFindMethods(Dao, areValidProperty) {
                     return Dao.find(conditions)
                         .then(docs => merge({},
                             toCheck
-                                .map(e => ({[e]: false}))
-                                .reduce(merge, {}),
+                                .reduce((p, e) => merge(p, {[e]: false}), {}),
                             docs
-                                .map(doc => ({[doc[areValidProperty]]: true}))
-                                .reduce(merge, {})
+                                .reduce((p, doc) => merge(p, {[doc[areValidProperty]]: true}), {})
                             )
                         );
                 }
@@ -311,7 +309,7 @@ function arrDescriptors(lists) {
 }
 function withSetMethods(Dao, properties) {
     properties
-        .map(({method, path, name}) => ({
+        .reduce((d, {method, path, name}) => extend(d, {
             [method](newValue, by) {
                 const origval = get(this, path);
                 if (!isUndefined(newValue) && !isEqual(origval, newValue)) {
@@ -320,13 +318,12 @@ function withSetMethods(Dao, properties) {
                 }
                 return this;
             }
-        }))
-        .reduce(extend, Dao.prototype);
+        }), Dao.prototype);
     return Dao;
 }
 function withArrMethods(Dao, lists) {
     lists
-        .map(({path, name, isPresentIn, addMethod, removeMethod}) => ({
+        .reduce((p, {path, name, isPresentIn, addMethod, removeMethod}) => extend(p, {
             [isPresentIn](toCheck) {
                 return !!find(get(this, path), item => isEqual(item, toCheck));
             },
@@ -352,8 +349,7 @@ function withArrMethods(Dao, lists) {
                 });
                 return this;
             }
-        }))
-        .reduce(extend, Dao.prototype);
+        }), Dao.prototype);
     return Dao;
 }
 function withUpdate(Dao, props, arrs, updateMethod) {
@@ -486,30 +482,30 @@ function withSave(Dao, saveAudit, idForAudit = '_id') {
     });
     return Dao;
 }
-const build = function build(toBuild, schema, model, extendModels, areValidProperty = undefined) {
-    if (!schema.isVirtualModel) {
-        withSchemaProperties(toBuild, schema.connection, schema.collection, schema.indexes, model, schema.schemaVersion);
-        withSetupMethods(toBuild, schema.nonEnumerables || []);
-        withModifyMethods(toBuild, schema.isReadonly, schema.saveAudit, schema.idForAudit);
+const build = function build(toBuild, options, schema, extendModels, areValidProperty = undefined) {
+    if (!options.isVirtualModel) {
+        withSchemaProperties(toBuild, options.connection, options.collection, options.indexes, schema, options.schemaVersion);
+        withSetupMethods(toBuild, options.nonEnumerables || []);
+        withModifyMethods(toBuild, options.isReadonly, options.saveAudit, options.idForAudit);
         withFindMethods(toBuild, areValidProperty);
         withHashCode(toBuild);
     }
-    if (schema.updateMethod) {
-        const props = propDescriptors(schema.updateMethod.props);
-        const arrs = arrDescriptors(schema.updateMethod.arrProps || []);
+    if (options.updateMethod) {
+        const props = propDescriptors(options.updateMethod.props);
+        const arrs = arrDescriptors(options.updateMethod.arrProps || []);
         withSetMethods(toBuild, props);
         withArrMethods(toBuild, arrs);
-        withUpdate(toBuild, props, arrs, schema.updateMethod.method);
+        withUpdate(toBuild, props, arrs, options.updateMethod.method);
     }
-    if (schema.joinApproveRejectLeave) {
-        const {affectedRole, needsApproval} = schema.joinApproveRejectLeave;
+    if (options.joinApproveRejectLeave) {
+        const {affectedRole, needsApproval} = options.joinApproveRejectLeave;
         withApproveRejectJoinLeave(toBuild, affectedRole, needsApproval);
     }
-    if (!schema.isVirtualModel && !schema.isReadonly) {
-        withSave(toBuild, schema.saveAudit, schema.idForAudit);
+    if (!options.isVirtualModel && !options.isReadonly) {
+        withSave(toBuild, options.saveAudit, options.idForAudit);
     }
-    if (hasItems(schema.i18n)) {
-        withI18n(toBuild, schema.i18n);
+    if (hasItems(options.i18n)) {
+        withI18n(toBuild, options.i18n);
     }
     if (hasItems(extendModels)) {
         extendModels.forEach(fromVirtualModel => {

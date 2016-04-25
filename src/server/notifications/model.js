@@ -55,12 +55,12 @@ Notifications.create = function create(email, objectType, objectId, title, state
 };
 Notifications.prototype = {
     populate(user) {
-        return merge(this, {
+        return Bluebird.resolve(merge(this, {
             canRead: (this.state === 'unread'),
             canUnRead: this.state === 'read',
             canStar: !(this.starred),
             canUnStar: this.starred
-        });
+        }));
     }
 };
 module.exports = build(Notifications, daoOptions, modelSchema);

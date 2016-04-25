@@ -1441,7 +1441,7 @@ describe('Posts', () => {
                     done(err);
                 });
         });
-        it('should deactivate blog and have changes audited', (done) => {
+        it('should deactivate post and have changes audited', (done) => {
             let blogId = '';
             let postId = '';
             Blogs.create('testDelPost', 'test DELETE /posts', ['one@first.com'], [], [], [], false, 'public', true, 'test')

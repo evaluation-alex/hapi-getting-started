@@ -26,6 +26,7 @@ const merge = require('lodash/merge');
 const minBy = require('lodash/minBy');
 const omit = require('lodash/omit');
 const pick = require('lodash/pick');
+const pickBy = require('lodash/pickBy');
 const remove = require('lodash/remove');
 const set = require('lodash/set');
 const uniq = require('lodash/uniq');
@@ -60,11 +61,11 @@ module.exports = {
     minBy,
     omit,
     pick,
+    pickBy,
     remove,
     set: set,
     uniq,
     uniqBy,
     upperFirst,
-    values,
-    'something': 'or other'
+    values
 };

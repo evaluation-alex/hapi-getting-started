@@ -1,4 +1,5 @@
 'use strict';
+const Bluebird = require('bluebird');
 const _ = require('./../lodash');
 const {merge} = _;
 const build = require('./../common/dao').build;
@@ -46,12 +47,12 @@ PostsStats.prototype = {
     },
     populate(user) {
         const rating = this.rating;
-        return merge(this, {
+        return Bluebird.resolve(merge(this, {
             canLike: rating !== 'like',
             canUnlike: rating === 'like',
             canLove: rating !== 'love',
             canUnlove: rating === 'love'
-        });
+        }));
     }
 };
 module.exports = build(PostsStats, daoOptions, modelSchema);

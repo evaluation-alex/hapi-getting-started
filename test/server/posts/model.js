@@ -4,6 +4,7 @@ let Meals = require('./../../../build/server/posts/model');
 let Blogs = require('./../../../build/server/blogs/model');
 let UserGroups = require('./../../../build/server/user-groups/model');
 let PostsStats = require('./../../../build/server/posts-stats/model');
+let Comments = require('./../../../build/server/posts-comments/model');
 let Audit = require('./../../../build/server/audit/model');
 let _ = require('lodash');
 let tu = require('./../testutils');
@@ -550,32 +551,6 @@ describe('Posts DAO', () => {
                     tu.testComplete(done, error);
                 });
         });
-        it('should load content if post.access is not public, but blog.access is public', (done) => {
-            let error = null;
-            Blogs.findOne({title: 'test post.populate'})
-                .then((blog) => {
-                    return blog.setAccess('public').save();
-                })
-                .then(() => {
-                    return Posts.findOne({title: 'test post.populate'});
-                })
-                .then((post) => {
-                    return post.setAccess('restricted').save();
-                })
-                .then((p) => {
-                    return p.populate({email: 'one@first.com'});
-                })
-                .then((p) => {
-                    expect(p.content).to.equal('i have something to offer');
-                })
-                .catch((err) => {
-                    expect(err).to.not.exist;
-                    error = err;
-                })
-                .done(() => {
-                    tu.testComplete(done, error);
-                });
-        });
         it('should load content if post, blog.access is restricted and user is member of owners group', (done) => {
             let error = null;
             Blogs.findOne({title: 'test post.populate'})
@@ -735,6 +710,40 @@ describe('Posts DAO', () => {
                     expect(p.viewedOn).to.exist;
                     expect(p.rating).to.equal('like');
                     expect(p.ratedOn).to.exist;
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist;
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        it('should load threaded comments', (done) => {
+            let error = null;
+            Posts.findOne({title: 'test post.populate'})
+                .then((post) => {
+                    return Bluebird.join(
+                        Comments.create(post._id, '1', null, 'approved', 'test'),
+                        Comments.create(post._id, '2', null, 'approved', 'test'),
+                        Comments.create(post._id, '2.3', null, 'pending', 'test'),
+                        Comments.create(post._id, '2.3.4', null, 'spam', 'test'),
+                        (c1, c2, c3, c4) => {
+                            c3.replyTo = c2._id;
+                            c3.__isModified = true;
+                            c4.replyTo = c3._id;
+                            c4.__isModified = true;
+                            return Bluebird.join(c3.save(), c4.save(), () => {});
+                        });
+                })
+                .then(() => {
+                    return Posts.findOne({title: 'test post.populate'})
+                })
+                .then((p) => {
+                    return p.populate({email: 'one@first.com'});
+                })
+                .then((p) => {
+                    expect(p.comments.length).to.equal(4);
                 })
                 .catch((err) => {
                     expect(err).to.not.exist;

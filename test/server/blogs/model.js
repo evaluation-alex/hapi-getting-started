@@ -522,6 +522,56 @@ describe('Blogs DAO', () => {
             done();
         });
     });
+    describe('Blogs.this.populate', () => {
+        let testblog = null;
+        before((done) => {
+            UserGroups.create('populate', 'testing blog.populate', 'test2')
+                .then((ug) => {
+                    Blogs.create('populate', 'blog.populate', [], [], [], [ug.name], false, 'public', true, 'test')
+                        .then((p) => {
+                            testblog = p;
+                            done();
+                        });
+                })
+        });
+        it('should populate additional attributes properly', (done) => {
+            let error = null;
+            testblog.populate({email: 'test'})
+                .then(t => {
+                    expect(t.isOwner).to.be.true;
+                    expect(t.isContributor).to.be.true;
+                    expect(t.isSubscriber).to.be.true;
+                    expect(t.canEdit).to.be.true;
+                    expect(t.canDelete).to.be.true;
+                    expect(t.canCreatePosts).to.be.true;
+                    expect(t.canJoin).to.be.false;
+                    expect(t.canLeave).to.be.true;
+                    return t.populate({email: 'test2'});
+                })
+                .then(t => {
+                    expect(t.isOwner).to.be.false;
+                    expect(t.isContributor).to.be.false;
+                    expect(t.isSubscriber).to.be.true;
+                    expect(t.canEdit).to.be.false;
+                    expect(t.canDelete).to.be.false;
+                    expect(t.canCreatePosts).to.be.false;
+                    expect(t.canJoin).to.be.true;
+                    expect(t.canLeave).to.be.false;
+                })
+                .catch((err) => {
+                    expect(err).to.not.exist;
+                    error = err;
+                })
+                .done(() => {
+                    tu.testComplete(done, error);
+                });
+        });
+        after((done) => {
+            groupsToClear.push('populate');
+            blogsToClear.push('populate');
+            done();
+        });
+    });
     after((done) => {
         return tu.cleanup({userGroups: groupsToClear, blogs: blogsToClear}, done);
     });

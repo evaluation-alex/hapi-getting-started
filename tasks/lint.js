@@ -28,9 +28,9 @@ const eslintOptions = {
 
     },
 };
-module.exports = function (gulp, $, {src}) {
+module.exports = function (gulp, $, {src, disableLinting}) {
     return function lint(cb) {
-        return !$.disableLinting ?
+        return !disableLinting ?
             gulp.src(src)
                 .pipe($.eslint(eslintOptions))
                 .pipe($.eslint.format()) :

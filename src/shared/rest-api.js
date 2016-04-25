@@ -52,7 +52,7 @@ module.exports = function(Joi, _) {
             forDateAfter: [['publishedOnAfter', 'publishedOn']],
             forID: [['blogId', 'blogId']]
         },
-        find: _.merge({}, common.findDefaults, {
+        find: _.merge({
             payload: {
                 title: [Joi.array().items(Joi.string()), Joi.string()],
                 blogId: [Joi.array().items(subdocs.mongoId), subdocs.mongoId],
@@ -69,9 +69,9 @@ module.exports = function(Joi, _) {
                     access: Joi.string().only(['public'])
                 }
             }
-        }),
+        }, common.findDefaults),
         findOne: common.findOne,
-        update: _.merge({}, common.update, {
+        update: _.merge({
             payload: {
                 blogId: subdocs.mongoId,
                 title: Joi.string(),
@@ -87,22 +87,22 @@ module.exports = function(Joi, _) {
                 allowComments: Joi.boolean(),
                 needsReview: Joi.boolean()
             }
-        }),
-        publish: _.merge({}, common.update, {
+        }, common.update),
+        publish: _.merge({
             payload: {
                 blogId: subdocs.mongoId
             }
-        }),
-        reject: _.merge({}, common.update, {
+        }, common.update),
+        reject: _.merge({
             payload: {
                 blogId: subdocs.mongoId
             }
-        }),
-        delete: _.merge({}, common.update, {
+        }, common.update),
+        delete: _.merge({
             payload: {
                 blogId: subdocs.mongoId
             }
-        })
+        }, common.update)
     };
     const updateChannel = {
         frequency: Joi.string().only(subdocs.enums.channel.frequency)
@@ -110,8 +110,8 @@ module.exports = function(Joi, _) {
     const notificationUpdatePref = {
         inapp: updateChannel,
         email: updateChannel,
-        addedBlocked: Joi.array().items([Joi.object(), subdocs.mongoId]).optional(),
-        removedBlocked: Joi.array().items([Joi.object(), subdocs.mongoId]).optional()
+        addedBlocked: Joi.array().items([Joi.object(), subdocs.mongoId]),
+        removedBlocked: Joi.array().items([Joi.object(), subdocs.mongoId])
     };
     return {
         audit: {
@@ -121,11 +121,13 @@ module.exports = function(Joi, _) {
                 forDateAfter: [['onAfter', 'on']],
                 forExact: [['objectType', 'objectChangedType'], ['objectChangedId', 'objectChangedId']]
             },
-            find: _.merge({}, {
+            find: _.merge({
                 payload: {
-                    sort: Joi.string().default('-on'),
-                    limit: Joi.number().default(5),
-                    page: Joi.number().default(1)
+                    pagination: {
+                        sort: Joi.string().default('-on'),
+                        limit: Joi.number().default(5),
+                        page: Joi.number().default(1)
+                    }
                 }
             }, {
                 payload: {
@@ -141,11 +143,13 @@ module.exports = function(Joi, _) {
             findOptions: {
                 forPartialMatch: [['ip', 'ip'], ['email', 'email']]
             },
-            find: _.merge({}, {
+            find: _.merge({
                 payload: {
-                    sort: Joi.string().default('-time'),
-                    limit: Joi.number().default(8),
-                    page: Joi.number().default(1)
+                    pagination: {
+                        sort: Joi.string().default('-time'),
+                        limit: Joi.number().default(8),
+                        page: Joi.number().default(1)
+                    }
                 }
             }, {
                 payload: {
@@ -172,11 +176,11 @@ module.exports = function(Joi, _) {
                 forPartial: [['title', 'title'], ['owner', 'owners'], ['contributor', 'contributors'], ['subscriber', 'subscribers'],
                     ['subGroup', 'subscriberGroups']]
             },
-            find: _.merge({}, common.findDefaults, {
+            find: _.merge({
                 payload: _.merge({}, blogqry, {$or: blogqry})
-            }),
+            }, common.findDefaults),
             findOne: common.findOne,
-            update: _.merge({}, common.update, {
+            update: _.merge({
                 payload: {
                     title: Joi.string(),
                     isActive: Joi.boolean(),
@@ -193,20 +197,20 @@ module.exports = function(Joi, _) {
                     access: Joi.string().only(subdocs.enums.blogs.access),
                     allowComments: Joi.boolean()
                 }
-            }),
-            approve: _.merge({}, common.update, {
+            }, common.update),
+            approve: _.merge({
                 payload: {
                     addedSubscribers: Joi.array().items(Joi.string()).unique()
                 }
-            }),
-            reject: _.merge({}, common.update, {
+            }, common.update),
+            reject: _.merge({
                 payload: {
                     addedSubscribers: Joi.array().items(Joi.string()).unique()
                 }
-            }),
-            join: _.merge({}, common.update),
-            leave: _.merge({}, common.update),
-            delete: _.merge({}, common.update)
+            }, common.update),
+            join: common.update,
+            leave: common.update,
+            delete: common.update
         },
         contact: {
             contact: {
@@ -224,7 +228,7 @@ module.exports = function(Joi, _) {
                 forDateBefore: [['createdOnBefore', 'createdOn']],
                 forDateAfter: [['createdOnAfter', 'createdOn']]
             },
-            find: _.merge({}, common.findDefaults, {
+            find: _.merge({
                 payload: {
                     title: [Joi.array().items(Joi.string()), Joi.string()],
                     state: [Joi.array().items(Joi.string().only(subdocs.enums.notifications.state)).notes(['exact match required']), Joi.string().only(subdocs.enums.notifications.state).notes(['exact match required'])],
@@ -232,14 +236,14 @@ module.exports = function(Joi, _) {
                     createdOnBefore: Joi.date().format('YYYY-MM-DD'),
                     createdOnAfter: Joi.date().format('YYYY-MM-DD')
                 }
-            }),
-            update: _.merge({}, common.update, {
+            }, common.findDefaults),
+            update: _.merge({
                 payload: {
                     starred: Joi.boolean(),
                     state: Joi.string().only(subdocs.enums.notifications.state),
                     isActive: Joi.boolean()
                 }
-            })
+            }, common.update)
         },
         posts,
         'posts-stats': {
@@ -258,8 +262,25 @@ module.exports = function(Joi, _) {
                 }
             }
         },
+        'posts-comments': {
+            create: {
+                payload: {
+                    postId: subdocs.mongoId,
+                    comment: Joi.string(),
+                    replyTo: subdocs.mongoId
+                }
+            },
+            update: _.merge({
+                payload: {
+                    comment: Joi.string()
+                }
+            }, common.update),
+            delete: common.update,
+            approve: common.update,
+            spam: common.update
+        },
         preferences: {
-            update: _.merge({}, common.update, {
+            update: _.merge({
                 payload: {
                     preferences: {
                         notifications: {
@@ -270,10 +291,10 @@ module.exports = function(Joi, _) {
                         locale: Joi.string().only(subdocs.enums.preferences.locale)
                     }
                 }
-            })
+            }, common.update)
         },
         profile: {
-            update: _.merge({}, common.update, {
+            update: _.merge({
                 payload: {
                     profile: {
                         firstName: Joi.string(),
@@ -284,7 +305,7 @@ module.exports = function(Joi, _) {
                         twitter: Joi.any()
                     }
                 }
-            })
+            }, common.update)
         },
         session: {
             login: {
@@ -307,14 +328,14 @@ module.exports = function(Joi, _) {
             findOptions: {
                 forPartial: [['email', 'members'], ['groupName', 'name']]
             },
-            find: _.merge({}, common.findDefaults, {
+            find: _.merge({
                 payload: {
                     email: [Joi.array().items(Joi.string()), Joi.string()],
                     groupName: [Joi.array().items(Joi.string()), Joi.string()]
                 }
-            }),
+            }, common.findDefaults),
             findOne: common.findOne,
-            update: _.merge({}, common.update, {
+            update: _.merge({
                 payload: {
                     isActive: Joi.boolean(),
                     addedMembers: Joi.array().items(Joi.string()).unique(),
@@ -324,19 +345,19 @@ module.exports = function(Joi, _) {
                     description: Joi.string(),
                     access: Joi.string().only(subdocs.enums.blogs.access)
                 }
-            }),
-            approve: _.merge({}, common.update, {
+            }, common.update),
+            approve: _.merge({
                 payload: {
                     addedMembers: Joi.array().items(Joi.string()).unique()
                 }
-            }),
-            reject: _.merge({}, common.update, {
+            }, common.update),
+            reject: _.merge({
                 payload: {
                     addedMembers: Joi.array().items(Joi.string()).unique()
                 }
-            }),
-            join: _.merge({}, common.update),
-            leave: _.merge({}, common.update),
+            }, common.update),
+            join: common.update,
+            leave: common.update,
             delete: _.merge({}, common.update)
         },
         users: {
@@ -351,19 +372,19 @@ module.exports = function(Joi, _) {
             findOptions: {
                 forPartial: [['email', 'email']]
             },
-            find: _.merge({}, common.findDefaults, {
+            find: _.merge({
                 payload: {
                     email: Joi.string()
                 }
-            }),
+            }, common.findDefaults),
             findOne: common.findOne,
-            update: _.merge({}, common.update, {
+            update: _.merge({
                 payload: {
                     isActive: Joi.boolean(),
                     roles: Joi.array().items(Joi.string()),
                     password: Joi.string()
                 }
-            }),
+            }, common.update),
             forgot: {
                 payload: {
                     email: Joi.string().required()

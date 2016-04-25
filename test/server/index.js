@@ -25,6 +25,7 @@ const tests = {
     './posts/model': true,
     './posts/controller': true,
     './posts-stats/controller': true,
+    './posts-comments/controller': true,
     './contact/controller': true,
     './common/metrics': true,
     './common/utils': true,

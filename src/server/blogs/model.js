@@ -1,10 +1,12 @@
 'use strict';
 const _ = require('./../lodash');
+const Bluebird = require('bluebird');
 const {merge} = _;
 const utils = require('./../common/utils');
 const {hasItems} = utils;
 const build = require('./../common/dao').build;
 const modelSchema = require('./../../shared/model')(require('joi'), _).blogs;
+const UserGroups = require('./../user-groups/model');
 const daoOptions = {
     connection: 'app',
     collection: 'blogs',
@@ -76,16 +78,23 @@ Blogs.prototype = {
         const isOwner = this.owners.indexOf(me) !== -1;
         const isSubscriber = this.subscribers.indexOf(me) !== -1;
         const isContributor = this.contributors.indexOf(me) !== -1;
-        return merge(this, {
+        merge(this, {
             isOwner,
             isSubscriber,
             isContributor,
-            canCreatePosts: isOwner || isSubscriber,
+            canCreatePosts: isOwner || isContributor,
             canJoin: !isSubscriber,
             canLeave: isSubscriber,
             canEdit: isOwner,
             canDelete: isOwner
         });
+        if (!isSubscriber && this.subscriberGroups.length > 0) {
+            return UserGroups.count({
+                members: user.email,
+                name: {$in: this.subscriberGroups}
+            }).then(count => count > 0 ? merge(this, {isSubscriber: true}) : this);
+        }
+        return Bluebird.resolve(this);
     }
 };
 module.exports = build(Blogs, daoOptions, modelSchema);

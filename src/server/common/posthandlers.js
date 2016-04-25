@@ -6,7 +6,7 @@ const utils = require('./utils');
 const {by, user, errback, hasItems, locale, profile} = utils;
 const Notifications = require('./../notifications/model');
 const buildPostHandler = function buildPostHandler(tags, cb) {
-    const timing = profile('handler', merge({}, tags, {type: 'post'}));
+    const timing = profile('handler', merge({type: 'post'}, tags));
     const cbp = Bluebird.method((request, target) => cb(request, target));
     return {
         method(request, reply) {

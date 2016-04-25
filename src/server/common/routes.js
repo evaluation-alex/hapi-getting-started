@@ -13,7 +13,7 @@ const buildRoute = function buildRoute(method, path, controller, strategy = 'sim
         config: {
             auth: strategy ? {strategy} : !!strategy,
             //http://stackoverflow.com/questions/33526978/hapi-lab-how-to-test-all-the-required-fields
-            validate: merge({}, {options: {abortEarly: false}}, validate),
+            validate: merge({options: {abortEarly: false}}, validate),
             pre,
             ext: {
                 onPostHandler: post

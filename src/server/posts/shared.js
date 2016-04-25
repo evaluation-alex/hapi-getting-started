@@ -33,7 +33,7 @@ const newObjectFunc = function newObjectFunc(klass, contentType) {
 const createFunc = function createFunc(klass) {
     return function create(blogId, title, state, access, allowComments, needsReview, tags, attachments, contentType, content, by, organisation) {
         const now = new Date();
-        const toCreate = merge({}, {
+        const toCreate = merge({
             blogId,
             state,
             access,

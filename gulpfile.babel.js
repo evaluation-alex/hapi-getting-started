@@ -3,17 +3,23 @@ const gulp = require('gulp');
 const $ = require('gulp-load-plugins')({pattern: ['gulp-*', 'del', 'gutil', 'merge-stream', 'run-sequence', 'lazypipe']});
 const tasks = require('require-dir')('./tasks');
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-$.disableLinting = process.env.DISABLE_LINTING;
-$.disableCoverage = process.env.DISABLE_COVERAGE;
 console.log('running for ' + process.env.NODE_ENV);
 const config = {
     server: {
-        lint: {src: ['src/server/**/*.js']},
-        clean: {dirs: ['build/server/**/*.*', 'coverage/server/**/*.*']},
+        lint: {
+            src: ['src/server/**/*.js'],
+            disableLinting: process.env.DISABLE_LINTING
+        },
+        clean: {
+            dirs: ['build/server/**/*.*', 'coverage/server/**/*.*']
+        },
         build: {
             src: ['src/server/**/*.js', 'src/server/**/*.json', 'src/server/**/*.md', 'src/server/.secure/*.pem'],
             dest: 'build/server',
-            babelConfig: tasks['babel-config'].server
+            babelConfig: {
+                babelrc: false,
+                presets: ['es2015-node5']
+            }
         },
         watch: {
             glob: ['src/server/**/*.js'],
@@ -25,7 +31,7 @@ const config = {
             testSrc: [`test/server/index.js`],
             requires: [],
             coverageDir: './coverage/server',
-            babelConfig: tasks['babel-config'].server,
+            disableCoverage: process.env.DISABLE_COVERAGE
         },
         test: {
             alias: 'run-tasks',
@@ -39,12 +45,19 @@ const config = {
         dev: {alias: 'server-dev'}
     },
     shared: {
-        lint: {src: ['src/shared/**/*.js']},
-        clean: {dirs: ['build/shared/**/*.*']},
+        lint: {
+            src: ['src/shared/**/*.js'], disableLinting: process.env.DISABLE_LINTING
+        },
+        clean: {
+            dirs: ['build/shared/**/*.*']
+        },
         build: {
             src: ['src/shared/**/*.js'],
             dest: 'build/shared',
-            babelConfig: tasks['babel-config'].shared
+            babelConfig: {
+                babelrc: false,
+                presets: ['es2015']
+            }
         },
         watch: {
             glob: ['src/shared/**/*.js'],

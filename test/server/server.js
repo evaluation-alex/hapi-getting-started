@@ -41,6 +41,7 @@ module.exports = function () {
                             'blogs',
                             'posts',
                             'posts-stats',
+                            'posts-comments',
                             'audit'
                         ]
                     }

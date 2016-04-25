@@ -20,6 +20,6 @@ const Audit = function Audit(attrs) {
     return this;
 };
 Audit.findAudit = function findAudit(objectChangedType, objectChangedId, conditions) {
-    return Audit.find(merge({}, {objectChangedType, objectChangedId}, conditions));
+    return Audit.find(merge({objectChangedType, objectChangedId}, conditions));
 };
 module.exports = build(Audit, daoOptions, modelSchema);

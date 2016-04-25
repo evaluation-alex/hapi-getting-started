@@ -1,7 +1,7 @@
 'use strict';
 //https://gist.github.com/yannickcr/6129327b31b27b14efc5
-const isparta = require('isparta');
-module.exports = function (gulp, $, {src, testSrc, requires, babelConfig, coverageDir}) {
+const instrumenter = require('isparta').Instrumenter;
+module.exports = function (gulp, $, {src, testSrc, requires, coverageDir, disableCoverage}) {
     const runTest = function runTest() {
         return gulp.src(testSrc, {read: false})
             .pipe($.mocha({
@@ -27,7 +27,7 @@ module.exports = function (gulp, $, {src, testSrc, requires, babelConfig, covera
     };
     const gatherCoverage = function gatherCoverage(cb) {
         return gulp.src(src)
-            .pipe($.istanbul({instrumenter: isparta.Instrumenter}))
+            .pipe($.istanbul({instrumenter}))
             .pipe($.istanbul.hookRequire())
             .once('finish', () => {
                 handleErrEnd(runTest()
@@ -39,8 +39,7 @@ module.exports = function (gulp, $, {src, testSrc, requires, babelConfig, covera
             });
     };
     return function test(cb) {
-        require('babel-register')(babelConfig);
-        $.disableCoverage ?
+        disableCoverage ?
             handleErrEnd(runTest(), cb) :
             gatherCoverage(cb);
     };
